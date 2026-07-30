@@ -212,3 +212,26 @@ Planning doc archived via git mv                                  ✓
 ```
 
 **17 files changed, 405 insertions, 185 deletions. No code touched.**
+
+---
+
+## Resolution (2026-07-30, re-run)
+
+This audit's "Critical fixes" and "f) UP TO 50" lists drove the v0.2.0 plan
+execution (`2026-07-30_22-29_v0.2.0-plan-execution.md`). Item-by-item status of
+the 8 critical fixes:
+
+| Critical fix | Status |
+| ------------ | ------ |
+| ~~Wire H008/H009 analysistest fixtures~~ | done at `2965a19` |
+| ~~Add `h008_negative` + `h009_negative` testdata~~ | done at `23bf769` |
+| ~~Add `TestRuleCountConsistency`~~ | done at `5404511` |
+| ~~Create `docs/rules/H008.md` + `H009.md`~~ | done at `f8ba5d6` |
+| ~~Fix CONTRIBUTING.md (dev-setup + rule-addition checklist)~~ | done at `f8ba5d6` |
+| ~~Add `TestHasOrdinalSwitch`~~ | done at `5404511` |
+| Re-run real-world validation sweep with H008 + H009 | Still open — TODO_LIST T2 |
+| Tag `v0.2.0` | Still open (blocked on user approval) — TODO_LIST T1 |
+
+6 of 8 shipped. The two open items are tracked in `TODO_LIST.md`. New gaps found
+since (`--output` flag untested, CI tool versions unpinned, `RuleID` constants
+unexported) were harvested into TODO_LIST T3–T6 in this re-run.

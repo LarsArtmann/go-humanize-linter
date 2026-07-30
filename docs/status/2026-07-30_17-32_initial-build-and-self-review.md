@@ -220,7 +220,7 @@ This was the first session. The "Up to 50 Things" list drove the entire v0.1.0 �
 
 Still open — moved to `TODO_LIST.md` / `ROADMAP.md`:
 
-- Package-level `var` detection for H007 (→ TODO_LIST T13)
-- go/types type-aware detection (→ TODO_LIST T14)
-- CONTRIBUTING.md rule-addition checklist (→ TODO_LIST T8)
+- Package-level `var` detection for H007 (→ TODO_LIST T10)
+- go/types type-aware detection (→ TODO_LIST T11)
+- ~~CONTRIBUTING.md rule-addition checklist~~ done at `f8ba5d6`
 - Per-line diagnostics (→ ROADMAP "Precision & ergonomics")

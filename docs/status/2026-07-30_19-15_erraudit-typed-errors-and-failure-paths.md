@@ -171,4 +171,4 @@ None. Net metric: violations 13 → 0 with **real improvements**, not just suppr
 
 ## Resolution (2026-07-30)
 
-The one concrete open item here — the broken `testdata/analysistest` fixtures (NOT STARTED #1) — was fixed; `TestAnalyzerAnalysistest` now runs H001–H007 + clean cleanly (the H008/H009 fixtures still need wiring into the run call → TODO_LIST T1). The erraudit typed-error work (`WalkError`, `OutputError`) is stable. The `go.mod` 1.27 question (#5) is unresolved — the three `json.Unmarshal` stdversion warnings are still present. Remaining open items moved to `TODO_LIST.md`.
+The one concrete open item here — the broken `testdata/analysistest` fixtures (NOT STARTED #1) — was fixed; `TestAnalyzerAnalysistest` now runs H001–H007 + clean cleanly (the H008/H009 fixtures are now wired into the run call — done at `2965a19`). The erraudit typed-error work (`WalkError`, `OutputError`) is stable. The `go.mod` 1.27 question (#5) is unresolved — the three `json.Unmarshal` stdversion warnings are still present. Remaining open items moved to `TODO_LIST.md`.

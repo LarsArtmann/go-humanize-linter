@@ -34,10 +34,10 @@ All 9 rules are registered in `AllRules()` (`rules.go:27`) and `allRuleDetectors
 | -------------------- | -------------------- | ------------------------------------------------------------------------------------ |
 | CLI binary           | FULLY_FUNCTIONAL     | `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain` (`cmd/go-humanize-linter/main.go`) |
 | Go library           | FULLY_FUNCTIONAL     | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run` / `RunOverPackage` (`rules.go`) |
-| golangci-lint plugin | PARTIALLY_FUNCTIONAL | `plugin/plugin.go` works (93.8% coverage) but reports at the func-decl position, not per-line. Rule enable/disable from `.golangci.yml` is not yet supported (see TODO T11). |
+| golangci-lint plugin | PARTIALLY_FUNCTIONAL | `plugin/plugin.go` works (93.8% coverage) but reports at the func-decl position, not per-line. Rule enable/disable from `.golangci.yml` is not yet supported (see TODO T9). |
 | Nix flake            | FULLY_FUNCTIONAL     | `test`, `test-race`, `bench`, `build`, `vet`, `lint`, `coverage` apps                |
 | CI workflow          | FULLY_FUNCTIONAL     | test + vet + coverage (Codecov) job and golangci-lint job (`.github/workflows/ci.yml`) |
-| Release workflow     | FULLY_FUNCTIONAL     | tagged-build artefacts via `.github/workflows/release.yml` (no `v0.2.0` tag yet — TODO T6) |
+| Release workflow     | FULLY_FUNCTIONAL     | tagged-build artefacts via `.github/workflows/release.yml` (no `v0.2.0` tag yet — TODO T1) |
 
 ## Detection capabilities
 
@@ -50,14 +50,14 @@ All 9 rules are registered in `AllRules()` (`rules.go:27`) and `allRuleDetectors
 | Named constant detection         | FULLY_FUNCTIONAL | `hasConst1024` finds `const unit = 1024` patterns                    |
 | Generated file skipping          | FULLY_FUNCTIONAL | `_gen.go`, `.gen.go`, `_templ.go` (`plugin/plugin.go:80`)           |
 | `//nolint:gohumanize` directives | FULLY_FUNCTIONAL | Bare, `:all`, scoped `:H001`, comma-lists, and `//lint:ignore` syntax (`pattern_helpers.go`) |
-| Package-level `var` detection    | PLANNED          | Only `FuncDecl` scope is scanned (TODO T13)                          |
-| go/types integration             | PLANNED          | Pure syntactic analysis, no type info (TODO T14)                     |
+| Package-level `var` detection    | PLANNED          | Only `FuncDecl` scope is scanned (TODO T10)                          |
+| go/types integration             | PLANNED          | Pure syntactic analysis, no type info (TODO T11)                     |
 
 ## Validation
 
 - H001–H007 swept against 190+ Go projects in `~/projects/` (97 findings across ~30 projects).
 - ~0% false positive rate on H001–H006; H004 tuned from ~60% FP to ~0% FP across two iterations.
-- H008 and H009 have **not** been swept against the corpus yet (TODO T7).
+- H008 and H009 have **not** been swept against the corpus yet (TODO T2).
 - Full sweep results: `docs/validation/2026-07-30_real-world-sweep.md`.
 
 ## Test coverage
@@ -66,7 +66,7 @@ Computed via `go test ./... -cover` on 2026-07-30:
 
 | Package                  | Coverage |
 | ------------------------ | -------- |
-| `go-humanize-linter` (core) | 87.8% |
-| `cmd/go-humanize-linter` (CLI) | 35.8% |
-| `cmd/gohumanize` (singlechecker) | 0.0% (1-liner `singlechecker.Main` wrapper) |
+| `go-humanize-linter` (core) | 89.9% |
+| `cmd/go-humanize-linter` (CLI) | 31.4% |
+| `cmd/gohumanize` (singlechecker) | 0.0% (1-liner `singlechecker.Main` wrapper — not coverable in-process) |
 | `plugin` | 93.8% |

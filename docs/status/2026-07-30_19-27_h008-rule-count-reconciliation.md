@@ -184,7 +184,7 @@ The "NOT STARTED" and "f) UP TO 50" sections drove the next sessions. Item-by-it
 
 Still open — moved to `TODO_LIST.md`:
 
-- Negative testdata for H008 + H009 (→ TODO_LIST T2)
-- `docs/rules/H008.md` + `H009.md` (→ T5)
-- Real-world sweep of H008 + H009 (→ T7)
-- Tag `v0.2.0` (→ T6)
+- ~~Negative testdata for H008 + H009~~ done at `23bf769`
+- ~~`docs/rules/H008.md` + `H009.md`~~ done at `f8ba5d6`
+- Real-world sweep of H008 + H009 (→ TODO_LIST T2)
+- Tag `v0.2.0` (→ TODO_LIST T1)

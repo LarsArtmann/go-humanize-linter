@@ -17,6 +17,10 @@
   on aliased and generic code.
 - **Configurable confidence threshold** — `--threshold=high` to filter low-confidence
   findings; per-rule FP-rate calibration from validation-sweep data.
+- **Rule-overlap disambiguation** — H009 (manual-commaf) and H002 (manual-comma)
+  both fire on the same comma-loop pattern, producing double diagnostics for one
+  mistake. H009 should require a signal H002 cannot match (e.g. `strconv.FormatFloat`
+  or a dot-split on the formatted float) so the two rules partition the space.
 
 ### Detection breadth
 

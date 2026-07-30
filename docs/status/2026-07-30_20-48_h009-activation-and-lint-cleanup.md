@@ -170,4 +170,11 @@ Sorted by Pareto (impact ÷ effort):
 
 ## Resolution (2026-07-30)
 
-This is the most recent report; its TL;DR remains accurate. Two NOT STARTED items are now resolved: the README/FEATURES/docs audit (NOT STARTED #7) is done — all living docs are current at 9 rules; the coverage numbers (NOT STARTED #6) are documented (core 87.8% / plugin 93.8%). The `grep -v` lint filter (Q3) is still a band-aid — tracked as TODO_LIST T10. The "f) UP TO 50" forward-looking list was harvested into `TODO_LIST.md` (white-box commaf tests → T9, negative testdata → T2, `TestRuleCountConsistency` → T3, real-world sweep → T7, `docs/rules/H008.md`+`H009.md` → T5, P12–P19 → T11–T16) and `ROADMAP.md` (per-line diagnostics, auto-fix, editor integration).
+This is the most recent report at the time of the 21-16 audit; its TL;DR remains accurate. Two NOT STARTED items are now resolved: the README/FEATURES/docs audit (NOT STARTED #7) is done — all living docs are current at 9 rules; the coverage numbers (NOT STARTED #6) are documented. The `grep -v` lint filter (Q3) is still a band-aid — tracked as TODO_LIST T7. The "f) UP TO 50" forward-looking list was harvested into `TODO_LIST.md` and `ROADMAP.md`.
+
+> **Update 2026-07-30 (v0.2.0 plan execution, `5404511`/`23bf769`):** most of the
+> harvested items have since shipped. ~~White-box commaf tests~~ done at `f8ba5d6`,
+> ~~negative testdata~~ done at `23bf769`, ~~`TestRuleCountConsistency`~~ done at
+> `5404511`, ~~`docs/rules/H008.md`+`H009.md`~~ done at `f8ba5d6`. Still open: the
+> real-world H008/H009 sweep (→ TODO_LIST T2) and `grep -v` removal (→ TODO_LIST T7).
+> This is no longer the most recent report — see `2026-07-30_22-29_v0.2.0-plan-execution.md`.
