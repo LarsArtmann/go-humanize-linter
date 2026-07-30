@@ -432,6 +432,163 @@ func TestHasCommaOrSeparator(t *testing.T) {
 	}
 }
 
+func TestHasOrdinalSwitch(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range hasOrdinalSwitchCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, _, fn := parseFirstFunc(t, tt.src)
+			if got := hasOrdinalSwitch(fn); got != tt.want {
+				t.Errorf("hasOrdinalSwitch = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func hasOrdinalSwitchCases() []boolSrcCase {
+	return []boolSrcCase{
+		{
+			name: "switch n%10 with all four suffixes",
+			src: `package main
+
+func f(n int) string {
+	switch n % 10 {
+	case 1:
+		return "st"
+	case 2:
+		return "nd"
+	case 3:
+		return "rd"
+	default:
+		return "th"
+	}
+}
+`,
+			want: true,
+		},
+		{
+			name: "switch n%10 with three suffixes (threshold)",
+			src: `package main
+
+func f(n int) string {
+	switch n % 10 {
+	case 1:
+		return "st"
+	case 2:
+		return "nd"
+	case 3:
+		return "rd"
+	}
+	return ""
+}
+`,
+			want: true,
+		},
+		{
+			name: "switch n%100 with ordinal suffixes",
+			src: `package main
+
+func f(n int) string {
+	switch n % 100 {
+	case 11:
+		return "th"
+	case 12:
+		return "th"
+	case 13:
+		return "th"
+	default:
+		return "st"
+	}
+}
+`,
+			want: true,
+		},
+		{
+			name: "switch n%10 with only two suffixes (below threshold)",
+			src: `package main
+
+func f(n int) string {
+	switch n % 10 {
+	case 1:
+		return "st"
+	case 2:
+		return "nd"
+	}
+	return ""
+}
+`,
+			want: false,
+		},
+		{
+			name: "switch n%7 with ordinal suffixes (wrong modulus)",
+			src: `package main
+
+func f(n int) string {
+	switch n % 7 {
+	case 1:
+		return "st"
+	case 2:
+		return "nd"
+	case 3:
+		return "rd"
+	default:
+		return "th"
+	}
+}
+`,
+			want: false,
+		},
+		{
+			name: "switch n%10 returning non-ordinal strings",
+			src: `package main
+
+func f(n int) string {
+	switch n % 10 {
+	case 1:
+		return "first"
+	case 2:
+		return "second"
+	case 3:
+		return "third"
+	default:
+		return "other"
+	}
+}
+`,
+			want: false,
+		},
+		{
+			name: "no switch at all",
+			src: `package main
+
+func f(n int) string { return "x" }
+`,
+			want: false,
+		},
+		{
+			name: "switch on plain identifier (not modulo)",
+			src: `package main
+
+func f(n int) string {
+	switch n {
+	case 1:
+		return "st"
+	case 2:
+		return "nd"
+	case 3:
+		return "rd"
+	default:
+		return "th"
+	}
+}
+`,
+			want: false,
+		},
+	}
+}
+
 // hasCommaOrSeparatorCases returns the fixture table for
 // TestHasCommaOrSeparator. Extracted from the test function body so the test
 // stays under the funlen threshold while each fixture remains inline for
@@ -569,4 +726,47 @@ func parseFirstFunc(t *testing.T, src string) (*token.FileSet, *ast.File, *ast.F
 	t.Fatal("no FuncDecl in source")
 
 	return nil, nil, nil
+}
+
+// TestRuleCountConsistency is the anti-ghost-rule guard. H009 once shipped
+// invisible — the detector and testdata existed, but it was missing from
+// AllRules(), so it never fired. This test ensures that cannot happen again:
+// every rule in AllRules() must have a matching detector in
+// allRuleDetectors(), and vice versa.
+func TestRuleCountConsistency(t *testing.T) {
+	t.Parallel()
+
+	rules := AllRules()
+	detectors := allRuleDetectors()
+
+	const expectedMinRules = 9
+	if len(rules) < expectedMinRules {
+		t.Fatalf("AllRules() returned %d rules, expected at least %d — did a rule factory go missing?", len(rules), expectedMinRules)
+	}
+
+	if len(rules) != len(detectors) {
+		t.Fatalf("AllRules() has %d rules but allRuleDetectors() has %d detectors — counts must match", len(rules), len(detectors))
+	}
+
+	ruleByID := make(map[string]bool, len(rules))
+	for _, r := range rules {
+		ruleByID[r.Meta.ID] = true
+	}
+
+	detectorByID := make(map[string]bool, len(detectors))
+	for _, d := range detectors {
+		detectorByID[d.id] = true
+	}
+
+	for _, r := range rules {
+		if !detectorByID[r.Meta.ID] {
+			t.Errorf("rule %q is in AllRules() but has no detector in allRuleDetectors() — it will never fire", r.Meta.ID)
+		}
+	}
+
+	for _, d := range detectors {
+		if !ruleByID[d.id] {
+			t.Errorf("detector %q is in allRuleDetectors() but is not in AllRules() — orphan detector", d.id)
+		}
+	}
 }

@@ -252,6 +252,15 @@ func TestRuleCommaf_Positive(t *testing.T) {
 	}
 }
 
+func TestRuleCommaf_Negative(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleCommaf(), testdataDir(t, "h009_negative"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings on H009 negative fixture, got %d: %+v", len(findings), findings)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H008 — manual-ordinal
 // ---------------------------------------------------------------------------
@@ -266,6 +275,15 @@ func TestRuleOrdinal_Positive(t *testing.T) {
 
 	if findings[0].Rule != "H008" {
 		t.Errorf("expected rule H008, got %s", findings[0].Rule)
+	}
+}
+
+func TestRuleOrdinal_Negative(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleOrdinal(), testdataDir(t, "h008_negative"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings on H008 negative fixture, got %d: %+v", len(findings), findings)
 	}
 }
 
