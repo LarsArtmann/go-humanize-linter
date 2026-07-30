@@ -61,8 +61,8 @@
 
 The golangci-lint plugin reports every finding at the **FuncDecl position**
 (`fn.Pos()`), not the precise line/column stored in `finding.Position`. The CLI
-path is correct; only the plugin path loses precision. Tracked as TODO **H002
-(per-line diagnostics)** in [`../../TODO_LIST.md`](../../TODO_LIST.md).
+path is correct; only the plugin path loses precision. Tracked as **per-line
+diagnostics** in [`../../ROADMAP.md`](../../ROADMAP.md) ("Precision & ergonomics").
 
 ## Reproduction
 

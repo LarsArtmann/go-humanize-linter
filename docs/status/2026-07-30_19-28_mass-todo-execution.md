@@ -257,4 +257,4 @@ items are forward-looking:
 
 ## Resolution (2026-07-30)
 
-The 9 lint issues in section b) are now **0** (resolved at `2ac66b6`). H008/H009 `--explain` text (section e "DX") was added. The H008/H009 registration gap was the H009 "ghost rule" — fixed. Remaining open items from the "f) UP TO 50" list (negative testdata H008/H009, `docs/rules/H008.md`+`H009.md`, P12 configurable plugin rules, `v0.2.0` tag) moved to `TODO_LIST.md`.
+The 9 lint issues in section b) are now **0** (resolved at `2ac66b6`). H008/H009 `--explain` text (section e "DX") was added. The H008/H009 registration gap was the H009 "ghost rule" — fixed. Remaining open items from the "f) UP TO 50" list moved to `TODO_LIST.md`; of those, ~~negative testdata H008/H009~~ (done at `23bf769`) and ~~`docs/rules/H008.md`+`H009.md`~~ (done at `f8ba5d6`) have since shipped. Still open: P12 configurable plugin rules (→ TODO_LIST T9) and the `v0.2.0` tag (→ TODO_LIST T1, blocked).
