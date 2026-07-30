@@ -236,6 +236,40 @@ func TestRuleFtoa_Positive(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// H009 — manual-commaf
+// ---------------------------------------------------------------------------
+
+func TestRuleCommaf_Positive(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleCommaf(), testdataDir(t, "h009_commaf"))
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+
+	if findings[0].Rule != "H009" {
+		t.Errorf("expected rule H009, got %s", findings[0].Rule)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// H008 — manual-ordinal
+// ---------------------------------------------------------------------------
+
+func TestRuleOrdinal_Positive(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleOrdinal(), testdataDir(t, "h008_ordinal"))
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+
+	if findings[0].Rule != "H008" {
+		t.Errorf("expected rule H008, got %s", findings[0].Rule)
+	}
+}
+
+// ---------------------------------------------------------------------------
 // H007 — manual-parse-bytes
 // ---------------------------------------------------------------------------
 
@@ -282,8 +316,8 @@ func TestDefaultRegistry_AllRules(t *testing.T) {
 	t.Parallel()
 
 	r := humanizelint.DefaultRegistry()
-	if len(r.All()) != 7 {
-		t.Fatalf("expected 7 rules, got %d", len(r.All()))
+	if len(r.All()) != 8 {
+		t.Fatalf("expected 8 rules, got %d", len(r.All()))
 	}
 }
 

@@ -209,7 +209,7 @@ var ruleExplanations = map[string]string{ //nolint:gochecknoglobals // CLI looku
 func printExplanation(ruleID string) {
 	explanation, ok := ruleExplanations[ruleID]
 	if !ok {
-		fmt.Fprintf(os.Stderr, "unknown rule: %s\n", ruleID) //nolint:forbidigo
+		fmt.Fprintf(os.Stderr, "unknown rule: %s\n", ruleID)
 		os.Exit(2)
 	}
 

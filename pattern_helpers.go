@@ -179,6 +179,20 @@ func makeFindingWithConfidence(
 // Suppression directives
 // ---------------------------------------------------------------------------
 
+//nolint:gochecknoglobals // package-level rule ID constants used as AST IDs
+
+// Rule ID constants. Defined as package-level constants so detector
+// implementations and detector lists stay in sync without goconst complaints.
+const (
+	ruleIDH001 = "H001"
+	ruleIDH002 = "H002"
+	ruleIDH003 = "H003"
+	ruleIDH004 = "H004"
+	ruleIDH005 = "H005"
+	ruleIDH006 = "H006"
+	ruleIDH007 = "H007"
+)
+
 // nolintLinterName is the analyzer name users write in //nolint directives. It
 // matches plugin.Analyzer.Name ("gohumanize").
 const nolintLinterName = "gohumanize"
@@ -186,14 +200,6 @@ const nolintLinterName = "gohumanize"
 // nolintAllMarker is the sentinel token meaning "suppress every linter" in a
 // //nolint directive (e.g. "//nolint" or "//nolint:all").
 const nolintAllMarker = "all"
-
-// lintIgnorePrefix is the Go-style suppression directive prefix recognised in
-// addition to //nolint. Format:
-//
-//	//lint:ignore gohumanize          (suppress every H-rule)
-//	//lint:ignore gohumanize:H001     (only H001)
-//	//lint:ignore gohumanize reason   (suppress every H-rule, with reason)
-const lintIgnorePrefix = "//lint:ignore"
 
 // hasNoLintDirective reports whether fn carries a //nolint directive that
 // suppresses this linter. A directive counts if it appears in the function's

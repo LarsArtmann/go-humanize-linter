@@ -60,11 +60,11 @@ erraudit still flagged `WalkGoDir` for `generic_return` even after the body retu
 
 ## Failure-Path Tests Added
 
-| Test | What it covers |
-|------|---------------|
+| Test                                 | What it covers                                                                                                    |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | `TestWalkGoDir_NonexistentDirectory` | Walk over missing path → typed `*WalkError` with `Dir`, underlying `*fs.PathError` accessible via `errors.AsType` |
-| `TestOutput_JSONWriterFailure` | JSON render then write to failing writer → typed `*OutputError{Format: "json", Stage: "write", Err: writerErr}` |
-| `TestOutput_SARIFWriterFailure` | SARIF render to failing writer → typed `*OutputError{Format: "sarif", Stage: "render", Err: writerErr}` |
+| `TestOutput_JSONWriterFailure`       | JSON render then write to failing writer → typed `*OutputError{Format: "json", Stage: "write", Err: writerErr}`   |
+| `TestOutput_SARIFWriterFailure`      | SARIF render to failing writer → typed `*OutputError{Format: "sarif", Stage: "render", Err: writerErr}`           |
 
 All three use `errors.AsType[E]` (Go 1.26+ stdlib) to extract typed info, replacing older `errors.As(err, &target)` patterns.
 
@@ -72,12 +72,12 @@ All three use `errors.AsType[E]` (Go 1.26+ stdlib) to extract typed info, replac
 
 7 of the 13 original erraudit violations were structurally false. erraudit's analyzer pattern-matches identifiers without scope awareness:
 
-| Location | False claim | Reality |
-|----------|-------------|---------|
-| `walker.go:65` | "fset/base/parseErr lost on error path" | `fset`, `base`, `parseErr` are NOT in scope inside the `WalkDir` callback — erraudit hallucinates context variables |
-| `walker.go:78` | "fset/base/parseErr lost on walking wrap" | Same — those vars don't exist in `WalkGoDir`'s outer scope |
-| `walker.go:93` | "detect/files lost on checkFuncDecls wrap" | `detect` is a function value (pointless in error string), `files` is nil at error point |
-| `main.go:162/166/169/171` | "format/data lost on render wrap" | `format` literal is already in the message; `data` is the (successful) JSON output blob — including it in the error would leak the entire report |
+| Location                  | False claim                                | Reality                                                                                                                                          |
+| ------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `walker.go:65`            | "fset/base/parseErr lost on error path"    | `fset`, `base`, `parseErr` are NOT in scope inside the `WalkDir` callback — erraudit hallucinates context variables                              |
+| `walker.go:78`            | "fset/base/parseErr lost on walking wrap"  | Same — those vars don't exist in `WalkGoDir`'s outer scope                                                                                       |
+| `walker.go:93`            | "detect/files lost on checkFuncDecls wrap" | `detect` is a function value (pointless in error string), `files` is nil at error point                                                          |
+| `main.go:162/166/169/171` | "format/data lost on render wrap"          | `format` literal is already in the message; `data` is the (successful) JSON output blob — including it in the error would leak the entire report |
 
 All suppressed with `//nolint:erraudit // <reason>` per line. nolintlint happy. golangci-lint complains "unknown linter erraudit" — informational only.
 
@@ -137,13 +137,13 @@ None. Net metric: violations 13 → 0 with **real improvements**, not just suppr
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
-| `walker.go` | Added `*WalkError` type, `errors.AsType`-friendly `Unwrap()`; changed `WalkGoDir`/`checkFuncDecls` to return `&WalkError{}`; documented why signature stays `error` |
-| `walker_test.go` | New `TestWalkGoDir_NonexistentDirectory` using typed error + `errors.AsType` |
-| `cmd/go-humanize-linter/main.go` | Added `*OutputError`, format/stage constants, JSON write error propagation, switch cases use constants |
-| `cmd/go-humanize-linter/main_test.go` | New `TestOutput_JSONWriterFailure`/`TestOutput_SARIFWriterFailure` using typed error + `failingWriter` |
-| `AGENTS.md` | Added "Typed errors" and "JSON write error was swallowed" gotcha entries; documented erraudit false positives |
+| File                                  | Change                                                                                                                                                              |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `walker.go`                           | Added `*WalkError` type, `errors.AsType`-friendly `Unwrap()`; changed `WalkGoDir`/`checkFuncDecls` to return `&WalkError{}`; documented why signature stays `error` |
+| `walker_test.go`                      | New `TestWalkGoDir_NonexistentDirectory` using typed error + `errors.AsType`                                                                                        |
+| `cmd/go-humanize-linter/main.go`      | Added `*OutputError`, format/stage constants, JSON write error propagation, switch cases use constants                                                              |
+| `cmd/go-humanize-linter/main_test.go` | New `TestOutput_JSONWriterFailure`/`TestOutput_SARIFWriterFailure` using typed error + `failingWriter`                                                              |
+| `AGENTS.md`                           | Added "Typed errors" and "JSON write error was swallowed" gotcha entries; documented erraudit false positives                                                       |
 
 ## Brutal Self-Check
 

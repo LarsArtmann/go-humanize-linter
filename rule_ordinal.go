@@ -4,7 +4,6 @@ package humanizelint
 
 import (
 	"context"
-	"fmt"
 	"go/ast"
 	"go/token"
 
@@ -46,7 +45,10 @@ func detectOrdinal(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath 
 			"H008",
 			"manual ordinal-suffix formatting (switch n%10/100 with st/nd/rd/th cases) — use humanize.Ordinal instead",
 			"Replace with humanize.Ordinal(n) which handles every numeric case (1st, 11th, 21st, 101st, ...) correctly.",
-			line, col, filePath, finding.ConfidenceHigh,
+			line,
+			col,
+			filePath,
+			finding.ConfidenceHigh,
 		),
 	}
 }

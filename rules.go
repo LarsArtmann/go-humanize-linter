@@ -93,7 +93,12 @@ func NewHumanizeDetector(rules ...linter.RuleFunc) *HumanizeDetector {
 // Run applies every registered detector to a single function, honouring
 // per-rule //nolint:gohumanize[:Hxxx] suppression directives. Returns the
 // aggregated findings (nil if none).
-func (d *HumanizeDetector) Run(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+func (d *HumanizeDetector) Run(
+	fset *token.FileSet,
+	file *ast.File,
+	fn *ast.FuncDecl,
+	filePath string,
+) []finding.Finding {
 	if file == nil || fn == nil {
 		return nil
 	}

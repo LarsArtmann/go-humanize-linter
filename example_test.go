@@ -16,7 +16,7 @@ func ExampleDefaultRegistry() {
 
 	fmt.Println("registered rules:", len(registry.All()))
 
-	// Output: registered rules: 7
+	// Output: registered rules: 8
 }
 
 // ExampleAllRules lists the stable rule IDs in registration order.
@@ -33,6 +33,7 @@ func ExampleAllRules() {
 	// H005
 	// H006
 	// H007
+	// H008
 }
 
 // ExampleRuleBytes inspects a single rule factory's metadata.
