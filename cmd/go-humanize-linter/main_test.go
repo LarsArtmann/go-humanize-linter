@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json/v2"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -293,6 +294,86 @@ func TestOutput_SARIF(t *testing.T) {
 
 	if _, ok := parsed["runs"]; !ok {
 		t.Errorf("sarif output missing 'runs' key: %v", parsed)
+	}
+}
+
+func TestOutput_SARIFCleanReport(t *testing.T) {
+	t.Parallel()
+
+	reg := buildRegistry(nil, nil)
+
+	dir, err := filepath.Abs(filepath.Join("..", "..", "testdata", "clean"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	report, err := reg.Run(context.Background(), dir)
+	if err != nil {
+		t.Fatalf("registry.Run on clean testdata failed: %v", err)
+	}
+
+	if report.Len() != 0 {
+		t.Fatalf("expected 0 findings on clean testdata, got %d", report.Len())
+	}
+
+	var buf bytes.Buffer
+
+	if err := output(&buf, report, "sarif", true); err != nil {
+		t.Fatalf("sarif output on clean report failed: %v", err)
+	}
+
+	var parsed map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &parsed); err != nil {
+		t.Fatalf("clean sarif output is not valid JSON: %v\n%s", err, buf.String())
+	}
+
+	if _, ok := parsed["runs"]; !ok {
+		t.Errorf("clean sarif output missing 'runs' key: %v", parsed)
+	}
+}
+
+// failingWriter is an io.Writer that always returns an error. Used to exercise
+// the failure paths in output().
+type failingWriter struct {
+	err error
+}
+
+func (f *failingWriter) Write(_ []byte) (int, error) { return 0, f.err }
+
+// errWrite is the sentinel error returned by failingWriter.
+var errWrite = errors.New("disk full: write failed") //nolint:gochecknoglobals // test sentinel
+
+func TestOutput_JSONWriterFailure(t *testing.T) {
+	t.Parallel()
+
+	err := output(&failingWriter{err: errWrite}, sampleReport(t), "json", true)
+	if err == nil {
+		t.Fatal("expected error when writer fails, got nil")
+	}
+
+	if !errors.Is(err, errWrite) {
+		t.Errorf("expected error to wrap errWrite, got: %v", err)
+	}
+
+	if !strings.Contains(err.Error(), "render json") {
+		t.Errorf("expected error to include 'render json' context, got: %v", err)
+	}
+}
+
+func TestOutput_SARIFWriterFailure(t *testing.T) {
+	t.Parallel()
+
+	err := output(&failingWriter{err: errWrite}, sampleReport(t), "sarif", true)
+	if err == nil {
+		t.Fatal("expected error when writer fails, got nil")
+	}
+
+	if !errors.Is(err, errWrite) {
+		t.Errorf("expected error to wrap errWrite, got: %v", err)
+	}
+
+	if !strings.Contains(err.Error(), "render sarif") {
+		t.Errorf("expected error to include 'render sarif' context, got: %v", err)
 	}
 }
 

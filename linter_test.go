@@ -329,7 +329,7 @@ func TestLintsItself_Clean(t *testing.T) {
 	}
 
 	if report.Len() != 0 {
-		t.Fatalf("expected 0 findings on own source, got %d:\n%s",
+		t.Fatalf("expected 0 findings on own source, got %d: %+v",
 			report.Len(), report.FindingsSnapshot())
 	}
 }

@@ -4,10 +4,12 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"path/filepath"
 	"testing"
 
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/larsartmann/go-humanize-linter/plugin"
+	"golang.org/x/tools/go/analysis/analysistest"
 )
 
 func TestAnalyzerNotNil(t *testing.T) {
@@ -90,6 +92,50 @@ func main() {}
 	t.Fatal("no findings at all — expected H001")
 }
 
+func TestDetectFuncDeclSuppressedByDirective(t *testing.T) {
+	t.Parallel()
+
+	src := `package main
+
+import "fmt"
+
+//nolint:gohumanize
+func formatBytes(b uint64) string {
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := uint64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
+}
+
+func main() {}
+`
+
+	fset := token.NewFileSet()
+
+	file, err := parser.ParseFile(fset, "main.go", src, parser.ParseComments)
+	if err != nil {
+		t.Fatalf("parse error: %v", err)
+	}
+
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok {
+			continue
+		}
+
+		findings := humanizelint.DetectFuncDecl(fset, file, fn, "main.go")
+		if len(findings) != 0 {
+			t.Fatalf("expected 0 findings when //nolint:gohumanize present, got %d: %+v", len(findings), findings)
+		}
+	}
+}
+
 func TestDetectFuncDeclCleanNegative(t *testing.T) {
 	t.Parallel()
 
@@ -122,4 +168,15 @@ func main() {}
 			t.Fatalf("expected 0 findings for clean code, got %d: %v", len(findings), findings)
 		}
 	}
+}
+
+// TestAnalyzerAnalysistest runs the plugin's analysis.Analyzer end-to-end
+// through the analysistest framework. It verifies that:
+//   - H001 is reported on a KMGTPE trick function (positive case)
+//   - No diagnostics are produced on clean code (negative case)
+func TestAnalyzerAnalysistest(t *testing.T) {
+	t.Parallel()
+
+	testdata := filepath.Join("..", "testdata", "analysistest")
+	analysistest.Run(t, testdata, plugin.Analyzer, "./h001positive", "./clean")
 }
