@@ -3,6 +3,7 @@ package humanizelint
 import (
 	"go/ast"
 	"go/token"
+	"sync"
 
 	"github.com/larsartmann/go-finding"
 	"github.com/larsartmann/go-linter-sdk"
@@ -45,7 +46,7 @@ func AllRules() []linter.RuleFunc {
 //
 // Construction:
 //
-//	detector := humanizelint.NewHumanizeDetector()    // all 7 rules enabled
+//	detector := humanizelint.NewHumanizeDetector()    // all 9 rules enabled
 //	detector := humanizelint.NewHumanizeDetector(     // opt-in subset
 //	    humanizelint.RuleBytes(),
 //	    humanizelint.RuleComma(),
@@ -63,7 +64,7 @@ type HumanizeDetector struct {
 }
 
 // NewHumanizeDetector constructs a HumanizeDetector running the given rules
-// in the given order. If no rules are passed, all 7 default rules are
+// in the given order. If no rules are passed, all 9 default rules are
 // registered.
 func NewHumanizeDetector(rules ...linter.RuleFunc) *HumanizeDetector {
 	if len(rules) == 0 {
@@ -74,10 +75,7 @@ func NewHumanizeDetector(rules ...linter.RuleFunc) *HumanizeDetector {
 		detectors: make([]ruleDetectors, 0, len(rules)),
 	}
 
-	byID := map[string]func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding{}
-	for _, det := range allRuleDetectors() {
-		byID[det.id] = det.detector
-	}
+	byID := cachedDetectorByID()
 
 	for _, rule := range rules {
 		det, ok := byID[rule.Meta.ID]
@@ -149,8 +147,23 @@ func (d *HumanizeDetector) RunOverPackage(pass *analysis.Pass) (any, error) {
 // honour per-rule //nolint:gohumanize:Hxxx scoping.
 type ruleDetectors struct {
 	id       string
-	detector func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding
+	detector detectorFn
 }
+
+// detectorFn is the signature every per-function detector implements.
+type detectorFn = func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding
+
+// cachedDetectorByID builds the (rule-ID → detector) lookup map once and
+// reuses it across all HumanizeDetector instances.
+var cachedDetectorByID = sync.OnceValue(func() map[string]detectorFn { //nolint:gochecknoglobals // cached
+	m := make(map[string]detectorFn)
+
+	for _, det := range allRuleDetectors() {
+		m[det.id] = det.detector
+	}
+
+	return m
+})
 
 // allRuleDetectors is the canonical (id, detector) list — order matches
 // AllRules(). Both //nolint suppression paths and the plugin entry point

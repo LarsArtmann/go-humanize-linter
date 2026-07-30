@@ -17,8 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--list-files <dir>` CLI flag for debugging walker scope.
 - `--explain Hxxx` CLI flag — prints a one-paragraph rationale for any rule.
 - `TestSinglechecker_CleanCode` + `TestSinglechecker_PositiveFinding` — closes 0% coverage gap on the singlechecker binary.
-- Analysistest fixtures for H002-H009 (was: H001 only).
-- Markdown docs per rule: `docs/rules/H001.md` through `H007.md`.
+- Analysistest fixtures H002-H009 wired into `TestAnalyzerAnalysistest` (was: H001 only).
+- `TestRuleCountConsistency` — anti-ghost-rule guard asserting `AllRules()` and `allRuleDetectors()` stay in sync.
+- `TestHasOrdinalSwitch` — 8-case table-driven test for H008's pattern detector.
+- White-box tests for `pattern_commaf.go` helpers (`walkFormatFloatVerbs`, `scanDottedPercentFloat`, `scanBarePercentFloat`, `hasFormatFloatPrecision`).
+- Negative testdata for H008 (`h008_negative/`) and H009 (`h009_negative/`).
+- `--output <file>` CLI flag for writing reports to a file instead of stdout.
+- `cachedDetectorByID` using `sync.OnceValue` to avoid rebuilding the detector lookup map on every `NewHumanizeDetector` call.
+- `govulncheck` step in CI.
+- Self-scan CI step (build linter, run on own source, assert 0 findings).
+- `CONTRIBUTING.md` rewrite with rule-addition and CLI-flag checklists, correct dev commands.
+- Markdown docs per rule: `docs/rules/H001.md` through `H009.md`.
 - Release workflow at `.github/workflows/release.yml` (tagged builds).
 - CI coverage reporting via Codecov.
 - `--version` stderr warning when built without ldflags (dev builds).
@@ -42,6 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 9 lint issues across `pattern_commaf.go`, `pattern_ordinal.go`, `pattern_helpers_test.go`, and `cmd/go-humanize-linter/main.go` resolved (was: 9 issues, now: 0).
 - H009 (manual-commaf) is now properly registered in `AllRules()` and `allRuleDetectors()` — was a "ghost rule" (detector and test existed but the rule was invisible to the CLI / plugin / registry).
+- Multi-digit float precision bug in `scanDottedPercentFloat` and `scanBarePercentFloat` — `%.10f` and `%34f` were incorrectly rejected because the scanners only matched repeated same-digit patterns.
+- Stale "7 rules" comments in `rules.go` and `bench_test.go` corrected to "9 rules".
+- `go.mod` `replace` directives removed (were re-added for local dev after v0.1.0, blocking `go install` and plugin loading).
 
 ## [0.1.0] - 2026-07-30
 

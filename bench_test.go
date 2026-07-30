@@ -8,7 +8,7 @@ import (
 )
 
 // BenchmarkFullRegistry measures the wall-clock time to scan the testdata
-// directory with all 7 rules. This establishes a performance baseline for the
+// directory with all 9 rules. This establishes a performance baseline for the
 // walker + pattern detection pipeline.
 func BenchmarkFullRegistry(b *testing.B) {
 	r := humanizelint.DefaultRegistry()

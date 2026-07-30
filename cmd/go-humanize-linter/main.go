@@ -11,6 +11,7 @@
 //	--enable <id>    Enable a specific rule (repeatable). Default: all enabled.
 //	--disable <id>   Disable a specific rule (repeatable).
 //	--format <type>  Output format: text (default), json, sarif.
+//	--output <file>   Write report to file instead of stdout.
 //	--quiet          Suppress summary line.
 //	--rules          List all rules with descriptions and exit.
 //	--version, -v    Print version and exit.
@@ -62,11 +63,13 @@ func main() {
 		showRules   bool
 		listFiles   bool
 		explain     string
+		outputPath  string
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
 	flag.Var(&disableIDs, "disable", "disable specific rule ID (repeatable)")
 	flag.StringVar(&format, "format", formatText, "output format: text, json, sarif")
+	flag.StringVar(&outputPath, "output", "", "write report to file instead of stdout")
 	flag.BoolVar(&quiet, "quiet", false, "suppress summary line")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.BoolVar(&showVersion, "v", false, "shorthand for --version")
@@ -132,12 +135,42 @@ func main() {
 		os.Exit(2)
 	}
 
-	if err := output(os.Stdout, report, format, quiet); err != nil {
+	writeReport(outputPath, report, format, quiet)
+
+	os.Exit(linter.ExitCodeFromReport(report))
+}
+
+// writeReport renders the report to stdout or to outputPath. When writing to a
+// file, the file is closed before returning so os.Exit in the caller does not
+// leak the handle.
+func writeReport(outputPath string, report *finding.Report, format string, quiet bool) {
+	var writer io.Writer = os.Stdout
+
+	var closer io.Closer
+
+	if outputPath != "" {
+		f, err := os.Create(outputPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: cannot create output file: %v\n", err)
+			os.Exit(2)
+		}
+
+		writer = f
+		closer = f
+	}
+
+	if err := output(writer, report, format, quiet); err != nil {
+		if closer != nil {
+			_ = closer.Close()
+		}
+
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(2)
 	}
 
-	os.Exit(linter.ExitCodeFromReport(report))
+	if closer != nil {
+		_ = closer.Close()
+	}
 }
 
 // printRules writes a table of every rule (ID, name, severity, description) to
