@@ -121,6 +121,7 @@ func f() {}
 	}
 }
 
+//nolint:gohumanize // test fixtures legitimately contain byte-unit names (KB, MB) to verify H001 detection
 func TestHasConst1024(t *testing.T) {
 	t.Parallel()
 

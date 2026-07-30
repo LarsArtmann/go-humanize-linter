@@ -33,6 +33,20 @@ import (
 // e.g. -ldflags "-X main.version=v0.1.0".
 var version = "dev"
 
+// Output format identifiers. Single source of truth so the flag default, the
+// switch cases, and the typed-error Format field cannot drift.
+const (
+	formatText  = "text"
+	formatJSON  = "json"
+	formatSARIF = "sarif"
+)
+
+// Failure-stage identifiers carried by *OutputError.Stage.
+const (
+	stageRender = "render"
+	stageWrite  = "write"
+)
+
 func main() {
 	var (
 		enableIDs   stringList
@@ -45,7 +59,7 @@ func main() {
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
 	flag.Var(&disableIDs, "disable", "disable specific rule ID (repeatable)")
-	flag.StringVar(&format, "format", "text", "output format: text, json, sarif")
+	flag.StringVar(&format, "format", formatText, "output format: text, json, sarif")
 	flag.BoolVar(&quiet, "quiet", false, "suppress summary line")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.BoolVar(&showVersion, "v", false, "shorthand for --version")
@@ -180,19 +194,19 @@ func (e *OutputError) Unwrap() error {
 // on error.
 func output(writer io.Writer, report *finding.Report, format string, quiet bool) error {
 	switch format {
-	case "json":
+	case formatJSON:
 		data, err := report.JSON()
 		if err != nil {
-			return &OutputError{Format: "json", Stage: "render", Err: err}
+			return &OutputError{Format: formatJSON, Stage: stageRender, Err: err}
 		}
 
 		if _, err := fmt.Fprintln(writer, data); err != nil {
-			return &OutputError{Format: "json", Stage: "write", Err: err}
+			return &OutputError{Format: formatJSON, Stage: stageWrite, Err: err}
 		}
 
-	case "sarif":
+	case formatSARIF:
 		if err := report.WriteSARIF(context.Background(), writer); err != nil {
-			return &OutputError{Format: "sarif", Stage: "render", Err: err}
+			return &OutputError{Format: formatSARIF, Stage: stageRender, Err: err}
 		}
 
 	default:

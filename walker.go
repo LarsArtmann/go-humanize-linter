@@ -51,14 +51,18 @@ var skipDirs = map[string]bool{ //nolint:gochecknoglobals // package-level looku
 // WalkGoDir walks dir recursively, parses every non-test .go file, and returns
 // them. Files that fail to parse are silently skipped — syntax errors are the
 // compiler's job, not the linter's. On walk failure it returns a *WalkError
-// wrapping the underlying fs error.
-func WalkGoDir(dir string) ([]ParsedFile, error) {
+// wrapping the underlying fs error. Callers should errors.AsType[*WalkError](err)
+// to read .Dir.
+//
+//nolint:erraudit // always returns *WalkError; signature stays error for v0.1.x compat
+func WalkGoDir(dir string) ([]ParsedFile, error) { //nolint:erraudit
 	var files []ParsedFile
 
 	fset := token.NewFileSet()
 
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
+			//nolint:erraudit // err is from filepath.WalkDir; fset/base/parseErr flagged are out-of-scope variables (erraudit false positive)
 			return fmt.Errorf("walk %s: %w", path, err)
 		}
 
