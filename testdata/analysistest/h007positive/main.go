@@ -5,12 +5,11 @@ import (
 	"strconv"
 )
 
-//nolint:gohumanize:H001
-//
 // parseSize reimplements humanize.ParseBytes using a map[string]int64
 // multiplier. The analysistest framework asserts an H007 diagnostic on the
-// func line. The H001 suppression is needed because the map keys (KB, MB, GB,
-// TB) legitimately match H001's byte-unit detector.
+// func line.
+//
+//nolint:gohumanize:H001 // H001 is suppressed because the map keys (KB, MB, GB, TB) legitimately match the byte-unit detector; we only want H007.
 func parseSize(s string) (int64, error) { // want "H007"
 	multipliers := map[string]int64{
 		"KB": 1024,

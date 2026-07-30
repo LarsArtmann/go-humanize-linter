@@ -265,8 +265,16 @@ func suppressedRules(commentText string) []string {
 	out := []string{}
 	for name := range strings.SplitSeq(body2, ",") {
 		name = strings.TrimSpace(name)
-		if name != "" {
-			out = append(out, name)
+		if name == "" {
+			continue
+		}
+
+		// Split colon-scoped form: "gohumanize:H001" → ["gohumanize", "H001"].
+		for part := range strings.SplitSeq(name, ":") {
+			part = strings.TrimSpace(part)
+			if part != "" {
+				out = append(out, part)
+			}
 		}
 	}
 

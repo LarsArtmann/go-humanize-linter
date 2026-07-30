@@ -1,8 +1,10 @@
 package humanizelint
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
+	"os"
 
 	"github.com/larsartmann/go-finding"
 	"github.com/larsartmann/go-linter-sdk"
@@ -74,6 +76,7 @@ func DetectFuncDecl(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fileP
 
 	for _, rd := range detectors {
 		suppressions := funcSuppressions(fset, file, fn)
+		fmt.Fprintf(os.Stderr, "DEBUG func=%s rd=%s suppressions=%v\n", fn.Name.Name, rd.id, suppressions) //nolint:forbidigo
 		if isSuppressedRule(suppressions, rd.id) {
 			continue
 		}
