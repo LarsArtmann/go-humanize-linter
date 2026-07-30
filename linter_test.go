@@ -28,9 +28,9 @@ func runRule(t *testing.T, rule linter.RuleFunc, dir string) []finding.Finding {
 }
 
 func ruleIDs(findings []finding.Finding) []string {
-	ids := make([]string, len(findings))
-	for i, f := range findings {
-		ids[i] = string(f.Rule)
+	ids := make([]string, 0, len(findings))
+	for _, f := range findings {
+		ids = append(ids, string(f.Rule))
 	}
 
 	return ids
@@ -156,6 +156,15 @@ func TestRulePlural_IfOne(t *testing.T) {
 	findings := runRule(t, humanizelint.RulePlural(), testdataDir(t, "h004_plural_if"))
 	if len(findings) != 1 {
 		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+}
+
+func TestRulePlural_Negative(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RulePlural(), testdataDir(t, "h004_negative"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings for non-string-returning if==1, got %d: %+v", len(findings), findings)
 	}
 }
 

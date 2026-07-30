@@ -34,12 +34,7 @@ func RuleBytes() linter.RuleFunc {
 	}
 }
 
-func detectBytesFormat(
-	fset *token.FileSet,
-	file *ast.File,
-	fn *ast.FuncDecl,
-	filePath string,
-) []finding.Finding {
+func detectBytesFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
 	kmgtp := hasKMGTPEIndex(fn)
 	unitSlice := hasByteUnitSlice(fn)
 	units := countByteUnits(fn)
@@ -77,14 +72,12 @@ func detectBytesFormat(
 	case unitCount >= 3:
 		msg = fmt.Sprintf(
 			"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
-			unitCount,
-			div1024,
+			unitCount, div1024,
 		)
 	case unitCount >= 2 && div1024:
 		msg = fmt.Sprintf(
 			"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
-			unitCount,
-			div1024,
+			unitCount, div1024,
 		)
 	case unitCount >= 2:
 		msg = fmt.Sprintf(
@@ -100,10 +93,7 @@ func detectBytesFormat(
 			"H001",
 			msg,
 			"Replace with humanize.Bytes(uint64(n)) for SI (KB/MB) or humanize.IBytes(uint64(n)) for IEC (KiB/MiB).",
-			line,
-			col,
-			filePath,
-			confidence,
+			line, col, filePath, confidence,
 		),
 	}
 }

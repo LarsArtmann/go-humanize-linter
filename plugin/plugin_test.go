@@ -11,6 +11,8 @@ import (
 )
 
 func TestAnalyzerNotNil(t *testing.T) {
+	t.Parallel()
+
 	if plugin.Analyzer == nil {
 		t.Fatal("plugin.Analyzer must not be nil")
 	}
@@ -29,6 +31,8 @@ func TestAnalyzerNotNil(t *testing.T) {
 }
 
 func TestDetectFuncDeclBytesPositive(t *testing.T) {
+	t.Parallel()
+
 	src := `package main
 
 import "fmt"
@@ -87,6 +91,8 @@ func main() {}
 }
 
 func TestDetectFuncDeclCleanNegative(t *testing.T) {
+	t.Parallel()
+
 	src := `package main
 
 import "fmt"

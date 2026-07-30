@@ -34,7 +34,7 @@ import (
 
 // Analyzer is the golangci-lint entry point. Export it so golangci-lint can
 // discover it via module plugin loading.
-var Analyzer = newAnalyzer()
+var Analyzer = newAnalyzer() //nolint:gochecknoglobals // required by golangci-lint plugin API
 
 // newAnalyzer builds the [*analysis.Analyzer] that runs all humanize-lint rules.
 func newAnalyzer() *analysis.Analyzer {
@@ -72,7 +72,7 @@ func run(pass *analysis.Pass) (any, error) {
 		}
 	}
 
-	return nil, nil
+	return nil, nil //nolint:nilnil // analysis.Analyzer.Run requires (any, error) signature
 }
 
 // isGenerated reports whether a file path looks like generated Go code.

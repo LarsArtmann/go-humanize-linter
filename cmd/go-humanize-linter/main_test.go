@@ -12,9 +12,9 @@ import (
 
 // binaryOnce ensures the CLI is built only once across all tests.
 var (
-	binaryOnce sync.Once
-	binaryPath string
-	binaryErr  error
+	binaryOnce sync.Once                   //nolint:gochecknoglobals // test-only build cache
+	binaryPath string                       //nolint:gochecknoglobals // test-only build cache
+	errBinary  error                        //nolint:gochecknoglobals,errname // test-only build error
 )
 
 // buildCLI builds the CLI binary to a path in the project directory (Nix
@@ -25,7 +25,7 @@ func buildCLI(t *testing.T) string {
 	binaryOnce.Do(func() {
 		binaryPath = filepath.Join(os.Getenv("HOME"), ".cache", "go-humanize-linter-test")
 
-		cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/go-humanize-linter/")
+		cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/go-humanize-linter/") //nolint:gosec // test build command
 		cmd.Dir = "../.."
 
 		cmd.Env = append(
@@ -41,19 +41,19 @@ func buildCLI(t *testing.T) string {
 		cmd.Stderr = &out
 
 		if err := cmd.Run(); err != nil {
-			binaryErr = fmt.Errorf("failed to build CLI: %w\n%s", err, out.String())
+			errBinary = fmt.Errorf("failed to build CLI: %w\n%s", err, out.String())
 
 			return
 		}
 
 		// Nix Go toolchain doesn't set execute permission on build output.
-		if err := os.Chmod(binaryPath, 0o755); err != nil {
-			binaryErr = fmt.Errorf("failed to chmod binary: %w", err)
+		if err := os.Chmod(binaryPath, 0o755); err != nil { //nolint:gosec // executable binary needs 0o755
+			errBinary = fmt.Errorf("failed to chmod binary: %w", err)
 		}
 	})
 
-	if binaryErr != nil {
-		t.Fatal(binaryErr)
+	if errBinary != nil {
+		t.Fatal(errBinary)
 	}
 
 	return binaryPath
@@ -65,7 +65,7 @@ func TestCLI_RunOnCleanCode(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "clean"))
 
-	cmd := exec.Command(binary, testdata)
+	cmd := exec.Command(binary, testdata) //nolint:gosec // test binary path is trusted
 
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
@@ -85,7 +85,7 @@ func TestCLI_RunOnPositiveFinding(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.Command(binary, "--quiet", testdata)
+	cmd := exec.Command(binary, "--quiet", testdata) //nolint:gosec // test binary path is trusted
 
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
@@ -102,7 +102,7 @@ func TestCLI_EnableFilter(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.Command(binary, "--quiet", "--enable", "H003", testdata)
+	cmd := exec.Command(binary, "--quiet", "--enable", "H003", testdata) //nolint:gosec // test binary path is trusted
 
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
