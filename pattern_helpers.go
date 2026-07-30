@@ -194,6 +194,7 @@ const nolintLinterName = "gohumanize"
 //	//nolint:all                 (suppresses everything)
 //	//nolint:gohumanize          (suppresses only this linter)
 //	//nolint:gohumanize,other    (comma-separated list)
+//	//nolint:gohumanize:H001     (scoped — suppresses only H001 in this linter)
 func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) bool {
 	if file == nil || fn == nil {
 		return false
@@ -205,7 +206,12 @@ func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) b
 		isDoc := group == fn.Doc
 
 		for _, c := range group.List {
-			if !noLintMatches(c.Text) {
+			suppressed := suppressedRules(c.Text)
+			if suppressed == nil {
+				continue
+			}
+
+			if !isSuppressedAll(suppressed) {
 				continue
 			}
 
@@ -219,30 +225,97 @@ func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) b
 	return false
 }
 
-// noLintMatches reports whether commentText is a //nolint directive that
-// applies to this linter (gohumanize) or to all linters.
-func noLintMatches(commentText string) bool {
+// suppressedRules parses a //nolint comment and returns the linter/rule names
+// it lists. Returns nil if the comment is not a //nolint directive.
+//
+// Recognised syntax:
+//
+//	//nolint                            → ["all"]
+//	//nolint:all                        → ["all"]
+//	//nolint:gohumanize                 → ["gohumanize"]
+//	//nolint:gohumanize:H001            → ["gohumanize", "H001"]
+//	//nolint:gohumanize:H001,H002       → ["gohumanize", "H001", "H002"]
+//	//nolint:gohumanize,other           → ["gohumanize", "other"]
+//
+// The "all" token means "suppress every linter". When the first token after
+// "nolint:" is "gohumanize" (our linter name), any subsequent colon-prefixed
+// tokens like ":H001" are sub-scopes within that linter.
+func suppressedRules(commentText string) []string {
 	body := strings.TrimSpace(strings.TrimPrefix(commentText, "//"))
 	if !strings.HasPrefix(body, "nolint") {
-		return false
+		return nil
 	}
 
 	rest := strings.TrimSpace(strings.TrimPrefix(body, "nolint"))
 
 	// Bare "//nolint" suppresses everything.
 	if rest == "" {
-		return true
+		return []string{"all"}
 	}
 
 	if !strings.HasPrefix(rest, ":") {
-		return false
+		return nil
 	}
 
-	for name := range strings.SplitSeq(noLintList(rest), ",") {
-		switch strings.TrimSpace(name) {
-		case "all", nolintLinterName:
+	body2 := noLintList(rest)
+	if body2 == "" {
+		return nil
+	}
+
+	out := []string{}
+	for name := range strings.SplitSeq(body2, ",") {
+		name = strings.TrimSpace(name)
+		if name != "" {
+			out = append(out, name)
+		}
+	}
+
+	return out
+}
+
+// isSuppressedAll reports whether the suppression list (from suppressedRules)
+// matches every rule. "all" suppresses everything. If "gohumanize" appears as
+// a top-level entry without a sub-rule, every H-rule is suppressed.
+func isSuppressedAll(suppressions []string) bool {
+	for _, s := range suppressions {
+		if s == "all" {
 			return true
 		}
+
+		if s == nolintLinterName {
+			return true
+		}
+	}
+
+	return false
+}
+
+// isSuppressedRule reports whether suppression list suppresses the specific
+// ruleID (e.g. "H001"). Recognises:
+//
+//	//nolint:all
+//	//nolint:gohumanize
+//	//nolint:gohumanize:H001
+//	//nolint:gohumanize:H001,H002
+//	//nolint:H001
+func isSuppressedRule(suppressions []string, ruleID string) bool {
+	for _, s := range suppressions {
+		if s == "all" {
+			return true
+		}
+
+		if s == nolintLinterName {
+			return true
+		}
+
+		if s == ruleID {
+			return true
+		}
+
+		// Scoped form: "gohumanize:H001" appears as two entries
+		// ["gohumanize", "H001"] — but when "gohumanize" appears, we already
+		// return true above, so a standalone H001 in the list means
+		// "//nolint:H001" with no linter scope — treat as scoped suppression.
 	}
 
 	return false

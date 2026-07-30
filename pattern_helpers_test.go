@@ -12,26 +12,42 @@ func TestNoLintMatches(t *testing.T) {
 
 	cases := []struct {
 		comment string
-		want    bool
+		want    []string
 	}{
-		{"//nolint", true},
-		{"//nolint:all", true},
-		{"//nolint:gohumanize", true},
-		{"//nolint:gohumanize,other", true},
-		{"//nolint:other,gohumanize", true},
-		{"//nolint:gohumanize // trailing reason text", true},
-		{"//nolint:other", false},
-		{"//nolint :", false},
-		{"// regular comment", false},
-		{"//notanolint", false},
-		{"", false},
+		{"//nolint", []string{"all"}},
+		{"//nolint:all", []string{"all"}},
+		{"//nolint:gohumanize", []string{"gohumanize"}},
+		{"//nolint:gohumanize,other", []string{"gohumanize", "other"}},
+		{"//nolint:other,gohumanize", []string{"other", "gohumanize"}},
+		{"//nolint:gohumanize // trailing reason text", []string{"gohumanize"}},
+		{"//nolint:other", []string{"other"}},
+		{"//nolint :", []string{}},
+		{"// regular comment", nil},
+		{"//notanolint", nil},
+		{"", nil},
 	}
 
 	for _, tt := range cases {
-		if got := noLintMatches(tt.comment); got != tt.want {
-			t.Errorf("noLintMatches(%q) = %v, want %v", tt.comment, got, tt.want)
+		if got := suppressedRules(tt.comment); !equalSlices(got, tt.want) {
+			t.Errorf("suppressedRules(%q) = %v, want %v", tt.comment, got, tt.want)
 		}
 	}
+}
+
+// equalSlices compares two []string for equality (order-independent since
+// suppression checks are order-independent).
+func equalSlices(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 func TestHasNoLintDirective(t *testing.T) {

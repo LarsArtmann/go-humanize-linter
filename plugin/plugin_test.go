@@ -171,12 +171,22 @@ func main() {}
 }
 
 // TestAnalyzerAnalysistest runs the plugin's analysis.Analyzer end-to-end
-// through the analysistest framework. It verifies that:
-//   - H001 is reported on a KMGTPE trick function (positive case)
-//   - No diagnostics are produced on clean code (negative case)
+// through the analysistest framework. It verifies that all seven rules fire on
+// their respective positive fixtures and that no diagnostics are produced on
+// the clean fixture.
 func TestAnalyzerAnalysistest(t *testing.T) {
 	t.Parallel()
 
 	testdata := filepath.Join("..", "testdata", "analysistest")
-	analysistest.Run(t, testdata, plugin.Analyzer, "./h001positive", "./clean")
+
+	analysistest.Run(t, testdata, plugin.Analyzer,
+		"./h001positive",
+		"./h002positive",
+		"./h003positive",
+		"./h004positive",
+		"./h005positive",
+		"./h006positive",
+		"./h007positive",
+		"./clean",
+	)
 }
