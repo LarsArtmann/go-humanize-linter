@@ -44,44 +44,67 @@ func hasCommaOrSeparator(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		// strings.Join(x, ",")
-		if isPackageCall(call, "strings", "Join") && len(call.Args) >= 2 {
-			if val, ok := unquoteString(getBasicLit(call.Args[1])); ok {
-				if val == "," || val == "." || val == " " {
-					hit = true
-				}
-			}
-		}
-
-		// builder.WriteString(","), builder.WriteByte(',')
-		sel, ok := call.Fun.(*ast.SelectorExpr)
-		if !ok {
-			return true
-		}
-
-		switch sel.Sel.Name {
-		case "WriteString":
-			if len(call.Args) > 0 {
-				if val, ok := unquoteString(getBasicLit(call.Args[0])); ok {
-					if val == "," || val == "." {
-						hit = true
-					}
-				}
-			}
-
-		case "WriteByte", "WriteRune":
-			if len(call.Args) > 0 {
-				lit := getBasicLit(call.Args[0])
-				if lit != nil && (lit.Value == "','" || lit.Value == "'.'") {
-					hit = true
-				}
-			}
+		if isCommaSeparatorCall(call) {
+			hit = true
 		}
 
 		return true
 	})
 
 	return hit
+}
+
+// isCommaSeparatorCall reports whether a call expression writes a comma or
+// thousands separator via strings.Join, WriteString, WriteByte, or WriteRune.
+func isCommaSeparatorCall(call *ast.CallExpr) bool {
+	if isPackageCall(call, "strings", "Join") && len(call.Args) >= 2 {
+		if isSeparatorLiteral(call.Args[1], ",", ".", " ") {
+			return true
+		}
+	}
+
+	sel, ok := call.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+
+	switch sel.Sel.Name {
+	case "WriteString":
+		return len(call.Args) > 0 && isSeparatorLiteral(call.Args[0], ",", ".")
+
+	case "WriteByte", "WriteRune":
+		return isSeparatorRune(call.Args)
+	}
+
+	return false
+}
+
+// isSeparatorLiteral reports whether expr is a string literal matching any of
+// the given separator values.
+func isSeparatorLiteral(expr ast.Expr, separators ...string) bool {
+	val, ok := unquoteString(getBasicLit(expr))
+	if !ok {
+		return false
+	}
+
+	for _, sep := range separators {
+		if val == sep {
+			return true
+		}
+	}
+
+	return false
+}
+
+// isSeparatorRune reports whether args[0] is a rune literal ',' or '.'.
+func isSeparatorRune(args []ast.Expr) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	lit := getBasicLit(args[0])
+
+	return lit != nil && (lit.Value == "','" || lit.Value == "'.'")
 }
 
 // hasStepBy3 reports whether fn contains a for-loop incrementing by 3

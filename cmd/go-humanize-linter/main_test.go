@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -12,9 +13,9 @@ import (
 
 // binaryOnce ensures the CLI is built only once across all tests.
 var (
-	binaryOnce sync.Once                   //nolint:gochecknoglobals // test-only build cache
-	binaryPath string                       //nolint:gochecknoglobals // test-only build cache
-	errBinary  error                        //nolint:gochecknoglobals,errname // test-only build error
+	binaryOnce sync.Once //nolint:gochecknoglobals // test-only build cache
+	binaryPath string    //nolint:gochecknoglobals // test-only build cache
+	errBinary  error     //nolint:gochecknoglobals // test-only build error
 )
 
 // buildCLI builds the CLI binary to a path in the project directory (Nix
@@ -25,7 +26,10 @@ func buildCLI(t *testing.T) string {
 	binaryOnce.Do(func() {
 		binaryPath = filepath.Join(os.Getenv("HOME"), ".cache", "go-humanize-linter-test")
 
-		cmd := exec.Command("go", "build", "-o", binaryPath, "./cmd/go-humanize-linter/") //nolint:gosec // test build command
+		cmd := exec.CommandContext( //nolint:gosec,noctx // test build command
+			context.Background(),
+			"go", "build", "-o", binaryPath, "./cmd/go-humanize-linter/",
+		)
 		cmd.Dir = "../.."
 
 		cmd.Env = append(
@@ -65,7 +69,9 @@ func TestCLI_RunOnCleanCode(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "clean"))
 
-	cmd := exec.Command(binary, testdata) //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext( //nolint:gosec,noctx // test binary path is trusted
+		context.Background(), binary, testdata,
+	)
 
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
@@ -85,7 +91,9 @@ func TestCLI_RunOnPositiveFinding(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.Command(binary, "--quiet", testdata) //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext( //nolint:gosec,noctx // test binary path is trusted
+		context.Background(), binary, "--quiet", testdata,
+	)
 
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
@@ -102,7 +110,9 @@ func TestCLI_EnableFilter(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.Command(binary, "--quiet", "--enable", "H003", testdata) //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext( //nolint:gosec,noctx // test binary path is trusted
+		context.Background(), binary, "--quiet", "--enable", "H003", testdata,
+	)
 
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 

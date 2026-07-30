@@ -74,7 +74,6 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("walking %s: %w", dir, err)
 	}

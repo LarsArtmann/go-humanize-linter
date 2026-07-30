@@ -2,26 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0] - 2026-07-30
 
 ### Added
 
-- Initial project structure
+- **H001** (manual-bytes-format): Detects hand-rolled byte-size formatting — KMGTPE index trick, []string unit slices, 2+ byte-unit strings with division by 1024. Suggests `humanize.Bytes` / `humanize.IBytes`.
+- **H002** (manual-comma-format): Detects thousands-separator insertion loops (mod-3, step-by-3, digit-conversion fallback). Suggests `humanize.Comma`.
+- **H003** (manual-reltime-format): Detects relative-time formatting with `time.Since`/`time.Sub` + "ago" strings + time thresholds. Suggests `humanize.RelTime` / `humanize.Time`.
+- **H004** (manual-plural): Detects English pluralization via `if x == 1` switches and singular/plural parameter pairs. Suggests `humanize.Plural` / `humanize.PluralWord`. Two-stage false-positive filter: (1) branch must contain string literals, (2) function must return string type.
+- **H005** (manual-si-format): Detects SI-prefix formatting (division by 1000/1e6 + K/M suffix). Suggests `humanize.SI`.
+- **H006** (manual-ftoa): Detects nested `strings.TrimRight(strings.TrimRight(x, "0"), ".")` for trailing-zero stripping. Suggests `humanize.Ftoa`.
+- **H007** (manual-parse-bytes): Detects hand-rolled byte-size string parsing (multiple HasSuffix/CutSuffix on byte units, or map[string]int64 multiplier lookups). Suggests `humanize.ParseBytes`.
+- CLI binary (`cmd/go-humanize-linter/`) with `--enable`, `--disable`, `--format text|json|sarif`, `--quiet` flags.
+- golangci-lint plugin wrapper (`plugin/`) exposing all rules as `analysis.Analyzer` named `gohumanize`.
+- Standalone singlechecker (`cmd/gohumanize/`) for testing the plugin path without golangci-lint.
+- `DetectFuncDecl()` shared per-function entry point used by both CLI and plugin.
+- `flake.nix` with test, test-race, bench, build, vet, lint, and coverage apps.
+- CI workflow with test+vet and lint jobs.
+- Negative testdata for H001, H003, H004, and H005.
+- 26 library tests + 3 CLI integration tests + 3 plugin tests, all passing with race detector.
 
 ### Changed
 
-### Deprecated
+- H001 message now varies by trigger: KMGTPE index trick, unit string slice, or unit-string count.
+- patterns.go split into 8 focused files: pattern_bytes.go, pattern_comma.go, pattern_time.go, pattern_plural.go, pattern_si.go, pattern_ftoa.go, pattern_parsebytes.go, pattern_helpers.go.
 
 ### Removed
 
-### Fixed
-
-### Security
-
-## [0.1.0] - 2026-01-01
-
-### Added
-
-- Initial release
+- Temporary `replace` directives in go.mod (resolved after go-linter-sdk v0.1.0 tag).

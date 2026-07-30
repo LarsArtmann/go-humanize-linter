@@ -10,6 +10,10 @@ import (
 	"github.com/larsartmann/go-linter-sdk"
 )
 
+// minUnitCountStrongSignal is the minimum number of distinct byte-unit strings
+// that constitutes a strong signal even without explicit division by 1024.
+const minUnitCountStrongSignal = 3
+
 // RuleBytes (H001) detects manual byte-size formatting that should use
 // humanize.Bytes or humanize.IBytes.
 //
@@ -41,59 +45,64 @@ func detectBytesFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 	div1024 := hasDivisionByPowerOf1024(fn) || hasConst1024(file, fn)
 	unitCount := len(units)
 
-	var confidence finding.Confidence
-
-	switch {
-	case kmgtp:
-		confidence = finding.ConfidenceFull
-	case unitSlice:
-		confidence = finding.ConfidenceFull
-	case unitCount >= 3:
-		confidence = finding.ConfidenceHigh
-	case unitCount >= 2 && div1024:
-		confidence = finding.ConfidenceHigh
-	case unitCount >= 2:
-		confidence = finding.ConfidenceMedium
-	default:
+	msg, confidence, found := bytesFindingResult(kmgtp, unitSlice, unitCount, div1024)
+	if !found {
 		return nil
 	}
 
 	line, col := posOf(fset, fn.Pos())
-
-	var msg string
-	switch {
-	case kmgtp:
-		msg = "manual byte-size formatting (KMGTPE index trick) — use humanize.Bytes or humanize.IBytes instead"
-	case unitSlice:
-		msg = fmt.Sprintf(
-			"manual byte-size formatting (unit string slice, %d unit strings) — use humanize.Bytes or humanize.IBytes instead",
-			unitCount,
-		)
-	case unitCount >= 3:
-		msg = fmt.Sprintf(
-			"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
-			unitCount, div1024,
-		)
-	case unitCount >= 2 && div1024:
-		msg = fmt.Sprintf(
-			"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
-			unitCount, div1024,
-		)
-	case unitCount >= 2:
-		msg = fmt.Sprintf(
-			"manual byte-size formatting (%d unit strings) — use humanize.Bytes or humanize.IBytes instead",
-			unitCount,
-		)
-	default:
-		return nil
-	}
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
 			"H001",
 			msg,
 			"Replace with humanize.Bytes(uint64(n)) for SI (KB/MB) or humanize.IBytes(uint64(n)) for IEC (KiB/MiB).",
-			line, col, filePath, confidence,
+			line,
+			col,
+			filePath,
+			confidence,
 		),
+	}
+}
+
+// bytesFindingResult maps detection signals to a human-readable message and
+// confidence level. Returns found=false when no pattern is detected.
+func bytesFindingResult(
+	kmgtp, unitSlice bool,
+	unitCount int,
+	div1024 bool,
+) (string, finding.Confidence, bool) {
+	switch {
+	case kmgtp:
+		return "manual byte-size formatting (KMGTPE index trick) — use humanize.Bytes or humanize.IBytes instead",
+			finding.ConfidenceFull, true
+	case unitSlice:
+		return fmt.Sprintf(
+				"manual byte-size formatting (unit string slice, %d unit strings) — use humanize.Bytes or humanize.IBytes instead",
+				unitCount,
+			),
+			finding.ConfidenceFull, true
+	case unitCount >= minUnitCountStrongSignal:
+		return fmt.Sprintf(
+				"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
+				unitCount,
+				div1024,
+			),
+			finding.ConfidenceHigh, true
+	case unitCount >= 2 && div1024:
+		return fmt.Sprintf(
+				"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
+				unitCount,
+				div1024,
+			),
+			finding.ConfidenceHigh, true
+	case unitCount >= 2:
+		return fmt.Sprintf(
+				"manual byte-size formatting (%d unit strings) — use humanize.Bytes or humanize.IBytes instead",
+				unitCount,
+			),
+			finding.ConfidenceMedium, true
+	default:
+		return "", finding.ConfidenceLow, false
 	}
 }
