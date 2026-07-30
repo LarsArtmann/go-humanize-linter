@@ -154,19 +154,21 @@ func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 	return registry
 }
 
-func output(writer io.Writer, report *finding.Report, format string, quiet bool) error {
+func output(writer io.Writer, report *finding.Report, format string, quiet bool) error { //nolint:erraudit:generic_return // error is the idiomatic Go API; no caller switches on the concrete error type
 	switch format {
 	case "json":
 		data, err := report.JSON()
 		if err != nil {
-			return fmt.Errorf("render json: %w", err)
+			return fmt.Errorf("render json: %w", err) //nolint:erraudit:context_loss // "json" is the format literal already; erraudit's format/data suggestions are false positives
 		}
 
-		fmt.Fprintln(writer, data)
+		if _, err := fmt.Fprintln(writer, data); err != nil {
+			return fmt.Errorf("render json: write: %w", err) //nolint:erraudit:context_loss // "json" + "write" identify the operation; data inclusion would leak the JSON blob into the error
+		}
 
 	case "sarif":
 		if err := report.WriteSARIF(context.Background(), writer); err != nil {
-			return fmt.Errorf("render sarif: %w", err)
+			return fmt.Errorf("render sarif: %w", err) //nolint:erraudit:context_loss // "sarif" is the format literal already; erraudit's format/data suggestions are false positives
 		}
 
 	default:

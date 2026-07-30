@@ -32,6 +32,8 @@ var skipDirs = map[string]bool{ //nolint:gochecknoglobals // package-level looku
 // WalkGoDir walks dir recursively, parses every non-test .go file, and returns
 // them. Files that fail to parse are silently skipped — syntax errors are the
 // compiler's job, not the linter's.
+//
+//nolint:erraudit:generic_return // error is the idiomatic public API; a custom error type adds no semantic value here
 func WalkGoDir(dir string) ([]ParsedFile, error) {
 	var files []ParsedFile
 
@@ -39,7 +41,7 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("walk %s: %w", path, err)
+			return fmt.Errorf("walk %s: %w", path, err) //nolint:erraudit:context_loss // err is from filepath.WalkDir; fset/base/parseErr flagged are out-of-scope variables (erraudit false positive)
 		}
 
 		if d.IsDir() {
@@ -75,7 +77,7 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("walking %s: %w", dir, err)
+		return nil, fmt.Errorf("walking %s: %w", dir, err) //nolint:erraudit:context_loss // dir is already in the message; fset/base/parseErr flagged are out-of-scope variables (erraudit false positive)
 	}
 
 	return files, nil
@@ -87,10 +89,10 @@ type detectorFunc func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 
 // checkFuncDecls walks dir, parses Go files, and applies detect to every
 // function declaration. This is the shared execution path used by every rule.
-func checkFuncDecls(dir string, detect detectorFunc) ([]finding.Finding, error) {
+func checkFuncDecls(dir string, detect detectorFunc) ([]finding.Finding, error) { //nolint:erraudit:generic_return // error is the idiomatic public API
 	files, err := WalkGoDir(dir)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("check func decls in %s: %w", dir, err) //nolint:erraudit:context_loss // dir is already in the message; detect/files flagged are not meaningful to include for a function-value and a nil slice (erraudit false positive)
 	}
 
 	var all []finding.Finding
