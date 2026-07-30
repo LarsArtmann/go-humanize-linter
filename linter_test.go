@@ -314,6 +314,26 @@ func TestDefaultRegistry_RunOnKMGTPETrick(t *testing.T) {
 // Exit code
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Self-scan: the linter must produce zero findings on its own source
+// ---------------------------------------------------------------------------
+
+func TestLintsItself_Clean(t *testing.T) {
+	t.Parallel()
+
+	r := humanizelint.DefaultRegistry()
+
+	report, err := r.Run(context.Background(), ".")
+	if err != nil {
+		t.Fatalf("self-scan failed: %v", err)
+	}
+
+	if report.Len() != 0 {
+		t.Fatalf("expected 0 findings on own source, got %d:\n%s",
+			report.Len(), report.FindingsSnapshot())
+	}
+}
+
 func TestExitCode_CleanIsZero(t *testing.T) {
 	t.Parallel()
 

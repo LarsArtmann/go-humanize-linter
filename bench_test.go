@@ -13,9 +13,7 @@ import (
 func BenchmarkFullRegistry(b *testing.B) {
 	r := humanizelint.DefaultRegistry()
 
-	b.ResetTimer()
-
-	for range b.N {
+	for b.Loop() {
 		_, err := r.Run(context.Background(), "testdata")
 		if err != nil {
 			b.Fatal(err)
@@ -26,7 +24,7 @@ func BenchmarkFullRegistry(b *testing.B) {
 // BenchmarkWalkGoDir measures just the file-walking + parsing overhead without
 // rule execution.
 func BenchmarkWalkGoDir(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		_, err := humanizelint.WalkGoDir("testdata")
 		if err != nil {
 			b.Fatal(err)
