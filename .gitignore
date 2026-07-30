@@ -1,0 +1,28 @@
+# Build artifacts
+/go-humanize-linter
+*.exe
+*.test
+*.out
+
+# Go workspace (local dev only)
+go.work
+go.work.sum
+
+# Coverage
+reports/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Nix
+result
+
+# Environment
+.direnv/
+.envrc.local
+
+# OS
+.DS_Store
+Thumbs.db

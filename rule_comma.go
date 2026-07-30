@@ -1,0 +1,72 @@
+package humanizelint
+
+import (
+	"context"
+	"fmt"
+	"go/ast"
+	"go/token"
+
+	"github.com/larsartmann/go-finding"
+	"github.com/larsartmann/go-linter-sdk"
+)
+
+// RuleComma (H002) detects manual comma (thousands separator) insertion that
+// should use humanize.Comma or humanize.Commaf.
+//
+// Triggers via two detection paths:
+//
+//  1. Strong: modulo-3 or step-by-3 grouping + comma writing (high/full confidence)
+//  2. Fallback: for-loop + comma writing + digit conversion (medium confidence)
+//     — catches cases where the step size is a named constant like digitsPerGroup
+func RuleComma() linter.RuleFunc {
+	return linter.RuleFunc{
+		Meta: linter.RuleMeta{
+			ID:          "H002",
+			Name:        "manual-comma-format",
+			Description: "Manual comma/thousands-separator insertion — use humanize.Comma or humanize.Commaf instead of looping over digits",
+			Cat:         linter.CategoryStyle,
+			Sev:         finding.SeverityWarning,
+		},
+		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
+			return checkFuncDecls(dir, detectCommaFormat)
+		},
+	}
+}
+
+func detectCommaFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+	mod3 := hasModulo3(fn)
+	step3 := hasStepBy3(fn)
+	sep := hasCommaOrSeparator(fn)
+
+	var confidence finding.Confidence
+	var signals string
+
+	switch {
+	case (mod3 || step3) && sep:
+		if mod3 && step3 {
+			confidence = finding.ConfidenceFull
+		} else {
+			confidence = finding.ConfidenceHigh
+		}
+		signals = fmt.Sprintf("mod3=%v, step3=%v", mod3, step3)
+
+	case hasForLoop(fn) && sep && hasDigitConversion(fn):
+		// Fallback: for-loop + comma writing + digit conversion.
+		// Catches cases using named constants like `digitsPerGroup`.
+		confidence = finding.ConfidenceMedium
+		signals = "for-loop + comma + digit-conversion (no literal 3 detected)"
+
+	default:
+		return nil
+	}
+
+	line, col := posOf(fset, fn.Pos())
+
+	return []finding.Finding{
+		makeFindingWithConfidence(
+			"H002",
+			fmt.Sprintf("manual comma formatting (%s) — use humanize.Comma instead", signals),
+			line, col, filePath, confidence,
+		),
+	}
+}
