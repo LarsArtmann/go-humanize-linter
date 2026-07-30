@@ -171,7 +171,7 @@ func main() {}
 }
 
 // TestAnalyzerAnalysistest runs the plugin's analysis.Analyzer end-to-end
-// through the analysistest framework. It verifies that all seven rules fire on
+// through the analysistest framework. It verifies that all nine rules fire on
 // their respective positive fixtures and that no diagnostics are produced on
 // the clean fixture.
 func TestAnalyzerAnalysistest(t *testing.T) {
@@ -188,6 +188,8 @@ func TestAnalyzerAnalysistest(t *testing.T) {
 		"./h005positive",
 		"./h006positive",
 		"./h007positive",
+		"./h008positive",
+		"./h009positive",
 		"./clean",
 	)
 }
