@@ -3,7 +3,7 @@
 **Date:** 2026-07-30 17:32  
 **Session:** Initial build + self-review iteration  
 **Repo:** [LarsArtmann/go-humanize-linter](https://github.com/LarsArtmann/go-humanize-linter)  
-**HEAD:** `946ae83` — Add CLI integration tests  
+**HEAD:** `946ae83` — Add CLI integration tests
 
 ---
 
@@ -17,68 +17,68 @@ Built a 7-rule AST linter (H001–H007) on go-linter-sdk that detects hand-rolle
 
 ## a) FULLY DONE ✅
 
-| Area | Details |
-|------|---------|
-| **Core linter library** | 7 rules (H001–H007), `DefaultRegistry()`, `AllRules()`, individual `Rule*()` factories |
-| **AST pattern engine** | `walker.go` (directory walk + parse), `patterns.go` (19 detection helpers + 7 internal utilities) |
-| **Detection accuracy** | Multi-signal approach; validated against DiscordSync, SEC, BuildFlow, go-cqrs-lite, KeyCountdown, standard-bug-tracking-schema, ast-state-analyzer, file-and-image-renamer, blog, auto-deduplicate — near-zero false positives |
-| **CLI binary** | `cmd/go-humanize-linter/main.go` with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet` |
-| **CLI tests** | 3 integration tests: clean code (exit 0), positive finding (H001), enable-filter (H003 on H001 data = no match) |
-| **Unit tests** | 23 library tests covering every rule + positive/negative cases + registry + exit code |
-| **Benchmarks** | `BenchmarkFullRegistry` (5.5µs/op), `BenchmarkWalkGoDir` (674ns/op) |
-| **Testdata** | 17 fixtures across 14 directories (positive + negative for each rule) |
-| **Actionable findings** | Every finding carries `WithSuggestion()` showing exact humanize replacement code |
-| **Nix flake** | `flake.nix` with test, test-race, bench, build, vet, lint, coverage apps; `flake.lock` generated |
-| **CI** | `.github/workflows/ci.yml` with test+vet and lint jobs, GOPRIVATE + SSH auth |
-| **Git** | Initialized, 10 commits, pushed to GitHub |
-| **AGENTS.md** | Project context for future AI sessions |
-| **README.md** | User-facing docs with rules table, usage examples, detection strategy |
+| Area                    | Details                                                                                                                                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Core linter library** | 7 rules (H001–H007), `DefaultRegistry()`, `AllRules()`, individual `Rule*()` factories                                                                                                                                         |
+| **AST pattern engine**  | `walker.go` (directory walk + parse), `patterns.go` (19 detection helpers + 7 internal utilities)                                                                                                                              |
+| **Detection accuracy**  | Multi-signal approach; validated against DiscordSync, SEC, BuildFlow, go-cqrs-lite, KeyCountdown, standard-bug-tracking-schema, ast-state-analyzer, file-and-image-renamer, blog, auto-deduplicate — near-zero false positives |
+| **CLI binary**          | `cmd/go-humanize-linter/main.go` with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`                                                                                                                         |
+| **CLI tests**           | 3 integration tests: clean code (exit 0), positive finding (H001), enable-filter (H003 on H001 data = no match)                                                                                                                |
+| **Unit tests**          | 23 library tests covering every rule + positive/negative cases + registry + exit code                                                                                                                                          |
+| **Benchmarks**          | `BenchmarkFullRegistry` (5.5µs/op), `BenchmarkWalkGoDir` (674ns/op)                                                                                                                                                            |
+| **Testdata**            | 17 fixtures across 14 directories (positive + negative for each rule)                                                                                                                                                          |
+| **Actionable findings** | Every finding carries `WithSuggestion()` showing exact humanize replacement code                                                                                                                                               |
+| **Nix flake**           | `flake.nix` with test, test-race, bench, build, vet, lint, coverage apps; `flake.lock` generated                                                                                                                               |
+| **CI**                  | `.github/workflows/ci.yml` with test+vet and lint jobs, GOPRIVATE + SSH auth                                                                                                                                                   |
+| **Git**                 | Initialized, 10 commits, pushed to GitHub                                                                                                                                                                                      |
+| **AGENTS.md**           | Project context for future AI sessions                                                                                                                                                                                         |
+| **README.md**           | User-facing docs with rules table, usage examples, detection strategy                                                                                                                                                          |
 
 ---
 
 ## b) PARTIALLY DONE ⚠️
 
-| Area | What's Done | What's Missing |
-|------|-------------|----------------|
-| **Test coverage** | 78.6% across library code | CLI `main.go` has 0% direct coverage (integration-tested only). Several pattern helpers below 80% (`hasConst1024`: 68%, `hasStepBy3`: 79%, `hasEqualsOneBranch`: 80%). Target is 80%+. |
-| **golangci-lint config** | `.golangci.yml` exists with reasonable linter set | **1 golines formatting issue** in `rule_bytes.go:68`. Config is a simplified subset (16 linters) vs the full go-linter-sdk config (80+ linters). |
-| **go.mod** | Dependencies correct, versions pinned | **Replace directives** for go-finding and go-linter-sdk are temporary hacks because go-linter-sdk has no published tags. Breaks `go get` for standalone consumers. |
-| **go.work** | Exists for local dev | Listed in `.gitignore` (correct), but no documentation on the local-dev workflow |
-| **Detection coverage** | 7 of ~12 go-humanize feature categories covered | Missing: ordinals (0 reimplementations found, low priority), `big.Int` variants, `FormatFloat`/`FormatInteger`, `WordSeries`/`OxfordWordSeries`, `ComputeSI`/`ParseSI` |
+| Area                     | What's Done                                       | What's Missing                                                                                                                                                                         |
+| ------------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Test coverage**        | 78.6% across library code                         | CLI `main.go` has 0% direct coverage (integration-tested only). Several pattern helpers below 80% (`hasConst1024`: 68%, `hasStepBy3`: 79%, `hasEqualsOneBranch`: 80%). Target is 80%+. |
+| **golangci-lint config** | `.golangci.yml` exists with reasonable linter set | **1 golines formatting issue** in `rule_bytes.go:68`. Config is a simplified subset (16 linters) vs the full go-linter-sdk config (80+ linters).                                       |
+| **go.mod**               | Dependencies correct, versions pinned             | **Replace directives** for go-finding and go-linter-sdk are temporary hacks because go-linter-sdk has no published tags. Breaks `go get` for standalone consumers.                     |
+| **go.work**              | Exists for local dev                              | Listed in `.gitignore` (correct), but no documentation on the local-dev workflow                                                                                                       |
+| **Detection coverage**   | 7 of ~12 go-humanize feature categories covered   | Missing: ordinals (0 reimplementations found, low priority), `big.Int` variants, `FormatFloat`/`FormatInteger`, `WordSeries`/`OxfordWordSeries`, `ComputeSI`/`ParseSI`                 |
 
 ---
 
 ## c) NOT STARTED ❌
 
-| Area | Why It Matters |
-|------|----------------|
-| **CHANGELOG.md** | No change history. Every LarsArtmann project has one. |
-| **FEATURES.md** | No feature inventory. Required by docs-health convention. |
-| **TODO_LIST.md** | No actionable task list for future work. |
-| **ROADMAP.md** | No long-term direction document. |
-| **LICENSE** | **No license file.** The repo is on GitHub with no license — default copyright applies. This blocks adoption. |
-| **CONTRIBUTING.md** | No contributor guide. |
-| **CODE_OF_CONDUCT.md** | Missing (standard for open-source repos). |
-| **.editorconfig** | Missing (every sibling project has one). |
-| **examples/** directory | No example_test.go with runnable `Example*` functions. Go convention for discoverable API docs. |
-| **SECURITY.md** | Missing. |
-| **godoc** | No `Example*` functions; package doc exists but is minimal. |
-| **Version tag** | No `v0.1.0` git tag. Can't be `go get`'d at a version. |
-| **golangci-lint plugin** | No `//go:build goexperiment.jsonv2` build tag handling documented for consumers who want to use this as a golangci-lint plugin. |
-| **Go vulnerability check** | No `govulncheck` in CI. |
-| **Releaser** | No `.goreleaser.yml` for binary releases. |
+| Area                       | Why It Matters                                                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **CHANGELOG.md**           | No change history. Every LarsArtmann project has one.                                                                           |
+| **FEATURES.md**            | No feature inventory. Required by docs-health convention.                                                                       |
+| **TODO_LIST.md**           | No actionable task list for future work.                                                                                        |
+| **ROADMAP.md**             | No long-term direction document.                                                                                                |
+| **LICENSE**                | **No license file.** The repo is on GitHub with no license — default copyright applies. This blocks adoption.                   |
+| **CONTRIBUTING.md**        | No contributor guide.                                                                                                           |
+| **CODE_OF_CONDUCT.md**     | Missing (standard for open-source repos).                                                                                       |
+| **.editorconfig**          | Missing (every sibling project has one).                                                                                        |
+| **examples/** directory    | No example_test.go with runnable `Example*` functions. Go convention for discoverable API docs.                                 |
+| **SECURITY.md**            | Missing.                                                                                                                        |
+| **godoc**                  | No `Example*` functions; package doc exists but is minimal.                                                                     |
+| **Version tag**            | No `v0.1.0` git tag. Can't be `go get`'d at a version.                                                                          |
+| **golangci-lint plugin**   | No `//go:build goexperiment.jsonv2` build tag handling documented for consumers who want to use this as a golangci-lint plugin. |
+| **Go vulnerability check** | No `govulncheck` in CI.                                                                                                         |
+| **Releaser**               | No `.goreleaser.yml` for binary releases.                                                                                       |
 
 ---
 
 ## d) TOTALLY FUCKED UP 💥
 
-| Problem | Severity | Status |
-|---------|----------|--------|
-| **go.mod replace directives committed** | **HIGH** | These are local-dev hacks. Any consumer who `go get`s this module will get build failures because `../go-finding` and `../go-linter-sdk` don't exist on their machine. Documented as "temporary" but still committed. This is the #1 blocker for standalone adoption. |
-| **CLI main.go has 0% direct coverage** | **MEDIUM** | The `output()`, `buildRegistry()`, and `stringList` functions have no unit tests. Only tested via subprocess exec. |
-| **golines formatting violation** | **LOW** | `rule_bytes.go:68` has a golines issue. The lint app would fail. |
-| **No LICENSE file** | **HIGH** | Repo is legally unusable. Nobody can use, modify, or distribute the code without explicit permission. |
-| **H001 testdata reports "0 unit strings"** | **MEDIUM** | The KMGTPE trick testdata triggers H001 via the `div1024` signal, but `countByteUnits` returns 0 because the units are embedded in a format string `"%.1f %cB"` not as standalone unit strings. The detection works but the diagnostic message is misleading. |
+| Problem                                    | Severity   | Status                                                                                                                                                                                                                                                                |
+| ------------------------------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **go.mod replace directives committed**    | **HIGH**   | These are local-dev hacks. Any consumer who `go get`s this module will get build failures because `../go-finding` and `../go-linter-sdk` don't exist on their machine. Documented as "temporary" but still committed. This is the #1 blocker for standalone adoption. |
+| **CLI main.go has 0% direct coverage**     | **MEDIUM** | The `output()`, `buildRegistry()`, and `stringList` functions have no unit tests. Only tested via subprocess exec.                                                                                                                                                    |
+| **golines formatting violation**           | **LOW**    | `rule_bytes.go:68` has a golines issue. The lint app would fail.                                                                                                                                                                                                      |
+| **No LICENSE file**                        | **HIGH**   | Repo is legally unusable. Nobody can use, modify, or distribute the code without explicit permission.                                                                                                                                                                 |
+| **H001 testdata reports "0 unit strings"** | **MEDIUM** | The KMGTPE trick testdata triggers H001 via the `div1024` signal, but `countByteUnits` returns 0 because the units are embedded in a format string `"%.1f %cB"` not as standalone unit strings. The detection works but the diagnostic message is misleading.         |
 
 ---
 

@@ -38,8 +38,10 @@ func detectCommaFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, fileP
 	step3 := hasStepBy3(fn)
 	sep := hasCommaOrSeparator(fn)
 
-	var confidence finding.Confidence
-	var signals string
+	var (
+		confidence finding.Confidence
+		signals    string
+	)
 
 	switch {
 	case (mod3 || step3) && sep:
@@ -48,6 +50,7 @@ func detectCommaFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, fileP
 		} else {
 			confidence = finding.ConfidenceHigh
 		}
+
 		signals = fmt.Sprintf("mod3=%v, step3=%v", mod3, step3)
 
 	case hasForLoop(fn) && sep && hasDigitConversion(fn):

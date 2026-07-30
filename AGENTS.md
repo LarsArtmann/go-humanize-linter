@@ -6,18 +6,18 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 
 ## Architecture
 
-| File | Responsibility |
-|------|---------------|
-| `walker.go` | Directory walking + Go file parsing (`WalkGoDir`, `checkFuncDecls`) |
-| `patterns.go` | Shared AST pattern detection helpers (all `has*` / `count*` functions) |
-| `rules.go` | `DefaultRegistry()` + `AllRules()` |
-| `rule_bytes.go` | H001 — manual byte-size formatting |
-| `rule_comma.go` | H002 — manual comma/thousands separator |
-| `rule_reltime.go` | H003 — manual relative time |
-| `rule_plural.go` | H004 — manual pluralization |
-| `rule_si.go` | H005 — manual SI prefix (K/M) |
-| `rule_ftoa.go` | H006 — manual float trailing-zero stripping |
-| `doc.go` | Package documentation |
+| File              | Responsibility                                                         |
+| ----------------- | ---------------------------------------------------------------------- |
+| `walker.go`       | Directory walking + Go file parsing (`WalkGoDir`, `checkFuncDecls`)    |
+| `patterns.go`     | Shared AST pattern detection helpers (all `has*` / `count*` functions) |
+| `rules.go`        | `DefaultRegistry()` + `AllRules()`                                     |
+| `rule_bytes.go`   | H001 — manual byte-size formatting                                     |
+| `rule_comma.go`   | H002 — manual comma/thousands separator                                |
+| `rule_reltime.go` | H003 — manual relative time                                            |
+| `rule_plural.go`  | H004 — manual pluralization                                            |
+| `rule_si.go`      | H005 — manual SI prefix (K/M)                                          |
+| `rule_ftoa.go`    | H006 — manual float trailing-zero stripping                            |
+| `doc.go`          | Package documentation                                                  |
 
 ## Rule IDs
 
@@ -26,6 +26,7 @@ H001–H006, stable identifiers for suppression matching and filter config.
 ## Detection Philosophy
 
 Each rule requires **multiple corroborating signals** in the same function:
+
 - H001: byte-unit strings + division by 1024, OR "KMGTPE" index, OR unit slice
 - H002: grouping signal (mod-3 or step-by-3 or digit-conversion) + separator writing
 - H003: time-difference computation + "ago" string + time threshold comparison
@@ -36,6 +37,7 @@ Each rule requires **multiple corroborating signals** in the same function:
 ## Critical: GOEXPERIMENT=jsonv2 REQUIRED
 
 Depends on go-finding which uses `encoding/json/v2`. All `go` commands need:
+
 - `GOEXPERIMENT=jsonv2`
 - `GOPRIVATE=github.com/larsartmann/*`
 

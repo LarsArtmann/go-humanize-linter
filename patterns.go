@@ -429,6 +429,7 @@ func hasTimeSinceOrSub(fn *ast.FuncDecl) bool {
 		// time.Since(x)
 		if isPackageCall(call, "time", "Since") {
 			hit = true
+
 			return true
 		}
 
@@ -573,6 +574,7 @@ func exprIsStringy(expr ast.Expr) bool {
 	switch e := expr.(type) {
 	case *ast.BasicLit:
 		_, ok := unquoteString(e)
+
 		return ok
 	case *ast.Ident:
 		return true

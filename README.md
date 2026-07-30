@@ -12,14 +12,14 @@ This linter finds those reimplementations automatically.
 
 ## Rules
 
-| Rule | Name | Detects | Suggests |
-|------|------|---------|----------|
-| H001 | manual-bytes-format | Byte-size formatting (1024 division + unit strings) | `humanize.Bytes` / `humanize.IBytes` |
-| H002 | manual-comma-format | Comma/thousands separator insertion (digit grouping loops) | `humanize.Comma` |
-| H003 | manual-reltime-format | Relative time formatting ("3 hours ago") | `humanize.RelTime` / `humanize.Time` |
-| H004 | manual-plural | English pluralization (`if n == 1`) | `humanize.Plural` / `humanize.PluralWord` |
-| H005 | manual-si-format | SI-prefix formatting ("1.2K", "3.4M") | `humanize.SI` / `humanize.SIWithDigits` |
-| H006 | manual-ftoa | Float trailing-zero stripping (nested TrimRight) | `humanize.Ftoa` |
+| Rule | Name                  | Detects                                                    | Suggests                                  |
+| ---- | --------------------- | ---------------------------------------------------------- | ----------------------------------------- |
+| H001 | manual-bytes-format   | Byte-size formatting (1024 division + unit strings)        | `humanize.Bytes` / `humanize.IBytes`      |
+| H002 | manual-comma-format   | Comma/thousands separator insertion (digit grouping loops) | `humanize.Comma`                          |
+| H003 | manual-reltime-format | Relative time formatting ("3 hours ago")                   | `humanize.RelTime` / `humanize.Time`      |
+| H004 | manual-plural         | English pluralization (`if n == 1`)                        | `humanize.Plural` / `humanize.PluralWord` |
+| H005 | manual-si-format      | SI-prefix formatting ("1.2K", "3.4M")                      | `humanize.SI` / `humanize.SIWithDigits`   |
+| H006 | manual-ftoa           | Float trailing-zero stripping (nested TrimRight)           | `humanize.Ftoa`                           |
 
 ## Detection Strategy
 
@@ -62,7 +62,7 @@ func pluralize(n int, singular, plural string) string {
 import (
     "context"
     "fmt"
-    
+
     humanizelint "github.com/larsartmann/go-humanize-linter"
     "github.com/larsartmann/go-linter-sdk"
 )
@@ -71,11 +71,11 @@ func main() {
     registry := humanizelint.DefaultRegistry()
     report, err := registry.Run(context.Background(), ".")
     if err != nil { panic(err) }
-    
+
     for f := range report.All() {
         fmt.Printf("%s:%d [%s] %s\n", f.Position.File, f.Position.Line, f.Rule, f.Message)
     }
-    
+
     os.Exit(linter.ExitCodeFromReport(report))
 }
 ```

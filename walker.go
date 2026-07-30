@@ -108,5 +108,6 @@ func checkFuncDecls(dir string, detect detectorFunc) ([]finding.Finding, error) 
 // posOf extracts the line and column from an AST position within fset.
 func posOf(fset *token.FileSet, pos token.Pos) (int, int) {
 	p := fset.Position(pos)
+
 	return p.Line, p.Column
 }

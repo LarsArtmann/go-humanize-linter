@@ -65,7 +65,8 @@ func detectBytesFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 			"H001",
 			fmt.Sprintf(
 				"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
-				unitCount, div1024,
+				unitCount,
+				div1024,
 			),
 			"Replace with humanize.Bytes(uint64(n)) for SI (KB/MB) or humanize.IBytes(uint64(n)) for IEC (KiB/MiB).",
 			line, col, filePath, confidence,

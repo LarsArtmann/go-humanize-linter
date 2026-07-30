@@ -77,8 +77,11 @@ func main() {
 // stringList implements flag.Value for repeatable string flags.
 type stringList []string
 
-func (s *stringList) String() string     { return strings.Join(*s, ",") }
-func (s *stringList) Set(v string) error { *s = append(*s, v); return nil }
+func (s *stringList) String() string { return strings.Join(*s, ",") }
+func (s *stringList) Set(v string) error {
+	*s = append(*s, v)
+	return nil
+}
 
 func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 	disabled := make(map[string]bool, len(disableIDs))
@@ -87,6 +90,7 @@ func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 	}
 
 	enabledOnly := len(enableIDs) > 0
+
 	enableSet := make(map[string]bool, len(enableIDs))
 	for _, id := range enableIDs {
 		enableSet[id] = true
@@ -117,6 +121,7 @@ func output(report *finding.Report, format string, quiet bool) {
 		data, err := report.JSON()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "json error: %v\n", err)
+
 			return
 		}
 
@@ -125,6 +130,7 @@ func output(report *finding.Report, format string, quiet bool) {
 	case "sarif":
 		if err := report.WriteSARIF(context.Background(), os.Stdout); err != nil {
 			fmt.Fprintf(os.Stderr, "sarif error: %v\n", err)
+
 			return
 		}
 
