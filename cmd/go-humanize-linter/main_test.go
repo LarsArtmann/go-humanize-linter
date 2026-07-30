@@ -225,7 +225,10 @@ func TestOutput_TextContainsFinding(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	output(&buf, sampleReport(t), "text", true)
+	err := output(&buf, sampleReport(t), "text", true)
+	if err != nil {
+		t.Fatalf("text output failed: %v", err)
+	}
 
 	out := buf.String()
 	if !strings.Contains(out, "H001") {
@@ -242,7 +245,10 @@ func TestOutput_TextSummaryWhenNotQuiet(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	output(&buf, sampleReport(t), "text", false)
+	err := output(&buf, sampleReport(t), "text", false)
+	if err != nil {
+		t.Fatalf("text output failed: %v", err)
+	}
 
 	if !strings.Contains(buf.String(), "findings") {
 		t.Errorf("non-quiet text output should contain summary: %q", buf.String())
@@ -254,7 +260,10 @@ func TestOutput_JSON(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	output(&buf, sampleReport(t), "json", true)
+	err := output(&buf, sampleReport(t), "json", true)
+	if err != nil {
+		t.Fatalf("json output failed: %v", err)
+	}
 
 	out := buf.String()
 	if !strings.Contains(out, "H001") {
@@ -272,7 +281,10 @@ func TestOutput_SARIF(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	output(&buf, sampleReport(t), "sarif", true)
+	err := output(&buf, sampleReport(t), "sarif", true)
+	if err != nil {
+		t.Fatalf("sarif output failed: %v", err)
+	}
 
 	var parsed map[string]any
 	if err := json.Unmarshal(buf.Bytes(), &parsed); err != nil {

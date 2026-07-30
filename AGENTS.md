@@ -27,7 +27,7 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 | `rule_parsebytes.go`      | H007 — manual byte-size string parsing                                                                    |
 | `doc.go`                  | Package documentation                                                                                     |
 | `plugin/plugin.go`        | golangci-lint plugin wrapper (`analysis.Analyzer` named `gohumanize`)                                     |
-| `cmd/go-humanize-linter/` | CLI binary with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`                          |
+| `cmd/go-humanize-linter/` | CLI binary with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`, `--rules`, `--version`                          |
 | `cmd/gohumanize/`         | singlechecker entry point for standalone plugin testing                                                   |
 
 ## Rule IDs

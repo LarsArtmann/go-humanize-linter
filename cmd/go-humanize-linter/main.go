@@ -93,7 +93,10 @@ func main() {
 		os.Exit(2)
 	}
 
-	output(os.Stdout, report, format, quiet)
+	if err := output(os.Stdout, report, format, quiet); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(2)
+	}
 
 	os.Exit(linter.ExitCodeFromReport(report))
 }
@@ -151,23 +154,19 @@ func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 	return registry
 }
 
-func output(writer io.Writer, report *finding.Report, format string, quiet bool) {
+func output(writer io.Writer, report *finding.Report, format string, quiet bool) error {
 	switch format {
 	case "json":
 		data, err := report.JSON()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "json error: %v\n", err)
-
-			return
+			return fmt.Errorf("render json: %w", err)
 		}
 
 		fmt.Fprintln(writer, data)
 
 	case "sarif":
 		if err := report.WriteSARIF(context.Background(), writer); err != nil {
-			fmt.Fprintf(os.Stderr, "sarif error: %v\n", err)
-
-			return
+			return fmt.Errorf("render sarif: %w", err)
 		}
 
 	default:
@@ -189,4 +188,6 @@ func output(writer io.Writer, report *finding.Report, format string, quiet bool)
 			fmt.Fprintf(writer, "\n%d findings\n", report.Len())
 		}
 	}
+
+	return nil
 }

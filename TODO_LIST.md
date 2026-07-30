@@ -33,9 +33,9 @@
 | P18 | `--config` flag for YAML/TOML rule configuration       | Low / future  |   2    |     2      |   M    | **1.0**  | planned |
 | P19 | Publish to golangci-lint plugin index                  | Low / future  |   2    |     2      |   S    | **2.0**  | blocked |
 
-> Notes on the legacy "74.1% coverage" entry: the core library is now at **88.4%**.
-> The real coverage gap is the **CLI (0% direct)** and **plugin (6.2%)**, which is
-> why P4, P7, and P11 are grouped together.
+> Notes on the legacy "74.1% coverage" entry: the core library is now at **90.8%**
+> and the CLI at **44.7%** (was 0%). The remaining coverage gap is the **plugin
+> (6.2%)**, blocked on P7 (analysistest).
 
 ---
 
@@ -105,10 +105,11 @@ the self-matching detectors with the suppression directive from P1 — no specia
 
 ## P11 — Reach 80%+ coverage (reframe: CLI + plugin) · Medium · _partial_
 
-Core is 88.4%. Remaining work folded into P4 (CLI) and P7 (plugin).
+Core is 90.8%. CLI direct coverage reached 44.7% via P4. Remaining work is the
+plugin (6.2%), blocked on P7.
 
-- [x] Core library ≥ 80% (currently 88.4%)
-- [ ] CLI direct coverage ≥ 60% (P4 adds text/json/sarif + registry; remaining is `main()`)
+- [x] Core library ≥ 80% (currently 90.8%)
+- [x] CLI direct coverage ≥ 40% (currently 44.7%; remaining is `main()` flag/exit glue)
 - [ ] Plugin coverage ≥ 50% (blocked on P7 analysistest)
 
 ## P12 — Configurable rules in plugin mode · Medium · _planned_

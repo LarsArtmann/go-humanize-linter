@@ -39,7 +39,7 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("walk %s: %w", path, err)
 		}
 
 		if d.IsDir() {
