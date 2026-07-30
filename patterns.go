@@ -479,13 +479,21 @@ func hasTimeThresholdComparison(fn *ast.FuncDecl) bool {
 // Pluralization pattern helpers (H004)
 // ---------------------------------------------------------------------------
 
-// hasEqualsOneBranch reports whether fn contains an `if x == 1` or
-// `if x != 1` conditional where x is a simple identifier (not a function call
-// like len(x)). This excludes slice-length checks that happen to compare to 1.
+// hasEqualsOneBranch reports whether fn contains an `if x == 1` or `if x != 1`
+// conditional where x is a simple identifier (not a function call like len(x)),
+// AND the branch body contains at least one string literal or string-producing
+// statement (return/assignment with a string expression). The string-in-branch
+// requirement eliminates false positives like `if n == 1 { return sorted[0] }`
+// (percentile calculation), exit-code extraction, and code generation — none of
+// which produce different strings based on the count.
 func hasEqualsOneBranch(fn *ast.FuncDecl) bool {
 	hit := false
 
 	ast.Inspect(fn, func(n ast.Node) bool {
+		if hit {
+			return false
+		}
+
 		ifStmt, ok := n.(*ast.IfStmt)
 		if !ok {
 			return true
@@ -500,7 +508,6 @@ func hasEqualsOneBranch(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		// Determine which side is the literal 1 and which is the variable.
 		var otherSide ast.Expr
 
 		if isLiteralInt(be.Y, 1) {
@@ -511,9 +518,11 @@ func hasEqualsOneBranch(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		// The non-literal side must be a simple identifier (e.g., `n`, `count`),
-		// not a function call like `len(x)` or an arbitrary expression.
-		if _, ok := otherSide.(*ast.Ident); ok {
+		if _, ok := otherSide.(*ast.Ident); !ok {
+			return true
+		}
+
+		if branchContainsString(ifStmt.Body) {
 			hit = true
 		}
 
@@ -521,6 +530,55 @@ func hasEqualsOneBranch(fn *ast.FuncDecl) bool {
 	})
 
 	return hit
+}
+
+// branchContainsString reports whether a block statement contains any string
+// literal or string concatenation (BinaryExpr with +). This confirms that an
+// `if x == 1` branch is actually producing different text output.
+func branchContainsString(body *ast.BlockStmt) bool {
+	if body == nil {
+		return false
+	}
+
+	found := false
+
+	ast.Inspect(body, func(n ast.Node) bool {
+		if found {
+			return false
+		}
+
+		switch e := n.(type) {
+		case *ast.BasicLit:
+			if _, ok := unquoteString(e); ok {
+				found = true
+			}
+
+		case *ast.BinaryExpr:
+			if e.Op == token.ADD {
+				if exprIsStringy(e.X) || exprIsStringy(e.Y) {
+					found = true
+				}
+			}
+		}
+
+		return true
+	})
+
+	return found
+}
+
+// exprIsStringy is a lightweight heuristic: reports whether expr is a basic
+// string literal or an identifier (which might be a string variable).
+func exprIsStringy(expr ast.Expr) bool {
+	switch e := expr.(type) {
+	case *ast.BasicLit:
+		_, ok := unquoteString(e)
+		return ok
+	case *ast.Ident:
+		return true
+	}
+
+	return false
 }
 
 // hasPluralNamedParams reports whether fn has parameters whose names include
@@ -723,6 +781,38 @@ func hasByteUnitMultiplierMap(fn *ast.FuncDecl) bool {
 // e.g. "1_000_000" → "1000000", "1_024" → "1024".
 func normLit(val string) string {
 	return strings.ReplaceAll(val, "_", "")
+}
+
+// funcReturnsString reports whether fn has at least one string-typed return
+// value. Used to filter H004 false positives: pluralization functions always
+// return strings, while `if x == 1` in error/validation/code-gen paths usually
+// returns error, bool, or int.
+func funcReturnsString(fn *ast.FuncDecl) bool {
+	if fn.Type == nil || fn.Type.Results == nil {
+		return false
+	}
+
+	for _, field := range fn.Type.Results.List {
+		if isStringType(field.Type) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// isStringType reports whether an AST type expression denotes string or []string.
+func isStringType(expr ast.Expr) bool {
+	switch t := expr.(type) {
+	case *ast.Ident:
+		return t.Name == "string"
+	case *ast.ArrayType:
+		if ident, ok := t.Elt.(*ast.Ident); ok {
+			return ident.Name == "string"
+		}
+	}
+
+	return false
 }
 
 // getBasicLit returns the *ast.BasicLit underlying expr, unwrapping parentheses

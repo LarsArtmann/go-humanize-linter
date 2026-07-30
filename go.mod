@@ -7,7 +7,10 @@ require (
 	github.com/larsartmann/go-linter-sdk v0.1.0
 )
 
-require github.com/larsartmann/go-error-family v0.10.0 // indirect
+require (
+	github.com/larsartmann/go-error-family v0.10.0 // indirect
+	golang.org/x/tools v0.48.0 // indirect
+)
 
 // Temporary: go-linter-sdk has no published tags yet. Remove these replace
 // directives once go-linter-sdk gets its first tagged release.

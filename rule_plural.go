@@ -36,6 +36,13 @@ func detectPlural(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath s
 	namedParams := hasPluralNamedParams(fn)
 	equalsOne := hasEqualsOneBranch(fn)
 
+	// For the equalsOne path, require the function to return a string type.
+	// Without this, every `if result != 1 { return fmt.Errorf(...) }` in SQL
+	// health checks, validation, and code generation triggers a false positive.
+	if equalsOne && !namedParams && !funcReturnsString(fn) {
+		equalsOne = false
+	}
+
 	if !namedParams && !equalsOne {
 		return nil
 	}
