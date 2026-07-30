@@ -91,6 +91,18 @@ func TestRuleComma_StepBy3(t *testing.T) {
 	}
 }
 
+func TestRuleComma_FallbackNamedConstant(t *testing.T) {
+	t.Parallel()
+	findings := runRule(t, humanizelint.RuleComma(), testdataDir(t, "h002_comma_fallback"))
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+	// Fallback path should have medium confidence.
+	if findings[0].Confidence > finding.ConfidenceMedium {
+		t.Errorf("expected medium confidence, got %v", findings[0].Confidence)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H003 — manual-reltime-format
 // ---------------------------------------------------------------------------
