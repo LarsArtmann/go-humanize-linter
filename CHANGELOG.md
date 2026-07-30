@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-07-30
+
+### Added
+- **H008** (manual-ordinal): Detects `switch n%10/100` with st/nd/rd/th cases. Suggests `humanize.Ordinal`.
+- **H009** (manual-commaf): Detects `%.Nf` + manual separator grouping. Suggests `humanize.Commaf`.
+- Scoped `//nolint:gohumanize:H001` directives — each rule can be suppressed individually.
+- Go-style `//lint:ignore gohumanize` alternative syntax.
+- `HumanizeDetector` facade with `Run` and `RunOverPackage` methods.
+- `--list-files <dir>` CLI flag for debugging walker scope.
+- `--explain Hxxx` CLI flag — prints a one-paragraph rationale for any rule.
+- `TestSinglechecker_CleanCode` + `TestSinglechecker_PositiveFinding` — closes 0% coverage gap on the singlechecker binary.
+- Analysistest fixtures for H002-H009 (was: H001 only).
+- Markdown docs per rule: `docs/rules/H001.md` through `H007.md`.
+- Release workflow at `.github/workflows/release.yml` (tagged builds).
+- CI coverage reporting via Codecov.
+- `--version` stderr warning when built without ldflags (dev builds).
+
+### Changed
+- `plugin.run` → `plugin.analyzeHumanize` (better grep-ability).
+- `printRules()` now writes to stdout (was: stderr) so it pipes cleanly.
+- Refactored suppression parser to support both `//nolint:` and `//lint:ignore` flavours with colon-scoped rule IDs.
+- `gofumpt` + `goimports -local github.com/larsartmann/` formatting applied.
+- `TestRuleBytes_SuppressedByDirective` → `TestCLI_SuppressedByDirective` (clarity).
+- Coverage: plugin 93.8% (unchanged), core 87.9% (new detection code has uncovered paths).
+
 ## [0.1.0] - 2026-07-30
 
 ### Added
