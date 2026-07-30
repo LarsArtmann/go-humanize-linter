@@ -12,6 +12,16 @@ import (
 	"go/token"
 )
 
+// Ordinal detection thresholds. The detector flags a switch when it finds at
+// least minOrdinalSuffixesMatch of the four English ordinal suffixes. Using
+// 3-of-4 (not 4-of-4) avoids false negatives on hand-rolled code that maps
+// the four exceptions (11/12/13) onto a shared "th" return.
+const (
+	ordinalModTen         = 10
+	ordinalModHundred     = 100
+	minOrdinalSuffixesHit = 3
+)
+
 // ordinalSuffixes is the set of valid English ordinal suffixes. The
 // detector flags a function that returns ALL FOUR from a switch.
 var ordinalSuffixes = map[string]bool{ //nolint:gochecknoglobals // package-level lookup
@@ -41,7 +51,7 @@ func hasOrdinalSwitch(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		if isLiteralInt(be.Y, 10) || isLiteralInt(be.Y, 100) {
+		if isLiteralInt(be.Y, ordinalModTen) || isLiteralInt(be.Y, ordinalModHundred) {
 			// Walk case branches.
 			for _, c := range switchStmt.Body.List {
 				caseClause, ok := c.(*ast.CaseClause)
@@ -56,8 +66,7 @@ func hasOrdinalSwitch(fn *ast.FuncDecl) bool {
 		return true
 	})
 
-	// Need at least 3 distinct ordinal suffixes.
-	return len(found) >= 3
+	return len(found) >= minOrdinalSuffixesHit
 }
 
 // walkOrdinalReturns inspects a case body for returned string literals that

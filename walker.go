@@ -54,16 +54,16 @@ var skipDirs = map[string]bool{ //nolint:gochecknoglobals // package-level looku
 // wrapping the underlying fs error. Callers should errors.AsType[*WalkError](err)
 // to read .Dir.
 //
-//nolint:erraudit // always returns *WalkError; signature stays error for v0.1.x compat
-func WalkGoDir(dir string) ([]ParsedFile, error) { //nolint:erraudit
+// Always returns *WalkError (an error type) — signature stays `error` for
+// v0.1.x API compatibility.
+func WalkGoDir(dir string) ([]ParsedFile, error) {
 	var files []ParsedFile
 
 	fset := token.NewFileSet()
 
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			// err from filepath.WalkDir; fset/base/parseErr flagged are out-of-scope (erraudit FP)
-			return fmt.Errorf("walk %s: %w", path, err) //nolint:erraudit
+			return fmt.Errorf("walk %s: %w", path, err)
 		}
 
 		if d.IsDir() {

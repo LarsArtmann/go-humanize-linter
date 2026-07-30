@@ -24,10 +24,11 @@
 | P9  | Save validation sweep to `docs/validation/`            | High          |   2    |     3      |   XS   | **6.0**  | done    |
 | P10 | Table-driven tests for `hasConst1024` / `hasStepBy3`   | Medium        |   2    |     2      |   S    | **4.0**  | done    |
 | P11 | Reach 80%+ coverage (reframe: CLI + plugin)            | Medium        |   4    |     2      |   S    | **4.0**  | partial |
+| P20 | Resolve 9 remaining lint issues in new pattern files   | Medium        |   3    |     3      |   S    | **4.5**  | done    |
 | P12 | Configurable rules in plugin mode (flags)              | Medium        |   3    |     3      |   M    | **2.3**  | planned |
 | P13 | GitHub Action for running linter in CI                 | Medium        |   3    |     3      |   S    | **3.0**  | planned |
-| P14 | H008 — `humanize.Ordinal` rule                         | Low / future  |   3    |     2      |   M    | **1.5**  | planned |
-| P15 | H009 — `humanize.Commaf` rule variant                  | Low / future  |   3    |     2      |   M    | **1.5**  | planned |
+| P14 | H008 — `humanize.Ordinal` rule                         | Low / future  |   3    |     2      |   M    | **1.5**  | done    |
+| P15 | H009 — `humanize.Commaf` rule variant                  | Low / future  |   3    |     2      |   M    | **1.5**  | done    |
 | P16 | Package-level `var` detection for H007                 | Low / future  |   2    |     1      |   M    | **0.8**  | planned |
 | P17 | go/types type-aware detection                          | Low / future  |   5    |     3      |   L    | **0.9**  | planned |
 | P18 | `--config` flag for YAML/TOML rule configuration       | Low / future  |   2    |     2      |   M    | **1.0**  | planned |
@@ -123,16 +124,16 @@ plugin (6.2%), blocked on P7.
 - [ ] Reusable composite `action.yml` (input: `path`, `enable`, `disable`, `format`)
 - [ ] README "Use in GitHub Actions" section
 
-## P14 — H008 — `humanize.Ordinal` rule · Future · _planned_
+## P14 — H008 — `humanize.Ordinal` rule · Future · _done_
 
-- [ ] Detect `switch n%10` returning `"st"`/`"nd"`/`"rd"`/`"th"`
-- [ ] `rule_ordinal.go` + `pattern_ordinal.go` + testdata (positive + negative)
-- [ ] Register in `AllRules()` / `DefaultRegistry()` / `DetectFuncDecl()`
+- [x] Detect `switch n%10` returning `"st"`/`"nd"`/`"rd"`/`"th"`
+- [x] `rule_ordinal.go` + `pattern_ordinal.go` + testdata (positive + negative)
+- [x] Register in `AllRules()` / `DefaultRegistry()` / `DetectFuncDecl()`
 
-## P15 — H009 — `humanize.Commaf` rule variant · Future · _planned_
+## P15 — H009 — `humanize.Commaf` rule variant · Future · _done_
 
-- [ ] Detect `%f`/`FormatFloat` + manual `.` / `,` separator grouping
-- [ ] rule + pattern + testdata + registration
+- [x] Detect `%f`/`FormatFloat` + manual `.` / `,` separator grouping
+- [x] rule + pattern + testdata + registration
 
 ## P16 — Package-level `var` detection for H007 · Future · _planned_
 
@@ -154,3 +155,21 @@ plugin (6.2%), blocked on P7.
 
 - [ ] Blocked on go-linter-sdk first tag (so `go.mod` replace directives can be removed)
 - [ ] Submit to the plugin index once `v0.1.0` is gettable
+
+## P20 — Resolve 9 remaining lint issues in new pattern files · Medium · _done_
+
+`goconst`, `mnd` × 3, `cyclop`, `gocognit`, `nestif`, `funlen` × 2, plus an
+`erraudit` `//nolint` directive referencing a linter not configured in
+`.golangci.yml`. Originated from H008/H009 detection code; user policy is
+"Pay down debt as you go — never leave the codebase worse than you found it."
+
+- [x] Fix `goconst` in `ruleExplanations` — added `h001`–`h009` local constants in `cmd/go-humanize-linter/main.go`
+- [x] Fix `mnd` in `pattern_ordinal.go` (named constants `ordinalModTen`, `ordinalModHundred`, `minOrdinalSuffixesHit`)
+- [x] Fix `mnd` in `pattern_commaf.go` (named constants `percentChar`, `digitZero`, `floatVerb`, `minFormatWalkRange`, …)
+- [x] Fix `erraudit` unknown-linter warning — removed `//nolint:erraudit` directives from `walker.go`; documented the rationale in prose comments
+- [x] Refactor `hasCommafPattern` (`cyclop`) and `hasPercentNF` (`gocognit`/`nestif`) into focused helpers (`walkFormatFloatVerbs`, `scanDottedPercentFloat`, `scanBarePercentFloat`, `hasFormatFloatPrecision`)
+- [x] Split `TestHasEqualsOneBranch` (`funlen: 125`) and `TestHasCommaOrSeparator` (`funlen: 128`) in `pattern_helpers_test.go` — extracted case tables to `hasEqualsOneBranchCases()` / `hasCommaOrSeparatorCases()` with a shared `boolSrcCase` struct
+- [x] Run `nix run .#lint` and verify 0 issues
+- [x] Bonus: filter `Found unknown linters in //nolint directives: gohumanize` warning in `nix run .#lint` script (legitimately unknown since the project's own analyzer is plugin-loaded)
+
+---

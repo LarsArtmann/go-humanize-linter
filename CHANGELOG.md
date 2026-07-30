@@ -31,6 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `gofumpt` + `goimports -local github.com/larsartmann/` formatting applied.
 - `TestRuleBytes_SuppressedByDirective` → `TestCLI_SuppressedByDirective` (clarity).
 - Coverage: plugin 93.8% (unchanged), core 87.9% (new detection code has uncovered paths).
+- `hasPercentNF` split into `walkFormatFloatVerbs` + `scanDottedPercentFloat` + `scanBarePercentFloat` so each helper stays under the cyclop/gocognit/nestif thresholds.
+- Replaced magic numbers in `pattern_ordinal.go` and `pattern_commaf.go` with named constants (`ordinalModTen`, `minOrdinalSuffixesHit`, `percentChar`, `floatVerb`, …).
+- `TestHasEqualsOneBranch` and `TestHasCommaOrSeparator` extracted their case tables into shared `boolSrcCase`-typed helpers so the test functions stay under the funlen threshold.
+- `ruleExplanations` map switched to local `h001`–`h009` constants so `goconst` doesn't flag the repeated rule-ID strings.
+- Removed `//nolint:erraudit` directives from `walker.go` (the tool is not a golangci-lint linter — referenced directly in prose comments instead).
+- `nix run .#lint` now filters the informational "Found unknown linters in //nolint directives: gohumanize" warning that golangci-lint emits for the project's own plugin-loaded analyzer.
+
+### Fixed
+
+- 9 lint issues across `pattern_commaf.go`, `pattern_ordinal.go`, `pattern_helpers_test.go`, and `cmd/go-humanize-linter/main.go` resolved (was: 9 issues, now: 0).
+- H009 (manual-commaf) is now properly registered in `AllRules()` and `allRuleDetectors()` — was a "ghost rule" (detector and test existed but the rule was invisible to the CLI / plugin / registry).
 
 ## [0.1.0] - 2026-07-30
 

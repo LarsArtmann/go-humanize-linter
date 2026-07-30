@@ -17,6 +17,8 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 | `pattern_si.go`           | H005 AST helpers (division by 1000, K/M suffix detection)                                                 |
 | `pattern_ftoa.go`         | H006 AST helpers (nested TrimRight detection)                                                             |
 | `pattern_parsebytes.go`   | H007 AST helpers (byte-unit suffix checks, multiplier maps)                                               |
+| `pattern_ordinal.go`      | H008 AST helpers (`switch n%10/100` with st/nd/rd/th cases)                                               |
+| `pattern_commaf.go`       | H009 AST helpers (`%.Nf` Sprintf + manual separator loop)                                                 |
 | `rules.go`                | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()` (shared per-fn entry point)                         |
 | `rule_bytes.go`           | H001 — manual byte-size formatting                                                                        |
 | `rule_comma.go`           | H002 — manual comma/thousands separator                                                                   |
@@ -25,6 +27,8 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 | `rule_si.go`              | H005 — manual SI prefix (K/M)                                                                             |
 | `rule_ftoa.go`            | H006 — manual float trailing-zero stripping                                                               |
 | `rule_parsebytes.go`      | H007 — manual byte-size string parsing                                                                    |
+| `rule_ordinal.go`         | H008 — manual ordinal formatting                                                                          |
+| `rule_commaf.go`          | H009 — manual float-with-comma formatting                                                                 |
 | `doc.go`                  | Package documentation                                                                                     |
 | `plugin/plugin.go`        | golangci-lint plugin wrapper (`analysis.Analyzer` named `gohumanize`)                                     |
 | `cmd/go-humanize-linter/` | CLI binary with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`, `--rules`, `--version`  |
@@ -32,7 +36,7 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 
 ## Rule IDs
 
-H001–H007, stable identifiers for suppression matching and filter config.
+H001–H009, stable identifiers for suppression matching and filter config.
 
 ## Detection Philosophy
 
@@ -45,6 +49,8 @@ Each rule requires **multiple corroborating signals** in the same function:
 - **H005**: division by power of 1000 + K/M/G/T suffix (excludes byte units)
 - **H006**: nested `strings.TrimRight(strings.TrimRight(x, "0"), ".")`
 - **H007**: 2+ HasSuffix/CutSuffix/TrimSuffix on byte units OR map[string]int64 multiplier with byte-unit keys
+- **H008**: `switch n%10` (or n%100) with at least 3 of 4 st/nd/rd/th case returns
+- **H009**: `fmt.Sprintf("%.Nf", x)` (or `strconv.FormatFloat(x, 'f', prec, bits)` with non-zero precision) AND a manual comma/separator group loop in the same function
 
 ### H004 false-positive filters (added session 2)
 
@@ -101,4 +107,6 @@ go vet ./...
 - **Suppression directives** — `//nolint:gohumanize` (also `//nolint`, `//nolint:all`, comma-lists) suppresses findings on a function in **both** the CLI path (`checkFuncDecls` in `walker.go`) and the plugin path (`DetectFuncDecl` in `rules.go`). The matching logic lives in `hasNoLintDirective` / `noLintMatches` in `pattern_helpers.go`.
 - **Typed errors** — `WalkGoDir` and `checkFuncDecls` return `*WalkError{Dir, Err}` on walk failure; `output()` returns `*OutputError{Format, Stage, Err}`. Callers extract typed info with `errors.AsType[*WalkError](err)` / `errors.AsType[*OutputError](err)`. `Format`/`Stage` are string consts (`formatText`/`formatJSON`/`formatSARIF` and `stageRender`/`stageWrite`) — single source of truth shared by flag default, switch cases, and error fields.
 - **JSON write error was swallowed (fixed)** — `output()`'s json branch previously ignored `fmt.Fprintln`'s error. Failure-path test (`TestOutput_JSONWriterFailure`) now exercises this path using `failingWriter`. The test caught the bug.
-- **erraudit false positives** — erraudit flags out-of-scope variables (`fset`/`base`/`parseErr`/`detect`/`files`) as missing context on error wraps inside `walker.go`. These are flagged because the analyzer is structurally flawed (it pattern-matches identifiers without scope checking). Suppressed with `//nolint:erraudit // <reason>` and explanatory comments. The `WalkError`/`OutputError` types satisfy the `generic_return` linter for two of three functions; `WalkGoDir`'s signature stays `error` for v0.1.x backward compatibility.
+- **erraudit (historical)** — erraudit flagged out-of-scope variables (`fset`/`base`/`parseErr`/`detect`/`files`) as missing context on error wraps inside `walker.go`. The tool itself is structurally flawed for this codebase (pattern-matches identifiers without scope checking). The `//nolint:erraudit` directives in `walker.go` have been removed; the `nolint_filter` warning is filtered from `nix run .#lint` output (golanci-lint can't validate a directive for a non-registered linter). The `WalkError`/`OutputError` types satisfy `generic_return` for two of three functions; `WalkGoDir`'s signature stays `error` for v0.1.x backward compatibility.
+- **Scope suppression** — `//nolint:gohumanize:H001` (per-rule) works alongside the unscoped form. Range syntax `H001-H009` is NOT supported (use individual IDs). See `ruleIDH001`–`ruleIDH009` in `pattern_helpers.go` for canonical IDs.
+- **H008 / H009 thunks** — both detectors (`pattern_ordinal.go`, `pattern_commaf.go`) extract helpers to keep cyclomatic complexity under 12. The format-string walker in H009 (`walkFormatFloatVerbs`) is intentionally split rather than left as one monolithic loop so the `%.Nf` and `%<digit>f` code paths can be tested in isolation.

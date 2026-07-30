@@ -279,14 +279,35 @@ func f() int { return 3 }
 	}
 }
 
+// boolSrcCase is the shared shape for table-driven hasXxx tests in this file:
+// a description, an inline Go source snippet, and the expected boolean return
+// of the helper under test.
+type boolSrcCase struct {
+	name string
+	src  string
+	want bool
+}
+
 func TestHasEqualsOneBranch(t *testing.T) {
 	t.Parallel()
 
-	cases := []struct {
-		name string
-		src  string
-		want bool
-	}{
+	for _, tt := range hasEqualsOneBranchCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, _, fn := parseFirstFunc(t, tt.src)
+			if got := hasEqualsOneBranch(fn); got != tt.want {
+				t.Errorf("hasEqualsOneBranch = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// hasEqualsOneBranchCases returns the fixture table for TestHasEqualsOneBranch.
+// Extracted from the test function body so the test stays under the funlen
+// threshold while each fixture remains inline for readability.
+func hasEqualsOneBranchCases() []boolSrcCase {
+	return []boolSrcCase{
 		{
 			name: "if n == 1 with string literal in branch",
 			src: `package main
@@ -394,27 +415,29 @@ func f(n int) string { return "x" }
 			want: false,
 		},
 	}
-
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			_, _, fn := parseFirstFunc(t, tt.src)
-			if got := hasEqualsOneBranch(fn); got != tt.want {
-				t.Errorf("hasEqualsOneBranch = %v, want %v", got, tt.want)
-			}
-		})
-	}
 }
 
 func TestHasCommaOrSeparator(t *testing.T) {
 	t.Parallel()
 
-	cases := []struct {
-		name string
-		src  string
-		want bool
-	}{
+	for _, tt := range hasCommaOrSeparatorCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, _, fn := parseFirstFunc(t, tt.src)
+			if got := hasCommaOrSeparator(fn); got != tt.want {
+				t.Errorf("hasCommaOrSeparator = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// hasCommaOrSeparatorCases returns the fixture table for
+// TestHasCommaOrSeparator. Extracted from the test function body so the test
+// stays under the funlen threshold while each fixture remains inline for
+// readability.
+func hasCommaOrSeparatorCases() []boolSrcCase {
+	return []boolSrcCase{
 		{
 			name: "WriteString comma",
 			src: `package main
@@ -524,17 +547,6 @@ func f() string {
 `,
 			want: false,
 		},
-	}
-
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			_, _, fn := parseFirstFunc(t, tt.src)
-			if got := hasCommaOrSeparator(fn); got != tt.want {
-				t.Errorf("hasCommaOrSeparator = %v, want %v", got, tt.want)
-			}
-		})
 	}
 }
 

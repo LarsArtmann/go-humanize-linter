@@ -176,32 +176,53 @@ func printScannedFiles(args []string) {
 	}
 }
 
+// Rule ID constants. Duplicated from the humanizelint package (where they
+// are unexported) because the CLI is the right place for the user-facing
+// rationale text. Keep these in sync with humanizelint.AllRules().
+const (
+	h001 = "H001"
+	h002 = "H002"
+	h003 = "H003"
+	h004 = "H004"
+	h005 = "H005"
+	h006 = "H006"
+	h007 = "H007"
+	h008 = "H008"
+	h009 = "H009"
+)
+
 // ruleExplanations maps a rule ID to a longer rationale describing what
 // it detects and what to use instead. The intent is to be useful when a
 // user sees a finding and wants to understand the rule, not just the
 // detection. These stay brief on purpose — they should fit on one screen.
 var ruleExplanations = map[string]string{ //nolint:gochecknoglobals // CLI lookup table
-	"H001": "Manual byte-size formatting. The classic 'KMGTPE' index trick, " +
+	h001: "Manual byte-size formatting. The classic 'KMGTPE' index trick, " +
 		"[]string of unit names, or repeated division by 1024 are signals that " +
 		"the function is reimplementing humanize.Bytes / humanize.IBytes. " +
 		"Both SI (KB/MB) and IEC (KiB/MiB) variants are covered.",
-	"H002": "Manual comma/thousands-separator insertion via mod-3 indexing, " +
+	h002: "Manual comma/thousands-separator insertion via mod-3 indexing, " +
 		"step-by-3 loops, or for-loop digit grouping followed by a WriteString " +
 		"',' is what humanize.Comma / humanize.Commaf do for you.",
-	"H003": "Manual relative-time formatting using time.Since/Sub + 'ago' " +
+	h003: "Manual relative-time formatting using time.Since/Sub + 'ago' " +
 		"strings + time threshold comparisons. humanize.RelTime / " +
 		"humanize.Time handle singular/plural forms and locale strings.",
-	"H004": "English pluralization via 'if n == 1' switches or singular/plural " +
+	h004: "English pluralization via 'if n == 1' switches or singular/plural " +
 		"parameter pairs. humanize.Plural / humanize.PluralWord cover 100+ " +
 		"locales.",
-	"H005": "Manual SI-prefix formatting (1.5K, 2.3M) via division by 1000 " +
+	h005: "Manual SI-prefix formatting (1.5K, 2.3M) via division by 1000 " +
 		"plus 'K'/'M' suffix strings. humanize.SI is a drop-in replacement.",
-	"H006": "Manual trailing-zero stripping via nested " +
+	h006: "Manual trailing-zero stripping via nested " +
 		"strings.TrimRight(x, '0') + strings.TrimRight(..., '.'). " +
 		"humanize.Ftoa handles the edge cases (e.g. '0' instead of '').",
-	"H007": "Manual byte-size string parsing via repeated HasSuffix checks " +
+	h007: "Manual byte-size string parsing via repeated HasSuffix checks " +
 		"on KB/MB/GB suffixes or a map[string]int64 multiplier. " +
 		"humanize.ParseBytes handles every SI/IEC unit and negative numbers.",
+	h008: "Manual ordinal-number formatting via 'switch n%10' (or n%100) " +
+		"with st/nd/rd/th cases. humanize.Ordinal covers the same ground plus " +
+		"edge cases (11th, 12th, 13th) and multiple languages.",
+	h009: "Manual float-with-thousands-separator formatting via '%.Nf' " +
+		"Sprintf combined with a manual comma-grouping loop. " +
+		"humanize.Commaf returns the same result in one call.",
 }
 
 // printExplanation prints the rationale for a given rule ID and returns. Used
