@@ -56,6 +56,7 @@ func detectSIFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath
 				"manual SI-prefix formatting (div1000=%v, kmSuffix=%v) — use humanize.SI instead",
 				div1000, kmSuffix,
 			),
+			"Replace with humanize.SI(float64(n), \"\") or humanize.SIWithDigits(float64(n), 1, \"\").",
 			line, col, filePath, finding.ConfidenceHigh,
 		),
 	}

@@ -44,6 +44,7 @@ func detectFtoa(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath str
 		makeFindingWithConfidence(
 			"H006",
 			"manual float trailing-zero stripping (nested TrimRight) — use humanize.Ftoa instead",
+			"Replace with humanize.Ftoa(f) or humanize.FtoaWithDigits(f, 1).",
 			line, col, filePath, finding.ConfidenceFull,
 		),
 	}

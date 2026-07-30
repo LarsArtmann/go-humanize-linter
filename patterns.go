@@ -696,14 +696,15 @@ func isPackageCall(call *ast.CallExpr, pkg, name string) bool {
 	return ident.Name == pkg
 }
 
-// makeFindingWithConfidence constructs a finding with an explicit confidence.
+// makeFindingWithConfidence constructs a finding with an explicit confidence
+// and suggestion text.
 func makeFindingWithConfidence(
-	ruleID, message string,
+	ruleID, message, suggestion string,
 	line, col int,
 	filePath string,
 	conf finding.Confidence,
 ) finding.Finding {
-	return finding.NewBuilder(
+	b := finding.NewBuilder(
 		finding.RuleName(ruleID),
 		finding.ToolName("go-humanize-linter"),
 		message,
@@ -712,6 +713,11 @@ func makeFindingWithConfidence(
 	).
 		WithCategory(finding.CategoryStyle).
 		WithFixStrategy(finding.FixStrategySuggest).
-		WithConfidence(conf).
-		MustBuild()
+		WithConfidence(conf)
+
+	if suggestion != "" {
+		b = b.WithSuggestion(suggestion)
+	}
+
+	return b.MustBuild()
 }

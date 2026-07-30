@@ -54,6 +54,7 @@ func detectPlural(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath s
 				"manual pluralization (namedParams=%v, equalsOne=%v) — use humanize.Plural instead",
 				namedParams, equalsOne,
 			),
+			"Replace with humanize.Plural(n, \"item\", \"\") or humanize.PluralWord(n, singular, plural).",
 			line, col, filePath, confidence,
 		),
 	}

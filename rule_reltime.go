@@ -58,6 +58,7 @@ func detectRelTimeFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, fil
 				"manual relative-time formatting (timeSince=%v, thresholds=%v) — use humanize.RelTime instead",
 				timeDiff, timeThreshold,
 			),
+			"Replace with humanize.RelTime(a, b, \"ago\", \"from now\") or humanize.Time(t) for time-since-now.",
 			line, col, filePath, confidence,
 		),
 	}

@@ -66,6 +66,7 @@ func detectCommaFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, fileP
 		makeFindingWithConfidence(
 			"H002",
 			fmt.Sprintf("manual comma formatting (%s) — use humanize.Comma instead", signals),
+			"Replace with humanize.Comma(int64(n)) for integers or humanize.Commaf(f) for floats.",
 			line, col, filePath, confidence,
 		),
 	}
