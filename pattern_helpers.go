@@ -187,6 +187,14 @@ const nolintLinterName = "gohumanize"
 // //nolint directive (e.g. "//nolint" or "//nolint:all").
 const nolintAllMarker = "all"
 
+// lintIgnorePrefix is the Go-style suppression directive prefix recognised in
+// addition to //nolint. Format:
+//
+//	//lint:ignore gohumanize          (suppress every H-rule)
+//	//lint:ignore gohumanize:H001     (only H001)
+//	//lint:ignore gohumanize reason   (suppress every H-rule, with reason)
+const lintIgnorePrefix = "//lint:ignore"
+
 // hasNoLintDirective reports whether fn carries a //nolint directive that
 // suppresses this linter. A directive counts if it appears in the function's
 // doc comment, as a trailing comment on the func's own line, or in any comment
@@ -229,10 +237,10 @@ func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) b
 	return false
 }
 
-// suppressedRules parses a //nolint comment and returns the linter/rule names
-// it lists. Returns nil if the comment is not a //nolint directive.
+// suppressedRules parses a suppression comment and returns the linter/rule
+// names it lists. Returns nil if the comment is not a suppression directive.
 //
-// Recognised syntax:
+// Recognised syntax (two flavours):
 //
 //	//nolint                            → ["all"]
 //	//nolint:all                        → ["all"]
@@ -240,25 +248,48 @@ func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) b
 //	//nolint:gohumanize:H001            → ["gohumanize", "H001"]
 //	//nolint:gohumanize:H001,H002       → ["gohumanize", "H001", "H002"]
 //	//nolint:gohumanize,other           → ["gohumanize", "other"]
+//	//lint:ignore gohumanize            → ["gohumanize"]   (Go-style)
+//	//lint:ignore gohumanize:H001       → ["gohumanize", "H001"]
+//	//lint:ignore gohumanize reason     → ["gohumanize"]   (reason after linter)
 //
 // The "all" token means "suppress every linter". When the first token after
-// "nolint:" is "gohumanize" (our linter name), any subsequent colon-prefixed
-// tokens like ":H001" are sub-scopes within that linter.
+// "nolint:" or "lint:ignore" is "gohumanize" (our linter name), any subsequent
+// colon-prefixed tokens like ":H001" are sub-scopes within that linter.
 func suppressedRules(commentText string) []string {
 	body := strings.TrimSpace(strings.TrimPrefix(commentText, "//"))
-	if !strings.HasPrefix(body, "nolint") {
+
+	// Two supported directive prefixes.
+	var rest string
+
+	switch {
+	case strings.HasPrefix(body, "nolint"):
+		rest = strings.TrimSpace(strings.TrimPrefix(body, "nolint"))
+	case strings.HasPrefix(body, "lint:ignore"):
+		rest = strings.TrimSpace(strings.TrimPrefix(body, "lint:ignore"))
+	default:
 		return nil
 	}
 
-	rest := strings.TrimSpace(strings.TrimPrefix(body, "nolint"))
-
-	// Bare "//nolint" suppresses everything.
+	// Bare "//nolint" or "//lint:ignore" (with no linter name) suppresses
+	// everything only in the nolint flavour; lint:ignore requires a linter.
 	if rest == "" {
 		return []string{nolintAllMarker}
 	}
 
 	if !strings.HasPrefix(rest, ":") {
-		return nil
+		// No colon — first whitespace-delimited token is the linter name (or
+		// "all"). For lint:ignore, "all" means "suppress every linter".
+		fields := strings.Fields(rest)
+		if len(fields) == 0 {
+			return nil
+		}
+
+		body2 := fields[0]
+		if body2 == "" {
+			return nil
+		}
+
+		return splitAndExpand(body2)
 	}
 
 	body2 := noLintList(rest)
@@ -266,6 +297,17 @@ func suppressedRules(commentText string) []string {
 		return nil
 	}
 
+	return splitAndExpand(body2)
+}
+
+// splitAndExpand splits a comma-separated list of linter names and colon-scoped
+// rule IDs into a flat []string. Examples:
+//
+//	"gohumanize"             → ["gohumanize"]
+//	"gohumanize:H001"        → ["gohumanize", "H001"]
+//	"H001"                   → ["H001"]
+//	"gohumanize:H001,H002"   → ["gohumanize", "H001", "H002"]
+func splitAndExpand(body2 string) []string {
 	out := []string{}
 
 	for name := range strings.SplitSeq(body2, ",") {

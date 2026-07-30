@@ -89,6 +89,18 @@ func TestCLI_SuppressedByDirective(t *testing.T) {
 	}
 }
 
+func TestCLI_SuppressedByDirectiveCommaList(t *testing.T) {
+	t.Parallel()
+
+	// Verifies that a comma-list directive like
+	// "//nolint:gohumanize,unused" still suppresses gohumanize findings
+	// when other linter names are listed alongside it.
+	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed_comma"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings with comma-list //nolint, got %d: %+v", len(findings), findings)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H002 — manual-comma-format
 // ---------------------------------------------------------------------------
@@ -156,6 +168,17 @@ func TestRulePlural_NamedParams(t *testing.T) {
 	findings := runRule(t, humanizelint.RulePlural(), testdataDir(t, "h004_plural_params"))
 	if len(findings) != 1 {
 		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+}
+
+func TestRuleComma_Negative(t *testing.T) {
+	t.Parallel()
+
+	// formatSSN writes separators but lacks mod-3 / step-by-3 / for-loop +
+	// digit-conversion patterns. H002 must not fire.
+	findings := runRule(t, humanizelint.RuleComma(), testdataDir(t, "h002_negative"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings on H002 negative fixture, got %d: %+v", len(findings), findings)
 	}
 }
 

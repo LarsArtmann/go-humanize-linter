@@ -22,6 +22,9 @@ func TestNoLintMatches(t *testing.T) {
 		{"//nolint:gohumanize // trailing reason text", []string{"gohumanize"}},
 		{"//nolint:other", []string{"other"}},
 		{"//nolint :", []string{}},
+		{"//lint:ignore gohumanize", []string{"gohumanize"}},
+		{"//lint:ignore gohumanize:H001", []string{"gohumanize", "H001"}},
+		{"//lint:ignore gohumanize reason text", []string{"gohumanize"}},
 		{"// regular comment", nil},
 		{"//notanolint", nil},
 		{"", nil},
@@ -271,6 +274,265 @@ func f() int { return 3 }
 			_, _, fn := parseFirstFunc(t, tt.src)
 			if got := hasStepBy3(fn); got != tt.want {
 				t.Errorf("hasStepBy3 = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHasEqualsOneBranch(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		src  string
+		want bool
+	}{
+		{
+			name: "if n == 1 with string literal in branch",
+			src: `package main
+
+func f(n int) string {
+	if n == 1 {
+		return "one"
+	}
+
+	return "many"
+}
+`,
+			want: true,
+		},
+		{
+			name: "if 1 == n (literal on left)",
+			src: `package main
+
+func f(n int) string {
+	if 1 == n {
+		return "one"
+	}
+
+	return "many"
+}
+`,
+			want: true,
+		},
+		{
+			name: "if n != 1 (NEQ operator)",
+			src: `package main
+
+func f(n int) string {
+	if n != 1 {
+		return "many"
+	}
+
+	return "one"
+}
+`,
+			want: true,
+		},
+		{
+			name: "if n == 1 with string concat",
+			src: `package main
+
+func f(n int) string {
+	if n == 1 {
+		return "item-" + "1"
+	}
+
+	return "items-many"
+}
+`,
+			want: true,
+		},
+		{
+			name: "if n == 1 no string in branch (FP filter)",
+			src: `package main
+
+func f(n int) int {
+	if n == 1 {
+		return 42
+	}
+
+	return 100
+}
+`,
+			want: false,
+		},
+		{
+			name: "if n == 2 (not equal to 1)",
+			src: `package main
+
+func f(n int) string {
+	if n == 2 {
+		return "two"
+	}
+
+	return "other"
+}
+`,
+			want: false,
+		},
+		{
+			name: "if len(s) == 1 (function call, not simple ident)",
+			src: `package main
+
+func f(s string) string {
+	if len(s) == 1 {
+		return "single"
+	}
+
+	return "many"
+}
+`,
+			want: false,
+		},
+		{
+			name: "no if at all",
+			src: `package main
+
+func f(n int) string { return "x" }
+`,
+			want: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, _, fn := parseFirstFunc(t, tt.src)
+			if got := hasEqualsOneBranch(fn); got != tt.want {
+				t.Errorf("hasEqualsOneBranch = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHasCommaOrSeparator(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		src  string
+		want bool
+	}{
+		{
+			name: "WriteString comma",
+			src: `package main
+
+import "strings"
+
+func f() {
+	var b strings.Builder
+	b.WriteString(",")
+}
+`,
+			want: true,
+		},
+		{
+			name: "WriteString dot",
+			src: `package main
+
+import "strings"
+
+func f() {
+	var b strings.Builder
+	b.WriteString(".")
+}
+`,
+			want: true,
+		},
+		{
+			name: "WriteByte rune comma",
+			src: `package main
+
+import "strings"
+
+func f() {
+	var b strings.Builder
+	b.WriteByte(',')
+}
+`,
+			want: true,
+		},
+		{
+			name: "WriteRune rune comma",
+			src: `package main
+
+import "strings"
+
+func f() {
+	var b strings.Builder
+	b.WriteRune(',')
+}
+`,
+			want: true,
+		},
+		{
+			name: "strings.Join with comma",
+			src: `package main
+
+import "strings"
+
+func f() string {
+	return strings.Join([]string{"a", "b"}, ",")
+}
+`,
+			want: true,
+		},
+		{
+			name: "strings.Join with space",
+			src: `package main
+
+import "strings"
+
+func f() string {
+	return strings.Join([]string{"a", "b"}, " ")
+}
+`,
+			want: true,
+		},
+		{
+			name: "WriteString no separator",
+			src: `package main
+
+import "strings"
+
+func f() {
+	var b strings.Builder
+	b.WriteString("hello")
+}
+`,
+			want: false,
+		},
+		{
+			name: "no WriteString at all",
+			src: `package main
+
+func f() string { return "x" }
+`,
+			want: false,
+		},
+		{
+			name: "strings.Join with non-separator",
+			src: `package main
+
+import "strings"
+
+func f() string {
+	return strings.Join([]string{"a", "b"}, "X")
+}
+`,
+			want: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, _, fn := parseFirstFunc(t, tt.src)
+			if got := hasCommaOrSeparator(fn); got != tt.want {
+				t.Errorf("hasCommaOrSeparator = %v, want %v", got, tt.want)
 			}
 		})
 	}

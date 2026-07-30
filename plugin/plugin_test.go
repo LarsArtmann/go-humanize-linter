@@ -179,7 +179,8 @@ func TestAnalyzerAnalysistest(t *testing.T) {
 
 	testdata := filepath.Join("..", "testdata", "analysistest")
 
-	analysistest.Run(t, testdata, plugin.Analyzer,
+	analysistest.Run(
+		t, testdata, plugin.Analyzer,
 		"./h001positive",
 		"./h002positive",
 		"./h003positive",
