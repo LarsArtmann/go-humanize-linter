@@ -179,8 +179,6 @@ func makeFindingWithConfidence(
 // Suppression directives
 // ---------------------------------------------------------------------------
 
-//nolint:gochecknoglobals // package-level rule ID constants used as AST IDs
-
 // Rule ID constants. Defined as package-level constants so detector
 // implementations and detector lists stay in sync without goconst complaints.
 const (
