@@ -11,13 +11,13 @@ import (
 // DefaultRegistry returns a Registry pre-loaded with all humanize-lint rules,
 // all enabled by default.
 func DefaultRegistry() *linter.Registry {
-	r := linter.NewRegistry()
+	registry := linter.NewRegistry()
 
 	for _, rule := range AllRules() {
-		r.Register(rule)
+		registry.Register(rule)
 	}
 
-	return r
+	return registry
 }
 
 // AllRules returns every rule in this linter as a slice. Useful for consumers
@@ -49,7 +49,7 @@ func DetectFuncDecl(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fileP
 		detectParseBytes,
 	}
 
-	var all []finding.Finding
+	all := make([]finding.Finding, 0, len(detectors))
 
 	for _, d := range detectors {
 		all = append(all, d(fset, file, fn, filePath)...)

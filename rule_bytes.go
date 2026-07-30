@@ -34,7 +34,12 @@ func RuleBytes() linter.RuleFunc {
 	}
 }
 
-func detectBytesFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+func detectBytesFormat(
+	fset *token.FileSet,
+	file *ast.File,
+	fn *ast.FuncDecl,
+	filePath string,
+) []finding.Finding {
 	kmgtp := hasKMGTPEIndex(fn)
 	unitSlice := hasByteUnitSlice(fn)
 	units := countByteUnits(fn)
@@ -60,16 +65,45 @@ func detectBytesFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 
 	line, col := posOf(fset, fn.Pos())
 
+	var msg string
+	switch {
+	case kmgtp:
+		msg = "manual byte-size formatting (KMGTPE index trick) — use humanize.Bytes or humanize.IBytes instead"
+	case unitSlice:
+		msg = fmt.Sprintf(
+			"manual byte-size formatting (unit string slice, %d unit strings) — use humanize.Bytes or humanize.IBytes instead",
+			unitCount,
+		)
+	case unitCount >= 3:
+		msg = fmt.Sprintf(
+			"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
+			unitCount,
+			div1024,
+		)
+	case unitCount >= 2 && div1024:
+		msg = fmt.Sprintf(
+			"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
+			unitCount,
+			div1024,
+		)
+	case unitCount >= 2:
+		msg = fmt.Sprintf(
+			"manual byte-size formatting (%d unit strings) — use humanize.Bytes or humanize.IBytes instead",
+			unitCount,
+		)
+	default:
+		return nil
+	}
+
 	return []finding.Finding{
 		makeFindingWithConfidence(
 			"H001",
-			fmt.Sprintf(
-				"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
-				unitCount,
-				div1024,
-			),
+			msg,
 			"Replace with humanize.Bytes(uint64(n)) for SI (KB/MB) or humanize.IBytes(uint64(n)) for IEC (KiB/MiB).",
-			line, col, filePath, confidence,
+			line,
+			col,
+			filePath,
+			confidence,
 		),
 	}
 }

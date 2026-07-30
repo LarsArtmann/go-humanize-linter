@@ -217,6 +217,14 @@ linters:
         - a
         - b
         - v
+        - e
+        - s
+        - f
+        - d
+        - be
+        - cl
+        - nn
+        - pf
       ignore-type-assert-ok: true
     wrapcheck:
       ignore-sigs:

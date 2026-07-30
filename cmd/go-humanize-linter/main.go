@@ -97,23 +97,23 @@ func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 		enableSet[id] = true
 	}
 
-	r := linter.NewRegistry()
+	registry := linter.NewRegistry()
 
 	for _, rule := range humanizelint.AllRules() {
-		id := rule.Meta.ID
+		ruleID := rule.Meta.ID
 
-		if disabled[id] {
+		if disabled[ruleID] {
 			continue
 		}
 
-		if enabledOnly && !enableSet[id] {
+		if enabledOnly && !enableSet[ruleID] {
 			continue
 		}
 
-		r.Register(rule)
+		registry.Register(rule)
 	}
 
-	return r
+	return registry
 }
 
 func output(report *finding.Report, format string, quiet bool) {
@@ -126,7 +126,7 @@ func output(report *finding.Report, format string, quiet bool) {
 			return
 		}
 
-		fmt.Println(data)
+		fmt.Println(data) //nolint:forbidigo // CLI stdout output
 
 	case "sarif":
 		if err := report.WriteSARIF(context.Background(), os.Stdout); err != nil {
@@ -147,11 +147,11 @@ func output(report *finding.Report, format string, quiet bool) {
 				suggestion = "\n    💡 " + f.Suggestion
 			}
 
-			fmt.Printf("%s [%s] %s%s\n", loc, f.Rule, f.Message, suggestion)
+			fmt.Printf("%s [%s] %s%s\n", loc, f.Rule, f.Message, suggestion) //nolint:forbidigo // CLI stdout output
 		}
 
 		if !quiet {
-			fmt.Printf("\n%d findings\n", report.Len())
+			fmt.Printf("\n%d findings\n", report.Len()) //nolint:forbidigo // CLI stdout output
 		}
 	}
 }

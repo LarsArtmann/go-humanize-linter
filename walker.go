@@ -1,6 +1,7 @@
 package humanizelint
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -19,7 +20,7 @@ type ParsedFile struct {
 }
 
 // skipDirs are directory basenames that WalkGoDir never descends into.
-var skipDirs = map[string]bool{
+var skipDirs = map[string]bool{ //nolint:gochecknoglobals // package-level lookup table
 	"vendor":       true,
 	".git":         true,
 	"testdata":     true,
@@ -66,7 +67,7 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 
 		file, parseErr := parser.ParseFile(fset, path, nil, parser.ParseComments)
 		if parseErr != nil {
-			return nil
+			return nil //nolint:nilerr // syntax errors are the compiler's job, not the linter's
 		}
 
 		files = append(files, ParsedFile{Path: path, Fset: fset, File: file})
@@ -74,7 +75,11 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 		return nil
 	})
 
-	return files, err
+	if err != nil {
+		return nil, fmt.Errorf("walking %s: %w", dir, err)
+	}
+
+	return files, nil
 }
 
 // detectorFunc inspects a single function declaration and returns findings for

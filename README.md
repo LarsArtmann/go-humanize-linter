@@ -19,11 +19,11 @@ This linter finds those reimplementations automatically.
 | H003 | manual-reltime-format | Relative time formatting ("3 hours ago")                   | `humanize.RelTime` / `humanize.Time`      |
 | H004 | manual-plural         | English pluralization (`if n == 1`)                        | `humanize.Plural` / `humanize.PluralWord` |
 | H005 | manual-si-format      | SI-prefix formatting ("1.2K", "3.4M")                      | `humanize.SI` / `humanize.SIWithDigits`   |
-| H006 | manual-ftoa           | Float trailing-zero stripping (nested TrimRight)           | `humanize.Ftoa`                           |
+
 
 ## Detection Strategy
 
-Each rule requires **multiple corroborating signals** within the same function. Single weak signals are never enough — this keeps false positives near zero.
+
 
 ### Examples of detected patterns
 
@@ -80,13 +80,7 @@ func main() {
 }
 ```
 
-### Cherry-pick individual rules
 
-```go
-registry := linter.NewRegistry()
-registry.Register(humanizelint.RuleBytes())    // only H001
-registry.Register(humanizelint.RuleComma())    // only H002
-```
 
 ## Build & Test
 
@@ -100,6 +94,4 @@ Direct Go commands require `GOEXPERIMENT=jsonv2` and `GOPRIVATE=github.com/larsa
 
 ## Requirements
 
-- Go 1.26+ (uses `encoding/json/v2` experiment via go-finding)
-- go-finding v1.4.1+
-- go-linter-sdk v0.1.0+
+

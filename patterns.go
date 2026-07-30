@@ -212,15 +212,8 @@ func hasConst1024(file *ast.File, fn *ast.FuncDecl) bool {
 		}
 
 		for _, spec := range gd.Specs {
-			vs, ok := spec.(*ast.ValueSpec)
-			if !ok {
-				continue
-			}
-
-			for _, val := range vs.Values {
-				if isLiteral1024ish(val) {
-					hit = true
-				}
+			if specHas1024Value(spec) {
+				hit = true
 			}
 		}
 
@@ -235,20 +228,29 @@ func hasConst1024(file *ast.File, fn *ast.FuncDecl) bool {
 		}
 
 		for _, spec := range gd.Specs {
-			vs, ok := spec.(*ast.ValueSpec)
-			if !ok {
-				continue
-			}
-
-			for _, val := range vs.Values {
-				if isLiteral1024ish(val) {
-					hit = true
-				}
+			if specHas1024Value(spec) {
+				hit = true
 			}
 		}
 	}
 
 	return hit
+}
+
+// specHas1024Value reports whether a ValueSpec contains a literal 1024-ish value.
+func specHas1024Value(spec ast.Spec) bool {
+	vs, ok := spec.(*ast.ValueSpec)
+	if !ok {
+		return false
+	}
+
+	for _, val := range vs.Values {
+		if isLiteral1024ish(val) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // ---------------------------------------------------------------------------
