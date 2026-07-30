@@ -18,7 +18,7 @@
 // # How it works
 //
 // The Analyzer wraps the same AST detection functions used by the standalone
-// CLI. golangci-lint passes a [*analysis.Pass] per package; the Run function
+// CLI. golangci-lint passes a [*analysis.Pass] per package; analyzeHumanize
 // iterates over pass.Files, finds every [*ast.FuncDecl], applies all seven
 // detection rules, and converts [finding.Finding] results to
 // [analysis.Diagnostic] via pass.Report.
@@ -41,13 +41,14 @@ func newAnalyzer() *analysis.Analyzer {
 	return &analysis.Analyzer{ //nolint:exhaustruct
 		Name: "gohumanize",
 		Doc:  "Detect hand-rolled reimplementations of github.com/dustin/go-humanize",
-		Run:  run,
+		Run:  analyzeHumanize,
 	}
 }
 
-// run is the analysis.Analyzer.Run implementation. It iterates over every Go
-// file in the package, finds function declarations, and applies all detectors.
-func run(pass *analysis.Pass) (any, error) {
+// analyzeHumanize is the analysis.Analyzer.Run implementation. It iterates over
+// every Go file in the package, finds function declarations, and applies all
+// detectors.
+func analyzeHumanize(pass *analysis.Pass) (any, error) {
 	for _, file := range pass.Files {
 		filePath := pass.Fset.Position(file.Pos()).Filename
 

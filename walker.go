@@ -62,8 +62,8 @@ func WalkGoDir(dir string) ([]ParsedFile, error) { //nolint:erraudit
 
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			//nolint:erraudit // err is from filepath.WalkDir; fset/base/parseErr flagged are out-of-scope variables (erraudit false positive)
-			return fmt.Errorf("walk %s: %w", path, err)
+			// err from filepath.WalkDir; fset/base/parseErr flagged are out-of-scope (erraudit FP)
+			return fmt.Errorf("walk %s: %w", path, err) //nolint:erraudit
 		}
 
 		if d.IsDir() {

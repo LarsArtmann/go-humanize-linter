@@ -116,12 +116,13 @@ func main() {
 }
 
 // printRules writes a table of every rule (ID, name, severity, description) to
-// stdout, then returns. Used by the --rules flag.
+// stdout, then returns. Used by the --rules flag. Output goes to stdout so it
+// pipes cleanly into grep / less / other tools.
 func printRules() {
-	fmt.Fprintf(os.Stderr, "%-6s %-26s %-8s %s\n", "ID", "NAME", "SEV", "DESCRIPTION")
+	fmt.Printf("%-6s %-26s %-8s %s\n", "ID", "NAME", "SEV", "DESCRIPTION")
 
 	for _, rule := range humanizelint.AllRules() {
-		fmt.Fprintf(os.Stderr, "%-6s %-26s %-8s %s\n",
+		fmt.Printf("%-6s %-26s %-8s %s\n",
 			rule.Meta.ID, rule.Meta.Name, rule.Meta.Sev, rule.Meta.Description)
 	}
 }

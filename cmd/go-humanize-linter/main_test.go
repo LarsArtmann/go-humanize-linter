@@ -431,14 +431,23 @@ func TestCLI_RulesFlag(t *testing.T) {
 
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("expected exit 0 for --rules, got error: %v\n%s", err, out)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("expected exit 0 for --rules, got error: %v\nstdout: %s\nstderr: %s",
+			err, stdout.String(), stderr.String())
+	}
+
+	// --rules must write to stdout (so it pipes cleanly) and be silent on stderr.
+	if stderr.Len() != 0 {
+		t.Errorf("--rules wrote to stderr (should be stdout only): %q", stderr.String())
 	}
 
 	for _, id := range []string{"H001", "H002", "H003", "H004", "H005", "H006", "H007"} {
-		if !strings.Contains(string(out), id) {
-			t.Errorf("--rules output missing %s: %q", id, out)
+		if !strings.Contains(stdout.String(), id) {
+			t.Errorf("--rules stdout missing %s: %q", id, stdout.String())
 		}
 	}
 }
