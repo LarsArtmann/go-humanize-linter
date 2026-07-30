@@ -12,12 +12,15 @@
 //	--disable <id>   Disable a specific rule (repeatable).
 //	--format <type>  Output format: text (default), json, sarif.
 //	--quiet          Suppress summary line.
+//	--rules          List all rules with descriptions and exit.
+//	--version, -v    Print version and exit.
 package main
 
 import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -26,18 +29,27 @@ import (
 	"github.com/larsartmann/go-linter-sdk"
 )
 
+// version is the CLI version. It is overridden at build time via -ldflags,
+// e.g. -ldflags "-X main.version=v0.1.0".
+var version = "dev"
+
 func main() {
 	var (
-		enableIDs  stringList
-		disableIDs stringList
-		format     string
-		quiet      bool
+		enableIDs    stringList
+		disableIDs   stringList
+		format       string
+		quiet        bool
+		showVersion  bool
+		showRules    bool
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
 	flag.Var(&disableIDs, "disable", "disable specific rule ID (repeatable)")
 	flag.StringVar(&format, "format", "text", "output format: text, json, sarif")
 	flag.BoolVar(&quiet, "quiet", false, "suppress summary line")
+	flag.BoolVar(&showVersion, "version", false, "print version and exit")
+	flag.BoolVar(&showVersion, "v", false, "shorthand for --version")
+	flag.BoolVar(&showRules, "rules", false, "list all rules with descriptions and exit")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [flags] <path>\n\n", os.Args[0])
@@ -52,6 +64,18 @@ func main() {
 	}
 
 	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("go-humanize-linter %s\n", version) //nolint:forbidigo // CLI stdout output
+
+		return
+	}
+
+	if showRules {
+		printRules()
+
+		return
+	}
 
 	args := flag.Args()
 	if len(args) == 0 {
@@ -69,9 +93,20 @@ func main() {
 		os.Exit(2)
 	}
 
-	output(report, format, quiet)
+	output(os.Stdout, report, format, quiet)
 
 	os.Exit(linter.ExitCodeFromReport(report))
+}
+
+// printRules writes a table of every rule (ID, name, severity, description) to
+// stdout, then returns. Used by the --rules flag.
+func printRules() {
+	fmt.Fprintf(os.Stderr, "%-6s %-26s %-8s %s\n", "ID", "NAME", "SEV", "DESCRIPTION") //nolint:forbidigo // CLI output
+
+	for _, rule := range humanizelint.AllRules() {
+		fmt.Fprintf(os.Stderr, "%-6s %-26s %-8s %s\n", //nolint:forbidigo // CLI output
+			rule.Meta.ID, rule.Meta.Name, rule.Meta.Sev, rule.Meta.Description)
+	}
 }
 
 // stringList implements flag.Value for repeatable string flags.
@@ -116,7 +151,7 @@ func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 	return registry
 }
 
-func output(report *finding.Report, format string, quiet bool) {
+func output(w io.Writer, report *finding.Report, format string, quiet bool) {
 	switch format {
 	case "json":
 		data, err := report.JSON()
@@ -126,10 +161,10 @@ func output(report *finding.Report, format string, quiet bool) {
 			return
 		}
 
-		fmt.Println(data) //nolint:forbidigo // CLI stdout output
+		fmt.Fprintln(w, data) //nolint:forbidigo // CLI stdout output
 
 	case "sarif":
-		if err := report.WriteSARIF(context.Background(), os.Stdout); err != nil {
+		if err := report.WriteSARIF(context.Background(), w); err != nil {
 			fmt.Fprintf(os.Stderr, "sarif error: %v\n", err)
 
 			return
@@ -147,11 +182,11 @@ func output(report *finding.Report, format string, quiet bool) {
 				suggestion = "\n    💡 " + f.Suggestion
 			}
 
-			fmt.Printf("%s [%s] %s%s\n", loc, f.Rule, f.Message, suggestion) //nolint:forbidigo // CLI stdout output
+			fmt.Fprintf(w, "%s [%s] %s%s\n", loc, f.Rule, f.Message, suggestion) //nolint:forbidigo // CLI stdout output
 		}
 
 		if !quiet {
-			fmt.Printf("\n%d findings\n", report.Len()) //nolint:forbidigo // CLI stdout output
+			fmt.Fprintf(w, "\n%d findings\n", report.Len()) //nolint:forbidigo // CLI stdout output
 		}
 	}
 }

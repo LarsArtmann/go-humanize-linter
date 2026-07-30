@@ -174,3 +174,76 @@ func makeFindingWithConfidence(
 
 	return b.MustBuild()
 }
+
+// ---------------------------------------------------------------------------
+// Suppression directives
+// ---------------------------------------------------------------------------
+
+// nolintLinterName is the analyzer name users write in //nolint directives. It
+// matches plugin.Analyzer.Name ("gohumanize").
+const nolintLinterName = "gohumanize"
+
+// hasNoLintDirective reports whether fn carries a //nolint directive that
+// suppresses this linter. A directive counts if it appears in the function's
+// doc comment, as a trailing comment on the func's own line, or in any comment
+// group positioned on the line immediately before the declaration.
+//
+// Recognised forms:
+//
+//	//nolint                     (suppresses everything)
+//	//nolint:all                 (suppresses everything)
+//	//nolint:gohumanize          (suppresses only this linter)
+//	//nolint:gohumanize,other    (comma-separated list)
+func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) bool {
+	if file == nil || fn == nil {
+		return false
+	}
+
+	fnLine := fset.Position(fn.Pos()).Line
+
+	for _, group := range file.Comments {
+		isDoc := group == fn.Doc
+
+		for _, c := range group.List {
+			if !noLintMatches(c.Text) {
+				continue
+			}
+
+			cmtLine := fset.Position(c.Pos()).Line
+			if isDoc || cmtLine == fnLine || cmtLine == fnLine-1 {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// noLintMatches reports whether commentText is a //nolint directive that
+// applies to this linter (gohumanize) or to all linters.
+func noLintMatches(commentText string) bool {
+	body := strings.TrimSpace(strings.TrimPrefix(commentText, "//"))
+	if !strings.HasPrefix(body, "nolint") {
+		return false
+	}
+
+	rest := strings.TrimSpace(strings.TrimPrefix(body, "nolint"))
+
+	// Bare "//nolint" suppresses everything.
+	if rest == "" {
+		return true
+	}
+
+	if !strings.HasPrefix(rest, ":") {
+		return false
+	}
+
+	for _, name := range strings.Split(strings.TrimPrefix(rest, ":"), ",") {
+		switch strings.TrimSpace(name) {
+		case "all", nolintLinterName:
+			return true
+		}
+	}
+
+	return false
+}

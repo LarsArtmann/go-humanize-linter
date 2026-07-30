@@ -102,6 +102,10 @@ func checkFuncDecls(dir string, detect detectorFunc) ([]finding.Finding, error) 
 				continue
 			}
 
+			if hasNoLintDirective(pf.Fset, pf.File, fn) {
+				continue
+			}
+
 			all = append(all, detect(pf.Fset, pf.File, fn, pf.Path)...)
 		}
 	}

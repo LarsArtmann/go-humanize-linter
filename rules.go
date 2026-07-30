@@ -39,6 +39,10 @@ func AllRules() []linter.RuleFunc {
 // golangci-lint plugin wrapper (plugin/plugin.go) which iterates over
 // pass.Files instead of walking a directory.
 func DetectFuncDecl(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+	if hasNoLintDirective(fset, file, fn) {
+		return nil
+	}
+
 	detectors := []func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding{
 		detectBytesFormat,
 		detectCommaFormat,
