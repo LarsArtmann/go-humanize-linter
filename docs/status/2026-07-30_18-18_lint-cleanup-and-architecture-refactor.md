@@ -222,3 +222,9 @@ Session started with a full buildflow run showing **3 hard failures** and **42 g
 2. **Should I pin CI actions to SHAs?** The go-structure-linter flags `@v4`/`@v5`/`@v6` tag pins as security risks. This is a real concern but adds maintenance burden (manual SHA bumps). Is this project's threat model strict enough to require SHA pinning?
 
 3. **Should the auto-git daemon be disabled during active editing sessions?** It repeatedly destroyed my work (splitting files, rewriting code, introducing lint issues). This created a massive productivity tax. Is this intentional behavior or should it be configured to skip during active development?
+
+---
+
+## Resolution (2026-07-30)
+
+The lint cleanup landed: golangci-lint now reports **0 issues** (was 42 → 3 hard failures → 9 → 0). The erraudit findings (9) and go-structure-linter findings (19) mentioned in section B are all resolved. `patterns.go` was split into per-rule files. H008 + H009 were later added (9 rules total). Open items from this report's "not started" / "improve" sections (CI SHA pinning, `flake.nix` `packages.default`, CONTRIBUTING checklist) moved to `TODO_LIST.md`.

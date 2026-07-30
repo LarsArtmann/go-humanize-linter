@@ -31,7 +31,7 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 | `rule_commaf.go`          | H009 — manual float-with-comma formatting                                                                 |
 | `doc.go`                  | Package documentation                                                                                     |
 | `plugin/plugin.go`        | golangci-lint plugin wrapper (`analysis.Analyzer` named `gohumanize`)                                     |
-| `cmd/go-humanize-linter/` | CLI binary with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`, `--rules`, `--version`  |
+| `cmd/go-humanize-linter/` | CLI binary with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain`  |
 | `cmd/gohumanize/`         | singlechecker entry point for standalone plugin testing                                                   |
 
 ## Rule IDs
@@ -110,3 +110,5 @@ go vet ./...
 - **erraudit (historical)** — erraudit flagged out-of-scope variables (`fset`/`base`/`parseErr`/`detect`/`files`) as missing context on error wraps inside `walker.go`. The tool itself is structurally flawed for this codebase (pattern-matches identifiers without scope checking). The `//nolint:erraudit` directives in `walker.go` have been removed; the `nolint_filter` warning is filtered from `nix run .#lint` output (golanci-lint can't validate a directive for a non-registered linter). The `WalkError`/`OutputError` types satisfy `generic_return` for two of three functions; `WalkGoDir`'s signature stays `error` for v0.1.x backward compatibility.
 - **Scope suppression** — `//nolint:gohumanize:H001` (per-rule) works alongside the unscoped form. Range syntax `H001-H009` is NOT supported (use individual IDs). See `ruleIDH001`–`ruleIDH009` in `pattern_helpers.go` for canonical IDs.
 - **H008 / H009 thunks** — both detectors (`pattern_ordinal.go`, `pattern_commaf.go`) extract helpers to keep cyclomatic complexity under 12. The format-string walker in H009 (`walkFormatFloatVerbs`) is intentionally split rather than left as one monolithic loop so the `%.Nf` and `%<digit>f` code paths can be tested in isolation.
+- **`go.mod` replace directives are local-dev only** — `go.mod` points `go-finding`, `go-linter-sdk`, and `go-error-family` at `../go-*` sibling repos. These are a development convenience, not part of any release. Publishing to the golangci-lint plugin index is blocked until `go-linter-sdk` has a tag and the replaces can be removed.
+- **Analysistest gap** — `TestAnalyzerAnalysistest` (`plugin/plugin_test.go`) runs H001–H007 + clean only, even though `h008positive`/`h009positive` fixtures exist. The two new rules are not yet wired into the run call.

@@ -2,174 +2,190 @@
 
 > Short- and mid-term improvement tasks for go-humanize-linter.
 >
-> Every item below is broken into **atomic sub-tasks** (~5–12 min each) so work
-> can be picked up, verified, and committed independently. Items are sorted by a
-> **Priority** score = `Impact × CustomerValue ÷ Effort` (higher = do first).
+> **Open work only.** When a task is finished, delete it here and record it in
+> `CHANGELOG.md`. Every item below has been verified against the code as not-yet-done.
 >
-> Legend — Effort: `XS` ≤15 min · `S` ≤30 min · `M` ≤2 h · `L` ≥½ day.
-> Status: `planned` · `in-progress` · `done`.
+> Legend — Effort: `XS` ≤15 min · `S` ≤1 h · `M` ≤4 h · `L` ≥½ day.
 
-## Priority summary
+## Summary
 
-| P#  | Item                                                   | Tier          | Impact | Cust.Value | Effort | Priority | Status  |
-| --- | ------------------------------------------------------ | ------------- | :----: | :--------: | :----: | :------: | ------- |
-| P1  | `//nolint:gohumanize` suppression directive            | Critical      |   5    |     5      |   M    | **4.2**  | done    |
-| P2  | `--version` flag                                       | High / polish |   2    |     4      |   XS   | **8.0**  | done    |
-| P3  | `--rules` flag                                         | High / polish |   3    |     4      |   XS   | **12.0** | done    |
-| P4  | CLI unit tests (`buildRegistry`/`output`/`stringList`) | Medium        |   4    |     3      |   S    | **6.0**  | done    |
-| P5  | Self-exclusion: don't flag own source                  | Critical      |   2    |     2      |   XS   | **8.0**  | done    |
-| P6  | `example_test.go` runnable Examples                    | Medium        |   3    |     4      |   S    | **6.0**  | done    |
-| P7  | analysistest integration test for plugin (6.2% → up)   | High          |   4    |     3      |   M    | **3.0**  | planned |
-| P8  | SARIF output integration test                          | Medium        |   2    |     2      |   XS   | **4.0**  | done    |
-| P9  | Save validation sweep to `docs/validation/`            | High          |   2    |     3      |   XS   | **6.0**  | done    |
-| P10 | Table-driven tests for `hasConst1024` / `hasStepBy3`   | Medium        |   2    |     2      |   S    | **4.0**  | done    |
-| P11 | Reach 80%+ coverage (reframe: CLI + plugin)            | Medium        |   4    |     2      |   S    | **4.0**  | partial |
-| P20 | Resolve 9 remaining lint issues in new pattern files   | Medium        |   3    |     3      |   S    | **4.5**  | done    |
-| P12 | Configurable rules in plugin mode (flags)              | Medium        |   3    |     3      |   M    | **2.3**  | planned |
-| P13 | GitHub Action for running linter in CI                 | Medium        |   3    |     3      |   S    | **3.0**  | planned |
-| P14 | H008 — `humanize.Ordinal` rule                         | Low / future  |   3    |     2      |   M    | **1.5**  | done    |
-| P15 | H009 — `humanize.Commaf` rule variant                  | Low / future  |   3    |     2      |   M    | **1.5**  | done    |
-| P16 | Package-level `var` detection for H007                 | Low / future  |   2    |     1      |   M    | **0.8**  | planned |
-| P17 | go/types type-aware detection                          | Low / future  |   5    |     3      |   L    | **0.9**  | planned |
-| P18 | `--config` flag for YAML/TOML rule configuration       | Low / future  |   2    |     2      |   M    | **1.0**  | planned |
-| P19 | Publish to golangci-lint plugin index                  | Low / future  |   2    |     2      |   S    | **2.0**  | blocked |
-
-> Notes on the legacy "74.1% coverage" entry: the core library is now at **90.8%**
-> and the CLI at **44.7%** (was 0%). The remaining coverage gap is the **plugin
-> (6.2%)**, blocked on P7 (analysistest).
+| #   | Task                                                                      | Tier   | Effort | Status   |
+| --- | ------------------------------------------------------------------------- | ------ | ------ | -------- |
+| T1  | Wire H008 + H009 analysistest fixtures into the test run                  | High   | XS     | planned  |
+| T2  | Negative testdata for H008 and H009                                       | High   | XS     | planned  |
+| T3  | `TestRuleCountConsistency` anti-ghost-rule guard                          | High   | XS     | planned  |
+| T4  | `TestHasOrdinalSwitch` table-driven test                                  | High   | XS     | planned  |
+| T5  | Rule doc pages: `docs/rules/H008.md` + `H009.md`                          | Medium | XS     | planned  |
+| T6  | Tag `v0.2.0` (code shipped; tag missing)                                  | High   | XS     | planned  |
+| T7  | Re-run real-world validation sweep with H008 + H009                       | High   | M      | planned  |
+| T8  | CONTRIBUTING.md rule-addition checklist                                   | Medium | XS     | planned  |
+| T9  | White-box unit tests for `pattern_commaf.go` helpers                      | Medium | S      | planned  |
+| T10 | Replace `nix run .#lint` `grep -v` filter with `.golangci.yml` plugin reg | High   | M      | planned  |
+| T11 | Configurable rules in plugin mode via `Analyzer.Flags`                    | Medium | M      | planned  |
+| T12 | GitHub Action composite `action.yml`                                      | Medium | S      | planned  |
+| T13 | Package-level `var` detection for H007                                    | Low    | M      | planned  |
+| T14 | go/types type-aware detection                                             | Low    | L      | planned  |
+| T15 | `--config` flag for YAML/TOML rule configuration                          | Low    | M      | planned  |
+| T16 | Publish to golangci-lint plugin index                                     | Low    | S      | blocked  |
 
 ---
 
-## P1 — `//nolint:gohumanize` suppression directive · Critical · _done_
+## Test gaps
 
-Users hit false positives and need an escape hatch. Honour the standard
-`//nolint` convention used across the Go ecosystem.
+### T1 — Wire H008 + H009 analysistest fixtures into the test run · High · _planned_
 
-- [x] `hasNoLintDirective(file, fn, "gohumanize")` helper — scans comment groups overlapping `fn.Pos()` for `//nolint:gohumanize` or `//nolint:all`
-- [x] Wire suppression into `checkFuncDecls` (CLI path)
-- [x] Wire suppression into `DetectFuncDecl` / plugin `run()` path
-- [x] testdata `h001_suppressed` → expect 0 findings
-- [x] Unit test for the directive helper
-- [x] README suppression section
+The fixtures `testdata/analysistest/h008positive/` and `h009positive/` exist, but
+`TestAnalyzerAnalysistest` (`plugin/plugin_test.go:177`) only runs H001–H007 + `clean`.
+The two new rules are never exercised through the full `analysis.Analyzer.Run` path.
 
-## P2 — `--version` flag · Polish · _done_
+- [ ] Add `"./h008positive"` and `"./h009positive"` to the `analysistest.Run` call
+- [ ] Verify each fixture's `// want` diagnostic matches
 
-- [x] `version` var (overridable via `-ldflags`) + `--version`/`-v` flag
-- [x] Print `go-humanize-linter <version>` and exit 0
-- [x] CLI test asserting version output
+### T2 — Negative testdata for H008 and H009 · High · _planned_
 
-## P3 — `--rules` flag · Polish · _done_
+H001–H005 each have a `*_negative/` fixture (clean code that must NOT flag).
+H006, H007, H008, and H009 have none. A clean ordinal `switch n { case 1: "1st" }`
+(no `%` operator) and a `%.Nf` Sprintf without a comma loop must return no findings.
 
-- [x] `--rules` flag prints ID · name · severity · description table and exits 0
-- [x] CLI test asserting all 7 rules appear
+- [ ] `testdata/h008_negative/main.go` — `switch n%10` with non-ordinal returns
+- [ ] `testdata/h009_negative/main.go` — `%.Nf` alone (no separator loop)
 
-## P4 — CLI unit tests (`buildRegistry` / `output` / `stringList`) · Medium · _done_
+### T3 — `TestRuleCountConsistency` anti-ghost-rule guard · High · _planned_
 
-- [x] Refactor `output()` to take `io.Writer` (testable without subprocess)
-- [x] `buildRegistry`: enable-only, disable-only, mixed, unknown-id cases
-- [x] `output`: text / json / sarif to a buffer
-- [x] `stringList` `Set`/`String` round-trip
+H009 shipped as a "ghost rule" (detector + test existed but it was never registered
+in `AllRules()`). A single test asserting
+`len(rule_*.go factories) == len(AllRules()) == len(allRuleDetectors())` blocks a
+repeat of that class of bug.
 
-## P5 — Self-exclusion: don't flag own source · Critical · _done_
+- [ ] Add a test that lists `rule_*.go` factories and asserts each has an entry in `AllRules()` and `allRuleDetectors()`
+- [ ] Assert the three sources agree on count (currently 9)
 
-The linter flags its own `rule_bytes.go` (H001). Resolved cleanly by annotating
-the self-matching detectors with the suppression directive from P1 — no special
-"skip own path" hack needed.
+### T4 — `TestHasOrdinalSwitch` table-driven test · High · _planned_
 
-- [x] Annotate self-flagging detectors in `rule_bytes.go` with `//nolint:gohumanize`
-- [x] Self-scan test: running the CLI on the repo's own source yields 0 findings
+Every other rule has a `TestHas*` table-driven helper test (`TestHasConst1024`,
+`TestHasStepBy3`, `TestHasEqualsOneBranch`, `TestHasCommaOrSeparator`). H008's
+`hasOrdinalSwitch` (`pattern_ordinal.go`) has none — it is only integration-tested
+via `TestRuleOrdinal_Positive`.
 
-## P6 — `example_test.go` runnable Examples · Medium · _done_
+- [ ] Table-driven test mirroring `TestHasEqualsOneBranch` (6+ cases), reusing `boolSrcCase`
 
-- [x] `ExampleDefaultRegistry`, `ExampleAllRules`, `ExampleDetectFuncDecl`
-- [x] `go test ./... -run Example` passes (verifiable in `go doc`)
+### T9 — White-box unit tests for `pattern_commaf.go` helpers · Medium · _planned_
 
-## P7 — analysistest integration test for plugin · High · _planned_
+The four pure helpers extracted to stay under cyclop/gocognit thresholds are
+trivially testable but currently only exercised through `TestRuleCommaf_Positive`:
 
-`plugin.run()` is at 6.2% coverage; only `Analyzer` metadata is asserted today.
+- [ ] `TestWalkFormatFloatVerbs` — `%%` escapes, mixed-width verbs, trailing junk
+- [ ] `TestScanDottedPercentFloat` / `TestScanBarePercentFloat`
+- [ ] `TestHasFormatFloatPrecision`
 
-- [ ] Create `testdata/src/` analysistest layout (positive + clean packages)
-- [ ] `analysistest.Run` with `plugin.Analyzer` + expected diagnostics
-- [ ] Assert generated-file skipping (`_gen.go`) inside the harness
+Risk without them: a future refactor silently regresses H009 to 0 detections.
+Evidence: `pattern_commaf.go:102-167`.
 
-## P8 — SARIF output integration test · Medium · _done_
+---
 
-- [x] CLI test: `--format sarif` emits valid JSON containing `"runs"`
+## Documentation
 
-## P9 — Save validation sweep to `docs/validation/` · High · _done_
+### T5 — Rule doc pages: `docs/rules/H008.md` + `H009.md` · Medium · _planned_
 
-- [x] `docs/validation/2026-07-30_real-world-sweep.md` with the 10-project results
+`docs/rules/` has `H001.md`–`H007.md`. H008 (manual-ordinal) and H009
+(manual-commaf) shipped in v0.2.0 but have no doc pages. The 0.2.0 CHANGELOG
+advertised "Markdown docs per rule: H001.md through H007.md" — the new rules
+were left out.
 
-## P10 — Table-driven tests for `hasConst1024` / `hasStepBy3` · Medium · _done_
+- [ ] `docs/rules/H008.md` matching the existing format (what it detects, example, fix, suppression)
+- [ ] `docs/rules/H009.md`
 
-- [x] `pattern_helpers_test.go` table tests: file-level const, in-fn const, MUL chains, `i+=3`, `i=i+3`
+### T8 — CONTRIBUTING.md rule-addition checklist · Medium · _planned_
 
-## P11 — Reach 80%+ coverage (reframe: CLI + plugin) · Medium · _partial_
+`CONTRIBUTING.md` is 14 lines of generic fork/PR guidance. It does not mention
+that adding a rule requires updating `rules.go`, `pattern_helpers.go` rule-ID
+constants, `example_test.go`, `linter_test.go` count assertion, AGENTS.md, and
+CHANGELOG.md — the exact drift that caused the H008/H009 doc rot. Also: the
+documented dev commands (`golangci-lint run ./...`) omit the required
+`GOEXPERIMENT=jsonv2` env.
 
-Core is 90.8%. CLI direct coverage reached 44.7% via P4. Remaining work is the
-plugin (6.2%), blocked on P7.
+- [ ] Add a "Adding a rule" checklist section
+- [ ] Fix dev-setup commands to match `flake.nix` / AGENTS.md (env vars or `nix run`)
 
-- [x] Core library ≥ 80% (currently 90.8%)
-- [x] CLI direct coverage ≥ 40% (currently 44.7%; remaining is `main()` flag/exit glue)
-- [ ] Plugin coverage ≥ 50% (blocked on P7 analysistest)
+---
 
-## P12 — Configurable rules in plugin mode · Medium · _planned_
+## Release & validation
 
-- [ ] Add `enable` / `disable` string flags to `plugin.Analyzer.Flags`
-- [ ] Filter `DetectFuncDecl` results by configured rule set in `run()`
-- [ ] analysistest covering enable/disable behaviour
+### T6 — Tag `v0.2.0` (code shipped; tag missing) · High · _planned_
 
-## P13 — GitHub Action for running linter in CI · Medium · _planned_
+H008, H009, scoped suppression, `HumanizeDetector`, `--explain`, and `--list-files`
+are all merged to `main` and documented in `CHANGELOG.md` under `[0.2.0]`. The only
+git tag is `v0.1.0`. The release workflow (`.github/workflows/release.yml`) fires
+on tags, so the 0.2.0 release artefacts have never been built.
 
-- [ ] Reusable composite `action.yml` (input: `path`, `enable`, `disable`, `format`)
+- [ ] Tag `v0.2.0` on `main` after T1–T5 land
+- [ ] Publish GitHub release notes
+
+### T7 — Re-run real-world validation sweep with H008 + H009 · High · _planned_
+
+H001–H007 were swept against 190+ Go projects (`docs/validation/2026-07-30_real-world-sweep.md`).
+H008 and H009 have never been swept against the corpus, so the "~0% FP" claim does
+not yet extend to them.
+
+- [ ] Run the linter over the 190+ project corpus with all 9 rules enabled
+- [ ] Record H008/H009 finding counts and false-positive rate
+- [ ] Save to `docs/validation/`
+
+---
+
+## Tooling & CI
+
+### T10 — Replace `nix run .#lint` `grep -v` filter with `.golangci.yml` plugin registration · High · _planned_
+
+`flake.nix` silences the `nolint_filter` "unknown linter: gohumanize" warning with a
+`grep -v`. This hides a real signal from the dev shell while a raw
+`golangci-lint run` (as the CI lint job does) still emits it. The proper fix is to
+register the project's own analyzer via `.golangci.yml`'s `plugins:` map.
+
+- [ ] Register `gohumanize` as a golangci-lint plugin in `.golangci.yml`
+- [ ] Remove the `grep -v` band-aid from `flake.nix`
+
+### T12 — GitHub Action composite `action.yml` · Medium · _planned_
+
+- [ ] Reusable composite `action.yml` (inputs: `path`, `enable`, `disable`, `format`)
 - [ ] README "Use in GitHub Actions" section
 
-## P14 — H008 — `humanize.Ordinal` rule · Future · _done_
+---
 
-- [x] Detect `switch n%10` returning `"st"`/`"nd"`/`"rd"`/`"th"`
-- [x] `rule_ordinal.go` + `pattern_ordinal.go` + testdata (positive + negative)
-- [x] Register in `AllRules()` / `DefaultRegistry()` / `DetectFuncDecl()`
+## Larger / future
 
-## P15 — H009 — `humanize.Commaf` rule variant · Future · _done_
+### T11 — Configurable rules in plugin mode via `Analyzer.Flags` · Medium · _planned_
 
-- [x] Detect `%f`/`FormatFloat` + manual `.` / `,` separator grouping
-- [x] rule + pattern + testdata + registration
+The CLI supports `--enable`/`--disable`; the golangci-lint plugin does not. Users
+cannot disable a rule from their `.golangci.yml` without `//nolint` (scoped
+directives cover the common case, but config-level control is still missing).
 
-## P16 — Package-level `var` detection for H007 · Future · _planned_
+- [ ] Add `enable` / `disable` string flags to `plugin.Analyzer.Flags`
+- [ ] Filter `DetectFuncDecl` results by configured rule set in `analyzeHumanize`
+
+### T13 — Package-level `var` detection for H007 · Low · _planned_
+
+Only `*ast.FuncDecl` scope is scanned. A `var multiplier = map[string]int64{"KB": 1024}`
+at package scope is invisible to H007.
 
 - [ ] File/package-scope scan for `map[string]int64` with byte-unit keys
 - [ ] Hook into `checkFuncDecls` as a separate decl-kind pass
 
-## P17 — go/types type-aware detection · Future · _planned_
+### T14 — go/types type-aware detection · Low · _planned_
 
-- [ ] Resolve import aliases before `isPackageCall` (e.g. `s "strings"`)
+Detection is purely syntactic — import aliases (`s "strings"`) and typed values
+are not resolved. Type info would cut false negatives on generic / aliased code.
+
+- [ ] Resolve import aliases before `isPackageCall`
 - [ ] Decide: full `go/types` or lightweight `pass.TypesInfo` in plugin path only
 - [ ] Benchmark impact on scan speed
 
-## P18 — `--config` flag for YAML/TOML rule configuration · Future · _planned_
+### T15 — `--config` flag for YAML/TOML rule configuration · Low · _planned_
 
 - [ ] Define config schema (enabled/disabled, thresholds)
 - [ ] Loader + `--config` flag + precedence over CLI flags
 
-## P19 — Publish to golangci-lint plugin index · Future · _blocked_
+### T16 — Publish to golangci-lint plugin index · Low · _blocked_
 
-- [ ] Blocked on go-linter-sdk first tag (so `go.mod` replace directives can be removed)
-- [ ] Submit to the plugin index once `v0.1.0` is gettable
-
-## P20 — Resolve 9 remaining lint issues in new pattern files · Medium · _done_
-
-`goconst`, `mnd` × 3, `cyclop`, `gocognit`, `nestif`, `funlen` × 2, plus an
-`erraudit` `//nolint` directive referencing a linter not configured in
-`.golangci.yml`. Originated from H008/H009 detection code; user policy is
-"Pay down debt as you go — never leave the codebase worse than you found it."
-
-- [x] Fix `goconst` in `ruleExplanations` — added `h001`–`h009` local constants in `cmd/go-humanize-linter/main.go`
-- [x] Fix `mnd` in `pattern_ordinal.go` (named constants `ordinalModTen`, `ordinalModHundred`, `minOrdinalSuffixesHit`)
-- [x] Fix `mnd` in `pattern_commaf.go` (named constants `percentChar`, `digitZero`, `floatVerb`, `minFormatWalkRange`, …)
-- [x] Fix `erraudit` unknown-linter warning — removed `//nolint:erraudit` directives from `walker.go`; documented the rationale in prose comments
-- [x] Refactor `hasCommafPattern` (`cyclop`) and `hasPercentNF` (`gocognit`/`nestif`) into focused helpers (`walkFormatFloatVerbs`, `scanDottedPercentFloat`, `scanBarePercentFloat`, `hasFormatFloatPrecision`)
-- [x] Split `TestHasEqualsOneBranch` (`funlen: 125`) and `TestHasCommaOrSeparator` (`funlen: 128`) in `pattern_helpers_test.go` — extracted case tables to `hasEqualsOneBranchCases()` / `hasCommaOrSeparatorCases()` with a shared `boolSrcCase` struct
-- [x] Run `nix run .#lint` and verify 0 issues
-- [x] Bonus: filter `Found unknown linters in //nolint directives: gohumanize` warning in `nix run .#lint` script (legitimately unknown since the project's own analyzer is plugin-loaded)
-
----
+- [ ] Blocked on `go-linter-sdk` first tag (so `go.mod` `replace` directives can be removed)
+- [ ] Submit to the plugin index once a tagged version is `go install`-able

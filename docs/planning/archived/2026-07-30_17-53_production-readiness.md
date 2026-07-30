@@ -266,3 +266,14 @@ graph TD
 5. **GOPRIVATE=github.com/larsartmann/\*** required for ALL go commands
 6. **Don't touch go-finding or go-linter-sdk code** — only tag go-linter-sdk
 7. **Don't revert changes from previous sessions** — build on top of them
+
+---
+
+## Resolution (2026-07-30)
+
+**All 20 plan items shipped.** v0.1.0 was tagged (`git tag v0.1.0`) and pushed.
+The plugin position-mapping item (#3) was reclassified as a v0.2+ enhancement
+(per-line diagnostics) rather than a v0.1.0 blocker; the plugin reports at
+`fn.Pos()` by design. Every other phase-1-through-5 task landed. This plan is
+complete and has been moved to `archived/`.
+

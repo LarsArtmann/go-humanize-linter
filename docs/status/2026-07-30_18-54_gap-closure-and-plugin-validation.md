@@ -176,3 +176,9 @@ Nothing structurally broken. Minor fuckups:
 2. **`//nolint` directive scope**: Currently a directive suppresses all H001-H007 findings on that function. Some linters allow scoped directives like `//nolint:gohumanize:H001` to suppress just one rule. Worth the added complexity, or keep simple?
 
 3. **Auto-fix scope**: Should auto-fix (P15) rewrite code to use `humanize.Bytes` / `humanize.IBytes` / `humanize.Comma` (multiple output options), or always pick one canonical form (e.g. always `humanize.Bytes`)? Picking canonical is simpler but loses IEC vs SI distinction.
+
+---
+
+## Resolution (2026-07-30)
+
+The NOT STARTED items from section c) all shipped: markdown docs per rule (`docs/rules/H001.md`–`H007.md`), the `//lint:ignore gohumanize` syntax, the `HumanizeDetector` facade, singlechecker unit tests, analysistest fixtures for H002–H009, `printRules()` to stdout, and the `plugin.run` → `analyzeHumanize` rename. H008 and H009 are registered (9 rules). Scoped `//nolint:gohumanize:Hxxx` (Q2) was implemented. Auto-fix (Q3) remains a ROADMAP item. Remaining open work (P12, P16, P17, P19, `docs/rules/H008.md`+`H009.md`) moved to `TODO_LIST.md` / `ROADMAP.md`.

@@ -227,3 +227,9 @@ flawed metric, despite genuinely better code).
 2. **Should `go.mod` be bumped to `go 1.27`?** Three gopls warnings say `encoding/json/v2.Unmarshal` requires go1.27, but the module declares `go 1.26` and tests pass with `GOEXPERIMENT=jsonv2`. Is the project intentionally staying on 1.26 (and the v2 API works via the experiment flag), or is this a stale directive that should be 1.27? **I can't tell if 1.26 is a hard constraint or an oversight.**
 
 3. **Should the `output()` double-reporting be resolved?** `main()` both prints `"error: %v"` to stderr _and_ exits 2 when `output()` returns an error. The error is effectively reported twice (once by `main`'s `Fprintf`, once via the exit code). Is this intentional (user-facing message + machine-readable exit code) or should `output()` own the stderr printing and `main` only handle the exit code? **This is a UX/contract decision, not something I can infer from the code.**
+
+---
+
+## Resolution (2026-07-30)
+
+The NOT STARTED items from section c) all shipped: the failure-path test for `output()` (`TestOutput_JSONWriterFailure`, which caught the real swallowed-error bug), the self-scan regression test, the plugin-path suppression test, P7 analysistest, P14 H008, P15 H009, H002 negative testdata, and the clean-report SARIF test. The erraudit cleanup is stable at 0 violations. Remaining open items (erraudit CI integration, `go.mod` 1.27 bump for the `json.Unmarshal` stdversion warnings, P12/P16/P17) moved to `TODO_LIST.md`.

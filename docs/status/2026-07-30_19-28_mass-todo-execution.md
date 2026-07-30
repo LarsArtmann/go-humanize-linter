@@ -252,3 +252,9 @@ items are forward-looking:
 | Plugin on own source | **0 findings** |                                                                                    unchanged |
 
 **Net result: 23 todo items completed, 2 new rules shipped, scoped suppression works, plugin coverage remains 93.8%, end-to-end validation passes.**
+
+---
+
+## Resolution (2026-07-30)
+
+The 9 lint issues in section b) are now **0** (resolved at `2ac66b6`). H008/H009 `--explain` text (section e "DX") was added. The H008/H009 registration gap was the H009 "ghost rule" — fixed. Remaining open items from the "f) UP TO 50" list (negative testdata H008/H009, `docs/rules/H008.md`+`H009.md`, P12 configurable plugin rules, `v0.2.0` tag) moved to `TODO_LIST.md`.

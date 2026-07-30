@@ -212,3 +212,9 @@ as a test), plugin-path suppression is untested, the `cmd/gohumanize` singlechec
 2. **Plugin suppression testing depth:** Should I add the plugin suppression test as a direct `DetectFuncDecl` call (fast, white-box), or invest in the full `analysistest` harness (P7) which would also cover the plugin `run()` integration? The latter is more valuable but medium effort.
 
 3. **`//nolint` comment accuracy:** The `rule_bytes.go:41` suppression exists because the suggestion _literal_ (`"Replace with humanize.Bytes(uint64(n)) for SI (KB/MB)..."`) contains byte-unit strings. Should I instead refactor the suggestion text to avoid byte units entirely (so no suppression is needed), or is the `//nolint` directive the right approach since the suggestion _must_ name the replacement?
+
+---
+
+## Resolution (2026-07-30)
+
+The NOT STARTED items (P7 analysistest, P14 H008, P15 H009) all shipped in later sessions. By the v0.2.0 code state: the plugin analysistest exists (93.8% plugin coverage), H008 (manual-ordinal) and H009 (manual-commaf) are registered (9 rules total), the `HumanizeDetector` facade, `--explain`, and `--list-files` flags all landed, and scoped `//nolint:gohumanize:Hxxx` suppression works. Remaining forward-looking items (P12 configurable plugin rules, P13 GitHub Action, P16 package-level var, P17 go/types, P18 `--config`, P19 plugin index, per-line diagnostics) moved to `TODO_LIST.md` and `ROADMAP.md`.

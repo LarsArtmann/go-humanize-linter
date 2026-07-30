@@ -19,6 +19,10 @@ This linter finds those reimplementations automatically.
 | H003 | manual-reltime-format | Relative time formatting ("3 hours ago")                   | `humanize.RelTime` / `humanize.Time`      |
 | H004 | manual-plural         | English pluralization (`if n == 1`)                        | `humanize.Plural` / `humanize.PluralWord` |
 | H005 | manual-si-format      | SI-prefix formatting ("1.2K", "3.4M")                      | `humanize.SI` / `humanize.SIWithDigits`   |
+| H006 | manual-ftoa           | Trailing-zero stripping (`strings.TrimRight` nesting)      | `humanize.Ftoa`                           |
+| H007 | manual-parse-bytes    | Byte-size string parsing (HasSuffix chains, mult maps)     | `humanize.ParseBytes`                     |
+| H008 | manual-ordinal        | Ordinal formatting (`switch n%10` with st/nd/rd/th)        | `humanize.Ordinal`                        |
+| H009 | manual-commaf         | Float-with-comma formatting (`%.Nf` + separator loop)      | `humanize.Commaf`                         |
 
 ## Detection Strategy
 
@@ -59,6 +63,7 @@ func pluralize(n int, singular, plural string) string {
 import (
     "context"
     "fmt"
+    "os"
 
     humanizelint "github.com/larsartmann/go-humanize-linter"
     "github.com/larsartmann/go-linter-sdk"
@@ -94,6 +99,10 @@ go-humanize-linter --disable H004 ./...
 # List rules or print version
 go-humanize-linter --rules
 go-humanize-linter --version
+
+# Explain a rule or list which files would be scanned
+go-humanize-linter --explain H001
+go-humanize-linter --list-files ./...
 ```
 
 ### Suppressing findings

@@ -1,31 +1,56 @@
 # Roadmap
 
 > Long-term direction and raw ideas not yet refined into actionable tasks.
+>
+> Bounded, estimable work lives in `TODO_LIST.md`. This file is vision: themes and
+> unrefined concepts. Items graduate to `TODO_LIST.md` when they become scoped.
 
-## v0.2 — Suppression and Precision
+## Themes
 
-- `//nolint:gohumanize` directive support (inline suppression)
-- Per-line diagnostics (report at the actual pattern, not just func-decl)
-- Self-exclusion (don't flag own source)
-- Configurable confidence threshold (`--threshold=high`)
+### Precision & ergonomics
 
-## v0.3 — Type-aware Detection
+- **Per-line diagnostics** — report at the actual matched pattern, not just the
+  func-decl position. Today every detector returns a finding at `fn.Pos()`; per-line
+  reporting requires each detector to return a specific `token.Pos`.
+- **Type-aware detection** — optional `go/types` / `pass.TypesInfo` integration to
+  resolve import aliases (`s "strings"`) and typed values. Would cut false negatives
+  on aliased and generic code.
+- **Configurable confidence threshold** — `--threshold=high` to filter low-confidence
+  findings; per-rule FP-rate calibration from validation-sweep data.
 
-- Optional `go/types` integration for H001 (type-based byte detection)
-- Detect `fmt.Sprintf` with `%d` + " byte(s)" pattern using type info
-- Reduce false negatives on generic code
+### Detection breadth
 
-## v0.4 — More Rules
+- **H010 and beyond** — more `go-humanize` coverage candidates:
+  - `humanize.LookupMenuItem` (Kubernetes-style suffix lookup)
+  - `time.Round` detection for H003
+  - `fmt.Sprintf("%.1f", x)` + `strings.TrimRight` combined detection for H006
+  - Inline `.String() + " ago"` patterns for H003
+- **Package-scope scanning** — today only `FuncDecl` bodies are scanned;
+  package-level `var` initializers are invisible.
 
-- H008: humanize.Ordinal (`1st`, `2nd`, `3rd`)
-- H009: humanize.Commaf (float comma formatting)
-- H010: humanize.LookupMenuItem (Kubernetes-style suffix lookup)
-- Detect `time.Round` usage for H003
+### Ecosystem & distribution
 
-## v1.0 — Ecosystem
+- **golangci-lint plugin index** — publish once a tagged version is `go install`-able
+  and `go.mod` `replace` directives are removed (depends on `go-linter-sdk` first tag).
+- **Stable rule IDs** — freeze H001–H0xx (no renames) after v1.0.
+- **Benchmark against large codebases** — k8s, cockroach; track scan-speed regressions
+  across releases with `benchstat`.
 
-- Publish to golangci-lint plugin index
-- Stable rule IDs (no more changes after v1.0)
-- Full analysistest suite for plugin path
-- Benchmark against large codebases (k8s, cockroach)
-- Auto-fix support via go-finding pipeline FixEngine
+### Integration
+
+- **Auto-fix** — rewrite detected code in-place to use `humanize.X` via the
+  `go-finding` pipeline `FixEngine`.
+- **Editor integration** — LSP server mode (`humanize-lint server`) and/or a VSCode
+  extension via `gopls` analyzer.
+- **Better SARIF** — include rule descriptions, help URIs, and fix suggestions.
+
+## Non-goals
+
+Deliberately NOT pursued:
+
+- **Multi-language support** — this is a Go linter; detecting `humanize`-style
+  reimplementations in Python/Rust/JS is out of scope.
+- **ML-based scoring** — the multi-signal heuristic is hand-tuned and auditable;
+  replacing it with a trained model trades interpretability for marginal accuracy.
+- **Hosted/SaaS version** — PR commenting, team dashboards, and custom rule packs
+  are not on the path; the linter is a local CLI/library/plugin.

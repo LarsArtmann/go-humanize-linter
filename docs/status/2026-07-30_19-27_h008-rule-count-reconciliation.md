@@ -4,6 +4,8 @@
 
 Reconciled test fixtures against the recently merged H008 (manual-ordinal) rule. Four test surfaces still hard-coded 7 rules / 7 IDs; bumped them to 8. Full test suite (107 tests, `-race`) green across all four packages. Discovered that H009 (manual-commaf) is **already implemented and tested** in the working tree but **not registered** in `AllRules()` — a latent v0.2 feature that needs a decision before shipping.
 
+> **Update 2026-07-30 (commit `2ac66b6`):** H009 **is now registered** in `AllRules()` and `allRuleDetectors()` (the "ghost rule" is live). AGENTS.md shows H001–H009. The rule count is 9, not 8. Remaining open items (negative testdata, `docs/rules/H008.md`+`H009.md`, real-world sweep) moved to `TODO_LIST.md`. Full item-by-item status in [Resolution](#resolution-2026-07-30) below.
+
 ---
 
 ## a) FULLY DONE
@@ -161,3 +163,28 @@ ok  	github.com/larsartmann/go-humanize-linter/plugin                  2.142s
 ```
 
 All tests pass. Zero failures, zero panics. 107 tests executed.
+
+---
+
+## Resolution (2026-07-30)
+
+The "NOT STARTED" and "f) UP TO 50" sections drove the next sessions. Item-by-item:
+
+| Section c) / f) item | Status |
+| -------------------- | ------ |
+| #1 Register H009 in `AllRules()` + `allRuleDetectors()` | done at `2ac66b6` |
+| #2/#3 Add H008+H009 to `ExampleAllRules` / `TestCLI_RulesFlag` | done at `20dd7d3` |
+| #4 Update AGENTS.md to H001–H009 | done at `2ac66b6` |
+| #5/#6 H008 entries in CHANGELOG / FEATURES | done at `2ac66b6` (now 9 rules) |
+| #14 goconst `H001` warning | done at `2ac66b6` |
+| #15 unused `lintIgnorePrefix` | done (0 lint issues) |
+| #16/#18 `mnd` in `pattern_ordinal.go` | done at `2ac66b6` |
+| #17/#18 `ExampleRuleOrdinal` / `ExampleRuleCommaf` | done at `20dd7d3` |
+| #25/#26 `--explain H008` / `--explain H009` | done at `2ac66b6` |
+
+Still open — moved to `TODO_LIST.md`:
+
+- Negative testdata for H008 + H009 (→ TODO_LIST T2)
+- `docs/rules/H008.md` + `H009.md` (→ T5)
+- Real-world sweep of H008 + H009 (→ T7)
+- Tag `v0.2.0` (→ T6)

@@ -166,3 +166,9 @@ None. Net metric: violations 13 → 0 with **real improvements**, not just suppr
 3. **MED**: Add CI integration of `erraudit --violations-only` as advisory step (with `0` exit tolerance for the false-positive suppressions we own)
 4. **LOW**: Document `WalkError` and `OutputError` types in `docs/DOMAIN_LANGUAGE.md`
 5. **LOW**: Bump `go.mod` to `go 1.27` to silence the three `json.Unmarshal` stdversion warnings
+
+---
+
+## Resolution (2026-07-30)
+
+The one concrete open item here — the broken `testdata/analysistest` fixtures (NOT STARTED #1) — was fixed; `TestAnalyzerAnalysistest` now runs H001–H007 + clean cleanly (the H008/H009 fixtures still need wiring into the run call → TODO_LIST T1). The erraudit typed-error work (`WalkError`, `OutputError`) is stable. The `go.mod` 1.27 question (#5) is unresolved — the three `json.Unmarshal` stdversion warnings are still present. Remaining open items moved to `TODO_LIST.md`.

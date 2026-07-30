@@ -13,6 +13,8 @@ Built a 7-rule AST linter (H001–H007) on go-linter-sdk that detects hand-rolle
 
 **But:** coverage is 78.6% (target: 80%+), the CLI has 0% direct test coverage (only integration-tested via subprocess), no project docs exist (CHANGELOG, FEATURES, ROADMAP, TODO_LIST), the `.golangci.yml` has a formatting issue, and the go.mod replace directives are a temporary hack that breaks standalone consumption.
 
+> **Update 2026-07-30:** every gap in this paragraph has since closed. The linter now has **9 rules** (H001–H009, not 7), core coverage is **87.8%** / plugin **93.8%**, the CLI has direct unit tests (35.8%), all project docs exist and are current, and golangci-lint reports **0 issues**. The `go.mod` replace directives were re-added for local dev (publishing still blocked on a `go-linter-sdk` tag). Full item-by-item status in [Resolution](#resolution-2026-07-30) below.
+
 ---
 
 ## a) FULLY DONE ✅
@@ -196,3 +198,29 @@ Built a 7-rule AST linter (H001–H007) on go-linter-sdk that detects hand-rolle
 2. **golangci-lint integration**: Do you want this linter to eventually run as a golangci-lint plugin (requiring `analysis.Analyzer` wrapper), or is the standalone CLI + library form sufficient for your use case?
 
 3. **H004 (pluralization) sensitivity**: The current H004 rule fires on any `if x == 1` returning different strings — this catches real reimplementations but also catches domain-specific conditionals that happen to check for singularity (e.g. `if count == 1 { return "single" }`). Should H004 require the branches to explicitly use string parameters (singular/plural) to reduce noise, or is the broader net acceptable?
+
+---
+
+## Resolution (2026-07-30)
+
+This was the first session. The "Up to 50 Things" list drove the entire v0.1.0 → v0.2.0 build-out. Key items:
+
+| Item | Status |
+| ---- | ------ |
+| #1 LICENSE, #4 CHANGELOG, #11 FEATURES/TODO/ROADMAP | done — all project docs exist and are current |
+| #5 Tag v0.1.0 | done at `v0.1.0` |
+| #7 golangci-lint plugin mode | done — `plugin/plugin.go` (93.8% coverage) |
+| #10 `example_test.go` runnable Examples | done |
+| #11 Split `patterns.go` | done — split into per-rule files |
+| #22 Reach 80%+ coverage | done — core 87.8% |
+| #23/#24 H008 Ordinal / H009 Commaf | done at `e3ef534` / `2ac66b6` (9 rules total) |
+| #29 `//nolint:gohumanize` suppression | done — scoped `:Hxxx` + `//lint:ignore` syntax |
+| #46 `--version`, #47 `--rules` | done (+ `--explain`, `--list-files`) |
+| Q1 H004 FP filter | resolved — string-in-branch + string-return-type filters (~0% FP) |
+
+Still open — moved to `TODO_LIST.md` / `ROADMAP.md`:
+
+- Package-level `var` detection for H007 (→ TODO_LIST T13)
+- go/types type-aware detection (→ TODO_LIST T14)
+- CONTRIBUTING.md rule-addition checklist (→ TODO_LIST T8)
+- Per-line diagnostics (→ ROADMAP "Precision & ergonomics")
