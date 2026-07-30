@@ -38,6 +38,7 @@ func RuleBytes() linter.RuleFunc {
 	}
 }
 
+//nolint:gohumanize // suggestion text legitimately names byte units; this is the detector itself
 func detectBytesFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
 	kmgtp := hasKMGTPEIndex(fn)
 	unitSlice := hasByteUnitSlice(fn)

@@ -238,7 +238,7 @@ func noLintMatches(commentText string) bool {
 		return false
 	}
 
-	for _, name := range strings.Split(strings.TrimPrefix(rest, ":"), ",") {
+	for _, name := range strings.Split(noLintList(rest), ",") {
 		switch strings.TrimSpace(name) {
 		case "all", nolintLinterName:
 			return true
@@ -246,4 +246,16 @@ func noLintMatches(commentText string) bool {
 	}
 
 	return false
+}
+
+// noLintList extracts the comma-separated linter name list from the text that
+// follows "nolint:". Trailing explanation text (e.g. the second "// reason"
+// after the names) is ignored. Returns the empty string for a bare //nolint.
+func noLintList(rest string) string {
+	fields := strings.Fields(strings.TrimPrefix(rest, ":"))
+	if len(fields) == 0 {
+		return ""
+	}
+
+	return fields[0]
 }

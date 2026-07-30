@@ -80,6 +80,15 @@ func TestRuleBytes_Negative(t *testing.T) {
 	}
 }
 
+func TestRuleBytes_SuppressedByDirective(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings when //nolint:gohumanize present, got %d: %+v", len(findings), findings)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H002 — manual-comma-format
 // ---------------------------------------------------------------------------
