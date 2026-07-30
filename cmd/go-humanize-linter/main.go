@@ -119,12 +119,16 @@ func main() {
 // stdout, then returns. Used by the --rules flag. Output goes to stdout so it
 // pipes cleanly into grep / less / other tools.
 func printRules() {
-	fmt.Printf("%-6s %-26s %-8s %s\n", "ID", "NAME", "SEV", "DESCRIPTION")
+	var builder strings.Builder
+
+	fmt.Fprintf(&builder, "%-6s %-26s %-8s %s\n", "ID", "NAME", "SEV", "DESCRIPTION")
 
 	for _, rule := range humanizelint.AllRules() {
-		fmt.Printf("%-6s %-26s %-8s %s\n",
+		fmt.Fprintf(&builder, "%-6s %-26s %-8s %s\n",
 			rule.Meta.ID, rule.Meta.Name, rule.Meta.Sev, rule.Meta.Description)
 	}
+
+	fmt.Print(builder.String()) //nolint:forbidigo // CLI stdout output for --rules flag
 }
 
 // stringList implements flag.Value for repeatable string flags.

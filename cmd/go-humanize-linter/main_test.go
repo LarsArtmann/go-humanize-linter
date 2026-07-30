@@ -432,6 +432,7 @@ func TestCLI_RulesFlag(t *testing.T) {
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	var stdout, stderr bytes.Buffer
+
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 

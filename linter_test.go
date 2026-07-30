@@ -80,7 +80,7 @@ func TestRuleBytes_Negative(t *testing.T) {
 	}
 }
 
-func TestRuleBytes_SuppressedByDirective(t *testing.T) {
+func TestCLI_SuppressedByDirective(t *testing.T) {
 	t.Parallel()
 
 	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed"))

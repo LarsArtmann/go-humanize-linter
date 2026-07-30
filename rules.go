@@ -1,10 +1,8 @@
 package humanizelint
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
-	"os"
 
 	"github.com/larsartmann/go-finding"
 	"github.com/larsartmann/go-linter-sdk"
@@ -74,14 +72,13 @@ func DetectFuncDecl(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fileP
 	detectors := allRuleDetectors()
 	all := make([]finding.Finding, 0, len(detectors))
 
-	for _, rd := range detectors {
+	for _, detector := range detectors {
 		suppressions := funcSuppressions(fset, file, fn)
-		fmt.Fprintf(os.Stderr, "DEBUG func=%s rd=%s suppressions=%v\n", fn.Name.Name, rd.id, suppressions) //nolint:forbidigo
-		if isSuppressedRule(suppressions, rd.id) {
+		if isSuppressedRule(suppressions, detector.id) {
 			continue
 		}
 
-		all = append(all, rd.detector(fset, file, fn, filePath)...)
+		all = append(all, detector.detector(fset, file, fn, filePath)...)
 	}
 
 	return all
@@ -103,13 +100,13 @@ func funcSuppressions(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) []s
 	for _, group := range file.Comments {
 		isDoc := group == fn.Doc
 
-		for _, c := range group.List {
-			parts := suppressedRules(c.Text)
+		for _, comment := range group.List {
+			parts := suppressedRules(comment.Text)
 			if parts == nil {
 				continue
 			}
 
-			cmtLine := fset.Position(c.Pos()).Line
+			cmtLine := fset.Position(comment.Pos()).Line
 			if !isDoc && cmtLine != fnLine && cmtLine != fnLine-1 {
 				continue
 			}

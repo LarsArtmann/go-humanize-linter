@@ -183,6 +183,10 @@ func makeFindingWithConfidence(
 // matches plugin.Analyzer.Name ("gohumanize").
 const nolintLinterName = "gohumanize"
 
+// nolintAllMarker is the sentinel token meaning "suppress every linter" in a
+// //nolint directive (e.g. "//nolint" or "//nolint:all").
+const nolintAllMarker = "all"
+
 // hasNoLintDirective reports whether fn carries a //nolint directive that
 // suppresses this linter. A directive counts if it appears in the function's
 // doc comment, as a trailing comment on the func's own line, or in any comment
@@ -205,8 +209,8 @@ func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) b
 	for _, group := range file.Comments {
 		isDoc := group == fn.Doc
 
-		for _, c := range group.List {
-			suppressed := suppressedRules(c.Text)
+		for _, comment := range group.List {
+			suppressed := suppressedRules(comment.Text)
 			if suppressed == nil {
 				continue
 			}
@@ -215,7 +219,7 @@ func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) b
 				continue
 			}
 
-			cmtLine := fset.Position(c.Pos()).Line
+			cmtLine := fset.Position(comment.Pos()).Line
 			if isDoc || cmtLine == fnLine || cmtLine == fnLine-1 {
 				return true
 			}
@@ -250,7 +254,7 @@ func suppressedRules(commentText string) []string {
 
 	// Bare "//nolint" suppresses everything.
 	if rest == "" {
-		return []string{"all"}
+		return []string{nolintAllMarker}
 	}
 
 	if !strings.HasPrefix(rest, ":") {
@@ -263,6 +267,7 @@ func suppressedRules(commentText string) []string {
 	}
 
 	out := []string{}
+
 	for name := range strings.SplitSeq(body2, ",") {
 		name = strings.TrimSpace(name)
 		if name == "" {
@@ -286,7 +291,7 @@ func suppressedRules(commentText string) []string {
 // a top-level entry without a sub-rule, every H-rule is suppressed.
 func isSuppressedAll(suppressions []string) bool {
 	for _, s := range suppressions {
-		if s == "all" {
+		if s == nolintAllMarker {
 			return true
 		}
 
@@ -301,32 +306,50 @@ func isSuppressedAll(suppressions []string) bool {
 // isSuppressedRule reports whether suppression list suppresses the specific
 // ruleID (e.g. "H001"). Recognises:
 //
-//	//nolint:all
-//	//nolint:gohumanize
-//	//nolint:gohumanize:H001
-//	//nolint:gohumanize:H001,H002
-//	//nolint:H001
+//	//nolint:all                            (suppresses everything)
+//	//nolint:gohumanize                     (suppresses every H-rule)
+//	//nolint:gohumanize:H001                (only H001)
+//	//nolint:gohumanize:H001,H002           (H001 and H002)
+//	//nolint:H001                           (only H001, unscoped)
+//
+// "gohumanize" alone is treated as "all H-rules" (suppresses every rule ID)
+// so existing //nolint:gohumanize behaviour is preserved. When scoped
+// sub-rules appear alongside "gohumanize", only those specific rule IDs are
+// suppressed.
 func isSuppressedRule(suppressions []string, ruleID string) bool {
+	hasAll := false
+	hasLinter := false
+	scopedRules := map[string]bool{}
+
 	for _, s := range suppressions {
-		if s == "all" {
-			return true
+		switch s {
+		case nolintAllMarker:
+			hasAll = true
+		case nolintLinterName:
+			hasLinter = true
+		default:
+			// Sub-rule token (e.g. "H001"). Only meaningful when "gohumanize"
+			// is also present as a scope marker, but we record it either way.
+			scopedRules[s] = true
 		}
-
-		if s == nolintLinterName {
-			return true
-		}
-
-		if s == ruleID {
-			return true
-		}
-
-		// Scoped form: "gohumanize:H001" appears as two entries
-		// ["gohumanize", "H001"] — but when "gohumanize" appears, we already
-		// return true above, so a standalone H001 in the list means
-		// "//nolint:H001" with no linter scope — treat as scoped suppression.
 	}
 
-	return false
+	if hasAll {
+		return true
+	}
+
+	if hasLinter {
+		// Scoped sub-rules: only suppress the rules explicitly named.
+		if len(scopedRules) > 0 {
+			return scopedRules[ruleID]
+		}
+
+		// Bare "gohumanize" without sub-rules → suppress every H-rule.
+		return true
+	}
+
+	// Unscoped sub-rule (e.g. //nolint:H001): suppress only that rule.
+	return scopedRules[ruleID]
 }
 
 // noLintList extracts the comma-separated linter name list from the text that
