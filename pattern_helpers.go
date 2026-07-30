@@ -189,6 +189,8 @@ const (
 	ruleIDH005 = "H005"
 	ruleIDH006 = "H006"
 	ruleIDH007 = "H007"
+	ruleIDH008 = "H008"
+	ruleIDH009 = "H009"
 )
 
 // nolintLinterName is the analyzer name users write in //nolint directives. It

@@ -316,8 +316,8 @@ func TestDefaultRegistry_AllRules(t *testing.T) {
 	t.Parallel()
 
 	r := humanizelint.DefaultRegistry()
-	if len(r.All()) != 8 {
-		t.Fatalf("expected 8 rules, got %d", len(r.All()))
+	if len(r.All()) != 9 {
+		t.Fatalf("expected 9 rules, got %d", len(r.All()))
 	}
 }
 

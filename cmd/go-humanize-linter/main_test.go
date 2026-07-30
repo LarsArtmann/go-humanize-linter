@@ -457,7 +457,7 @@ func TestCLI_RulesFlag(t *testing.T) {
 		t.Errorf("--rules wrote to stderr (should be stdout only): %q", stderr.String())
 	}
 
-	for _, id := range []string{"H001", "H002", "H003", "H004", "H005", "H006", "H007", "H008"} {
+	for _, id := range []string{"H001", "H002", "H003", "H004", "H005", "H006", "H007", "H008", "H009"} {
 		if !strings.Contains(stdout.String(), id) {
 			t.Errorf("--rules stdout missing %s: %q", id, stdout.String())
 		}

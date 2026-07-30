@@ -33,6 +33,7 @@ func AllRules() []linter.RuleFunc {
 		RuleFtoa(),
 		RuleParseBytes(),
 		RuleOrdinal(),
+		RuleCommaf(),
 	}
 }
 
@@ -164,6 +165,7 @@ func allRuleDetectors() []ruleDetectors {
 		{"H006", detectFtoa},
 		{"H007", detectParseBytes},
 		{"H008", detectOrdinal},
+		{"H009", detectCommaf},
 	}
 }
 
