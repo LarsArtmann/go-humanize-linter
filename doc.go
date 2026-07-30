@@ -16,9 +16,14 @@
 //	H005  manual-si-format        → humanize.SI / humanize.SIWithDigits
 //	H006  manual-ftoa             → humanize.Ftoa / humanize.FtoaWithDigits
 //
-// # Usage
+// Usage as a library:
+//
+//	import (
+//	    humanizelint "github.com/larsartmann/go-humanize-linter"
+//	    "github.com/larsartmann/go-linter-sdk"
+//	)
 //
 //	reg := humanizelint.DefaultRegistry()
 //	report, err := reg.Run(ctx, ".")
-//	fmt.Println(humanizelint.ExitCode(report))
+//	fmt.Println(linter.ExitCodeFromReport(report))
 package humanizelint
