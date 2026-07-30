@@ -80,7 +80,39 @@ func main() {
 }
 ```
 
+### CLI
 
+```bash
+# Scan a path (text output, exit 1 if findings, 0 if clean)
+go-humanize-linter ./...
+
+# JSON or SARIF output
+go-humanize-linter --format json ./...
+go-humanize-linter --format sarif ./... > results.sarif
+
+# Enable / disable specific rules
+go-humanize-linter --enable H001 --enable H003 ./...
+go-humanize-linter --disable H004 ./...
+
+# List rules or print version
+go-humanize-linter --rules
+go-humanize-linter --version
+```
+
+### Suppressing findings
+
+Add a `//nolint:gohumanize` directive to a function to suppress findings on it.
+This works in both the CLI and the golangci-lint plugin.
+
+```go
+//nolint:gohumanize // intentional hand-rolled format
+func prettySize(b int64) string {
+    return fmt.Sprintf("%.1f %cB", float64(b)/1048576, "M")
+}
+```
+
+Recognised forms: `//nolint` (suppress all), `//nolint:all`, `//nolint:gohumanize`,
+and `//nolint:gohumanize,other` (comma-separated). A trailing `// reason` is allowed.
 
 ## Build & Test
 
