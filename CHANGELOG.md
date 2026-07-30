@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-07-30
 
 ### Added
+
 - **H008** (manual-ordinal): Detects `switch n%10/100` with st/nd/rd/th cases. Suggests `humanize.Ordinal`.
 - **H009** (manual-commaf): Detects `%.Nf` + manual separator grouping. Suggests `humanize.Commaf`.
 - Scoped `//nolint:gohumanize:H001` directives — each rule can be suppressed individually.
@@ -23,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--version` stderr warning when built without ldflags (dev builds).
 
 ### Changed
+
 - `plugin.run` → `plugin.analyzeHumanize` (better grep-ability).
 - `printRules()` now writes to stdout (was: stderr) so it pipes cleanly.
 - Refactored suppression parser to support both `//nolint:` and `//lint:ignore` flavours with colon-scoped rule IDs.

@@ -13,55 +13,55 @@ on top. The result: 7→9 rules, ~93% plugin coverage, scoped
 
 ### Code quality (10 items)
 
-| # | Item | Files |
-|---|------|-------|
-| 1 | `plugin.run` → `plugin.analyzeHumanize` (grep-ability) | `plugin/plugin.go` |
-| 2 | `printRules()` moved from stderr to stdout (pipes cleanly) | `cmd/go-humanize-linter/main.go` |
-| 3 | Singlechecker unit tests (`TestSinglechecker_CleanCode`, `TestSinglechecker_PositiveFinding`) | `cmd/gohumanize/main_test.go` (NEW) |
-| 4 | Analysistest fixtures for H002-H007 + H008+H009 (now covers all 9 rules end-to-end) | `testdata/analysistest/*` (8 new) |
-| 5 | `TestRuleBytes_SuppressedByDirective` → `TestCLI_SuppressedByDirective` (clarity) | `linter_test.go` |
-| 6 | `//lint:ignore gohumanize` alternative syntax supported (Go-style convention) | `pattern_helpers.go` |
-| 7 | Comma-list `//nolint:gohumanize,unused` directive verified (new test + fixture) | `testdata/h001_suppressed_comma/`, `linter_test.go` |
-| 8 | Table-driven tests for `hasCommaOrSeparator` (9 cases) | `pattern_helpers_test.go` |
-| 9 | Table-driven tests for `hasEqualsOneBranch` (8 cases) | `pattern_helpers_test.go` |
-| 10 | H002 negative testdata (`h002_negative` fixture) | `testdata/h002_negative/`, `linter_test.go` |
-| 11 | Example functions for H001-H009 (godoc completeness) | `example_test.go` |
-| 12 | Refactored to `HumanizeDetector` facade with `Run` and `RunOverPackage` methods | `rules.go`, `plugin/plugin.go` |
-| 13 | `--explain H001` flag with rationale for all 7 documented rules | `cmd/go-humanize-linter/main.go` |
-| 14 | Markdown doc per rule (`docs/rules/H001.md` through `H007.md`) | `docs/rules/` (7 new files) |
-| 15 | Scoped `//nolint:gohumanize:H001-H007` directive support (Q2 answer) | `pattern_helpers.go`, `rules.go` |
+| #   | Item                                                                                          | Files                                               |
+| --- | --------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| 1   | `plugin.run` → `plugin.analyzeHumanize` (grep-ability)                                        | `plugin/plugin.go`                                  |
+| 2   | `printRules()` moved from stderr to stdout (pipes cleanly)                                    | `cmd/go-humanize-linter/main.go`                    |
+| 3   | Singlechecker unit tests (`TestSinglechecker_CleanCode`, `TestSinglechecker_PositiveFinding`) | `cmd/gohumanize/main_test.go` (NEW)                 |
+| 4   | Analysistest fixtures for H002-H007 + H008+H009 (now covers all 9 rules end-to-end)           | `testdata/analysistest/*` (8 new)                   |
+| 5   | `TestRuleBytes_SuppressedByDirective` → `TestCLI_SuppressedByDirective` (clarity)             | `linter_test.go`                                    |
+| 6   | `//lint:ignore gohumanize` alternative syntax supported (Go-style convention)                 | `pattern_helpers.go`                                |
+| 7   | Comma-list `//nolint:gohumanize,unused` directive verified (new test + fixture)               | `testdata/h001_suppressed_comma/`, `linter_test.go` |
+| 8   | Table-driven tests for `hasCommaOrSeparator` (9 cases)                                        | `pattern_helpers_test.go`                           |
+| 9   | Table-driven tests for `hasEqualsOneBranch` (8 cases)                                         | `pattern_helpers_test.go`                           |
+| 10  | H002 negative testdata (`h002_negative` fixture)                                              | `testdata/h002_negative/`, `linter_test.go`         |
+| 11  | Example functions for H001-H009 (godoc completeness)                                          | `example_test.go`                                   |
+| 12  | Refactored to `HumanizeDetector` facade with `Run` and `RunOverPackage` methods               | `rules.go`, `plugin/plugin.go`                      |
+| 13  | `--explain H001` flag with rationale for all 7 documented rules                               | `cmd/go-humanize-linter/main.go`                    |
+| 14  | Markdown doc per rule (`docs/rules/H001.md` through `H007.md`)                                | `docs/rules/` (7 new files)                         |
+| 15  | Scoped `//nolint:gohumanize:H001-H007` directive support (Q2 answer)                          | `pattern_helpers.go`, `rules.go`                    |
 
 ### DX (4 items)
 
-| # | Item | Files |
-|---|------|-------|
-| 16 | `--version` warns on stderr when built without ldflags (dev builds) | `cmd/go-humanize-linter/main.go` |
-| 17 | `--list-files <dir>` debug flag — lists what the walker would scan | `cmd/go-humanize-linter/main.go` |
-| 18 | Release workflow `.github/workflows/release.yml` (tagged builds) | NEW |
-| 19 | CI coverage reporting via Codecov | `.github/workflows/ci.yml` |
+| #   | Item                                                                | Files                            |
+| --- | ------------------------------------------------------------------- | -------------------------------- |
+| 16  | `--version` warns on stderr when built without ldflags (dev builds) | `cmd/go-humanize-linter/main.go` |
+| 17  | `--list-files <dir>` debug flag — lists what the walker would scan  | `cmd/go-humanize-linter/main.go` |
+| 18  | Release workflow `.github/workflows/release.yml` (tagged builds)    | NEW                              |
+| 19  | CI coverage reporting via Codecov                                   | `.github/workflows/ci.yml`       |
 
 ### New detection rules (2 items)
 
-| # | Item | Files |
-|---|------|-------|
-| 20 | **H008** — `humanize.Ordinal` detection (`switch n%10` with st/nd/rd/th cases) | `pattern_ordinal.go`, `rule_ordinal.go`, `testdata/h008_ordinal/`, `testdata/analysistest/h008positive/` |
-| 21 | **H009** — `humanize.Commaf` detection (`%.Nf` + manual separator grouping) | `pattern_commaf.go`, `rule_commaf.go`, `testdata/h009_commaf/`, `testdata/analysistest/h009positive/` |
+| #   | Item                                                                           | Files                                                                                                    |
+| --- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| 20  | **H008** — `humanize.Ordinal` detection (`switch n%10` with st/nd/rd/th cases) | `pattern_ordinal.go`, `rule_ordinal.go`, `testdata/h008_ordinal/`, `testdata/analysistest/h008positive/` |
+| 21  | **H009** — `humanize.Commaf` detection (`%.Nf` + manual separator grouping)    | `pattern_commaf.go`, `rule_commaf.go`, `testdata/h009_commaf/`, `testdata/analysistest/h009positive/`    |
 
 ### Cleanup (2 items)
 
-| # | Item | Files |
-|---|------|-------|
-| 22 | `gofumpt` + `goimports -local github.com/larsartmann/` applied | `plugin/`, `cmd/` |
-| 23 | `go.mod` + `go.work` set up for local development against sibling repos | `go.mod`, `go.work` (REPLACE directives pointing to `../go-*`) |
+| #   | Item                                                                    | Files                                                          |
+| --- | ----------------------------------------------------------------------- | -------------------------------------------------------------- |
+| 22  | `gofumpt` + `goimports -local github.com/larsartmann/` applied          | `plugin/`, `cmd/`                                              |
+| 23  | `go.mod` + `go.work` set up for local development against sibling repos | `go.mod`, `go.work` (REPLACE directives pointing to `../go-*`) |
 
 ---
 
 ## b) PARTIALLY DONE
 
-| Item | Status | Gap |
-|------|--------|-----|
-| Lint | Mostly clean | 9 remaining issues in new pattern files (cyclop/funlen/gocognit/mnd/nestif) — intentional complexity for AST detection. Best-effort file-level nolint applied; final clean-up would require either simplifying the detection logic or adding inline `//nolint:mnd` etc. on every line. |
-| Coverage on `cmd/gohumanize` | 0.0% | Subprocess-only tests via `go build + exec`. The singlechecker entry point is a 1-liner wrapper around `singlechecker.Main(plugin.Analyzer)` so direct in-process coverage is impossible. |
+| Item                         | Status       | Gap                                                                                                                                                                                                                                                                                    |
+| ---------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lint                         | Mostly clean | 9 remaining issues in new pattern files (cyclop/funlen/gocognit/mnd/nestif) — intentional complexity for AST detection. Best-effort file-level nolint applied; final clean-up would require either simplifying the detection logic or adding inline `//nolint:mnd` etc. on every line. |
+| Coverage on `cmd/gohumanize` | 0.0%         | Subprocess-only tests via `go build + exec`. The singlechecker entry point is a 1-liner wrapper around `singlechecker.Main(plugin.Analyzer)` so direct in-process coverage is impossible.                                                                                              |
 
 ---
 
@@ -90,7 +90,7 @@ items are forward-looking:
    `KB`/`MB`/`GB`/`TB` fixture works.
 3. **My initial `//nolint` directive placement on a function line didn't
    silence the function-level cyclop/funlen/gocognit lints** — they only
-   fire on the *declaration* line, not the body. Tried file-level and
+   fire on the _declaration_ line, not the body. Tried file-level and
    line-level — neither is fully effective for the new pattern files. The
    remaining 9 lint issues are intentional complexity.
 4. **Self-trigger for the second-hand test fixture `pattern_helpers_test.go:124`**
@@ -218,11 +218,11 @@ items are forward-looking:
 2. **The 9 remaining lint issues in `pattern_commaf.go` and
    `pattern_ordinal.go`** are intentional complexity. Should I:
    a) Accept the lint failures as a known cost (with file-level
-      `//nolint` directive that golangci-lint v2 may not honour)
+   `//nolint` directive that golangci-lint v2 may not honour)
    b) Refactor the AST detection into smaller helpers to bring
-      complexity under the threshold (adds indirection)
+   complexity under the threshold (adds indirection)
    c) Adjust the `.golangci.yml` config to relax these for `pattern_*.go`
-      files (config drift)
+   files (config drift)
    d) Disable these linters globally (bad — they catch real issues)
 
 3. **`--rules` table formatting** — currently uses fixed-width format
@@ -236,19 +236,19 @@ items are forward-looking:
 
 ## Final metrics
 
-| Metric | Value | Delta vs session 1 |
-|--------|------:|-------------------:|
-| Rules (H00x) | **9** | +2 (H008, H009) |
-| Test files | 14 | +3 (analysistest fixtures, cmd/gohumanize/main_test.go, pattern_helpers_test.go) |
-| Testdata fixtures | 22 | +6 (h002_negative, h008_ordinal, h009_commaf, h001_suppressed_comma, analysistest/h002-h009) |
-| Plugin coverage | **93.8%** | unchanged |
-| Core coverage | **87.9%** | -2.9 (new detection code has uncovered paths) |
-| CLI coverage | **35.8%** | unchanged |
-| Markdown docs | 7 rules | +7 (docs/rules/H001-H007) |
-| Lint issues | 9 | +9 (all in new pattern files) |
-| Race tests | **all pass** | unchanged |
-| go build ./... | **clean** | unchanged |
-| go vet ./... | **clean** | unchanged |
-| Plugin on own source | **0 findings** | unchanged |
+| Metric               |          Value |                                                                           Delta vs session 1 |
+| -------------------- | -------------: | -------------------------------------------------------------------------------------------: |
+| Rules (H00x)         |          **9** |                                                                              +2 (H008, H009) |
+| Test files           |             14 |             +3 (analysistest fixtures, cmd/gohumanize/main_test.go, pattern_helpers_test.go) |
+| Testdata fixtures    |             22 | +6 (h002_negative, h008_ordinal, h009_commaf, h001_suppressed_comma, analysistest/h002-h009) |
+| Plugin coverage      |      **93.8%** |                                                                                    unchanged |
+| Core coverage        |      **87.9%** |                                                -2.9 (new detection code has uncovered paths) |
+| CLI coverage         |      **35.8%** |                                                                                    unchanged |
+| Markdown docs        |        7 rules |                                                                    +7 (docs/rules/H001-H007) |
+| Lint issues          |              9 |                                                                +9 (all in new pattern files) |
+| Race tests           |   **all pass** |                                                                                    unchanged |
+| go build ./...       |      **clean** |                                                                                    unchanged |
+| go vet ./...         |      **clean** |                                                                                    unchanged |
+| Plugin on own source | **0 findings** |                                                                                    unchanged |
 
 **Net result: 23 todo items completed, 2 new rules shipped, scoped suppression works, plugin coverage remains 93.8%, end-to-end validation passes.**
