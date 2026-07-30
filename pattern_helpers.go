@@ -238,7 +238,7 @@ func noLintMatches(commentText string) bool {
 		return false
 	}
 
-	for _, name := range strings.Split(noLintList(rest), ",") {
+	for name := range strings.SplitSeq(noLintList(rest), ",") {
 		switch strings.TrimSpace(name) {
 		case "all", nolintLinterName:
 			return true

@@ -35,12 +35,12 @@ var version = "dev"
 
 func main() {
 	var (
-		enableIDs    stringList
-		disableIDs   stringList
-		format       string
-		quiet        bool
-		showVersion  bool
-		showRules    bool
+		enableIDs   stringList
+		disableIDs  stringList
+		format      string
+		quiet       bool
+		showVersion bool
+		showRules   bool
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
@@ -101,10 +101,10 @@ func main() {
 // printRules writes a table of every rule (ID, name, severity, description) to
 // stdout, then returns. Used by the --rules flag.
 func printRules() {
-	fmt.Fprintf(os.Stderr, "%-6s %-26s %-8s %s\n", "ID", "NAME", "SEV", "DESCRIPTION") //nolint:forbidigo // CLI output
+	fmt.Fprintf(os.Stderr, "%-6s %-26s %-8s %s\n", "ID", "NAME", "SEV", "DESCRIPTION")
 
 	for _, rule := range humanizelint.AllRules() {
-		fmt.Fprintf(os.Stderr, "%-6s %-26s %-8s %s\n", //nolint:forbidigo // CLI output
+		fmt.Fprintf(os.Stderr, "%-6s %-26s %-8s %s\n",
 			rule.Meta.ID, rule.Meta.Name, rule.Meta.Sev, rule.Meta.Description)
 	}
 }
@@ -151,7 +151,7 @@ func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 	return registry
 }
 
-func output(w io.Writer, report *finding.Report, format string, quiet bool) {
+func output(writer io.Writer, report *finding.Report, format string, quiet bool) {
 	switch format {
 	case "json":
 		data, err := report.JSON()
@@ -161,10 +161,10 @@ func output(w io.Writer, report *finding.Report, format string, quiet bool) {
 			return
 		}
 
-		fmt.Fprintln(w, data) //nolint:forbidigo // CLI stdout output
+		fmt.Fprintln(writer, data)
 
 	case "sarif":
-		if err := report.WriteSARIF(context.Background(), w); err != nil {
+		if err := report.WriteSARIF(context.Background(), writer); err != nil {
 			fmt.Fprintf(os.Stderr, "sarif error: %v\n", err)
 
 			return
@@ -182,11 +182,11 @@ func output(w io.Writer, report *finding.Report, format string, quiet bool) {
 				suggestion = "\n    💡 " + f.Suggestion
 			}
 
-			fmt.Fprintf(w, "%s [%s] %s%s\n", loc, f.Rule, f.Message, suggestion) //nolint:forbidigo // CLI stdout output
+			fmt.Fprintf(writer, "%s [%s] %s%s\n", loc, f.Rule, f.Message, suggestion)
 		}
 
 		if !quiet {
-			fmt.Fprintf(w, "\n%d findings\n", report.Len()) //nolint:forbidigo // CLI stdout output
+			fmt.Fprintf(writer, "\n%d findings\n", report.Len())
 		}
 	}
 }

@@ -6,29 +6,29 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 
 ## Architecture
 
-| File                    | Responsibility                                                                      |
-| ----------------------- | ----------------------------------------------------------------------------------- |
-| `walker.go`             | Directory walking + Go file parsing (`WalkGoDir`, `checkFuncDecls`, `posOf`)        |
-| `pattern_helpers.go`    | Shared AST utilities (`unquoteString`, `getBasicLit`, `isPackageCall`, `makeFindingWithConfidence`, etc.) |
-| `pattern_bytes.go`      | H001 AST helpers (byte units, KMGTPE, 1024 division, const detection)               |
-| `pattern_comma.go`      | H002 AST helpers (modulo-3, step-by-3, comma separator writing)                     |
-| `pattern_time.go`       | H003 AST helpers (time.Since/Sub, time threshold comparison)                        |
-| `pattern_plural.go`     | H004 AST helpers (`== 1` branch, string-in-branch check, plural params)             |
-| `pattern_si.go`         | H005 AST helpers (division by 1000, K/M suffix detection)                           |
-| `pattern_ftoa.go`       | H006 AST helpers (nested TrimRight detection)                                       |
-| `pattern_parsebytes.go` | H007 AST helpers (byte-unit suffix checks, multiplier maps)                         |
-| `rules.go`              | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()` (shared per-fn entry point)   |
-| `rule_bytes.go`         | H001 — manual byte-size formatting                                                  |
-| `rule_comma.go`         | H002 — manual comma/thousands separator                                             |
-| `rule_reltime.go`       | H003 — manual relative time                                                         |
-| `rule_plural.go`        | H004 — manual pluralization                                                         |
-| `rule_si.go`            | H005 — manual SI prefix (K/M)                                                       |
-| `rule_ftoa.go`          | H006 — manual float trailing-zero stripping                                         |
-| `rule_parsebytes.go`    | H007 — manual byte-size string parsing                                              |
-| `doc.go`                | Package documentation                                                               |
-| `plugin/plugin.go`      | golangci-lint plugin wrapper (`analysis.Analyzer` named `gohumanize`)               |
-| `cmd/go-humanize-linter/` | CLI binary with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet` |
-| `cmd/gohumanize/`       | singlechecker entry point for standalone plugin testing                             |
+| File                      | Responsibility                                                                                            |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `walker.go`               | Directory walking + Go file parsing (`WalkGoDir`, `checkFuncDecls`, `posOf`)                              |
+| `pattern_helpers.go`      | Shared AST utilities (`unquoteString`, `getBasicLit`, `isPackageCall`, `makeFindingWithConfidence`, etc.) |
+| `pattern_bytes.go`        | H001 AST helpers (byte units, KMGTPE, 1024 division, const detection)                                     |
+| `pattern_comma.go`        | H002 AST helpers (modulo-3, step-by-3, comma separator writing)                                           |
+| `pattern_time.go`         | H003 AST helpers (time.Since/Sub, time threshold comparison)                                              |
+| `pattern_plural.go`       | H004 AST helpers (`== 1` branch, string-in-branch check, plural params)                                   |
+| `pattern_si.go`           | H005 AST helpers (division by 1000, K/M suffix detection)                                                 |
+| `pattern_ftoa.go`         | H006 AST helpers (nested TrimRight detection)                                                             |
+| `pattern_parsebytes.go`   | H007 AST helpers (byte-unit suffix checks, multiplier maps)                                               |
+| `rules.go`                | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()` (shared per-fn entry point)                         |
+| `rule_bytes.go`           | H001 — manual byte-size formatting                                                                        |
+| `rule_comma.go`           | H002 — manual comma/thousands separator                                                                   |
+| `rule_reltime.go`         | H003 — manual relative time                                                                               |
+| `rule_plural.go`          | H004 — manual pluralization                                                                               |
+| `rule_si.go`              | H005 — manual SI prefix (K/M)                                                                             |
+| `rule_ftoa.go`            | H006 — manual float trailing-zero stripping                                                               |
+| `rule_parsebytes.go`      | H007 — manual byte-size string parsing                                                                    |
+| `doc.go`                  | Package documentation                                                                                     |
+| `plugin/plugin.go`        | golangci-lint plugin wrapper (`analysis.Analyzer` named `gohumanize`)                                     |
+| `cmd/go-humanize-linter/` | CLI binary with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`                          |
+| `cmd/gohumanize/`         | singlechecker entry point for standalone plugin testing                                                   |
 
 ## Rule IDs
 
@@ -77,6 +77,7 @@ nix run .#coverage      # go test with coverage report
 ```
 
 Direct Go commands:
+
 ```bash
 export GOEXPERIMENT=jsonv2 GOPRIVATE='github.com/larsartmann/*' GONOSUMDB='github.com/larsartmann/*'
 go build ./...
@@ -96,4 +97,5 @@ go vet ./...
 - **H002 fallback path** — when step size is a named constant (not literal 3), the fallback uses for-loop + comma + digit-conversion as a combined signal.
 - **H001 message varies by trigger** — KMGTPE index trick, unit slice, and unit-string-count each produce different messages for clarity.
 - **Plugin uses `fn.Pos()`** — findings are reported at the function declaration position, consistent with the CLI. Per-line diagnostics would require changing every detector to return specific `token.Pos` values.
-- **Self-detection** — the linter flags its own `rule_bytes.go` as H001 because it contains byte-unit detection patterns. This is expected.
+- **Self-detection (resolved)** — the linter's own `rule_bytes.go` would flag itself as H001 (suggestion text names byte units). It is now suppressed with a `//nolint:gohumanize` directive on `detectBytesFormat`. Run the CLI on the repo root to confirm 0 self-findings.
+- **Suppression directives** — `//nolint:gohumanize` (also `//nolint`, `//nolint:all`, comma-lists) suppresses findings on a function in **both** the CLI path (`checkFuncDecls` in `walker.go`) and the plugin path (`DetectFuncDecl` in `rules.go`). The matching logic lives in `hasNoLintDirective` / `noLintMatches` in `pattern_helpers.go`.

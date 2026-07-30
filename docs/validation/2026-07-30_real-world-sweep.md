@@ -11,34 +11,34 @@
 
 ## Headline results
 
-| Metric               | Value                                 |
-| -------------------- | ------------------------------------- |
-| Repos scanned        | 190+                                  |
-| Repos with findings  | ~30                                   |
-| Total findings       | 97                                    |
-| Overall FP rate      | Near-zero (after the H004 fix below)  |
+| Metric              | Value                                |
+| ------------------- | ------------------------------------ |
+| Repos scanned       | 190+                                 |
+| Repos with findings | ~30                                  |
+| Total findings      | 97                                   |
+| Overall FP rate     | Near-zero (after the H004 fix below) |
 
 ## Findings by rule
 
-| Rule | Count | Humanize API to use instead          |
-| ---- | ----- | ------------------------------------ |
-| H001 | 27    | `humanize.Bytes` / `humanize.IBytes` |
-| H003 | 25    | `humanize.RelTime` / `humanize.Time` |
+| Rule | Count | Humanize API to use instead               |
+| ---- | ----- | ----------------------------------------- |
+| H001 | 27    | `humanize.Bytes` / `humanize.IBytes`      |
+| H003 | 25    | `humanize.RelTime` / `humanize.Time`      |
 | H004 | 24    | `humanize.Plural` / `humanize.PluralWord` |
-| H005 | 10    | `humanize.ComputeSI`                 |
-| H002 | 7     | `humanize.Comma`                     |
-| H006 | 2     | `humanize.FormatFloat`               |
-| H007 | 2     | `humanize.ParseBytes`                |
+| H005 | 10    | `humanize.ComputeSI`                      |
+| H002 | 7     | `humanize.Comma`                          |
+| H006 | 2     | `humanize.FormatFloat`                    |
+| H007 | 2     | `humanize.ParseBytes`                     |
 
 ## Top-hit projects
 
-| Project                   | Findings |
-| ------------------------- | -------- |
-| ast-state-analyzer        | 9        |
-| SEC                       | 8        |
-| KeyCountdown              | 8        |
-| BuildFlow                 | 8        |
-| CreditReformBilanzampel   | 7        |
+| Project                 | Findings |
+| ----------------------- | -------- |
+| ast-state-analyzer      | 9        |
+| SEC                     | 8        |
+| KeyCountdown            | 8        |
+| BuildFlow               | 8        |
+| CreditReformBilanzampel | 7        |
 
 ## Accuracy notes
 
@@ -52,6 +52,7 @@
      `[]string`.
 
   Effect: **44 → 24 findings**, all 24 remaining judged genuine pluralization.
+
 - Two borderline H004 findings on wave-label functions
   (`project-dependency-graph`) were judged acceptable noise: count-based text
   selection where the "plural" is a full sentence rather than an `s` suffix.

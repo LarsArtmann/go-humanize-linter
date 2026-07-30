@@ -20,10 +20,7 @@ This linter finds those reimplementations automatically.
 | H004 | manual-plural         | English pluralization (`if n == 1`)                        | `humanize.Plural` / `humanize.PluralWord` |
 | H005 | manual-si-format      | SI-prefix formatting ("1.2K", "3.4M")                      | `humanize.SI` / `humanize.SIWithDigits`   |
 
-
 ## Detection Strategy
-
-
 
 ### Examples of detected patterns
 
@@ -125,5 +122,3 @@ nix run .#build      # build all packages
 Direct Go commands require `GOEXPERIMENT=jsonv2` and `GOPRIVATE=github.com/larsartmann/*`.
 
 ## Requirements
-
-
