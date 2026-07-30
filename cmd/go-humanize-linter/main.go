@@ -123,13 +123,10 @@ func output(report *finding.Report, format string, quiet bool) {
 		fmt.Println(data)
 
 	case "sarif":
-		data, err := finding.WriteSARIF(context.Background(), report, os.Stdout)
-		if err != nil {
+		if err := report.WriteSARIF(context.Background(), os.Stdout); err != nil {
 			fmt.Fprintf(os.Stderr, "sarif error: %v\n", err)
 			return
 		}
-
-		_ = data
 
 	default:
 		for f := range report.All() {

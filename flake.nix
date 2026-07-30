@@ -135,10 +135,11 @@
               go test ./... -bench=. -benchmem "$@"
             '';
 
-            build = mkApp "build" "Build all packages" ''
+            build = mkApp "build" "Build all packages and CLI" ''
               export GOEXPERIMENT=jsonv2
               export GOPRIVATE='github.com/larsartmann/*'
               go build ./...
+              go build -o go-humanize-linter ./cmd/go-humanize-linter/
             '';
 
             vet = mkApp "vet" "Run go vet" ''
