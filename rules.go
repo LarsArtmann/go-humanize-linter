@@ -24,5 +24,6 @@ func AllRules() []linter.RuleFunc {
 		RulePlural(),
 		RuleSI(),
 		RuleFtoa(),
+		RuleParseBytes(),
 	}
 }

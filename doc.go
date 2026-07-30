@@ -15,6 +15,7 @@
 //	H004  manual-plural           → humanize.Plural / humanize.PluralWord
 //	H005  manual-si-format        → humanize.SI / humanize.SIWithDigits
 //	H006  manual-ftoa             → humanize.Ftoa / humanize.FtoaWithDigits
+//	H007  manual-parse-bytes      → humanize.ParseBytes
 //
 // Usage as a library:
 //

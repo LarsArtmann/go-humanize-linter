@@ -164,6 +164,26 @@ func TestRuleFtoa_Positive(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// H007 — manual-parse-bytes
+// ---------------------------------------------------------------------------
+
+func TestRuleParseBytes_SuffixChecks(t *testing.T) {
+	t.Parallel()
+	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_parsebytes_suffix"))
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+}
+
+func TestRuleParseBytes_MultiplierMap(t *testing.T) {
+	t.Parallel()
+	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_parsebytes_map"))
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Cross-rule: clean code produces no findings from any rule
 // ---------------------------------------------------------------------------
 
@@ -187,8 +207,8 @@ func TestAllRules_CleanCode(t *testing.T) {
 func TestDefaultRegistry_AllRules(t *testing.T) {
 	t.Parallel()
 	r := humanizelint.DefaultRegistry()
-	if len(r.All()) != 6 {
-		t.Fatalf("expected 6 rules, got %d", len(r.All()))
+	if len(r.All()) != 7 {
+		t.Fatalf("expected 7 rules, got %d", len(r.All()))
 	}
 }
 
