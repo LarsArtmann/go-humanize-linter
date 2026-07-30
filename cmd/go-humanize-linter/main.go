@@ -154,21 +154,45 @@ func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 	return registry
 }
 
-func output(writer io.Writer, report *finding.Report, format string, quiet bool) error { //nolint:erraudit:generic_return // error is the idiomatic Go API; no caller switches on the concrete error type
+// OutputError is returned by output() when rendering or writing a report
+// fails. It carries the format ("json", "sarif", "text") and the stage that
+// failed ("render", "write") so callers can produce actionable messages and
+// branch on concrete failure modes.
+type OutputError struct {
+	Format string
+	Stage  string // "render" or "write"
+	Err    error
+}
+
+// Error implements the error interface.
+func (e *OutputError) Error() string {
+	return fmt.Sprintf("render %s: %s: %v", e.Format, e.Stage, e.Err)
+}
+
+// Unwrap returns the underlying error so errors.Is / errors.AsType work
+// through the chain.
+func (e *OutputError) Unwrap() error {
+	return e.Err
+}
+
+// output renders report to writer in the requested format. Returns an
+// *OutputError if rendering or writing fails; the caller exits with status 2
+// on error.
+func output(writer io.Writer, report *finding.Report, format string, quiet bool) error {
 	switch format {
 	case "json":
 		data, err := report.JSON()
 		if err != nil {
-			return fmt.Errorf("render json: %w", err) //nolint:erraudit:context_loss // "json" is the format literal already; erraudit's format/data suggestions are false positives
+			return &OutputError{Format: "json", Stage: "render", Err: err}
 		}
 
 		if _, err := fmt.Fprintln(writer, data); err != nil {
-			return fmt.Errorf("render json: write: %w", err) //nolint:erraudit:context_loss // "json" + "write" identify the operation; data inclusion would leak the JSON blob into the error
+			return &OutputError{Format: "json", Stage: "write", Err: err}
 		}
 
 	case "sarif":
 		if err := report.WriteSARIF(context.Background(), writer); err != nil {
-			return fmt.Errorf("render sarif: %w", err) //nolint:erraudit:context_loss // "sarif" is the format literal already; erraudit's format/data suggestions are false positives
+			return &OutputError{Format: "sarif", Stage: "render", Err: err}
 		}
 
 	default:

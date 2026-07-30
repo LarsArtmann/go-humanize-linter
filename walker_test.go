@@ -10,9 +10,10 @@ import (
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 )
 
-// TestWalkGoDir_NonexistentDirectory verifies that WalkGoDir returns a wrapped
-// error when given a path that doesn't exist. The wrap must include the
-// directory so the error chain tells the user where the walk failed.
+// TestWalkGoDir_NonexistentDirectory verifies that WalkGoDir returns a typed
+// *WalkError when given a path that doesn't exist. The typed error lets callers
+// read .Dir without parsing the error string, while Unwrap exposes the
+// underlying *fs.PathError for syscall-aware handling.
 func TestWalkGoDir_NonexistentDirectory(t *testing.T) {
 	t.Parallel()
 
@@ -27,15 +28,20 @@ func TestWalkGoDir_NonexistentDirectory(t *testing.T) {
 		t.Errorf("expected nil files slice on error, got %v", files)
 	}
 
-	if !strings.Contains(err.Error(), nonexistent) {
-		t.Errorf("expected error to mention the missing dir %q, got: %v", nonexistent, err)
+	walkErr, ok := errors.AsType[*humanizelint.WalkError](err)
+	if !ok {
+		t.Fatalf("expected error chain to contain *WalkError, got %T: %v", err, err)
 	}
 
-	// WalkGoDir wraps the underlying fs error with %w. WalkDir reports
-	// ENOENT as a *fs.PathError on Linux/macOS; we assert the chain
-	// contains one so callers can use errors.AsType for syscall-aware
-	// handling.
+	if walkErr.Dir != nonexistent {
+		t.Errorf("expected WalkError.Dir=%q, got %q", nonexistent, walkErr.Dir)
+	}
+
+	if !strings.Contains(err.Error(), nonexistent) {
+		t.Errorf("expected error string to mention the missing dir %q, got: %v", nonexistent, err)
+	}
+
 	if _, ok := errors.AsType[*fs.PathError](err); !ok {
-		t.Errorf("expected error chain to contain *fs.PathError, got %T: %v", err, err)
+		t.Errorf("expected unwrapped error chain to contain *fs.PathError, got %T: %v", err, err)
 	}
 }

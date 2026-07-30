@@ -19,6 +19,25 @@ type ParsedFile struct {
 	File *ast.File
 }
 
+// WalkError is returned by WalkGoDir and checkFuncDecls when the directory walk
+// itself fails. It carries the directory the walker was asked to scan so callers
+// can produce actionable error messages without parsing the error string.
+type WalkError struct {
+	Dir string
+	Err error
+}
+
+// Error implements the error interface.
+func (e *WalkError) Error() string {
+	return fmt.Sprintf("walking %s: %v", e.Dir, e.Err)
+}
+
+// Unwrap returns the underlying error so errors.Is / errors.AsType work
+// through the chain to the original fs.PathError, syscall.Errno, etc.
+func (e *WalkError) Unwrap() error {
+	return e.Err
+}
+
 // skipDirs are directory basenames that WalkGoDir never descends into.
 var skipDirs = map[string]bool{ //nolint:gochecknoglobals // package-level lookup table
 	"vendor":       true,
@@ -31,9 +50,8 @@ var skipDirs = map[string]bool{ //nolint:gochecknoglobals // package-level looku
 
 // WalkGoDir walks dir recursively, parses every non-test .go file, and returns
 // them. Files that fail to parse are silently skipped — syntax errors are the
-// compiler's job, not the linter's.
-//
-//nolint:erraudit:generic_return // error is the idiomatic public API; a custom error type adds no semantic value here
+// compiler's job, not the linter's. On walk failure it returns a *WalkError
+// wrapping the underlying fs error.
 func WalkGoDir(dir string) ([]ParsedFile, error) {
 	var files []ParsedFile
 
@@ -41,7 +59,7 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("walk %s: %w", path, err) //nolint:erraudit:context_loss // err is from filepath.WalkDir; fset/base/parseErr flagged are out-of-scope variables (erraudit false positive)
+			return fmt.Errorf("walk %s: %w", path, err)
 		}
 
 		if d.IsDir() {
@@ -77,7 +95,7 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("walking %s: %w", dir, err) //nolint:erraudit:context_loss // dir is already in the message; fset/base/parseErr flagged are out-of-scope variables (erraudit false positive)
+		return nil, &WalkError{Dir: dir, Err: err}
 	}
 
 	return files, nil
@@ -89,10 +107,12 @@ type detectorFunc func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 
 // checkFuncDecls walks dir, parses Go files, and applies detect to every
 // function declaration. This is the shared execution path used by every rule.
-func checkFuncDecls(dir string, detect detectorFunc) ([]finding.Finding, error) { //nolint:erraudit:generic_return // error is the idiomatic public API
+// On walk failure it returns a *WalkError wrapping the underlying fs error so
+// callers can read Dir via errors.AsType[*WalkError].
+func checkFuncDecls(dir string, detect detectorFunc) ([]finding.Finding, error) {
 	files, err := WalkGoDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("check func decls in %s: %w", dir, err) //nolint:erraudit:context_loss // dir is already in the message; detect/files flagged are not meaningful to include for a function-value and a nil slice (erraudit false positive)
+		return nil, &WalkError{Dir: dir, Err: err}
 	}
 
 	var all []finding.Finding

@@ -341,7 +341,7 @@ type failingWriter struct {
 func (f *failingWriter) Write(_ []byte) (int, error) { return 0, f.err }
 
 // errWrite is the sentinel error returned by failingWriter.
-var errWrite = errors.New("disk full: write failed") //nolint:gochecknoglobals // test sentinel
+var errWrite = errors.New("disk full: write failed")
 
 func TestOutput_JSONWriterFailure(t *testing.T) {
 	t.Parallel()
@@ -355,8 +355,17 @@ func TestOutput_JSONWriterFailure(t *testing.T) {
 		t.Errorf("expected error to wrap errWrite, got: %v", err)
 	}
 
-	if !strings.Contains(err.Error(), "render json") {
-		t.Errorf("expected error to include 'render json' context, got: %v", err)
+	outErr, ok := errors.AsType[*OutputError](err)
+	if !ok {
+		t.Fatalf("expected *OutputError in chain, got %T: %v", err, err)
+	}
+
+	if outErr.Format != "json" {
+		t.Errorf("expected Format=%q, got %q", "json", outErr.Format)
+	}
+
+	if outErr.Stage != "write" {
+		t.Errorf("expected Stage=%q, got %q", "write", outErr.Stage)
 	}
 }
 
@@ -372,8 +381,17 @@ func TestOutput_SARIFWriterFailure(t *testing.T) {
 		t.Errorf("expected error to wrap errWrite, got: %v", err)
 	}
 
-	if !strings.Contains(err.Error(), "render sarif") {
-		t.Errorf("expected error to include 'render sarif' context, got: %v", err)
+	outErr, ok := errors.AsType[*OutputError](err)
+	if !ok {
+		t.Fatalf("expected *OutputError in chain, got %T: %v", err, err)
+	}
+
+	if outErr.Format != "sarif" {
+		t.Errorf("expected Format=%q, got %q", "sarif", outErr.Format)
+	}
+
+	if outErr.Stage != "render" {
+		t.Errorf("expected Stage=%q, got %q", "render", outErr.Stage)
 	}
 }
 
