@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GOEXPERIMENT: jsonv2
+      GOPRIVATE: github.com/larsartmann/*
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: "url.git@github.com:.insteadOf"
+      GIT_CONFIG_VALUE_0: "https://github.com/"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH for private repos
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+
+      - name: Test
+        run: go test ./... -race -count=1
+
+      - name: Build CLI
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          go build -ldflags "-X main.version=${VERSION}" -o "go-humanize-linter" ./cmd/go-humanize-linter/
+
+      - name: Build singlechecker
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          go build -ldflags "-X main.version=${VERSION}" -o "gohumanize" ./cmd/gohumanize/
+
+      - name: Upload release artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./go-humanize-linter
+          asset_name: go-humanize-linter-${{ github.ref_name }}-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload singlechecker
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./gohumanize
+          asset_name: gohumanize-${{ github.ref_name }}-linux-amd64
+          asset_content_type: application/octet-stream

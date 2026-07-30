@@ -40,6 +40,19 @@ jobs:
       - name: Vet
         run: go vet ./...
 
+      - name: Coverage
+        run: |
+          mkdir -p reports
+          go test ./... -coverprofile=reports/coverage.out -covermode=atomic
+          go tool cover -func=reports/coverage.out
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: reports/coverage.out
+          flags: unittests
+          fail_ci_if_error: false
+
   lint:
     runs-on: ubuntu-latest
     env:

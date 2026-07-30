@@ -61,6 +61,7 @@ func main() {
 		showVersion bool
 		showRules   bool
 		listFiles   bool
+		explain     string
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
@@ -71,6 +72,7 @@ func main() {
 	flag.BoolVar(&showVersion, "v", false, "shorthand for --version")
 	flag.BoolVar(&showRules, "rules", false, "list all rules with descriptions and exit")
 	flag.BoolVar(&listFiles, "list-files", false, "list every Go file the walker would scan, then exit")
+	flag.StringVar(&explain, "explain", "", "print the rationale for a rule (e.g. --explain H001) and exit")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [flags] <path>\n\n", os.Args[0])
@@ -104,6 +106,12 @@ func main() {
 
 	if listFiles {
 		printScannedFiles(flag.Args())
+
+		return
+	}
+
+	if explain != "" {
+		printExplanation(explain)
 
 		return
 	}
@@ -166,6 +174,46 @@ func printScannedFiles(args []string) {
 	for _, file := range files {
 		fmt.Println(file.Path) //nolint:forbidigo // CLI stdout for --list-files
 	}
+}
+
+// ruleExplanations maps a rule ID to a longer rationale describing what
+// it detects and what to use instead. The intent is to be useful when a
+// user sees a finding and wants to understand the rule, not just the
+// detection. These stay brief on purpose — they should fit on one screen.
+var ruleExplanations = map[string]string{ //nolint:gochecknoglobals // CLI lookup table
+	"H001": "Manual byte-size formatting. The classic 'KMGTPE' index trick, " +
+		"[]string of unit names, or repeated division by 1024 are signals that " +
+		"the function is reimplementing humanize.Bytes / humanize.IBytes. " +
+		"Both SI (KB/MB) and IEC (KiB/MiB) variants are covered.",
+	"H002": "Manual comma/thousands-separator insertion via mod-3 indexing, " +
+		"step-by-3 loops, or for-loop digit grouping followed by a WriteString " +
+		"',' is what humanize.Comma / humanize.Commaf do for you.",
+	"H003": "Manual relative-time formatting using time.Since/Sub + 'ago' " +
+		"strings + time threshold comparisons. humanize.RelTime / " +
+		"humanize.Time handle singular/plural forms and locale strings.",
+	"H004": "English pluralization via 'if n == 1' switches or singular/plural " +
+		"parameter pairs. humanize.Plural / humanize.PluralWord cover 100+ " +
+		"locales.",
+	"H005": "Manual SI-prefix formatting (1.5K, 2.3M) via division by 1000 " +
+		"plus 'K'/'M' suffix strings. humanize.SI is a drop-in replacement.",
+	"H006": "Manual trailing-zero stripping via nested " +
+		"strings.TrimRight(x, '0') + strings.TrimRight(..., '.'). " +
+		"humanize.Ftoa handles the edge cases (e.g. '0' instead of '').",
+	"H007": "Manual byte-size string parsing via repeated HasSuffix checks " +
+		"on KB/MB/GB suffixes or a map[string]int64 multiplier. " +
+		"humanize.ParseBytes handles every SI/IEC unit and negative numbers.",
+}
+
+// printExplanation prints the rationale for a given rule ID and returns. Used
+// by the --explain flag.
+func printExplanation(ruleID string) {
+	explanation, ok := ruleExplanations[ruleID]
+	if !ok {
+		fmt.Fprintf(os.Stderr, "unknown rule: %s\n", ruleID) //nolint:forbidigo
+		os.Exit(2)
+	}
+
+	fmt.Printf("Rule %s: %s\n", ruleID, explanation) //nolint:forbidigo
 }
 
 // stringList implements flag.Value for repeatable string flags.

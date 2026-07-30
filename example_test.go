@@ -44,6 +44,60 @@ func ExampleRuleBytes() {
 	// Output: H001 manual-bytes-format
 }
 
+// ExampleRuleComma shows the H002 manual-comma-format rule.
+func ExampleRuleComma() {
+	rule := humanizelint.RuleComma()
+
+	fmt.Println(rule.Meta.ID, rule.Meta.Name)
+
+	// Output: H002 manual-comma-format
+}
+
+// ExampleRuleRelTime shows the H003 manual-reltime-format rule.
+func ExampleRuleRelTime() {
+	rule := humanizelint.RuleRelTime()
+
+	fmt.Println(rule.Meta.ID, rule.Meta.Name)
+
+	// Output: H003 manual-reltime-format
+}
+
+// ExampleRulePlural shows the H004 manual-plural rule.
+func ExampleRulePlural() {
+	rule := humanizelint.RulePlural()
+
+	fmt.Println(rule.Meta.ID, rule.Meta.Name)
+
+	// Output: H004 manual-plural
+}
+
+// ExampleRuleSI shows the H005 manual-si-format rule.
+func ExampleRuleSI() {
+	rule := humanizelint.RuleSI()
+
+	fmt.Println(rule.Meta.ID, rule.Meta.Name)
+
+	// Output: H005 manual-si-format
+}
+
+// ExampleRuleFtoa shows the H006 manual-ftoa rule.
+func ExampleRuleFtoa() {
+	rule := humanizelint.RuleFtoa()
+
+	fmt.Println(rule.Meta.ID, rule.Meta.Name)
+
+	// Output: H006 manual-ftoa
+}
+
+// ExampleRuleParseBytes shows the H007 manual-parse-bytes rule.
+func ExampleRuleParseBytes() {
+	rule := humanizelint.RuleParseBytes()
+
+	fmt.Println(rule.Meta.ID, rule.Meta.Name)
+
+	// Output: H007 manual-parse-bytes
+}
+
 // ExampleDetectFuncDecl runs the detectors against a hand-rolled byte formatter
 // parsed from source and reports how many findings the KMGTPE trick produces.
 func ExampleDetectFuncDecl() {

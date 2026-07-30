@@ -6,6 +6,7 @@ import (
 
 	"github.com/larsartmann/go-finding"
 	"github.com/larsartmann/go-linter-sdk"
+	"golang.org/x/tools/go/analysis"
 )
 
 // DefaultRegistry returns a Registry pre-loaded with all humanize-lint rules,
@@ -31,7 +32,111 @@ func AllRules() []linter.RuleFunc {
 		RuleSI(),
 		RuleFtoa(),
 		RuleParseBytes(),
+		RuleOrdinal(),
 	}
+}
+
+// HumanizeDetector is the facade that owns the per-function detection
+// pipeline: it iterates over every detector, applies per-rule suppression, and
+// returns the aggregated findings. Use it instead of DetectFuncDecl when you
+// need to configure the detector set, plug a custom suppression resolver, or
+// share state (e.g. metrics) across calls.
+//
+// Construction:
+//
+//	detector := humanizelint.NewHumanizeDetector()    // all 7 rules enabled
+//	detector := humanizelint.NewHumanizeDetector(     // opt-in subset
+//	    humanizelint.RuleBytes(),
+//	    humanizelint.RuleComma(),
+//	)
+//
+// Then run it on a single function:
+//
+//	findings := detector.Run(fset, file, fn, "demo.go")
+//
+// Or stream it across a whole package:
+//
+//	detector.RunOverPackage(pass) // plugin path — pass.Files iteration
+type HumanizeDetector struct {
+	detectors []ruleDetectors
+}
+
+// NewHumanizeDetector constructs a HumanizeDetector running the given rules
+// in the given order. If no rules are passed, all 7 default rules are
+// registered.
+func NewHumanizeDetector(rules ...linter.RuleFunc) *HumanizeDetector {
+	if len(rules) == 0 {
+		rules = AllRules()
+	}
+
+	d := &HumanizeDetector{
+		detectors: make([]ruleDetectors, 0, len(rules)),
+	}
+
+	byID := map[string]func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding{}
+	for _, det := range allRuleDetectors() {
+		byID[det.id] = det.detector
+	}
+
+	for _, rule := range rules {
+		det, ok := byID[rule.Meta.ID]
+		if !ok {
+			continue
+		}
+
+		d.detectors = append(d.detectors, ruleDetectors{id: rule.Meta.ID, detector: det})
+	}
+
+	return d
+}
+
+// Run applies every registered detector to a single function, honouring
+// per-rule //nolint:gohumanize[:Hxxx] suppression directives. Returns the
+// aggregated findings (nil if none).
+func (d *HumanizeDetector) Run(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+	if file == nil || fn == nil {
+		return nil
+	}
+
+	suppressions := funcSuppressions(fset, file, fn)
+
+	var all []finding.Finding
+
+	for _, detector := range d.detectors {
+		if isSuppressedRule(suppressions, detector.id) {
+			continue
+		}
+
+		all = append(all, detector.detector(fset, file, fn, filePath)...)
+	}
+
+	return all
+}
+
+// RunOverPackage iterates over every Go file in pass.Files and applies the
+// detector to each function declaration. This is the entry point used by the
+// golangci-lint plugin path.
+func (d *HumanizeDetector) RunOverPackage(pass *analysis.Pass) (any, error) {
+	for _, file := range pass.Files {
+		filePath := pass.Fset.Position(file.Pos()).Filename
+
+		for _, decl := range file.Decls {
+			fn, ok := decl.(*ast.FuncDecl)
+			if !ok {
+				continue
+			}
+
+			for _, f := range d.Run(pass.Fset, file, fn, filePath) {
+				pass.Report(analysis.Diagnostic{
+					Pos:      fn.Pos(),
+					Message:  string(f.Rule) + ": " + f.Message,
+					Category: "humanize",
+				})
+			}
+		}
+	}
+
+	return nil, nil //nolint:nilnil // analysis.Analyzer.Run requires (any, error)
 }
 
 // ruleDetectors pairs each rule's detector with its ID so DetectFuncDecl can
@@ -53,6 +158,7 @@ func allRuleDetectors() []ruleDetectors {
 		{"H005", detectSIFormat},
 		{"H006", detectFtoa},
 		{"H007", detectParseBytes},
+		{"H008", detectOrdinal},
 	}
 }
 
@@ -65,23 +171,7 @@ func allRuleDetectors() []ruleDetectors {
 // //nolint:gohumanize:H001) is honoured per-rule. A bare //nolint suppresses
 // every rule; //nolint:gohumanize suppresses only this linter.
 func DetectFuncDecl(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
-	if file == nil || fn == nil {
-		return nil
-	}
-
-	detectors := allRuleDetectors()
-	all := make([]finding.Finding, 0, len(detectors))
-
-	for _, detector := range detectors {
-		suppressions := funcSuppressions(fset, file, fn)
-		if isSuppressedRule(suppressions, detector.id) {
-			continue
-		}
-
-		all = append(all, detector.detector(fset, file, fn, filePath)...)
-	}
-
-	return all
+	return NewHumanizeDetector().Run(fset, file, fn, filePath)
 }
 
 // funcSuppressions collects every //nolint directive (parsed via

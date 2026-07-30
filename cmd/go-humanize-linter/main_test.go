@@ -493,6 +493,58 @@ func TestCLI_ListFiles(t *testing.T) {
 	}
 }
 
+func TestCLI_ExplainFlag(t *testing.T) {
+	t.Parallel()
+
+	binary := buildCLI(t)
+
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--explain", "H001",
+	)
+
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("expected exit 0 for --explain, got error: %v\n%s", err, out)
+	}
+
+	if !strings.Contains(string(out), "H001") {
+		t.Errorf("--explain H001 output missing rule ID: %s", out)
+	}
+
+	if !strings.Contains(string(out), "humanize.Bytes") {
+		t.Errorf("--explain H001 output missing suggested replacement: %s", out)
+	}
+}
+
+func TestCLI_ExplainFlagUnknownRule(t *testing.T) {
+	t.Parallel()
+
+	binary := buildCLI(t)
+
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--explain", "H999",
+	)
+
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	err := cmd.Run()
+	if err == nil {
+		t.Fatal("expected non-zero exit for unknown rule, got success")
+	}
+
+	var exitErr *exec.ExitError
+
+	if !errors.As(err, &exitErr) {
+		t.Fatalf("expected *exec.ExitError, got %T: %v", err, err)
+	}
+
+	if exitErr.ExitCode() != 2 {
+		t.Errorf("expected exit 2 for unknown rule, got %d", exitErr.ExitCode())
+	}
+}
+
 func TestCLI_SARIFOutput(t *testing.T) {
 	t.Parallel()
 
