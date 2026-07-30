@@ -410,13 +410,24 @@ func TestCLI_VersionFlag(t *testing.T) {
 
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("expected exit 0 for --version, got error: %v\n%s", err, out)
+	var stdout, stderr bytes.Buffer
+
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("expected exit 0 for --version, got error: %v\nstdout: %s\nstderr: %s",
+			err, stdout.String(), stderr.String())
 	}
 
-	if !strings.Contains(string(out), "go-humanize-linter") {
-		t.Errorf("version output missing program name: %q", out)
+	if !strings.Contains(stdout.String(), "go-humanize-linter") {
+		t.Errorf("version output missing program name: %q", stdout.String())
+	}
+
+	// A "dev" build must emit a stderr warning so users notice they are
+	// running an unversioned binary.
+	if !strings.Contains(stderr.String(), "version is unset") {
+		t.Errorf("--version with dev build should warn on stderr, got: %q", stderr.String())
 	}
 }
 
@@ -450,6 +461,35 @@ func TestCLI_RulesFlag(t *testing.T) {
 		if !strings.Contains(stdout.String(), id) {
 			t.Errorf("--rules stdout missing %s: %q", id, stdout.String())
 		}
+	}
+}
+
+func TestCLI_ListFiles(t *testing.T) {
+	t.Parallel()
+
+	binary := buildCLI(t)
+	cleanDir, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "clean"))
+
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--list-files", cleanDir,
+	)
+
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("expected exit 0 for --list-files, got error: %v\n%s", err, out)
+	}
+
+	// Clean testdata contains main.go — must appear in the listing.
+	if !strings.Contains(string(out), "main.go") {
+		t.Errorf("--list-files output missing main.go: %s", out)
+	}
+
+	// Listing must be limited to the requested directory; testdata/h001_bytes_kmgtptrick
+	// should not appear when listing testdata/clean.
+	if strings.Contains(string(out), "h001_bytes_kmgtptrick") {
+		t.Errorf("--list-files should not list sibling testdata dirs: %s", out)
 	}
 }
 

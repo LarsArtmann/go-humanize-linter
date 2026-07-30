@@ -29,9 +29,14 @@ import (
 	"github.com/larsartmann/go-linter-sdk"
 )
 
+// versionDev is the placeholder used when the binary is built without
+// ldflags-injected version metadata. It triggers a stderr warning at runtime
+// so users notice they are running an unversioned build.
+const versionDev = "dev"
+
 // version is the CLI version. It is overridden at build time via -ldflags,
 // e.g. -ldflags "-X main.version=v0.1.0".
-var version = "dev"
+var version = versionDev
 
 // Output format identifiers. Single source of truth so the flag default, the
 // switch cases, and the typed-error Format field cannot drift.
@@ -55,6 +60,7 @@ func main() {
 		quiet       bool
 		showVersion bool
 		showRules   bool
+		listFiles   bool
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
@@ -64,6 +70,7 @@ func main() {
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.BoolVar(&showVersion, "v", false, "shorthand for --version")
 	flag.BoolVar(&showRules, "rules", false, "list all rules with descriptions and exit")
+	flag.BoolVar(&listFiles, "list-files", false, "list every Go file the walker would scan, then exit")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [flags] <path>\n\n", os.Args[0])
@@ -80,13 +87,23 @@ func main() {
 	flag.Parse()
 
 	if showVersion {
-		fmt.Printf("go-humanize-linter %s\n", version) //nolint:forbidigo // CLI stdout output
+		fmt.Printf("go-humanize-linter %s\n", version) //nolint:forbidigo // CLI stdout for --version
+
+		if version == versionDev {
+			fmt.Fprintln(os.Stderr, "warning: version is unset — built without -ldflags \"-X main.version=...\"")
+		}
 
 		return
 	}
 
 	if showRules {
 		printRules()
+
+		return
+	}
+
+	if listFiles {
+		printScannedFiles(flag.Args())
 
 		return
 	}
@@ -128,7 +145,27 @@ func printRules() {
 			rule.Meta.ID, rule.Meta.Name, rule.Meta.Sev, rule.Meta.Description)
 	}
 
-	fmt.Print(builder.String()) //nolint:forbidigo // CLI stdout output for --rules flag
+	fmt.Print(builder.String()) //nolint:forbidigo // CLI stdout for --rules
+}
+
+// printScannedFiles lists every Go file the walker would scan, then returns.
+// Used by the --list-files flag — useful for debugging "why is this file
+// being scanned?" or "which files are excluded?".
+func printScannedFiles(args []string) {
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "error: --list-files requires a directory argument")
+		os.Exit(2)
+	}
+
+	files, err := humanizelint.WalkGoDir(args[0])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(2)
+	}
+
+	for _, file := range files {
+		fmt.Println(file.Path) //nolint:forbidigo // CLI stdout for --list-files
+	}
 }
 
 // stringList implements flag.Value for repeatable string flags.
