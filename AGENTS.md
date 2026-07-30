@@ -6,22 +6,29 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 
 ## Architecture
 
-| File                  | Responsibility                                                                      |
-| --------------------- | ----------------------------------------------------------------------------------- |
-| `walker.go`           | Directory walking + Go file parsing (`WalkGoDir`, `checkFuncDecls`, `posOf`)        |
-| `patterns.go`         | Shared AST pattern detection helpers (all `has*` / `count*` functions)              |
-| `rules.go`            | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()` (shared per-fn entry point)   |
-| `rule_bytes.go`       | H001 — manual byte-size formatting                                                  |
-| `rule_comma.go`       | H002 — manual comma/thousands separator                                             |
-| `rule_reltime.go`     | H003 — manual relative time                                                         |
-| `rule_plural.go`      | H004 — manual pluralization                                                         |
-| `rule_si.go`          | H005 — manual SI prefix (K/M)                                                       |
-| `rule_ftoa.go`        | H006 — manual float trailing-zero stripping                                         |
-| `rule_parsebytes.go`  | H007 — manual byte-size string parsing                                              |
-| `doc.go`              | Package documentation                                                               |
-| `plugin/plugin.go`    | golangci-lint plugin wrapper (`analysis.Analyzer` named `gohumanize`)               |
+| File                    | Responsibility                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| `walker.go`             | Directory walking + Go file parsing (`WalkGoDir`, `checkFuncDecls`, `posOf`)        |
+| `pattern_helpers.go`    | Shared AST utilities (`unquoteString`, `getBasicLit`, `isPackageCall`, `makeFindingWithConfidence`, etc.) |
+| `pattern_bytes.go`      | H001 AST helpers (byte units, KMGTPE, 1024 division, const detection)               |
+| `pattern_comma.go`      | H002 AST helpers (modulo-3, step-by-3, comma separator writing)                     |
+| `pattern_time.go`       | H003 AST helpers (time.Since/Sub, time threshold comparison)                        |
+| `pattern_plural.go`     | H004 AST helpers (`== 1` branch, string-in-branch check, plural params)             |
+| `pattern_si.go`         | H005 AST helpers (division by 1000, K/M suffix detection)                           |
+| `pattern_ftoa.go`       | H006 AST helpers (nested TrimRight detection)                                       |
+| `pattern_parsebytes.go` | H007 AST helpers (byte-unit suffix checks, multiplier maps)                         |
+| `rules.go`              | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()` (shared per-fn entry point)   |
+| `rule_bytes.go`         | H001 — manual byte-size formatting                                                  |
+| `rule_comma.go`         | H002 — manual comma/thousands separator                                             |
+| `rule_reltime.go`       | H003 — manual relative time                                                         |
+| `rule_plural.go`        | H004 — manual pluralization                                                         |
+| `rule_si.go`            | H005 — manual SI prefix (K/M)                                                       |
+| `rule_ftoa.go`          | H006 — manual float trailing-zero stripping                                         |
+| `rule_parsebytes.go`    | H007 — manual byte-size string parsing                                              |
+| `doc.go`                | Package documentation                                                               |
+| `plugin/plugin.go`      | golangci-lint plugin wrapper (`analysis.Analyzer` named `gohumanize`)               |
 | `cmd/go-humanize-linter/` | CLI binary with `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet` |
-| `cmd/gohumanize/`     | singlechecker entry point for standalone plugin testing                             |
+| `cmd/gohumanize/`       | singlechecker entry point for standalone plugin testing                             |
 
 ## Rule IDs
 
