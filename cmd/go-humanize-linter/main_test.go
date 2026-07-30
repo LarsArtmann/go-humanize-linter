@@ -26,7 +26,7 @@ func buildCLI(t *testing.T) string {
 	binaryOnce.Do(func() {
 		binaryPath = filepath.Join(os.Getenv("HOME"), ".cache", "go-humanize-linter-test")
 
-		cmd := exec.CommandContext( //nolint:gosec,noctx // test build command
+		cmd := exec.CommandContext( //nolint:gosec // test build command
 			context.Background(),
 			"go", "build", "-o", binaryPath, "./cmd/go-humanize-linter/",
 		)
@@ -69,7 +69,7 @@ func TestCLI_RunOnCleanCode(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "clean"))
 
-	cmd := exec.CommandContext( //nolint:gosec,noctx // test binary path is trusted
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, testdata,
 	)
 
@@ -91,7 +91,7 @@ func TestCLI_RunOnPositiveFinding(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.CommandContext( //nolint:gosec,noctx // test binary path is trusted
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", testdata,
 	)
 
@@ -110,7 +110,7 @@ func TestCLI_EnableFilter(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.CommandContext( //nolint:gosec,noctx // test binary path is trusted
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", "--enable", "H003", testdata,
 	)
 

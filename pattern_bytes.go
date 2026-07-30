@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -188,11 +189,5 @@ func specHas1024Value(spec ast.Spec) bool {
 		return false
 	}
 
-	for _, val := range vs.Values {
-		if isLiteral1024ish(val) {
-			return true
-		}
-	}
-
-	return false
+	return slices.ContainsFunc(vs.Values, isLiteral1024ish)
 }

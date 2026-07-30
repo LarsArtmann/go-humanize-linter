@@ -3,6 +3,7 @@ package humanizelint
 import (
 	"go/ast"
 	"go/token"
+	"slices"
 )
 
 // ---------------------------------------------------------------------------
@@ -87,13 +88,7 @@ func isSeparatorLiteral(expr ast.Expr, separators ...string) bool {
 		return false
 	}
 
-	for _, sep := range separators {
-		if val == sep {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(separators, val)
 }
 
 // isSeparatorRune reports whether args[0] is a rune literal ',' or '.'.
