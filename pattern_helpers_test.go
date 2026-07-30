@@ -448,6 +448,10 @@ func TestHasOrdinalSwitch(t *testing.T) {
 }
 
 func hasOrdinalSwitchCases() []boolSrcCase {
+	return append(hasOrdinalSwitchPositiveCases(), hasOrdinalSwitchNegativeCases()...)
+}
+
+func hasOrdinalSwitchPositiveCases() []boolSrcCase {
 	return []boolSrcCase{
 		{
 			name: "switch n%10 with all four suffixes",
@@ -492,19 +496,24 @@ func f(n int) string {
 
 func f(n int) string {
 	switch n % 100 {
-	case 11:
-		return "th"
-	case 12:
-		return "th"
-	case 13:
-		return "th"
-	default:
+	case 1:
 		return "st"
+	case 2:
+		return "nd"
+	case 3:
+		return "rd"
+	default:
+		return "th"
 	}
 }
 `,
 			want: true,
 		},
+	}
+}
+
+func hasOrdinalSwitchNegativeCases() []boolSrcCase {
+	return []boolSrcCase{
 		{
 			name: "switch n%10 with only two suffixes (below threshold)",
 			src: `package main
@@ -741,11 +750,13 @@ func TestRuleCountConsistency(t *testing.T) {
 
 	const expectedMinRules = 9
 	if len(rules) < expectedMinRules {
-		t.Fatalf("AllRules() returned %d rules, expected at least %d — did a rule factory go missing?", len(rules), expectedMinRules)
+		t.Fatalf("AllRules() returned %d rules, expected at least %d — a rule factory may be missing",
+			len(rules), expectedMinRules)
 	}
 
 	if len(rules) != len(detectors) {
-		t.Fatalf("AllRules() has %d rules but allRuleDetectors() has %d detectors — counts must match", len(rules), len(detectors))
+		t.Fatalf("AllRules() has %d rules but allRuleDetectors() has %d detectors — counts must match",
+			len(rules), len(detectors))
 	}
 
 	ruleByID := make(map[string]bool, len(rules))
@@ -760,7 +771,7 @@ func TestRuleCountConsistency(t *testing.T) {
 
 	for _, r := range rules {
 		if !detectorByID[r.Meta.ID] {
-			t.Errorf("rule %q is in AllRules() but has no detector in allRuleDetectors() — it will never fire", r.Meta.ID)
+			t.Errorf("rule %q is in AllRules() but has no detector — it will never fire", r.Meta.ID)
 		}
 	}
 

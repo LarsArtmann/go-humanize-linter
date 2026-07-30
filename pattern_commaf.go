@@ -148,7 +148,7 @@ func scanDottedPercentFloat(val string, i int) bool {
 			return true
 		}
 
-		if c != digit {
+		if c < digitZero || c > digitNine {
 			return false
 		}
 	}
@@ -161,13 +161,17 @@ func scanDottedPercentFloat(val string, i int) bool {
 // '%' character.
 func scanBarePercentFloat(val string, i int) bool {
 	digit := val[i+1]
+	if digit < digitZero || digit > digitNine {
+		return false
+	}
+
 	for j := i + minFormatWalkRange; j < len(val); j++ {
 		c := val[j]
 		if c == floatVerb {
 			return true
 		}
 
-		if c != digit {
+		if c < digitZero || c > digitNine {
 			return false
 		}
 	}
