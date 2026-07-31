@@ -1,0 +1,62 @@
+name: "go-humanize-linter"
+description: "Detect hand-rolled reimplementations of go-humanize in your Go code"
+branding:
+  icon: "search"
+  color: "blue"
+
+inputs:
+  path:
+    description: "Directory or package path to scan"
+    required: false
+    default: "."
+  enable:
+    description: "Comma-separated rule IDs to enable (e.g. H001,H003). Default: all enabled."
+    required: false
+    default: ""
+  disable:
+    description: "Comma-separated rule IDs to disable (e.g. H004)"
+    required: false
+    default: ""
+  format:
+    description: "Output format: text, json, or sarif"
+    required: false
+    default: "text"
+  version:
+    description: "Version of go-humanize-linter to install (e.g. v0.2.0)"
+    required: false
+    default: "latest"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.26"
+
+    - name: Install go-humanize-linter
+      shell: bash
+      env:
+        GOEXPERIMENT: jsonv2
+        GOPRIVATE: "github.com/larsartmann/*"
+      run: go install github.com/larsartmann/go-humanize-linter/cmd/go-humanize-linter@${{ inputs.version }}
+
+    - name: Run go-humanize-linter
+      shell: bash
+      env:
+        GOEXPERIMENT: jsonv2
+      run: |
+        args=()
+        if [ -n "${{ inputs.enable }}" ]; then
+          for id in $(echo "${{ inputs.enable }}" | tr ',' ' '); do
+            args+=(--enable "$id")
+          done
+        fi
+        if [ -n "${{ inputs.disable }}" ]; then
+          for id in $(echo "${{ inputs.disable }}" | tr ',' ' '); do
+            args+=(--disable "$id")
+          done
+        fi
+        args+=(--format "${{ inputs.format }}")
+        args+=("${{ inputs.path }}")
+        go-humanize-linter "${args[@]}"

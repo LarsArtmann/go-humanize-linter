@@ -110,6 +110,17 @@ go-humanize-linter --explain H001
 go-humanize-linter --list-files ./...
 ```
 
+### As a GitHub Action
+
+```yaml
+- uses: LarsArtmann/go-humanize-linter@v0.2.0
+  with:
+    path: ./...
+    # enable: H001,H003     # only run these rules
+    # disable: H004          # skip these rules
+    # format: sarif          # text (default), json, or sarif
+```
+
 ### Suppressing findings
 
 Add a `//nolint:gohumanize` directive to a function to suppress findings on it.

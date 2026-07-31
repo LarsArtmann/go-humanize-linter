@@ -16,6 +16,8 @@ import (
 // Triggers when a function contains:
 //   - 2+ strings.HasSuffix/CutSuffix/TrimSuffix calls checking byte-unit suffixes
 //   - OR a map[string]int64 literal with 2+ byte-unit keys used as multipliers
+//
+// Also detects package-level var declarations with byte-unit multiplier maps.
 func RuleParseBytes() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
@@ -26,7 +28,23 @@ func RuleParseBytes() linter.RuleFunc {
 			Sev:         finding.SeverityWarning,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, detectParseBytes)
+			funcFindings, err := checkFuncDecls(dir, detectParseBytes)
+			if err != nil {
+				return nil, err
+			}
+
+			files, err := WalkGoDir(dir)
+			if err != nil {
+				return nil, &WalkError{Dir: dir, Err: err}
+			}
+
+			var varFindings []finding.Finding
+			for _, pf := range files {
+				varFindings = append(varFindings,
+					scanFileLevelByteMultiplierMaps(pf.Fset, pf.File, pf.Path)...)
+			}
+
+			return append(funcFindings, varFindings...), nil
 		},
 	}
 }

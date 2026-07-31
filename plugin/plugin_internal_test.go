@@ -26,6 +26,7 @@ func TestParseRuleIDs(t *testing.T) {
 			t.Parallel()
 
 			got := parseRuleIDs(tt.input)
+
 			if len(got) != len(tt.want) {
 				t.Fatalf("parseRuleIDs(%q) = %d entries, want %d", tt.input, len(got), len(tt.want))
 			}
@@ -44,6 +45,7 @@ func TestFilterRules_NoConfigReturnsAll(t *testing.T) {
 
 	all := humanizelint.AllRules()
 	got := filterRules(all, nil, nil)
+
 	if len(got) != len(all) {
 		t.Errorf("no config: got %d rules, want %d", len(got), len(all))
 	}
@@ -55,6 +57,7 @@ func TestFilterRules_EnableOnly(t *testing.T) {
 	all := humanizelint.AllRules()
 	enable := map[string]bool{humanizelint.RuleIDH001: true, humanizelint.RuleIDH003: true}
 	got := filterRules(all, enable, nil)
+
 	if len(got) != 2 {
 		t.Fatalf("enable=H001,H003: got %d rules, want 2", len(got))
 	}
@@ -72,6 +75,7 @@ func TestFilterRules_DisableOnly(t *testing.T) {
 	all := humanizelint.AllRules()
 	disable := map[string]bool{humanizelint.RuleIDH001: true}
 	got := filterRules(all, nil, disable)
+
 	if len(got) != len(all)-1 {
 		t.Fatalf("disable=H001: got %d rules, want %d", len(got), len(all)-1)
 	}
@@ -86,11 +90,11 @@ func TestFilterRules_DisableOnly(t *testing.T) {
 func TestFilterRules_EnableOverridesDisable(t *testing.T) {
 	t.Parallel()
 
-	// When a rule is in both enable and disable, disable wins.
 	all := humanizelint.AllRules()
 	enable := map[string]bool{humanizelint.RuleIDH001: true, humanizelint.RuleIDH002: true}
 	disable := map[string]bool{humanizelint.RuleIDH001: true}
 	got := filterRules(all, enable, disable)
+
 	if len(got) != 1 {
 		t.Fatalf("enable=H001,H002 disable=H001: got %d rules, want 1 (only H002)", len(got))
 	}
@@ -103,7 +107,7 @@ func TestFilterRules_EnableOverridesDisable(t *testing.T) {
 func TestNewPluginWithSettings(t *testing.T) {
 	t.Parallel()
 
-	p, err := newPlugin(map[string]any{
+	plug, err := newPlugin(map[string]any{
 		"enable":  "H001,H002",
 		"disable": "H003",
 	})
@@ -111,52 +115,50 @@ func TestNewPluginWithSettings(t *testing.T) {
 		t.Fatalf("newPlugin failed: %v", err)
 	}
 
-	hp, ok := p.(*humanizePlugin)
+	impl, ok := plug.(*humanizePlugin)
 	if !ok {
-		t.Fatalf("expected *humanizePlugin, got %T", p)
+		t.Fatalf("expected *humanizePlugin, got %T", plug)
 	}
 
-	if hp.settings.Enable != "H001,H002" {
-		t.Errorf("expected Enable=%q, got %q", "H001,H002", hp.settings.Enable)
+	if impl.settings.Enable != "H001,H002" {
+		t.Errorf("expected Enable=%q, got %q", "H001,H002", impl.settings.Enable)
 	}
 
-	if hp.settings.Disable != "H003" {
-		t.Errorf("expected Disable=%q, got %q", "H003", hp.settings.Disable)
+	if impl.settings.Disable != "H003" {
+		t.Errorf("expected Disable=%q, got %q", "H003", impl.settings.Disable)
 	}
 }
 
 func TestNewPluginWithEmptySettings(t *testing.T) {
 	t.Parallel()
 
-	p, err := newPlugin(nil)
+	plug, err := newPlugin(nil)
 	if err != nil {
 		t.Fatalf("newPlugin(nil) failed: %v", err)
 	}
 
-	hp, ok := p.(*humanizePlugin)
+	impl, ok := plug.(*humanizePlugin)
 	if !ok {
-		t.Fatalf("expected *humanizePlugin, got %T", p)
+		t.Fatalf("expected *humanizePlugin, got %T", plug)
 	}
 
-	if hp.settings.Enable != "" || hp.settings.Disable != "" {
+	if impl.settings.Enable != "" || impl.settings.Disable != "" {
 		t.Errorf("empty settings should produce empty plugin config, got Enable=%q Disable=%q",
-			hp.settings.Enable, hp.settings.Disable)
+			impl.settings.Enable, impl.settings.Disable)
 	}
 }
 
 func TestBuildAnalyzersProducesConfiguredDetector(t *testing.T) {
 	t.Parallel()
 
-	// With Enable=H001 only, the built analyzer should produce H001 findings
-	// but NOT H002 findings when run on a file with both patterns.
-	p, err := newPlugin(map[string]any{
+	plug, err := newPlugin(map[string]any{
 		"enable": humanizelint.RuleIDH001,
 	})
 	if err != nil {
 		t.Fatalf("newPlugin failed: %v", err)
 	}
 
-	analyzers, err := p.BuildAnalyzers()
+	analyzers, err := plug.BuildAnalyzers()
 	if err != nil {
 		t.Fatalf("BuildAnalyzers failed: %v", err)
 	}
