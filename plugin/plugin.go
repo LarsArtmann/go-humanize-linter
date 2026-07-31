@@ -3,7 +3,7 @@
 //
 // # Integration (golangci-lint v2)
 //
-// Build a custom golangci-lint binary with the plugin compiled in:
+// 1. Create a .custom-gcl.yml build config:
 //
 //	# .custom-gcl.yml
 //	version: v2.12.2
@@ -12,8 +12,12 @@
 //	    import: github.com/larsartmann/go-humanize-linter/plugin
 //	    path: .
 //
-// Then run `golangci-lint custom` to produce a binary, and register the
-// linter in .golangci.yml:
+// 2. Build a custom golangci-lint binary:
+//
+//	golangci-lint custom   # produces ./custom-gcl
+//
+// 3. Register the linter in your .golangci.yml (CRITICAL — without this section,
+// golangci-lint reports "unknown linters: gohumanize"):
 //
 //	linters:
 //	  enable:
@@ -21,10 +25,17 @@
 //	  settings:
 //	    custom:
 //	      gohumanize:
-//	        type: module
+//	        type: "module"
+//	        description: "Detect hand-rolled reimplementations of go-humanize"
 //	        settings:
-//	          enable: "H001,H003"   # only run these rules
-//	          disable: "H004"        # skip these rules
+//	          enable: "H001,H003"   # optional: only run these rules
+//	          # disable: "H004"     # optional: skip these rules
+//
+// 4. Run the custom binary:
+//
+//	./custom-gcl run ./...
+//
+// See .golangci.custom.yml in the repo root for a complete example config.
 //
 // # Standalone usage
 //
