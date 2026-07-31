@@ -33,8 +33,8 @@ func RuleFtoa() linter.RuleFunc {
 	}
 }
 
-func detectFtoa(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
-	if !hasNestedTrimRight(fn) {
+func detectFtoa(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+	if !hasNestedTrimRight(fn, buildImportAliases(file)) {
 		return nil
 	}
 

@@ -33,10 +33,11 @@ func RuleComma() linter.RuleFunc {
 	}
 }
 
-func detectCommaFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+func detectCommaFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+	aliases := buildImportAliases(file)
 	mod3 := hasModulo3(fn)
 	step3 := hasStepBy3(fn)
-	sep := hasCommaOrSeparator(fn)
+	sep := hasCommaOrSeparator(fn, aliases)
 
 	var (
 		confidence finding.Confidence
@@ -53,7 +54,7 @@ func detectCommaFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, fileP
 
 		signals = fmt.Sprintf("mod3=%v, step3=%v", mod3, step3)
 
-	case hasForLoop(fn) && sep && hasDigitConversion(fn):
+	case hasForLoop(fn) && sep && hasDigitConversion(fn, aliases):
 		// Fallback: for-loop + comma writing + digit conversion.
 		// Catches cases using named constants like `digitsPerGroup`.
 		confidence = finding.ConfidenceMedium

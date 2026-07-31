@@ -10,7 +10,7 @@ import (
 
 // hasTimeSinceOrSub reports whether fn calls time.Since or a .Sub method on a
 // time value.
-func hasTimeSinceOrSub(fn *ast.FuncDecl) bool {
+func hasTimeSinceOrSub(fn *ast.FuncDecl, aliases map[string]string) bool {
 	hit := false
 
 	ast.Inspect(fn, func(n ast.Node) bool {
@@ -20,7 +20,7 @@ func hasTimeSinceOrSub(fn *ast.FuncDecl) bool {
 		}
 
 		// time.Since(x)
-		if isPackageCall(call, "time", "Since") {
+		if isPackageCall(call, "time", "Since", aliases) {
 			hit = true
 
 			return true

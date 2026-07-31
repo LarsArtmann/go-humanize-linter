@@ -33,7 +33,7 @@ const (
 //     strconv.FormatFloat with a non-zero precision), AND
 //  2. A manual separator group loop in the same function.
 
-func hasCommafPattern(fn *ast.FuncDecl) bool {
+func hasCommafPattern(fn *ast.FuncDecl, aliases map[string]string) bool {
 	hasFloatFormat := false
 	hasSeparatorLoop := false
 
@@ -47,15 +47,15 @@ func hasCommafPattern(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		if isPackageCall(call, "fmt", "Sprintf") && hasPercentNF(call) {
+		if isPackageCall(call, "fmt", "Sprintf", aliases) && hasPercentNF(call) {
 			hasFloatFormat = true
 		}
 
-		if isPackageCall(call, "strconv", "FormatFloat") && hasFormatFloatPrecision(call) {
+		if isPackageCall(call, "strconv", "FormatFloat", aliases) && hasFormatFloatPrecision(call) {
 			hasFloatFormat = true
 		}
 
-		if isCommaSeparatorCall(call) {
+		if isCommaSeparatorCall(call, aliases) {
 			hasSeparatorLoop = true
 		}
 

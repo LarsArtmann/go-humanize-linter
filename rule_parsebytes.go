@@ -49,8 +49,9 @@ func RuleParseBytes() linter.RuleFunc {
 	}
 }
 
-func detectParseBytes(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
-	suffixChecks := hasByteUnitSuffixChecks(fn)
+func detectParseBytes(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+	aliases := buildImportAliases(file)
+	suffixChecks := hasByteUnitSuffixChecks(fn, aliases)
 	multMap := hasByteUnitMultiplierMap(fn)
 
 	if suffixChecks < 2 && !multMap {

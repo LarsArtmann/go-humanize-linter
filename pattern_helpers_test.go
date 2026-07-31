@@ -425,7 +425,7 @@ func TestHasCommaOrSeparator(t *testing.T) {
 			t.Parallel()
 
 			_, _, fn := parseFirstFunc(t, tt.src)
-			if got := hasCommaOrSeparator(fn); got != tt.want {
+			if got := hasCommaOrSeparator(fn, nil); got != tt.want {
 				t.Errorf("hasCommaOrSeparator = %v, want %v", got, tt.want)
 			}
 		})

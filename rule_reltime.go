@@ -34,8 +34,9 @@ func RuleRelTime() linter.RuleFunc {
 	}
 }
 
-func detectRelTimeFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
-	timeDiff := hasTimeSinceOrSub(fn)
+func detectRelTimeFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+	aliases := buildImportAliases(file)
+	timeDiff := hasTimeSinceOrSub(fn, aliases)
 	timeThreshold := hasTimeThresholdComparison(fn)
 	hasAgo := hasAnyStringLiteral(fn, "ago", "from now", "just now")
 

@@ -10,7 +10,7 @@ import (
 
 // hasNestedTrimRight reports whether fn contains
 // strings.TrimRight(strings.TrimRight(x, "0"), ".") — the classic Ftoa pattern.
-func hasNestedTrimRight(fn *ast.FuncDecl) bool {
+func hasNestedTrimRight(fn *ast.FuncDecl, aliases map[string]string) bool {
 	hit := false
 
 	ast.Inspect(fn, func(n ast.Node) bool {
@@ -19,7 +19,7 @@ func hasNestedTrimRight(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		if !isPackageCall(outer, "strings", "TrimRight") {
+		if !isPackageCall(outer, "strings", "TrimRight", aliases) {
 			return true
 		}
 
@@ -32,7 +32,7 @@ func hasNestedTrimRight(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		if isPackageCall(inner, "strings", "TrimRight") {
+		if isPackageCall(inner, "strings", "TrimRight", aliases) {
 			hit = true
 		}
 

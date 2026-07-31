@@ -36,7 +36,7 @@ func hasModulo3(fn *ast.FuncDecl) bool {
 // hasCommaOrSeparator reports whether fn writes a comma or other thousands
 // separator character via WriteString, WriteByte, WriteRune, or appears in a
 // strings.Join call with ",".
-func hasCommaOrSeparator(fn *ast.FuncDecl) bool {
+func hasCommaOrSeparator(fn *ast.FuncDecl, aliases map[string]string) bool {
 	hit := false
 
 	ast.Inspect(fn, func(n ast.Node) bool {
@@ -45,7 +45,7 @@ func hasCommaOrSeparator(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		if isCommaSeparatorCall(call) {
+		if isCommaSeparatorCall(call, aliases) {
 			hit = true
 		}
 
@@ -57,8 +57,8 @@ func hasCommaOrSeparator(fn *ast.FuncDecl) bool {
 
 // isCommaSeparatorCall reports whether a call expression writes a comma or
 // thousands separator via strings.Join, WriteString, WriteByte, or WriteRune.
-func isCommaSeparatorCall(call *ast.CallExpr) bool {
-	if isPackageCall(call, "strings", "Join") && len(call.Args) >= 2 {
+func isCommaSeparatorCall(call *ast.CallExpr, aliases map[string]string) bool {
+	if isPackageCall(call, "strings", "Join", aliases) && len(call.Args) >= 2 {
 		if isSeparatorLiteral(call.Args[1], ",", ".", " ") {
 			return true
 		}
@@ -161,7 +161,7 @@ func hasForLoop(fn *ast.FuncDecl) bool {
 // hasDigitConversion reports whether fn calls strconv.Itoa, strconv.FormatInt,
 // strconv.FormatUint, or strconv.FormatFloat — the integer-to-string
 // conversions that comma formatters always use.
-func hasDigitConversion(fn *ast.FuncDecl) bool {
+func hasDigitConversion(fn *ast.FuncDecl, aliases map[string]string) bool {
 	hit := false
 
 	ast.Inspect(fn, func(n ast.Node) bool {
@@ -170,10 +170,10 @@ func hasDigitConversion(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		if isPackageCall(call, "strconv", "Itoa") ||
-			isPackageCall(call, "strconv", "FormatInt") ||
-			isPackageCall(call, "strconv", "FormatUint") ||
-			isPackageCall(call, "strconv", "FormatFloat") {
+		if isPackageCall(call, "strconv", "Itoa", aliases) ||
+			isPackageCall(call, "strconv", "FormatInt", aliases) ||
+			isPackageCall(call, "strconv", "FormatUint", aliases) ||
+			isPackageCall(call, "strconv", "FormatFloat", aliases) {
 			hit = true
 		}
 

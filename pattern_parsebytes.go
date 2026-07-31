@@ -14,7 +14,7 @@ import (
 // hasByteUnitSuffixChecks reports whether fn contains 2+ calls to
 // strings.HasSuffix, strings.CutSuffix, or strings.TrimSuffix where the suffix
 // argument is a known byte-unit string (KB, MB, GB, KiB, MiB, etc.).
-func hasByteUnitSuffixChecks(fn *ast.FuncDecl) int {
+func hasByteUnitSuffixChecks(fn *ast.FuncDecl, aliases map[string]string) int {
 	count := 0
 
 	ast.Inspect(fn, func(n ast.Node) bool {
@@ -23,9 +23,9 @@ func hasByteUnitSuffixChecks(fn *ast.FuncDecl) int {
 			return true
 		}
 
-		if !isPackageCall(call, "strings", "HasSuffix") &&
-			!isPackageCall(call, "strings", "CutSuffix") &&
-			!isPackageCall(call, "strings", "TrimSuffix") {
+		if !isPackageCall(call, "strings", "HasSuffix", aliases) &&
+			!isPackageCall(call, "strings", "CutSuffix", aliases) &&
+			!isPackageCall(call, "strings", "TrimSuffix", aliases) {
 			return true
 		}
 

@@ -32,8 +32,8 @@ func RuleCommaf() linter.RuleFunc {
 	}
 }
 
-func detectCommaf(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
-	if !hasCommafPattern(fn) {
+func detectCommaf(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
+	if !hasCommafPattern(fn, buildImportAliases(file)) {
 		return nil
 	}
 

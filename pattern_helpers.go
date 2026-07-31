@@ -130,8 +130,9 @@ func isLiteralInt(expr ast.Expr, val int) bool {
 }
 
 // isPackageCall reports whether call is a function call of the form
-// pkg.FuncName (e.g. strings.TrimRight).
-func isPackageCall(call *ast.CallExpr, pkg, name string) bool {
+// pkg.FuncName (e.g. strings.TrimRight). When an aliases map is provided,
+// it also resolves import aliases (e.g. str "strings" → str.TrimRight).
+func isPackageCall(call *ast.CallExpr, pkg, name string, aliases ...map[string]string) bool {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 	if !ok {
 		return false
@@ -146,7 +147,48 @@ func isPackageCall(call *ast.CallExpr, pkg, name string) bool {
 		return false
 	}
 
-	return ident.Name == pkg
+	if ident.Name == pkg {
+		return true
+	}
+
+	for _, aliasMap := range aliases {
+		if resolved, ok := aliasMap[ident.Name]; ok {
+			if resolved == pkg || strings.HasSuffix(resolved, "/"+pkg) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// buildImportAliases scans a file's import declarations and returns a map
+// from local names to import paths. For non-aliased imports, the local name
+// is the package's last path segment (e.g. "strings" for "strings"). For
+// aliased imports, the local name is the alias (e.g. "str" for `str "strings"`).
+func buildImportAliases(file *ast.File) map[string]string {
+	if file == nil {
+		return nil
+	}
+
+	aliases := make(map[string]string)
+
+	for _, imp := range file.Imports {
+		path := strings.Trim(imp.Path.Value, `"`)
+
+		localName := path
+		if idx := strings.LastIndex(path, "/"); idx >= 0 {
+			localName = path[idx+1:]
+		}
+
+		if imp.Name != nil {
+			localName = imp.Name.Name
+		}
+
+		aliases[localName] = path
+	}
+
+	return aliases
 }
 
 // makeFindingWithConfidence constructs a finding with an explicit confidence

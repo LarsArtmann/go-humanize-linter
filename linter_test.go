@@ -328,6 +328,17 @@ func TestRuleParseBytes_PackageVarMultiplierMap(t *testing.T) {
 	}
 }
 
+func TestRuleParseBytes_AliasedImport(t *testing.T) {
+	t.Parallel()
+
+	// Verifies that H007 detects byte-unit suffix checks through an aliased
+	// import (e.g. `import str "strings"` → str.HasSuffix).
+	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_aliased_import"))
+	if len(findings) == 0 {
+		t.Fatal("expected H007 finding for aliased import, got 0")
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Cross-rule: clean code produces no findings from any rule
 // ---------------------------------------------------------------------------
