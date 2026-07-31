@@ -647,6 +647,7 @@ func TestCLI_OutputToFile(t *testing.T) {
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	var stderr bytes.Buffer
+
 	cmd.Stderr = &stderr
 
 	// Findings exist in this testdata → exit code 1 is expected.

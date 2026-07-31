@@ -83,7 +83,7 @@ func (p *humanizePlugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
 	detector := humanizelint.NewHumanizeDetector(rules...)
 
 	a := &analysis.Analyzer{ //nolint:exhaustruct
-		Name: "gohumanize",
+		Name: analyzerName,
 		Doc:  "Detect hand-rolled reimplementations of github.com/dustin/go-humanize",
 		Run: func(pass *analysis.Pass) (any, error) {
 			return runDetector(pass, detector)
@@ -106,7 +106,7 @@ var Analyzer = newAnalyzer() //nolint:gochecknoglobals // required by singlechec
 // newAnalyzer builds the [*analysis.Analyzer] that runs all humanize-lint rules.
 func newAnalyzer() *analysis.Analyzer {
 	return &analysis.Analyzer{ //nolint:exhaustruct
-		Name: "gohumanize",
+		Name: analyzerName,
 		Doc:  "Detect hand-rolled reimplementations of github.com/dustin/go-humanize",
 		Run:  analyzeHumanize,
 	}
@@ -153,7 +153,7 @@ func runDetector(pass *analysis.Pass, detector *humanizelint.HumanizeDetector) (
 func parseRuleIDs(spec string) map[string]bool {
 	set := make(map[string]bool)
 
-	for _, id := range strings.SplitSeq(spec, ",") {
+	for id := range strings.SplitSeq(spec, ",") {
 		id = strings.TrimSpace(id)
 		if id != "" {
 			set[id] = true
