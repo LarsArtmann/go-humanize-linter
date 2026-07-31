@@ -32,7 +32,8 @@ export GONOSUMDB='github.com/larsartmann/*'
 nix run .#test          # go test ./... -count=1
 nix run .#test-race     # go test ./... -race -count=1
 nix run .#build         # go build ./...
-nix run .#lint          # golangci-lint run ./...
+nix run .#lint          # golangci-lint run ./... (standard linters)
+nix run .#custom-lint   # build custom-gcl and run with gohumanize plugin
 nix run .#vet           # go vet ./...
 nix run .#coverage      # go test with coverage report
 ```
@@ -45,6 +46,25 @@ go build ./...
 go test ./... -race -count=1
 go vet ./...
 ```
+
+## golangci-lint v2 Module Plugin Workflow
+
+The linter ships as a golangci-lint v2 **module plugin**. To test the full
+integration (including golangci-lint runtime discovery):
+
+1. `golangci-lint custom` reads `.custom-gcl.yml` and builds `./custom-gcl`
+2. The custom binary discovers `gohumanize` via `register.Plugin("gohumanize", newPlugin)` in `init()`
+3. Run with the custom config: `./custom-gcl run -c .golangci.custom.yml ./...`
+
+**One-liner via Nix:**
+
+```bash
+nix run .#custom-lint
+```
+
+**Key requirement:** The `.golangci.yml` must include a `linters.settings.custom.gohumanize.type: "module"` section or golangci-lint reports "unknown linters". See `.golangci.custom.yml` for the complete config.
+
+**Note:** `nix run .#lint` uses stock golangci-lint (without the plugin) and filters the "Found unknown linters in //nolint directives" warning. This is expected — the project's own `//nolint:gohumanize` directives reference the module plugin name, which stock golangci-lint doesn't know.
 
 ## Testing Strategy
 
@@ -87,7 +107,7 @@ testdata/
 
 8. **`linter_test.go`** — Add `TestRuleName_Positive` and `TestRuleName_Negative`.
 
-9. **`cmd/go-humanize-linter/main.go`** — Add to `ruleExplanations` map and the local `h0NN` constant.
+9. **`cmd/go-humanize-linter/main.go`** — Add to `ruleExplanations` map using the exported `humanizelint.RuleIDH0NN` constant.
 
 10. **`docs/rules/H0NN.md`** — Rule documentation (follow `H001.md` format).
 

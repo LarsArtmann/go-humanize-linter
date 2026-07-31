@@ -173,6 +173,14 @@
               go test ./... -coverprofile=reports/coverage.out -covermode=atomic "$@"
               go tool cover -func=reports/coverage.out
             '';
+
+            custom-lint = mkApp "custom-lint" "Build custom golangci-lint with gohumanize plugin and run it" ''
+              export GOEXPERIMENT=jsonv2
+              export GOPRIVATE='github.com/larsartmann/*'
+              export GONOSUMDB='github.com/larsartmann/*'
+              golangci-lint custom
+              ./custom-gcl run -c .golangci.custom.yml ./... "$@"
+            '';
           };
         };
     };
