@@ -12,18 +12,12 @@
 | #   | Task                                                                      | Tier   | Effort | Status   |
 | --- | ------------------------------------------------------------------------- | ------ | ------ | -------- |
 | T1  | Tag `v0.2.0` (code shipped; tag missing)                                  | High   | XS     | blocked  |
-| T2  | Re-run real-world validation sweep with H008 + H009                       | High   | M      | planned  |
-| T3  | Test the `--output` / `writeReport` flag                                  | High   | XS     | planned  |
-| T4  | Document `--output` flag in README                                        | Medium | XS     | planned  |
-| T5  | Pin `govulncheck` + `golangci-lint` versions in CI                        | High   | XS     | planned  |
-| T6  | Export `RuleIDH001`–`RuleIDH009` constants                                | Medium | S      | planned  |
-| T7  | Replace `nix run .#lint` `grep -v` filter with `.golangci.yml` plugin reg | High   | M      | planned  |
-| T8  | GitHub Action composite `action.yml`                                      | Medium | S      | planned  |
-| T9  | Configurable rules in plugin mode via `Analyzer.Flags`                    | Medium | M      | planned  |
-| T10 | Package-level `var` detection for H007                                    | Low    | M      | planned  |
-| T11 | go/types type-aware detection                                             | Low    | L      | planned  |
-| T12 | `--config` flag for YAML/TOML rule configuration                          | Low    | M      | planned  |
-| T13 | Publish to golangci-lint plugin index                                     | Low    | S      | blocked  |
+| T2  | Real-world validation sweep with H008 + H009 + new detection              | High   | M      | planned  |
+| T14 | Benchmark import-alias-aware `isPackageCall`                               | Medium | S      | planned  |
+| T15 | Plugin integration test through `custom-gcl` binary                         | Medium | S      | planned  |
+| T16 | Dot-import (`. "strings"`) support for alias resolution                     | Low    | S      | planned  |
+| T17 | H009/H002 overlap disambiguation                                            | Low    | M      | planned  |
+| T18 | Publish to golangci-lint plugin index                                       | Low    | S      | blocked  |
 
 ---
 
@@ -31,125 +25,83 @@
 
 ### T1 — Tag `v0.2.0` (code shipped; tag missing) · High · _blocked_
 
-H008, H009, scoped suppression, `HumanizeDetector`, `--explain`, `--list-files`,
-`--output`, and the adoption unlock (replace directives removed) are all merged to
-`main` and documented in `CHANGELOG.md` under `[0.2.0]`. The only git tag is
-`v0.1.0`. The release workflow (`.github/workflows/release.yml`) fires on tags, so
-the 0.2.0 release artefacts have never been built.
+All v0.2.0 features are merged to `main` and documented in `CHANGELOG.md` under
+`[0.2.0] - Unreleased`. The only git tag is `v0.1.0`. The release workflow
+(`/.github/workflows/release.yml`) fires on tags.
 
 - [ ] Tag `v0.2.0` on `main` (requires explicit user approval — never tag without it)
 - [ ] Verify the release workflow fires and publishes GitHub release notes
 
-### T2 — Re-run real-world validation sweep with H008 + H009 · High · _planned_
+### T2 — Real-world validation sweep with H008 + H009 + new detection · High · _planned_
 
 H001–H007 were swept against 190+ Go projects
-(`docs/validation/2026-07-30_real-world-sweep.md`). H008 and H009 have never been
-swept against the corpus, so the "~0% FP" claim does not yet extend to them.
+(`docs/validation/2026-07-30_real-world-sweep.md`). H008, H009, package-level
+var detection, and import-alias-aware detection have never been swept against
+the corpus, so the "~0% FP" claim does not yet extend to them.
 
 - [ ] Run the linter over the 190+ project corpus with all 9 rules enabled
 - [ ] Record H008/H009 finding counts and false-positive rate
+- [ ] Record false-positive rate for package-level var detection and alias-aware detection
 - [ ] Save to `docs/validation/`
 
 ---
 
-## Documentation
+## Performance
 
-### T4 — Document `--output` flag in README · Medium · _planned_
+### T14 — Benchmark import-alias-aware `isPackageCall` · Medium · _planned_
 
-The `--output <file>` flag shipped in v0.2.0 (`cmd/go-humanize-linter/main.go:72`)
-but the README "Usage" section does not mention it. Users won't know it exists.
+The `isPackageCall` function now accepts a variadic `aliases ...map[string]string`
+parameter. No performance data exists for the alias-resolution path.
 
-- [ ] Add `--output <file>` to the README CLI usage examples
-
----
-
-## Test gaps
-
-### T3 — Test the `--output` / `writeReport` flag · High · _planned_
-
-The `--output <file>` flag (`writeReport`, `cmd/go-humanize-linter/main.go:146`) has
-**no test**. The flag works (verified manually) but there is no regression guard for
-file creation, content correctness, or cleanup on error. The `output()` renderer
-itself has failure-path tests (`TestOutput_JSONWriterFailure`), but the
-file-writing wrapper does not.
-
-- [ ] `TestWriteReport_*` — file creation, content correctness, exit code, cleanup on error
+- [ ] Write `BenchmarkIsPackageCall_WithAliases` and `BenchmarkIsPackageCall_WithoutAliases`
+- [ ] Compare with `benchstat` to confirm no regression on the no-alias path
+- [ ] Profile `buildImportAliases` for large files
 
 ---
 
-## Tooling & CI
+## Testing
 
-### T5 — Pin `govulncheck` + `golangci-lint` versions in CI · High · _planned_
+### T15 — Plugin integration test through `custom-gcl` binary · Medium · _planned_
 
-The CI workflow installs `govulncheck` (`@latest`) and `golangci-lint`
-(`version: latest`), which is non-reproducible: a breaking upstream release can flip
-CI from green to red with no code change.
+The golangci-lint v2 module plugin registration is verified manually (see
+`.golangci.custom.yml` and the plugin.go doc comment for the workflow) but
+there is no automated integration test. Unit tests pass but don't exercise
+the golangci-lint runtime discovery path.
 
-- [ ] Pin both tools to specific versions in `.github/workflows/ci.yml`
-
-### T6 — Export `RuleIDH001`–`RuleIDH009` constants · Medium · _planned_
-
-The CLI defines local `h001`–`h009` constants (`cmd/go-humanize-linter/main.go`) to
-avoid `goconst` warnings, duplicating the rule IDs that live in the core package.
-Exporting `RuleIDH001`–`RuleIDH009` from `humanizelint` lets the CLI import a single
-source of truth.
-
-- [ ] Export the constants from the core package
-- [ ] Import them in `main.go` and `plugin/plugin.go` instead of local copies
-
-### T7 — Replace `nix run .#lint` `grep -v` filter with `.golangci.yml` plugin registration · High · _planned_
-
-`flake.nix:160` silences the `Found unknown linters in //nolint directives:
-gohumanize` warning with a `grep -v`. This hides a real signal from the dev shell
-while a raw `golangci-lint run` (as the CI lint job does) still emits it. The proper
-fix is to register the project's own analyzer via `.golangci.yml`'s `plugins:` map.
-
-- [ ] Register `gohumanize` as a golangci-lint plugin in `.golangci.yml`
-- [ ] Remove the `grep -v` band-aid from `flake.nix`
-
-### T8 — GitHub Action composite `action.yml` · Medium · _planned_
-
-- [ ] Reusable composite `action.yml` (inputs: `path`, `enable`, `disable`, `format`)
-- [ ] README "Use in GitHub Actions" section
+- [ ] Write a test that builds the `custom-gcl` binary, runs it on testdata,
+      and asserts findings are produced
+- [ ] Gate behind `testing.Short()` skip or a build tag since it requires
+      `golangci-lint custom` (network + git clone)
 
 ---
 
-## Larger / future
+## Detection improvements
 
-### T9 — Configurable rules in plugin mode via `Analyzer.Flags` · Medium · _planned_
+### T16 — Dot-import (`. "strings"`) support for alias resolution · Low · _planned_
 
-The CLI supports `--enable`/`--disable`; the golangci-lint plugin does not. Users
-cannot disable a rule from their `.golangci.yml` without `//nolint` (scoped
-directives cover the common case, but config-level control is still missing).
+The `buildImportAliases` function resolves named import aliases (e.g.,
+`str "strings"`) but does not handle dot imports (`. "strings"`). Dot imports
+inject all exported names into the current scope, so `HasSuffix` would be called
+without a package qualifier. ADR 0001 documents this as a known gap.
 
-- [ ] Add `enable` / `disable` string flags to `plugin.Analyzer.Flags`
-- [ ] Filter `DetectFuncDecl` results by configured rule set in `analyzeHumanize`
+- [ ] Detect dot imports in `buildImportAliases` and handle bare calls to
+      `HasSuffix`, `TrimRight`, etc. in pattern helpers
 
-### T10 — Package-level `var` detection for H007 · Low · _planned_
+### T17 — H009/H002 overlap disambiguation · Low · _planned_
 
-Only `*ast.FuncDecl` scope is scanned. A `var multiplier = map[string]int64{"KB": 1024}`
-at package scope is invisible to H007.
+H009 (manual-commaf) and H002 (manual-comma-format) can both match the same
+code when it involves `%.Nf` formatting plus comma-grouping loops. Currently
+both rules fire independently. A prioritization or suppression mechanism
+would reduce noise.
 
-- [ ] File/package-scope scan for `map[string]int64` with byte-unit keys
-- [ ] Hook into `checkFuncDecls` as a separate decl-kind pass
+- [ ] When H009 fires, suppress H002 on the same function (or vice versa)
+- [ ] Document the precedence rule
 
-### T11 — go/types type-aware detection · Low · _planned_
+---
 
-Detection is purely syntactic — import aliases (`s "strings"`) and typed values
-are not resolved. Type info would cut false negatives on generic / aliased code.
+## Distribution
 
-- [ ] Resolve import aliases before `isPackageCall`
-- [ ] Decide: full `go/types` or lightweight `pass.TypesInfo` in plugin path only
-- [ ] Benchmark impact on scan speed
+### T18 — Publish to golangci-lint plugin index · Low · _blocked_
 
-### T12 — `--config` flag for YAML/TOML rule configuration · Low · _planned_
-
-- [ ] Define config schema (enabled/disabled, thresholds)
-- [ ] Loader + `--config` flag + precedence over CLI flags
-
-### T13 — Publish to golangci-lint plugin index · Low · _blocked_
-
-- [ ] Blocked on a tagged, `go install`-able version (the replace directives are gone
-      and deps resolve from tags, but `v0.2.0` is not tagged yet — see T1; also depends
-      on `go-linter-sdk` being publicly `go install`-able)
+- [ ] Blocked on a tagged, `go install`-able version (v0.2.0 not tagged yet — see T1)
 - [ ] Submit to the plugin index once installable

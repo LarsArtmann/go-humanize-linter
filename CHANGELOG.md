@@ -5,9 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2026-07-30
+## [0.2.0] - Unreleased
 
 ### Added
+
+- **Exported `RuleIDH001`–`RuleIDH009` constants** — single source of truth for rule IDs in `rules.go`, imported by CLI, plugin, and all rule files. Eliminates duplicated string literals.
+- **Package-level `var` detection for H007** — `scanFileLevelByteMultiplierMaps` detects `var byteMultipliers = map[string]int64{"KB": 1024}` at package scope. Type-checks map value type (`int*`) to avoid false positives on lookup sets like `map[string]bool`.
+- **Import-alias-aware detection** — `buildImportAliases(file)` resolves import aliases (e.g., `str "strings"`) from the AST. Threaded through all pattern helpers via variadic `aliases ...map[string]string` parameter. ADR 0001 documents the syntactic-resolution design decision.
+- **Configurable plugin rules** — golangci-lint v2 module plugin supports `enable`/`disable` settings via `.golangci.yml` `linters.settings.custom.gohumanize.settings`. Uses `github.com/golangci/plugin-module-register` for v2-compatible `init()` registration.
+- **`--config <file>` CLI flag** — Load rule enable/disable settings from a YAML file. Config-first/CLI-override precedence with set-union semantics.
+- **GitHub Action composite** (`action.yml`) — Reusable GitHub Action with inputs: `path`, `enable`, `disable`, `format`, `version`.
+- **golangci-lint v2 module plugin registration** — `plugin/plugin.go` refactored to use `register.Plugin("gohumanize", newPlugin)` with `humanizePlugin` implementing `register.LinterPlugin`. `.custom-gcl.yml` build config and `.golangci.custom.yml` runtime config included.
+- **`.golangci.custom.yml`** — Example runtime config showing the `linters.settings.custom.gohumanize.type: "module"` section required for module plugin discovery.
+- **CI version pinning** — `govulncheck@v1.6.0`, `golangci-lint v2.12.2` (were both `@latest`).
+- **ADR 0001** (`docs/adr/0001-import-alias-detection.md`) — Documents the trade-off between syntactic import-alias resolution and full `go/types` integration.
+- `TestWriteReport_TextFile`, `TestWriteReport_JSONFile`, `TestWriteReport_FileHandleClosed`, `TestCLI_OutputToFile` — tests for `--output` flag.
+- `TestLoadConfig_Valid`, `TestLoadConfig_EmptyFile`, `TestLoadConfig_MissingFile`, `TestLoadConfig_InvalidYAML` — tests for `--config` flag.
+- `TestRuleParseBytes_PackageVarMultiplierMap`, `TestRuleParseBytes_AliasedImport` — tests for package-level var and aliased import detection.
+- 8 plugin internal tests: `TestParseRuleIDs` (5 subtests), `TestFilterRules_*`, `TestNewPluginWith*`, `TestBuildAnalyzersProducesConfiguredDetector`.
+- Testdata fixtures: `testdata/h007_package_var/`, `testdata/h007_aliased_import/`.
+
+### Changed
+
+- `isPackageCall` now accepts variadic `aliases ...map[string]string` for import-alias resolution — backward compatible (existing callers compile without changes).
+- `flake.nix` lint script improved: proper exit-code propagation via `output=$(...); code=$?; ... exit $code` pattern (was `grep -v ... || true` which swallowed exit codes).
+- `plugin/plugin.go` doc comment rewritten with complete 4-step integration guide including the critical `linters.settings.custom` section.
+- Coverage: core 89.6% (was 87.9%), CLI 40.4% (was 31.4%), plugin 91.3% (was 93.8% — additional branches from configurable rules).
+- Dependencies: `github.com/golangci/plugin-module-register v0.1.2` and `gopkg.in/yaml.v3 v3.0.1` promoted from indirect to direct.
+
+### Fixed
+
+- **golangci-lint v2 module plugin discovery** — Root cause identified: `.golangci.yml` requires `linters.settings.custom.gohumanize.type: "module"` section for golangci-lint to discover the linter at runtime. Without it, the custom binary reports "unknown linters: gohumanize". Documented in plugin.go and `.golangci.custom.yml`.
+- H007 no longer false-positives on `map[string]bool` lookup sets — `isByteUnitMultiplierMapLiteral` type-checks the map value to ensure it's numeric (`int*`).
+- Rule ID string literals replaced with exported `RuleIDH001`–`RuleIDH009` constants across all 9 rule files, `rules.go`, and `main.go` — eliminates duplication and `goconst` warnings.
+- **H009** (manual-commaf) is now properly registered in `AllRules()` and `allRuleDetectors()` — was a "ghost rule" (detector and test existed but the rule was invisible to the CLI / plugin / registry).
+- Multi-digit float precision bug in `scanDottedPercentFloat` and `scanBarePercentFloat` — `%.10f` and `%34f` were incorrectly rejected because the scanners only matched repeated same-digit patterns.
+- Stale "7 rules" comments in `rules.go` and `bench_test.go` corrected to "9 rules".
+- `go.mod` `replace` directives removed (were re-added for local dev after v0.1.0, blocking `go install` and plugin loading).
+- 9 lint issues across `pattern_commaf.go`, `pattern_ordinal.go`, `pattern_helpers_test.go`, and `cmd/go-humanize-linter/main.go` resolved (was: 9 issues, now: 0).
+
+### Added (previous v0.2.0 work)
 
 - **H008** (manual-ordinal): Detects `switch n%10/100` with st/nd/rd/th cases. Suggests `humanize.Ordinal`.
 - **H009** (manual-commaf): Detects `%.Nf` + manual separator grouping. Suggests `humanize.Commaf`.
@@ -32,28 +69,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI coverage reporting via Codecov.
 - `--version` stderr warning when built without ldflags (dev builds).
 
-### Changed
+### Changed (previous v0.2.0 work)
 
 - `plugin.run` → `plugin.analyzeHumanize` (better grep-ability).
 - `printRules()` now writes to stdout (was: stderr) so it pipes cleanly.
 - Refactored suppression parser to support both `//nolint:` and `//lint:ignore` flavours with colon-scoped rule IDs.
 - `gofumpt` + `goimports -local github.com/larsartmann/` formatting applied.
 - `TestRuleBytes_SuppressedByDirective` → `TestCLI_SuppressedByDirective` (clarity).
-- Coverage: plugin 93.8% (unchanged), core 87.9% (new detection code has uncovered paths).
 - `hasPercentNF` split into `walkFormatFloatVerbs` + `scanDottedPercentFloat` + `scanBarePercentFloat` so each helper stays under the cyclop/gocognit/nestif thresholds.
 - Replaced magic numbers in `pattern_ordinal.go` and `pattern_commaf.go` with named constants (`ordinalModTen`, `minOrdinalSuffixesHit`, `percentChar`, `floatVerb`, …).
 - `TestHasEqualsOneBranch` and `TestHasCommaOrSeparator` extracted their case tables into shared `boolSrcCase`-typed helpers so the test functions stay under the funlen threshold.
 - `ruleExplanations` map switched to local `h001`–`h009` constants so `goconst` doesn't flag the repeated rule-ID strings.
 - Removed `//nolint:erraudit` directives from `walker.go` (the tool is not a golangci-lint linter — referenced directly in prose comments instead).
 - `nix run .#lint` now filters the informational "Found unknown linters in //nolint directives: gohumanize" warning that golangci-lint emits for the project's own plugin-loaded analyzer.
-
-### Fixed
-
-- 9 lint issues across `pattern_commaf.go`, `pattern_ordinal.go`, `pattern_helpers_test.go`, and `cmd/go-humanize-linter/main.go` resolved (was: 9 issues, now: 0).
-- H009 (manual-commaf) is now properly registered in `AllRules()` and `allRuleDetectors()` — was a "ghost rule" (detector and test existed but the rule was invisible to the CLI / plugin / registry).
-- Multi-digit float precision bug in `scanDottedPercentFloat` and `scanBarePercentFloat` — `%.10f` and `%34f` were incorrectly rejected because the scanners only matched repeated same-digit patterns.
-- Stale "7 rules" comments in `rules.go` and `bench_test.go` corrected to "9 rules".
-- `go.mod` `replace` directives removed (were re-added for local dev after v0.1.0, blocking `go install` and plugin loading).
 
 ## [0.1.0] - 2026-07-30
 

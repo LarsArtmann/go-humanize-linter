@@ -104,6 +104,14 @@ go-humanize-linter --disable H004 ./...
 # Load enable/disable rules from a YAML config file
 go-humanize-linter --config .gohumanize.yaml ./...
 
+# YAML config file format (.gohumanize.yaml):
+#   enable:
+#     - H001
+#     - H003
+#   disable:
+#     - H004
+# CLI flags are merged on top of config file values (union semantics).
+
 # List rules or print version
 go-humanize-linter --rules
 go-humanize-linter --version

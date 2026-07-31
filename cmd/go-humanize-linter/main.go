@@ -10,6 +10,7 @@
 //
 //	--enable <id>    Enable a specific rule (repeatable). Default: all enabled.
 //	--disable <id>   Disable a specific rule (repeatable).
+//	--config <file>  Load rule enable/disable settings from a YAML file.
 //	--format <type>  Output format: text (default), json, sarif.
 //	--output <file>   Write report to file instead of stdout.
 //	--quiet          Suppress summary line.

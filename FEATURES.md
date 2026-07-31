@@ -1,6 +1,6 @@
 # Features
 
-> Honest feature inventory by status. Verified against code on 2026-07-30.
+> Honest feature inventory by status. Verified against code on 2026-07-31.
 
 ## Status legend
 
@@ -13,8 +13,8 @@
 
 ## Rules
 
-All 9 rules are registered in `AllRules()` (`rules.go:27`) and `allRuleDetectors()`
-(`rules.go:158`), and share a single per-function entry point `DetectFuncDecl()`.
+All 9 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
+(`rules.go`), and share a single per-function entry point `DetectFuncDecl()`.
 
 | Rule | Name                 | Status           | Detects                                                           | Suggests                                  |
 | ---- | -------------------- | ---------------- | ---------------------------------------------------------------- | ----------------------------------------- |
@@ -24,7 +24,7 @@ All 9 rules are registered in `AllRules()` (`rules.go:27`) and `allRuleDetectors
 | H004 | manual-plural        | FULLY_FUNCTIONAL | `if x == 1` with string branch + string-return-type filters       | `humanize.Plural` / `humanize.PluralWord` |
 | H005 | manual-si-format     | FULLY_FUNCTIONAL | division by 1000 + K/M suffix, excludes byte units               | `humanize.SI`                             |
 | H006 | manual-ftoa          | FULLY_FUNCTIONAL | nested `strings.TrimRight(strings.TrimRight(x,"0"),".")`         | `humanize.Ftoa`                           |
-| H007 | manual-parse-bytes   | FULLY_FUNCTIONAL | 2+ HasSuffix/CutSuffix on byte units or map multiplier           | `humanize.ParseBytes`                     |
+| H007 | manual-parse-bytes   | FULLY_FUNCTIONAL | 2+ HasSuffix/CutSuffix on byte units, map multiplier (func + package scope), aliased imports | `humanize.ParseBytes` |
 | H008 | manual-ordinal       | FULLY_FUNCTIONAL | `switch n%10`/`n%100` with st/nd/rd/th cases                      | `humanize.Ordinal`                        |
 | H009 | manual-commaf        | FULLY_FUNCTIONAL | `%.Nf` Sprintf + manual comma/separator grouping loop            | `humanize.Commaf`                         |
 
@@ -32,11 +32,12 @@ All 9 rules are registered in `AllRules()` (`rules.go:27`) and `allRuleDetectors
 
 | Feature              | Status               | Notes                                                                                |
 | -------------------- | -------------------- | ------------------------------------------------------------------------------------ |
-| CLI binary           | FULLY_FUNCTIONAL     | `--enable`, `--disable`, `--format text\|json\|sarif`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain` (`cmd/go-humanize-linter/main.go`) |
-| Go library           | FULLY_FUNCTIONAL     | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run` / `RunOverPackage` (`rules.go`) |
-| golangci-lint plugin | PARTIALLY_FUNCTIONAL | `plugin/plugin.go` works (93.8% coverage) but reports at the func-decl position, not per-line. Rule enable/disable from `.golangci.yml` is not yet supported (see TODO T9). |
+| CLI binary           | FULLY_FUNCTIONAL     | `--enable`, `--disable`, `--config`, `--format text\|json\|sarif`, `--output`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain` (`cmd/go-humanize-linter/main.go`) |
+| Go library           | FULLY_FUNCTIONAL     | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run` / `RunOverPackage`, exported `RuleIDH001`–`H009` constants (`rules.go`) |
+| golangci-lint plugin | FULLY_FUNCTIONAL     | `plugin/plugin.go` (91.3% coverage) using `plugin-module-register` v2 module plugin pattern. Configurable enable/disable via `.golangci.yml` `linters.settings.custom.gohumanize.settings`. Reports at func-decl position. |
+| GitHub Action        | FULLY_FUNCTIONAL     | `action.yml` composite Action with inputs: path, enable, disable, format, version    |
 | Nix flake            | FULLY_FUNCTIONAL     | `test`, `test-race`, `bench`, `build`, `vet`, `lint`, `coverage` apps                |
-| CI workflow          | FULLY_FUNCTIONAL     | test + vet + coverage (Codecov) job and golangci-lint job (`.github/workflows/ci.yml`) |
+| CI workflow          | FULLY_FUNCTIONAL     | test + vet + coverage (Codecov) job and golangci-lint job (`.github/workflows/ci.yml`). Versions pinned: `govulncheck@v1.6.0`, `golangci-lint v2.12.2`. |
 | Release workflow     | FULLY_FUNCTIONAL     | tagged-build artefacts via `.github/workflows/release.yml` (no `v0.2.0` tag yet — TODO T1) |
 
 ## Detection capabilities
@@ -44,29 +45,41 @@ All 9 rules are registered in `AllRules()` (`rules.go:27`) and `allRuleDetectors
 | Feature                          | Status           | Notes                                                                |
 | -------------------------------- | ---------------- | -------------------------------------------------------------------- |
 | Function-scope AST scanning      | FULLY_FUNCTIONAL | All `FuncDecl`s in non-test, non-generated `.go files               |
+| Package-level var scanning       | FULLY_FUNCTIONAL | H007 detects `var x = map[string]int64{"KB": 1024}` at package scope |
 | Multi-signal detection           | FULLY_FUNCTIONAL | Every rule requires 2+ corroborating signals                         |
 | Word-boundary regex              | FULLY_FUNCTIONAL | Prevents false positives like "MEDIUMBLOB" matching "MB"             |
 | Underscore digit normalization   | FULLY_FUNCTIONAL | `normLit()` strips `1_000_000` → `1000000`                           |
 | Named constant detection         | FULLY_FUNCTIONAL | `hasConst1024` finds `const unit = 1024` patterns                    |
-| Generated file skipping          | FULLY_FUNCTIONAL | `_gen.go`, `.gen.go`, `_templ.go` (`plugin/plugin.go:80`)           |
+| Generated file skipping          | FULLY_FUNCTIONAL | `_gen.go`, `.gen.go`, `_templ.go` (`plugin/plugin.go`)              |
 | `//nolint:gohumanize` directives | FULLY_FUNCTIONAL | Bare, `:all`, scoped `:H001`, comma-lists, and `//lint:ignore` syntax (`pattern_helpers.go`) |
-| Package-level `var` detection    | PLANNED          | Only `FuncDecl` scope is scanned (TODO T10)                          |
-| go/types integration             | PLANNED          | Pure syntactic analysis, no type info (TODO T11)                     |
+| Import-alias resolution          | FULLY_FUNCTIONAL | `buildImportAliases(file)` resolves `str "strings"` → `{"str": "strings"}`. Dot imports (`. "strings"`) are a known gap (TODO T16). |
+| Map-type checking (H007)         | FULLY_FUNCTIONAL | `isByteUnitMultiplierMapLiteral` checks `map[string]int*` value type to avoid flagging `map[string]bool` lookup sets |
+| go/types integration             | PLANNED          | Pure syntactic analysis, no type info. ADR 0001 documents the trade-off. |
+
+## Configuration
+
+| Feature                          | Status           | Notes                                                                |
+| -------------------------------- | ---------------- | -------------------------------------------------------------------- |
+| CLI `--enable`/`--disable` flags | FULLY_FUNCTIONAL | Per-rule filtering on the command line                               |
+| CLI `--config` YAML file         | FULLY_FUNCTIONAL | Load enable/disable rules from `.gohumanize.yaml`. Config-first, CLI-override with set-union semantics. |
+| Plugin enable/disable settings   | FULLY_FUNCTIONAL | `linters.settings.custom.gohumanize.settings.enable`/`disable` in `.golangci.yml` |
+| Scoped `//nolint` directives     | FULLY_FUNCTIONAL | Per-function suppression via `//nolint:gohumanize:H001`              |
 
 ## Validation
 
 - H001–H007 swept against 190+ Go projects in `~/projects/` (97 findings across ~30 projects).
 - ~0% false positive rate on H001–H006; H004 tuned from ~60% FP to ~0% FP across two iterations.
 - H008 and H009 have **not** been swept against the corpus yet (TODO T2).
+- Import-alias-aware detection and package-level var detection have **not** been swept yet (TODO T2).
 - Full sweep results: `docs/validation/2026-07-30_real-world-sweep.md`.
 
 ## Test coverage
 
-Computed via `go test ./... -cover` on 2026-07-30:
+Computed via `go test ./... -cover` on 2026-07-31:
 
 | Package                  | Coverage |
 | ------------------------ | -------- |
-| `go-humanize-linter` (core) | 89.9% |
-| `cmd/go-humanize-linter` (CLI) | 31.4% |
+| `go-humanize-linter` (core) | 89.6% |
+| `cmd/go-humanize-linter` (CLI) | 40.4% |
 | `cmd/gohumanize` (singlechecker) | 0.0% (1-liner `singlechecker.Main` wrapper — not coverable in-process) |
-| `plugin` | 93.8% |
+| `plugin` | 91.3% |
