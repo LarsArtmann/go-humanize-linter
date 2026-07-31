@@ -694,3 +694,68 @@ func TestCLI_OutputToFile(t *testing.T) {
 		t.Errorf("output file missing H001 finding: %q", data)
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Config file tests
+// ---------------------------------------------------------------------------
+
+func TestLoadConfig_Valid(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "config.yaml")
+
+	err := os.WriteFile(path, []byte("enable:\n  - H001\n  - H003\ndisable:\n  - H004\n"), 0o600)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := loadConfig(path)
+	if err != nil {
+		t.Fatalf("loadConfig failed: %v", err)
+	}
+
+	if len(cfg.Enable) != 2 || cfg.Enable[0] != "H001" || cfg.Enable[1] != "H003" {
+		t.Errorf("expected Enable=[H001,H003], got %v", cfg.Enable)
+	}
+
+	if len(cfg.Disable) != 1 || cfg.Disable[0] != "H004" {
+		t.Errorf("expected Disable=[H004], got %v", cfg.Disable)
+	}
+}
+
+func TestLoadConfig_EmptyFile(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	_ = os.WriteFile(path, []byte(""), 0o600)
+
+	cfg, err := loadConfig(path)
+	if err != nil {
+		t.Fatalf("loadConfig on empty file failed: %v", err)
+	}
+
+	if cfg.Enable != nil || cfg.Disable != nil {
+		t.Errorf("empty config should produce nil slices, got Enable=%v Disable=%v", cfg.Enable, cfg.Disable)
+	}
+}
+
+func TestLoadConfig_MissingFile(t *testing.T) {
+	t.Parallel()
+
+	_, err := loadConfig("/nonexistent/path/config.yaml")
+	if err == nil {
+		t.Fatal("expected error for missing file, got nil")
+	}
+}
+
+func TestLoadConfig_InvalidYAML(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	_ = os.WriteFile(path, []byte("enable: [H001\ninvalid: yaml: content"), 0o600)
+
+	_, err := loadConfig(path)
+	if err == nil {
+		t.Fatal("expected error for invalid YAML, got nil")
+	}
+}

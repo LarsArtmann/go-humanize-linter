@@ -28,6 +28,7 @@ import (
 	"github.com/larsartmann/go-finding"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/larsartmann/go-linter-sdk"
+	"gopkg.in/yaml.v3"
 )
 
 // versionDev is the placeholder used when the binary is built without
@@ -64,12 +65,14 @@ func main() {
 		listFiles   bool
 		explain     string
 		outputPath  string
+		configPath  string
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
 	flag.Var(&disableIDs, "disable", "disable specific rule ID (repeatable)")
 	flag.StringVar(&format, "format", formatText, "output format: text, json, sarif")
 	flag.StringVar(&outputPath, "output", "", "write report to file instead of stdout")
+	flag.StringVar(&configPath, "config", "", "path to YAML config file for enable/disable rules")
 	flag.BoolVar(&quiet, "quiet", false, "suppress summary line")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.BoolVar(&showVersion, "v", false, "shorthand for --version")
@@ -126,6 +129,19 @@ func main() {
 	}
 
 	dir := args[0]
+
+	// Load config file first, then let CLI flags override.
+	if configPath != "" {
+		cfg, err := loadConfig(configPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(2)
+		}
+
+		// Config values first, CLI values appended on top (both end up in sets).
+		enableIDs = append(stringList(cfg.Enable), enableIDs...)
+		disableIDs = append(stringList(cfg.Disable), disableIDs...)
+	}
 
 	registry := buildRegistry(enableIDs, disableIDs)
 
@@ -295,6 +311,31 @@ func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
 	}
 
 	return registry
+}
+
+// Config holds rule enable/disable lists loaded from a YAML config file.
+// CLI flags are merged on top of these values (CLI takes precedence via set
+// union).
+type Config struct {
+	Enable  []string `yaml:"enable"`
+	Disable []string `yaml:"disable"`
+}
+
+// loadConfig reads and parses a YAML config file. Returns an error if the
+// file cannot be read or contains invalid YAML.
+func loadConfig(path string) (*Config, error) {
+	data, err := os.ReadFile(path) //nolint:gosec // user-provided path
+	if err != nil {
+		return nil, fmt.Errorf("cannot read config file %s: %w", path, err)
+	}
+
+	var cfg Config
+
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, fmt.Errorf("cannot parse config file %s: %w", path, err)
+	}
+
+	return &cfg, nil
 }
 
 // OutputError is returned by output() when rendering or writing a report

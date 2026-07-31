@@ -3,6 +3,7 @@ package humanizelint_test
 import (
 	"context"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/larsartmann/go-finding"
@@ -306,6 +307,24 @@ func TestRuleParseBytes_MultiplierMap(t *testing.T) {
 	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_parsebytes_map"))
 	if len(findings) != 1 {
 		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+}
+
+func TestRuleParseBytes_PackageVarMultiplierMap(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_package_var"))
+
+	found := false
+
+	for _, f := range findings {
+		if string(f.Rule) == humanizelint.RuleIDH007 && strings.Contains(f.Message, "package-level") {
+			found = true
+		}
+	}
+
+	if !found {
+		t.Fatalf("expected package-level multiplier map finding, got %d: %+v", len(findings), findings)
 	}
 }
 
