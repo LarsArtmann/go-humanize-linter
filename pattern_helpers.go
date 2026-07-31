@@ -94,10 +94,10 @@ func funcReturnsString(fn *ast.FuncDecl) bool {
 func isStringType(expr ast.Expr) bool {
 	switch t := expr.(type) {
 	case *ast.Ident:
-		return t.Name == "string"
+		return t.Name == stringTypeName
 	case *ast.ArrayType:
 		if ident, ok := t.Elt.(*ast.Ident); ok {
-			return ident.Name == "string"
+			return ident.Name == stringTypeName
 		}
 	}
 
@@ -128,6 +128,9 @@ func isLiteralInt(expr ast.Expr, val int) bool {
 
 	return lit.Value == strconv.Itoa(val)
 }
+
+// stringTypeName is the Go built-in type name for string, used in AST type checks.
+const stringTypeName = "string"
 
 // isPackageCall reports whether call is a function call of the form
 // pkg.FuncName (e.g. strings.TrimRight). When an aliases map is provided,

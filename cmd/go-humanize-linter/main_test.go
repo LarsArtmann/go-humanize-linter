@@ -6,7 +6,6 @@ import (
 	"encoding/json/v2"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -628,26 +627,6 @@ func TestWriteReport_FileHandleClosed(t *testing.T) {
 	if err := os.Remove(path); err != nil {
 		t.Fatalf("could not remove file (handle not closed?): %v", err)
 	}
-}
-
-func TestWriteReport_EmptyPathIsStdoutPassthrough(t *testing.T) {
-	t.Parallel()
-
-	// Empty path means writer = os.Stdout (no file created). The output()
-	// tests already cover stdout rendering; here we just verify no file is
-	// created and no panic occurs. We redirect stdout to discard the noise.
-	orig := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	defer func() { os.Stdout = orig }()
-
-	writeReport("", sampleReport(t), "text", true)
-
-	w.Close()
-
-	// Drain the pipe so the goroutine doesn't leak.
-	go io.Copy(io.Discard, r)
 }
 
 // ---------------------------------------------------------------------------

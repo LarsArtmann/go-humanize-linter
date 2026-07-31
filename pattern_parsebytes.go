@@ -96,17 +96,17 @@ func isByteUnitMultiplierMapLiteral(expr ast.Expr) bool {
 		return false
 	}
 
-	mt, ok := cl.Type.(*ast.MapType)
+	mapType, ok := cl.Type.(*ast.MapType)
 	if !ok {
 		return false
 	}
 
-	keyIdent, ok := mt.Key.(*ast.Ident)
-	if !ok || keyIdent.Name != "string" {
+	keyIdent, ok := mapType.Key.(*ast.Ident)
+	if !ok || keyIdent.Name != stringTypeName {
 		return false
 	}
 
-	valIdent, ok := mt.Value.(*ast.Ident)
+	valIdent, ok := mapType.Value.(*ast.Ident)
 	if !ok {
 		return false
 	}
@@ -140,17 +140,17 @@ func scanFileLevelByteMultiplierMaps(
 		}
 
 		for _, spec := range genDecl.Specs {
-			vs, ok := spec.(*ast.ValueSpec)
+			valueSpec, ok := spec.(*ast.ValueSpec)
 			if !ok {
 				continue
 			}
 
-			for _, val := range vs.Values {
+			for _, val := range valueSpec.Values {
 				if !isByteUnitMultiplierMapLiteral(val) {
 					continue
 				}
 
-				line, col := posOf(fset, vs.Pos())
+				line, col := posOf(fset, valueSpec.Pos())
 
 				findings = append(findings, makeFindingWithConfidence(
 					RuleIDH007,

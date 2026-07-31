@@ -324,7 +324,7 @@ type Config struct {
 // loadConfig reads and parses a YAML config file. Returns an error if the
 // file cannot be read or contains invalid YAML.
 func loadConfig(path string) (*Config, error) {
-	data, err := os.ReadFile(path) //nolint:gosec // user-provided path
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read config file %s: %w", path, err)
 	}

@@ -38,14 +38,17 @@ import (
 	"go/ast"
 	"strings"
 
-	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/golangci/plugin-module-register/register"
+	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/larsartmann/go-linter-sdk"
 	"golang.org/x/tools/go/analysis"
 )
 
-func init() {
-	register.Plugin("gohumanize", newPlugin)
+// analyzerName is the linter name registered with golangci-lint.
+const analyzerName = "gohumanize"
+
+func init() { //nolint:gochecknoinits // required by golangci-lint plugin register API
+	register.Plugin(analyzerName, newPlugin)
 }
 
 // pluginSettings holds optional configuration passed via .golangci.yml.
@@ -63,7 +66,7 @@ type humanizePlugin struct {
 	settings pluginSettings
 }
 
-func newPlugin(settings any) (register.LinterPlugin, error) {
+func newPlugin(settings any) (register.LinterPlugin, error) { //nolint:ireturn // required by register.NewSettingsPlugin
 	s, err := register.DecodeSettings[pluginSettings](settings)
 	if err != nil {
 		return nil, err
@@ -150,7 +153,7 @@ func runDetector(pass *analysis.Pass, detector *humanizelint.HumanizeDetector) (
 func parseRuleIDs(spec string) map[string]bool {
 	set := make(map[string]bool)
 
-	for _, id := range strings.Split(spec, ",") {
+	for _, id := range strings.SplitSeq(spec, ",") {
 		id = strings.TrimSpace(id)
 		if id != "" {
 			set[id] = true
