@@ -20,7 +20,7 @@ import (
 func RulePlural() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          "H004",
+			ID:          RuleIDH004,
 			Name:        "manual-plural",
 			Description: "Manual pluralization — use humanize.Plural or humanize.PluralWord instead of if-n==1 switches",
 			Cat:         linter.CategoryStyle,
@@ -56,7 +56,7 @@ func detectPlural(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath s
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H004",
+			RuleIDH004,
 			fmt.Sprintf(
 				"manual pluralization (namedParams=%v, equalsOne=%v) — use humanize.Plural instead",
 				namedParams, equalsOne,

@@ -21,7 +21,7 @@ import (
 func RuleComma() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          "H002",
+			ID:          RuleIDH002,
 			Name:        "manual-comma-format",
 			Description: "Manual comma/thousands-separator insertion — use humanize.Comma or humanize.Commaf instead of looping over digits",
 			Cat:         linter.CategoryStyle,
@@ -67,7 +67,7 @@ func detectCommaFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, fileP
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H002",
+			RuleIDH002,
 			fmt.Sprintf("manual comma formatting (%s) — use humanize.Comma instead", signals),
 			"Replace with humanize.Comma(int64(n)) for integers or humanize.Commaf(f) for floats.",
 			line, col, filePath, confidence,

@@ -19,7 +19,7 @@ import (
 func RuleParseBytes() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          "H007",
+			ID:          RuleIDH007,
 			Name:        "manual-parse-bytes",
 			Description: "Manual byte-size string parsing — use humanize.ParseBytes instead of suffix matching and multiplication",
 			Cat:         linter.CategoryStyle,
@@ -54,7 +54,7 @@ func detectParseBytes(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePa
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H007",
+			RuleIDH007,
 			fmt.Sprintf(
 				"manual byte-size parsing (suffixChecks=%d, multMap=%v) — use humanize.ParseBytes instead",
 				suffixChecks, multMap,

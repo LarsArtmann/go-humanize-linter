@@ -20,7 +20,7 @@ import (
 func RuleCommaf() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          "H009",
+			ID:          RuleIDH009,
 			Name:        "manual-commaf",
 			Description: "Manual float-with-comma formatting (%.Nf + manual group separator) — use humanize.Commaf instead",
 			Cat:         linter.CategoryStyle,
@@ -41,7 +41,7 @@ func detectCommaf(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath s
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H009",
+			RuleIDH009,
 			"manual float-with-comma formatting (%.Nf + manual separator) — use humanize.Commaf instead",
 			"Replace with humanize.Commaf(f) which produces e.g. 1,234.56 directly.",
 			line, col, filePath, finding.ConfidenceMedium,

@@ -179,20 +179,6 @@ func makeFindingWithConfidence(
 // Suppression directives
 // ---------------------------------------------------------------------------
 
-// Rule ID constants. Defined as package-level constants so detector
-// implementations and detector lists stay in sync without goconst complaints.
-const (
-	ruleIDH001 = "H001"
-	ruleIDH002 = "H002"
-	ruleIDH003 = "H003"
-	ruleIDH004 = "H004"
-	ruleIDH005 = "H005"
-	ruleIDH006 = "H006"
-	ruleIDH007 = "H007"
-	ruleIDH008 = "H008"
-	ruleIDH009 = "H009"
-)
-
 // nolintLinterName is the analyzer name users write in //nolint directives. It
 // matches plugin.Analyzer.Name ("gohumanize").
 const nolintLinterName = "gohumanize"

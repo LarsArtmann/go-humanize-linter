@@ -21,7 +21,7 @@ import (
 func RuleOrdinal() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          "H008",
+			ID:          RuleIDH008,
 			Name:        "manual-ordinal",
 			Description: "Manual ordinal-suffix formatting (1st, 2nd, 3rd, 4th) — use humanize.Ordinal instead of a switch on n%10",
 			Cat:         linter.CategoryStyle,
@@ -42,7 +42,7 @@ func detectOrdinal(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath 
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H008",
+			RuleIDH008,
 			"manual ordinal-suffix formatting (switch n%10/100 with st/nd/rd/th cases) — use humanize.Ordinal instead",
 			"Replace with humanize.Ordinal(n) which handles every numeric case (1st, 11th, 21st, 101st, ...) correctly.",
 			line,

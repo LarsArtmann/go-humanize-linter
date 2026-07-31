@@ -22,7 +22,7 @@ import (
 func RuleSI() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          "H005",
+			ID:          RuleIDH005,
 			Name:        "manual-si-format",
 			Description: "Manual SI-prefix formatting (K/M) — use humanize.SI or humanize.SIWithDigits instead",
 			Cat:         linter.CategoryStyle,
@@ -51,7 +51,7 @@ func detectSIFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H005",
+			RuleIDH005,
 			fmt.Sprintf(
 				"manual SI-prefix formatting (div1000=%v, kmSuffix=%v) — use humanize.SI instead",
 				div1000, kmSuffix,

@@ -21,7 +21,7 @@ import (
 func RuleFtoa() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          "H006",
+			ID:          RuleIDH006,
 			Name:        "manual-ftoa",
 			Description: "Manual float formatting with trailing-zero stripping — use humanize.Ftoa instead of nested strings.TrimRight",
 			Cat:         linter.CategoryStyle,
@@ -42,7 +42,7 @@ func detectFtoa(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath str
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H006",
+			RuleIDH006,
 			"manual float trailing-zero stripping (nested TrimRight) — use humanize.Ftoa instead",
 			"Replace with humanize.Ftoa(f) or humanize.FtoaWithDigits(f, 1).",
 			line, col, filePath, finding.ConfidenceFull,

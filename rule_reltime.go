@@ -22,7 +22,7 @@ import (
 func RuleRelTime() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          "H003",
+			ID:          RuleIDH003,
 			Name:        "manual-reltime-format",
 			Description: "Manual relative-time formatting — use humanize.RelTime or humanize.Time instead of switch/case on duration thresholds",
 			Cat:         linter.CategoryStyle,
@@ -53,7 +53,7 @@ func detectRelTimeFormat(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, fil
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H003",
+			RuleIDH003,
 			fmt.Sprintf(
 				"manual relative-time formatting (timeSince=%v, thresholds=%v) — use humanize.RelTime instead",
 				timeDiff, timeThreshold,

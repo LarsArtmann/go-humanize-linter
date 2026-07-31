@@ -26,7 +26,7 @@ const minUnitCountStrongSignal = 3
 func RuleBytes() linter.RuleFunc {
 	return linter.RuleFunc{
 		Meta: linter.RuleMeta{
-			ID:          ruleIDH001,
+			ID:          RuleIDH001,
 			Name:        "manual-bytes-format",
 			Description: "Manual byte-size formatting — use humanize.Bytes or humanize.IBytes instead of dividing by 1024 and formatting unit strings",
 			Cat:         linter.CategoryStyle,
@@ -55,7 +55,7 @@ func detectBytesFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 
 	return []finding.Finding{
 		makeFindingWithConfidence(
-			"H001",
+			RuleIDH001,
 			msg,
 			"Replace with humanize.Bytes(uint64(n)) for SI (KB/MB) or humanize.IBytes(uint64(n)) for IEC (KiB/MiB).",
 			line,

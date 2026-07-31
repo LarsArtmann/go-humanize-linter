@@ -10,6 +10,21 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
+// Rule ID constants — the single source of truth for rule identifiers.
+// All packages (CLI, plugin, detectors) must reference these instead of
+// string literals to prevent drift when rules are added or renamed.
+const (
+	RuleIDH001 = "H001"
+	RuleIDH002 = "H002"
+	RuleIDH003 = "H003"
+	RuleIDH004 = "H004"
+	RuleIDH005 = "H005"
+	RuleIDH006 = "H006"
+	RuleIDH007 = "H007"
+	RuleIDH008 = "H008"
+	RuleIDH009 = "H009"
+)
+
 // DefaultRegistry returns a Registry pre-loaded with all humanize-lint rules,
 // all enabled by default.
 func DefaultRegistry() *linter.Registry {
@@ -170,15 +185,15 @@ var cachedDetectorByID = sync.OnceValue(func() map[string]detectorFn { //nolint:
 // iterate over this.
 func allRuleDetectors() []ruleDetectors {
 	return []ruleDetectors{
-		{"H001", detectBytesFormat},
-		{"H002", detectCommaFormat},
-		{"H003", detectRelTimeFormat},
-		{"H004", detectPlural},
-		{"H005", detectSIFormat},
-		{"H006", detectFtoa},
-		{"H007", detectParseBytes},
-		{"H008", detectOrdinal},
-		{"H009", detectCommaf},
+		{RuleIDH001, detectBytesFormat},
+		{RuleIDH002, detectCommaFormat},
+		{RuleIDH003, detectRelTimeFormat},
+		{RuleIDH004, detectPlural},
+		{RuleIDH005, detectSIFormat},
+		{RuleIDH006, detectFtoa},
+		{RuleIDH007, detectParseBytes},
+		{RuleIDH008, detectOrdinal},
+		{RuleIDH009, detectCommaf},
 	}
 }
 
