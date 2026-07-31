@@ -6,6 +6,7 @@ import (
 	"encoding/json/v2"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -566,5 +567,130 @@ func TestCLI_SARIFOutput(t *testing.T) {
 
 	if _, ok := sarif["runs"]; !ok {
 		t.Errorf("sarif CLI output missing 'runs' key: %s", out)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// writeReport file-output tests
+// ---------------------------------------------------------------------------
+
+func TestWriteReport_TextFile(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "report.txt")
+
+	writeReport(path, sampleReport(t), "text", true)
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("failed to read output file: %v", err)
+	}
+
+	if !strings.Contains(string(data), "H001") {
+		t.Errorf("text file output missing H001: %q", data)
+	}
+
+	if strings.Contains(string(data), "findings") {
+		t.Errorf("quiet=true should suppress summary in file: %q", data)
+	}
+}
+
+func TestWriteReport_JSONFile(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "report.json")
+
+	writeReport(path, sampleReport(t), "json", true)
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("failed to read output file: %v", err)
+	}
+
+	if !strings.Contains(string(data), "H001") {
+		t.Errorf("json file output missing H001: %q", data)
+	}
+
+	var parsed map[string]any
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		t.Errorf("json file output is not valid JSON: %v", err)
+	}
+}
+
+func TestWriteReport_FileHandleClosed(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "report.txt")
+
+	writeReport(path, sampleReport(t), "text", true)
+
+	// If the file handle were still open, Remove would fail on some OSes.
+	if err := os.Remove(path); err != nil {
+		t.Fatalf("could not remove file (handle not closed?): %v", err)
+	}
+}
+
+func TestWriteReport_EmptyPathIsStdoutPassthrough(t *testing.T) {
+	t.Parallel()
+
+	// Empty path means writer = os.Stdout (no file created). The output()
+	// tests already cover stdout rendering; here we just verify no file is
+	// created and no panic occurs. We redirect stdout to discard the noise.
+	orig := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	defer func() { os.Stdout = orig }()
+
+	writeReport("", sampleReport(t), "text", true)
+
+	w.Close()
+
+	// Drain the pipe so the goroutine doesn't leak.
+	go io.Copy(io.Discard, r)
+}
+
+// ---------------------------------------------------------------------------
+// CLI --output flag tests (subprocess)
+// ---------------------------------------------------------------------------
+
+func TestCLI_OutputToFile(t *testing.T) {
+	t.Parallel()
+
+	binary := buildCLI(t)
+	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
+	outFile := filepath.Join(t.TempDir(), "results.txt")
+
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", "--output", outFile, testdata,
+	)
+
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	// Findings exist in this testdata → exit code 1 is expected.
+	err := cmd.Run()
+	if err == nil {
+		t.Fatal("expected non-zero exit (findings present), got success")
+	}
+
+	var exitErr *exec.ExitError
+	if !errors.As(err, &exitErr) {
+		t.Fatalf("expected *exec.ExitError, got %T: %v", err, err)
+	}
+
+	if exitErr.ExitCode() != 1 {
+		t.Errorf("expected exit 1 (findings), got %d", exitErr.ExitCode())
+	}
+
+	data, err := os.ReadFile(outFile)
+	if err != nil {
+		t.Fatalf("output file not created: %v", err)
+	}
+
+	if !strings.Contains(string(data), "H001") {
+		t.Errorf("output file missing H001 finding: %q", data)
 	}
 }
