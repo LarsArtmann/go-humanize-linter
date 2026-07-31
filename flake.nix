@@ -151,14 +151,19 @@
             lint = mkApp "lint" "Run golangci-lint" ''
               export GOEXPERIMENT=jsonv2
               export GOPRIVATE='github.com/larsartmann/*'
-              # `2>&1` redirects stderr (where the "Found unknown linters in
-              # //nolint directives" warning is emitted when golangci-lint
-              # encounters directives for the project's own `gohumanize`
-              # analyzer, which is loaded by golangci-lint plugins, not by
-              # golangci-lint itself). grep -v filters that specific warning
-              # from the output so `nix run .#lint` stays clean.
-              golangci-lint run ./... 2>&1 | grep -v 'Found unknown linters in //nolint directives' || true
-              # grep returns 1 on no-match; || true so the script exits 0.
+              # golangci-lint emits "Found unknown linters in //nolint
+              # directives" for our //nolint:gohumanize directives because
+              # the gohumanize linter is a module plugin (not a built-in).
+              # To run WITH the plugin, build a custom binary:
+              #   golangci-lint custom && ./custom-gcl run ./...
+              # See .custom-gcl.yml for the module plugin build config.
+              #
+              # We capture the exit code separately from grep so lint
+              # findings (exit 1) and real errors (exit >1) propagate.
+              output=$(golangci-lint run ./... 2>&1)
+              code=$?
+              echo "$output" | grep -v 'Found unknown linters in //nolint directives'
+              exit $code
             '';
 
             coverage = mkApp "coverage" "Run tests with coverage report" ''

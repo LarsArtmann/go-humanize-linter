@@ -22,6 +22,9 @@
 //	    custom:
 //	      gohumanize:
 //	        type: module
+//	        settings:
+//	          enable: "H001,H003"   # only run these rules
+//	          disable: "H004"        # skip these rules
 //
 // # Standalone usage
 //
@@ -37,6 +40,7 @@ import (
 
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/golangci/plugin-module-register/register"
+	"github.com/larsartmann/go-linter-sdk"
 	"golang.org/x/tools/go/analysis"
 )
 
@@ -45,23 +49,45 @@ func init() {
 }
 
 // pluginSettings holds optional configuration passed via .golangci.yml.
-// Currently empty — all 9 rules are enabled by default.
-type pluginSettings struct{}
+// Both fields are comma-separated rule IDs (e.g. "H001,H003").
+// When Enable is non-empty, only those rules run.
+// When Disable is non-empty, those rules are skipped.
+type pluginSettings struct {
+	Enable  string `json:"enable"`
+	Disable string `json:"disable"`
+}
 
 // humanizePlugin implements [register.LinterPlugin] for golangci-lint v2
 // module plugin discovery.
-type humanizePlugin struct{}
+type humanizePlugin struct {
+	settings pluginSettings
+}
 
 func newPlugin(settings any) (register.LinterPlugin, error) {
-	if _, err := register.DecodeSettings[pluginSettings](settings); err != nil {
+	s, err := register.DecodeSettings[pluginSettings](settings)
+	if err != nil {
 		return nil, err
 	}
 
-	return &humanizePlugin{}, nil
+	return &humanizePlugin{settings: s}, nil
 }
 
 func (p *humanizePlugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
-	return []*analysis.Analyzer{newAnalyzer()}, nil
+	enableSet := parseRuleIDs(p.settings.Enable)
+	disableSet := parseRuleIDs(p.settings.Disable)
+
+	rules := filterRules(humanizelint.AllRules(), enableSet, disableSet)
+	detector := humanizelint.NewHumanizeDetector(rules...)
+
+	a := &analysis.Analyzer{ //nolint:exhaustruct
+		Name: "gohumanize",
+		Doc:  "Detect hand-rolled reimplementations of github.com/dustin/go-humanize",
+		Run: func(pass *analysis.Pass) (any, error) {
+			return runDetector(pass, detector)
+		},
+	}
+
+	return []*analysis.Analyzer{a}, nil
 }
 
 func (p *humanizePlugin) GetLoadMode() string {
@@ -70,6 +96,8 @@ func (p *humanizePlugin) GetLoadMode() string {
 
 // Analyzer is the standalone entry point. Exported for use with
 // golang.org/x/tools/go/analysis/singlechecker (cmd/gohumanize).
+// All 9 rules are enabled — standalone mode does not support per-rule
+// configuration.
 var Analyzer = newAnalyzer() //nolint:gochecknoglobals // required by singlechecker
 
 // newAnalyzer builds the [*analysis.Analyzer] that runs all humanize-lint rules.
@@ -81,14 +109,19 @@ func newAnalyzer() *analysis.Analyzer {
 	}
 }
 
-// analyzeHumanize is the analysis.Analyzer.Run implementation. It iterates over
-// every Go file in the package, finds function declarations, and applies all
-// detectors.
+// analyzeHumanize is the analysis.Analyzer.Run implementation for standalone
+// mode (all rules). It iterates over every Go file in the package, finds
+// function declarations, and applies all detectors.
 func analyzeHumanize(pass *analysis.Pass) (any, error) {
+	return runDetector(pass, humanizelint.NewHumanizeDetector())
+}
+
+// runDetector applies the given detector to every function declaration in
+// every Go file in the package, converting findings to diagnostics.
+func runDetector(pass *analysis.Pass, detector *humanizelint.HumanizeDetector) (any, error) {
 	for _, file := range pass.Files {
 		filePath := pass.Fset.Position(file.Pos()).Filename
 
-		// Skip generated files — they are not hand-written reimplementations.
 		if isGenerated(filePath) {
 			continue
 		}
@@ -99,7 +132,7 @@ func analyzeHumanize(pass *analysis.Pass) (any, error) {
 				continue
 			}
 
-			for _, f := range humanizelint.DetectFuncDecl(pass.Fset, file, fn, filePath) {
+			for _, f := range detector.Run(pass.Fset, file, fn, filePath) {
 				pass.Report(analysis.Diagnostic{
 					Pos:      fn.Pos(),
 					Message:  string(f.Rule) + ": " + f.Message,
@@ -110,6 +143,47 @@ func analyzeHumanize(pass *analysis.Pass) (any, error) {
 	}
 
 	return nil, nil //nolint:nilnil // analysis.Analyzer.Run requires (any, error) signature
+}
+
+// parseRuleIDs converts a comma-separated string of rule IDs into a set.
+// Whitespace around each ID is trimmed; empty entries are ignored.
+func parseRuleIDs(spec string) map[string]bool {
+	set := make(map[string]bool)
+
+	for _, id := range strings.Split(spec, ",") {
+		id = strings.TrimSpace(id)
+		if id != "" {
+			set[id] = true
+		}
+	}
+
+	return set
+}
+
+// filterRules returns the subset of rules that should run, given the enable
+// and disable sets. When enable is non-empty, only those rules are included
+// (minus any also disabled). When enable is empty, all rules except disabled
+// ones are included.
+func filterRules(all []linter.RuleFunc, enable, disable map[string]bool) []linter.RuleFunc {
+	if len(enable) == 0 && len(disable) == 0 {
+		return all
+	}
+
+	var filtered []linter.RuleFunc
+
+	for _, rule := range all {
+		if disable[rule.Meta.ID] {
+			continue
+		}
+
+		if len(enable) > 0 && !enable[rule.Meta.ID] {
+			continue
+		}
+
+		filtered = append(filtered, rule)
+	}
+
+	return filtered
 }
 
 // isGenerated reports whether a file path looks like generated Go code.

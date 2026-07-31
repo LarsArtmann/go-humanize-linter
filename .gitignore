@@ -1,5 +1,6 @@
 # Build artifacts
 /go-humanize-linter
+/custom-gcl
 *.exe
 *.test
 *.out
