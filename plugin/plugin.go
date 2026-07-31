@@ -1,27 +1,34 @@
-// Package plugin exposes go-humanize-linter as a golangci-lint custom linter
-// plugin.
+// Package plugin exposes go-humanize-linter as a golangci-lint v2 custom linter
+// module plugin.
 //
-// # Integration
+// # Integration (golangci-lint v2)
 //
-// Add to .golangci.yml:
+// Build a custom golangci-lint binary with the plugin compiled in:
 //
+//	# .custom-gcl.yml
+//	version: v2.12.2
 //	plugins:
-//	  go-humanize:
-//	    path: github.com/larsartmann/go-humanize-linter/plugin
-//	    description: Detect hand-rolled reimplementations of go-humanize
+//	  - module: github.com/larsartmann/go-humanize-linter
+//	    import: github.com/larsartmann/go-humanize-linter/plugin
+//	    path: .
 //
-// Then enable the linter:
+// Then run `golangci-lint custom` to produce a binary, and register the
+// linter in .golangci.yml:
 //
-//	enable:
-//	  - gohumanize
+//	linters:
+//	  enable:
+//	    - gohumanize
+//	  settings:
+//	    custom:
+//	      gohumanize:
+//	        type: module
 //
-// # How it works
+// # Standalone usage
 //
-// The Analyzer wraps the same AST detection functions used by the standalone
-// CLI. golangci-lint passes a [*analysis.Pass] per package; analyzeHumanize
-// iterates over pass.Files, finds every [*ast.FuncDecl], applies all seven
-// detection rules, and converts [finding.Finding] results to
-// [analysis.Diagnostic] via pass.Report.
+// The exported [Analyzer] can be used with
+// golang.org/x/tools/go/analysis/singlechecker for standalone testing:
+//
+//	go run ./cmd/gohumanize ./...
 package plugin
 
 import (
@@ -29,12 +36,41 @@ import (
 	"strings"
 
 	humanizelint "github.com/larsartmann/go-humanize-linter"
+	"github.com/golangci/plugin-module-register/register"
 	"golang.org/x/tools/go/analysis"
 )
 
-// Analyzer is the golangci-lint entry point. Export it so golangci-lint can
-// discover it via module plugin loading.
-var Analyzer = newAnalyzer() //nolint:gochecknoglobals // required by golangci-lint plugin API
+func init() {
+	register.Plugin("gohumanize", newPlugin)
+}
+
+// pluginSettings holds optional configuration passed via .golangci.yml.
+// Currently empty — all 9 rules are enabled by default.
+type pluginSettings struct{}
+
+// humanizePlugin implements [register.LinterPlugin] for golangci-lint v2
+// module plugin discovery.
+type humanizePlugin struct{}
+
+func newPlugin(settings any) (register.LinterPlugin, error) {
+	if _, err := register.DecodeSettings[pluginSettings](settings); err != nil {
+		return nil, err
+	}
+
+	return &humanizePlugin{}, nil
+}
+
+func (p *humanizePlugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
+	return []*analysis.Analyzer{newAnalyzer()}, nil
+}
+
+func (p *humanizePlugin) GetLoadMode() string {
+	return register.LoadModeSyntax
+}
+
+// Analyzer is the standalone entry point. Exported for use with
+// golang.org/x/tools/go/analysis/singlechecker (cmd/gohumanize).
+var Analyzer = newAnalyzer() //nolint:gochecknoglobals // required by singlechecker
 
 // newAnalyzer builds the [*analysis.Analyzer] that runs all humanize-lint rules.
 func newAnalyzer() *analysis.Analyzer {
