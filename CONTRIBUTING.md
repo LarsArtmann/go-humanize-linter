@@ -94,7 +94,7 @@ testdata/
 3. **`rules.go`** — Register the rule in **two** places:
    - `AllRules()` — add `RuleName()` to the slice
    - `allRuleDetectors()` — add `{"H0NN", detectName}` to the slice
-   
+
    `TestRuleCountConsistency` will fail if you forget either one.
 
 4. **`testdata/h0NN_name/main.go`** — Positive fixture that triggers the rule.

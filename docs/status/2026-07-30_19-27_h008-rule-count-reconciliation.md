@@ -170,17 +170,17 @@ All tests pass. Zero failures, zero panics. 107 tests executed.
 
 The "NOT STARTED" and "f) UP TO 50" sections drove the next sessions. Item-by-item:
 
-| Section c) / f) item | Status |
-| -------------------- | ------ |
-| #1 Register H009 in `AllRules()` + `allRuleDetectors()` | done at `2ac66b6` |
-| #2/#3 Add H008+H009 to `ExampleAllRules` / `TestCLI_RulesFlag` | done at `20dd7d3` |
-| #4 Update AGENTS.md to H001–H009 | done at `2ac66b6` |
-| #5/#6 H008 entries in CHANGELOG / FEATURES | done at `2ac66b6` (now 9 rules) |
-| #14 goconst `H001` warning | done at `2ac66b6` |
-| #15 unused `lintIgnorePrefix` | done (0 lint issues) |
-| #16/#18 `mnd` in `pattern_ordinal.go` | done at `2ac66b6` |
-| #17/#18 `ExampleRuleOrdinal` / `ExampleRuleCommaf` | done at `20dd7d3` |
-| #25/#26 `--explain H008` / `--explain H009` | done at `2ac66b6` |
+| Section c) / f) item                                           | Status                          |
+| -------------------------------------------------------------- | ------------------------------- |
+| #1 Register H009 in `AllRules()` + `allRuleDetectors()`        | done at `2ac66b6`               |
+| #2/#3 Add H008+H009 to `ExampleAllRules` / `TestCLI_RulesFlag` | done at `20dd7d3`               |
+| #4 Update AGENTS.md to H001–H009                               | done at `2ac66b6`               |
+| #5/#6 H008 entries in CHANGELOG / FEATURES                     | done at `2ac66b6` (now 9 rules) |
+| #14 goconst `H001` warning                                     | done at `2ac66b6`               |
+| #15 unused `lintIgnorePrefix`                                  | done (0 lint issues)            |
+| #16/#18 `mnd` in `pattern_ordinal.go`                          | done at `2ac66b6`               |
+| #17/#18 `ExampleRuleOrdinal` / `ExampleRuleCommaf`             | done at `20dd7d3`               |
+| #25/#26 `--explain H008` / `--explain H009`                    | done at `2ac66b6`               |
 
 Still open — moved to `TODO_LIST.md`:
 

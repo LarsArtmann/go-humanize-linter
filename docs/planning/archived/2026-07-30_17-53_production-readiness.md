@@ -276,4 +276,3 @@ The plugin position-mapping item (#3) was reclassified as a v0.2+ enhancement
 (per-line diagnostics) rather than a v0.1.0 blocker; the plugin reports at
 `fn.Pos()` by design. Every other phase-1-through-5 task landed. This plan is
 complete and has been moved to `archived/`.
-

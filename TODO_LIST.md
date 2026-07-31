@@ -9,15 +9,15 @@
 
 ## Summary
 
-| #   | Task                                                                      | Tier   | Effort | Status   |
-| --- | ------------------------------------------------------------------------- | ------ | ------ | -------- |
-| T1  | Tag `v0.2.0` (code shipped; tag missing)                                  | High   | XS     | blocked  |
-| T2  | Real-world validation sweep with H008 + H009 + new detection              | High   | M      | planned  |
-| T14 | Benchmark import-alias-aware `isPackageCall`                               | Medium | S      | planned  |
-| T15 | Plugin integration test through `custom-gcl` binary                         | Medium | S      | planned  |
-| T16 | Dot-import (`. "strings"`) support for alias resolution                     | Low    | S      | planned  |
-| T17 | H009/H002 overlap disambiguation                                            | Low    | M      | planned  |
-| T18 | Publish to golangci-lint plugin index                                       | Low    | S      | blocked  |
+| #   | Task                                                         | Tier   | Effort | Status  |
+| --- | ------------------------------------------------------------ | ------ | ------ | ------- |
+| T1  | Tag `v0.2.0` (code shipped; tag missing)                     | High   | XS     | blocked |
+| T2  | Real-world validation sweep with H008 + H009 + new detection | High   | M      | planned |
+| T14 | Benchmark import-alias-aware `isPackageCall`                 | Medium | S      | planned |
+| T15 | Plugin integration test through `custom-gcl` binary          | Medium | S      | planned |
+| T16 | Dot-import (`. "strings"`) support for alias resolution      | Low    | S      | planned |
+| T17 | H009/H002 overlap disambiguation                             | Low    | M      | planned |
+| T18 | Publish to golangci-lint plugin index                        | Low    | S      | blocked |
 
 ---
 

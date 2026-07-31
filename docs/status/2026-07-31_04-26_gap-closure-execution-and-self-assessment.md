@@ -17,62 +17,75 @@
 **Fix:** Created `.golangci.custom.yml` as a separate runtime config (cannot go in the project's own `.golangci.yml` because stock golangci-lint can't resolve module plugins — it tries to load ALL custom linters at startup).
 
 **Verification:**
+
 - `custom-gcl run -c .golangci.custom.yml` on external project `cqrs-htmx/dashboardui/` → 3 findings (H001 x2, H003 x1), all true positives
 - `register.GetPlugin("gohumanize")` returns working constructor (automated test)
 - Plugin accepts enable/disable settings via `.golangci.yml` (automated test)
 
 ### G2a — CHANGELOG.md updated ✅
+
 - All new features documented under `[0.2.0] - Unreleased`
 - Added/Changed/Fixed sections cover: exported constants, package-level var detection, import aliases, configurable plugin, `--config`, GitHub Action, module plugin registration, CI pinning, H007 map type checking
 
 ### G2b — TODO_LIST.md rebuilt ✅
+
 - T3-T12 (done in code) removed from open list
 - New tasks added: T14 (benchmarks — done this session, needs deletion), T15 (integration test — done this session, needs deletion), T16 (dot imports), T17 (H009/H002 overlap)
 - **NOTE:** T14 and T15 are now done — TODO_LIST is already stale again (see D2 below)
 
 ### G2c — FEATURES.md updated ✅
+
 - Package-level var detection: PLANNED → FULLY_FUNCTIONAL
 - Import-alias resolution: added as FULLY_FUNCTIONAL
 - Configuration section added (--config, plugin enable/disable)
 - Coverage numbers updated: core 89.6%, CLI 40.4%, plugin 91.3% (but actual is now 93.5% — see D1)
 
 ### G2d — AGENTS.md updated ✅
+
 - Full rewrite: architecture table with all 9 pattern files + plugin files
 - Dependencies table added (plugin-module-register, yaml.v3)
 - golangci-lint v2 Module Plugin section with 4-step workflow
 - 11 gotchas documented including the critical module plugin discovery fix
 
 ### G3 — `--config` in doc comment + README YAML example ✅
+
 - `cmd/go-humanize-linter/main.go` doc comment now lists `--config <file>`
 - README shows YAML config file format example
 
 ### G4 — testdata/h001_suppressed/ wired ✅
+
 - Already wired into `TestCLI_SuppressedByDirective` at `linter_test.go:84`
 - Verified passing
 
 ### G6 — Benchmark import-alias-aware isPackageCall ✅
+
 - `BenchmarkIsPackageCall_WithoutAliases`: ~14ns/op, 0 allocs
 - `BenchmarkIsPackageCall_WithAliases`: ~21ns/op, 0 allocs
 - `BenchmarkBuildImportAliases`: ~520ns/op, 336B/op, 2 allocs
 - **Conclusion:** Negligible overhead. No regression on the no-alias path.
 
 ### G7 — Plugin integration test ✅
+
 - `TestPluginRegisteredWithGolangciLint` — verifies `register.GetPlugin("gohumanize")` returns a working constructor with correct load mode and analyzer
 - `TestPluginRegisteredWithSettings` — verifies enable/disable settings flow through the registration system
 
 ### G8 — .custom-gcl.yml documented ✅
+
 - Added build workflow documentation and runtime config cross-reference
 
 ### G9 — `nix run .#custom-lint` added ✅
+
 - New flake.nix app that builds custom-gcl and runs it with `.golangci.custom.yml`
 - Verified: `nix eval .#apps.x86_64-linux.custom-lint.type` returns `"app"`
 
 ### G10 — CONTRIBUTING.md updated ✅
+
 - Added "golangci-lint v2 Module Plugin Workflow" section
 - Added `nix run .#custom-lint` to build commands
 - Updated rule-addition checklist to reference exported constants
 
 ### Housekeeping
+
 - `plugin/plugin.go` doc comment rewritten with complete 4-step integration guide
 - `.golangci.custom.yml` created with full example config
 - `docs/validation/2026-07-31_real-world-sweep.md` — 242 findings across 327 projects
@@ -82,22 +95,28 @@
 ## B. PARTIALLY DONE (code exists, but incomplete or stale)
 
 ### G5 — Real-world validation sweep ⚠️
+
 **What was done:**
+
 - Ran all 9 rules over 327 Go projects
 - 242 findings collected, broken down by rule
 - H008: 0 findings, H009: 3 findings (all TP), H007 package-level var: 1 real finding
 - Report saved to `docs/validation/2026-07-31_real-world-sweep.md`
 
 **What's NOT done:**
+
 - Did NOT manually inspect a sample of findings to verify ~0% FP claim for H003/H004/H005 (the high-count rules)
 - The "0% FP" claim is asserted but not systematically verified — it's based on visual inspection of the output format, not code review of each flagged function
 - H002/H009 overlap identified (1 case in `AI-Speed-Test`) but not fixed
 
 ### Benchmarks (G6) ⚠️
+
 **What was done:**
+
 - Three benchmarks written and run
 
 **What's NOT done:**
+
 - No `benchstat` comparison file saved — the results exist only in this session's terminal output
 - No baseline saved to compare against future changes
 - `bench_internal_test.go` has two LSP warnings that `nix run .#lint` doesn't catch (stale LSP cache) but should be cleaned up
@@ -107,12 +126,15 @@
 ## C. NOT STARTED
 
 ### Tagging v0.2.0
+
 - Blocked on user approval. Never tag without explicit instruction.
 
 ### Publishing to golangci-lint plugin index
+
 - Blocked on v0.2.0 tag + `go install` verification
 
 ### Full go/types integration
+
 - Deliberately deferred per ADR 0001. CLI path lacks type info.
 
 ---
@@ -120,10 +142,13 @@
 ## D. TOTALLY FUCKED UP / GAPS FOUND
 
 ### D1. CHANGELOG has stale coverage numbers ⛔
+
 The CHANGELOG `[0.2.0]` Changed section says:
+
 > Coverage: core 89.6% (was 87.9%), CLI 40.4% (was 31.4%), plugin 91.3% (was 93.8%)
 
 But the ACTUAL current coverage (verified this session) is:
+
 - core: 89.6% ✓
 - CLI: 40.4% ✓
 - plugin: **93.5%** (not 91.3% — the plugin integration test added this session raised it)
@@ -131,37 +156,48 @@ But the ACTUAL current coverage (verified this session) is:
 FEATURES.md also says 91.3%. Both are stale.
 
 ### D2. TODO_LIST is ALREADY stale again ⛔
+
 I added T14 (benchmark isPackageCall) and T15 (plugin integration test) as "planned" — then IMMEDIATELY did both in the same session. The TODO_LIST now lists two tasks as open that are already done. This is the exact trophy-case anti-pattern repeated within a single session.
 
 ### D3. bench_internal_test.go has lint warnings ⛔
+
 Two LSP diagnostics on the benchmark file:
+
 - `unparam: mustParse - result 0 (*go/token.FileSet) is never used` — stale, the function was refactored to return only `*ast.File` but the LSP hasn't updated
 - `staticcheck: S1009: should omit nil check; len() for nil maps is defined as zero` — I changed `result == nil || len(result) == 0` to `len(result) == 0` but the LSP is stale
 
 `nix run .#lint` reports 0 issues (the actual lint passes), but the file is not clean from the LSP's perspective. The warnings are stale but annoying.
 
 ### D4. Previous status report NOT annotated ⛔
+
 `docs/status/2026-07-31_03-48_pareto-plan-execution-and-honest-gaps.md` describes the plugin registration as "NOT verified end-to-end" and lists all the gaps. This session CLOSED those gaps, but the old report still reads as if they're open. A future reader will be confused.
 
 ### D5. Gap-closure plan NOT annotated ⛔
+
 `docs/planning/2026-07-31_03-48_gap-closure-plan.md` lists G1-G10 as open work. All 10 are now done but the plan doesn't say so.
 
 ### D6. No benchstat baseline saved ⛔
+
 Benchmark results exist only in terminal output. No `benchstat` baseline file was saved to `docs/` or anywhere else. Future benchmark runs have nothing to compare against.
 
 ### D7. GitHub Action `action.yml` NOT validated ⛔
+
 The `action.yml` composite action was created in a previous session but never validated with `actionlint` or similar. It references `@v0.2.0` which doesn't exist yet.
 
 ### D8. No `--config` CLI subprocess test ⛔
+
 The `--config` flag is unit-tested (`TestLoadConfig_*`) but never tested via an actual CLI subprocess invocation. The test doesn't verify that `go-humanize-linter --config .gohumanize.yaml ./...` actually reads the file and applies the rules.
 
 ### D9. CHANGELOG structure is confusing ⛔
+
 I used "(previous v0.2.0 work)" subsections to separate this session's entries from the prior session's entries within the same `[0.2.0]` release. This is non-standard for Keep a Changelog and confusing. All entries for a release should be merged into single Added/Changed/Fixed sections.
 
 ### D10. No SARIF --output integration test ⛔
+
 The `--output` flag is tested for text and JSON formats but not SARIF. The SARIF format is important for CI integrations.
 
 ### D11. No negative testdata for package-level var detection ⛔
+
 `testdata/h007_package_var/` has a positive fixture (multiplier map that SHOULD trigger), but there's no negative fixture (`map[string]bool` that should NOT trigger). The type-checking logic in `isByteUnitMultiplierMapLiteral` is tested implicitly via `TestLintsItself_Clean` (the linter's own `byteUnitSet` doesn't get flagged) but there's no explicit negative testdata fixture.
 
 ---
@@ -193,6 +229,7 @@ The `--output` flag is tested for text and JSON formats but not SARIF. The SARIF
 ## F. Next 50 Things to Get Done
 
 ### Critical (fix self-inflicted damage from this session)
+
 1. **Fix CHANGELOG coverage numbers** — plugin is 93.5%, not 91.3%
 2. **Fix FEATURES.md coverage numbers** — same stale 91.3%
 3. **Remove T14 and T15 from TODO_LIST** — both done this session
@@ -203,6 +240,7 @@ The `--output` flag is tested for text and JSON formats but not SARIF. The SARIF
 8. **Save benchmark baseline** to `docs/benchmarks/2026-07-31_baseline.txt`
 
 ### High Priority (release readiness)
+
 9. **Tag v0.2.0** (requires user approval)
 10. **Validate `action.yml` with `actionlint`**
 11. **Add `--config` CLI subprocess test** — verify end-to-end flag parsing
@@ -214,6 +252,7 @@ The `--output` flag is tested for text and JSON formats but not SARIF. The SARIF
 17. **Verify `nix run .#custom-lint` works end-to-end** (I added it but didn't run it)
 
 ### Medium Priority (adoption + ergonomics)
+
 18. **Publish to golangci-lint plugin index** (after v0.2.0 tag)
 19. **Add `--config` JSON format support** (currently YAML-only)
 20. **Add exit code documentation** to README (0=clean, 1=findings, 2=error)
@@ -231,6 +270,7 @@ The `--output` flag is tested for text and JSON formats but not SARIF. The SARIF
 32. **Add `--diff` flag** to show suggested replacement as a diff
 
 ### Low Priority (polish + future-proofing)
+
 33. **Research full `go/types` integration** for CLI path (type-checking walker)
 34. **Add per-line diagnostics** (ROADMAP — requires every detector to return specific `token.Pos`)
 35. **Add auto-fix capability** via `go-finding` `FixEngine` (ROADMAP)

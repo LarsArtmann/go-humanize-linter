@@ -205,18 +205,18 @@ Built a 7-rule AST linter (H001–H007) on go-linter-sdk that detects hand-rolle
 
 This was the first session. The "Up to 50 Things" list drove the entire v0.1.0 → v0.2.0 build-out. Key items:
 
-| Item | Status |
-| ---- | ------ |
-| #1 LICENSE, #4 CHANGELOG, #11 FEATURES/TODO/ROADMAP | done — all project docs exist and are current |
-| #5 Tag v0.1.0 | done at `v0.1.0` |
-| #7 golangci-lint plugin mode | done — `plugin/plugin.go` (93.8% coverage) |
-| #10 `example_test.go` runnable Examples | done |
-| #11 Split `patterns.go` | done — split into per-rule files |
-| #22 Reach 80%+ coverage | done — core 87.8% |
-| #23/#24 H008 Ordinal / H009 Commaf | done at `e3ef534` / `2ac66b6` (9 rules total) |
-| #29 `//nolint:gohumanize` suppression | done — scoped `:Hxxx` + `//lint:ignore` syntax |
-| #46 `--version`, #47 `--rules` | done (+ `--explain`, `--list-files`) |
-| Q1 H004 FP filter | resolved — string-in-branch + string-return-type filters (~0% FP) |
+| Item                                                | Status                                                            |
+| --------------------------------------------------- | ----------------------------------------------------------------- |
+| #1 LICENSE, #4 CHANGELOG, #11 FEATURES/TODO/ROADMAP | done — all project docs exist and are current                     |
+| #5 Tag v0.1.0                                       | done at `v0.1.0`                                                  |
+| #7 golangci-lint plugin mode                        | done — `plugin/plugin.go` (93.8% coverage)                        |
+| #10 `example_test.go` runnable Examples             | done                                                              |
+| #11 Split `patterns.go`                             | done — split into per-rule files                                  |
+| #22 Reach 80%+ coverage                             | done — core 87.8%                                                 |
+| #23/#24 H008 Ordinal / H009 Commaf                  | done at `e3ef534` / `2ac66b6` (9 rules total)                     |
+| #29 `//nolint:gohumanize` suppression               | done — scoped `:Hxxx` + `//lint:ignore` syntax                    |
+| #46 `--version`, #47 `--rules`                      | done (+ `--explain`, `--list-files`)                              |
+| Q1 H004 FP filter                                   | resolved — string-in-branch + string-return-type filters (~0% FP) |
 
 Still open — moved to `TODO_LIST.md` / `ROADMAP.md`:
 
