@@ -56,14 +56,14 @@ Ran a full docs-health audit across all 28 timestamped files and 4 living docs. 
 
 All 6 `2026-08-05_*` reports received Resolution appendices:
 
-| Report | Resolution content |
-| ------ | ------------------ |
-| `04-05_gogenfilter-integration` | Superseded by brutal reaudit; CHANGELOG entry added; open items tracked |
-| `04-28_linter-improvements-for-ai-mistakes` | All 8 designed improvements cross-referenced: 6 shipped, 2 in TODO, 1 in ROADMAP |
-| `05-25_linter-improvements-implementation` | All 5 improvements shipped; docs gap closed; 3 questions answered autonomously |
-| `05-29_gogenfilter-integration-brutal-reaudit` | CHANGELOG entry added; AGENTS.md typos fixed; asymmetric skip behavior documented |
-| `05-46_plugin-wiring-and-documentation-status` | Broken runDetector FIXED (inline strikethrough); 3 questions answered autonomously |
-| `06-06_plugin-wiring-testing-and-documentation` | 3 "TOTALLY FUCKED UP" items → T22/T23/T24; questions answered autonomously |
+| Report                                          | Resolution content                                                                 |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `04-05_gogenfilter-integration`                 | Superseded by brutal reaudit; CHANGELOG entry added; open items tracked            |
+| `04-28_linter-improvements-for-ai-mistakes`     | All 8 designed improvements cross-referenced: 6 shipped, 2 in TODO, 1 in ROADMAP   |
+| `05-25_linter-improvements-implementation`      | All 5 improvements shipped; docs gap closed; 3 questions answered autonomously     |
+| `05-29_gogenfilter-integration-brutal-reaudit`  | CHANGELOG entry added; AGENTS.md typos fixed; asymmetric skip behavior documented  |
+| `05-46_plugin-wiring-and-documentation-status`  | Broken runDetector FIXED (inline strikethrough); 3 questions answered autonomously |
+| `06-06_plugin-wiring-testing-and-documentation` | 3 "TOTALLY FUCKED UP" items → T22/T23/T24; questions answered autonomously         |
 
 ### 7. Feedback file annotated
 
@@ -72,6 +72,7 @@ All 6 `2026-08-05_*` reports received Resolution appendices:
 ### 8. Auto-git daemon committed T22 and T24 (behind me)
 
 While I was editing documentation, the auto-git daemon:
+
 - **T22:** Added `tf.LineCount() < f.Position.Line` guard to `findingToTokenPos` in `plugin/plugin.go` + `TestFindingToTokenPos_OutOfRangeLine` test in `plugin/plugin_internal_test.go` (commit `46f0871`).
 - **T24:** Removed `RunOverPackage` method from `rules.go` + updated CHANGELOG Removed section + FEATURES.md library row (commits `d65a90e`, `46f0871`).
 
@@ -98,6 +99,7 @@ The older reports (2026-07-30 series) already have Resolution appendices from pr
 ### 3. AGENTS.md NOT updated
 
 AGENTS.md needs updates that I identified but didn't make:
+
 - The `RunOverPackage` method was removed from `rules.go` — the architecture table and any references need updating.
 - The `findingToTokenPos` panic guard is a new gotcha (or update to existing gotcha).
 - Coverage numbers in any AGENTS.md reference would be stale.
@@ -268,6 +270,7 @@ The "(previous v0.2.0 work)" section merge required 4 edit attempts (2 failed `m
 ### Q1: The auto-git daemon executed T22 and T24 from my TODO_LIST. Should I rely on this behavior, or should I execute code changes myself?
 
 The daemon read my TODO_LIST descriptions ("Add `tf.LineCount()` check" / "Remove dead `RunOverPackage`") and produced correct, tested implementations. This is impressive but dangerous — I didn't verify the changes until after the session was nearly over. If the daemon makes a mistake (e.g., removes the wrong method, adds a guard with the wrong operator), I would ship documentation claiming the fix works without having checked. Should I:
+
 - (a) Treat the daemon as a reliable code-execution agent and verify its output at session end (current behavior)?
 - (b) Execute code changes myself and leave only documentation to the daemon?
 - (c) Disable the daemon's code-execution capability and have it only commit existing working-tree changes?
@@ -275,6 +278,7 @@ The daemon read my TODO_LIST descriptions ("Add `tf.LineCount()` check" / "Remov
 ### Q2: Should I clean up the TODO_LIST working-tree inconsistency now, or wait?
 
 The daemon committed a version where T22 is removed (fixed) and T24 is "done". My working tree has an older version where T22 still exists and T24 was "planned". The `git diff` shows T22 being removed — which is correct. But T24 shows "done" in both HEAD and working tree, violating the "delete done items" rule. Should I:
+
 - (a) Fix it now (remove T24, commit)?
 - (b) Leave it and fix it in the next session?
 - (c) Let the daemon handle it?
@@ -282,6 +286,7 @@ The daemon committed a version where T22 is removed (fixed) and T24 is "done". M
 ### Q3: Should the 2026-07-30 and 2026-07-31 status reports be re-annotated, or are their existing Resolution appendices sufficient?
 
 These reports already have Resolution sections from prior sessions. I read them all and they appear accurate. But I didn't item-by-item verify every `done at <hash>` citation. Re-annotating 14 old reports would take significant time for marginal value (the hashes are immutable, the items are mostly shipped). Should I:
+
 - (a) Trust the existing annotations (they were written by sessions closer to the events)?
 - (b) Re-verify every citation against current code (thorough but low ROI)?
 - (c) Spot-check 3-5 randomly and trust the rest?

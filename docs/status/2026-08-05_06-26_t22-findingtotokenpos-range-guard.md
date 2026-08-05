@@ -13,11 +13,13 @@ Completed **T22 — Protect `findingToTokenPos` against out-of-range line number
 **What was done:**
 
 1. Added defensive guard in `findingToTokenPos` (`plugin/plugin.go:227`):
+
    ```go
    if tf.LineCount() < f.Position.Line {
        return token.NoPos
    }
    ```
+
    This runs AFTER the existing `f.Position.Line < 1` and `tf == nil` guards, but BEFORE `tf.LineStart(f.Position.Line)` which panics on out-of-range input.
 
 2. Added `TestFindingToTokenPos_OutOfRangeLine` (`plugin_internal_test.go`) — a panic-recovery test that feeds line 1000 into a 5-line file and asserts `token.NoPos` is returned, not a panic.
@@ -29,6 +31,7 @@ Completed **T22 — Protect `findingToTokenPos` against out-of-range line number
 5. Updated `CHANGELOG.md` — added entry under `[0.2.0] - Unreleased` → `### Fixed`.
 
 **Verification:**
+
 - `go build ./...` — passes
 - `go test ./plugin/... -run TestFindingToTokenPos -v -count=1` — all 7 subtests pass
 - `go test ./... -count=1` — all 4 packages pass

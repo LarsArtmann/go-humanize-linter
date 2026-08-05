@@ -12,16 +12,19 @@
 ### T24 — Remove dead `RunOverPackage` method · DONE
 
 **Removed:**
+
 - `HumanizeDetector.RunOverPackage()` method from `rules.go` (24 lines)
 - Unused `golang.org/x/tools/go/analysis` import from `rules.go`
 - "Or stream it across a whole package" doc-comment example on `HumanizeDetector`
 
 **Updated docs:**
+
 - `CHANGELOG.md` — Added `### Removed` section under `[0.2.0]`; fixed stale Added line (`Run` and `RunOverPackage` → `Run`)
 - `FEATURES.md` — Go library row: `Run / RunOverPackage` → `Run`
 - `TODO_LIST.md` — Marked T24 as `done` in both summary table and detail section
 
 **Verified:**
+
 - `go build ./...` — PASS
 - `go test ./... -count=1` — PASS (all 4 packages)
 - `go vet ./...` — PASS
@@ -34,16 +37,16 @@
 
 ## a) FULLY DONE
 
-| Item | Status | Notes |
-|------|--------|-------|
-| T24 code change | ✅ Done | Method + import + doc comment removed from `rules.go` |
-| T24 CHANGELOG | ✅ Done | Removed section added; stale Added reference fixed |
-| T24 FEATURES.md | ✅ Done | Go library row updated |
-| T24 TODO_LIST.md | ✅ Done | Marked as done (but see TOTALLY FUCKED UP section) |
-| Build verification | ✅ Done | All packages compile |
-| Test verification | ✅ Done | All tests pass |
-| Vet verification | ✅ Done | Clean |
-| Lint verification | ✅ Done | Only pre-existing issue remains |
+| Item               | Status  | Notes                                                 |
+| ------------------ | ------- | ----------------------------------------------------- |
+| T24 code change    | ✅ Done | Method + import + doc comment removed from `rules.go` |
+| T24 CHANGELOG      | ✅ Done | Removed section added; stale Added reference fixed    |
+| T24 FEATURES.md    | ✅ Done | Go library row updated                                |
+| T24 TODO_LIST.md   | ✅ Done | Marked as done (but see TOTALLY FUCKED UP section)    |
+| Build verification | ✅ Done | All packages compile                                  |
+| Test verification  | ✅ Done | All tests pass                                        |
+| Vet verification   | ✅ Done | Clean                                                 |
+| Lint verification  | ✅ Done | Only pre-existing issue remains                       |
 
 ---
 
@@ -55,10 +58,10 @@ Nothing partially done. T24 was binary — either the method is there or it isn'
 
 ## c) NOT STARTED
 
-| Item | Notes |
-|------|-------|
-| Delete T24 entry from TODO_LIST | The TODO_LIST header says "When a task is finished, delete it here" — I marked it done but didn't delete the entry (see TOTALLY FUCKED UP) |
-| Fix pre-existing `varnamelen` lint issue | `plugin/plugin.go:217` — variable `tf` too short. Not introduced by me but noticed during verification |
+| Item                                     | Notes                                                                                                                                      |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Delete T24 entry from TODO_LIST          | The TODO_LIST header says "When a task is finished, delete it here" — I marked it done but didn't delete the entry (see TOTALLY FUCKED UP) |
+| Fix pre-existing `varnamelen` lint issue | `plugin/plugin.go:217` — variable `tf` too short. Not introduced by me but noticed during verification                                     |
 
 ---
 

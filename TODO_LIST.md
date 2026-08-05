@@ -9,19 +9,18 @@
 
 ## Summary
 
-| #   | Task                                                              | Tier   | Effort | Status  |
-| --- | ----------------------------------------------------------------- | ------ | ------ | ------- |
-| T1  | Tag `v0.2.0` (code shipped; tag missing)                          | High   | XS     | blocked |
-| T2  | Real-world validation sweep with new detection + features         | High   | M      | planned |
-| T15 | Plugin integration test through `custom-gcl` binary               | Medium | S      | planned |
-| T16 | Dot-import (`. "strings"`) support for alias resolution           | Low    | S      | planned |
-| T17 | H009/H002 overlap disambiguation                                  | Low    | M      | planned |
-| T18 | Publish to golangci-lint plugin index                             | Low    | S      | blocked |
-| T19 | Per-statement `//nolint` suppression support                      | Medium | M      | planned |
-| T20 | `--behavior-delta` flag for regression testing                    | Low    | M      | planned |
-| T21 | Propose `ExitCodeFromReportConfidence` upstream                   | Low    | S      | planned |
+| #   | Task                                                      | Tier   | Effort | Status  |
+| --- | --------------------------------------------------------- | ------ | ------ | ------- |
+| T1  | Tag `v0.2.0` (code shipped; tag missing)                  | High   | XS     | blocked |
+| T2  | Real-world validation sweep with new detection + features | High   | M      | planned |
+| T15 | Plugin integration test through `custom-gcl` binary       | Medium | S      | planned |
+| T16 | Dot-import (`. "strings"`) support for alias resolution   | Low    | S      | planned |
+| T17 | H009/H002 overlap disambiguation                          | Low    | M      | planned |
+| T18 | Publish to golangci-lint plugin index                     | Low    | S      | blocked |
+| T19 | Per-statement `//nolint` suppression support              | Medium | M      | planned |
+| T20 | `--behavior-delta` flag for regression testing            | Low    | M      | planned |
+| T21 | Propose `ExitCodeFromReportConfidence` upstream           | Low    | S      | planned |
 | T23 | Exclude H0SUP findings from confidence filtering                  | Medium | XS     | planned |
-| T24 | Remove dead `RunOverPackage` method                               | Low    | XS     | done    |
 
 ---
 
@@ -126,20 +125,6 @@ for detecting false-positive regressions when detector logic changes.
 - [ ] Implement baseline loading and comparison
 - [ ] Report added findings (potential new false positives) and removed findings (potential missed detections)
 - [ ] Exit code: 0 = no delta, 1 = delta found
-
----
-
-## Code cleanup
-
-### T24 — Remove dead `RunOverPackage` method · Low · _done_
-
-`HumanizeDetector.RunOverPackage()` in `rules.go` was the old plugin entry
-point. The plugin now uses `runDetector` which inlines the same logic.
-`RunOverPackage` has no live callers (verified via grep — only a commented-out
-reference exists).
-
-- [x] Remove `RunOverPackage` or deprecate with a `// Deprecated:` comment
-- [x] Update `CHANGELOG.md` Removed section
 
 ---
 
