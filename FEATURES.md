@@ -86,7 +86,7 @@ Computed via `go test ./... -cover` on 2026-08-05:
 
 | Package                          | Coverage                                                               |
 | -------------------------------- | ---------------------------------------------------------------------- |
-| `go-humanize-linter` (core)      | 88.4%                                                                  |
-| `cmd/go-humanize-linter` (CLI)   | 38.4%                                                                  |
+| `go-humanize-linter` (core)      | 88.9%                                                                  |
+| `cmd/go-humanize-linter` (CLI)   | 46.9%                                                                  |
 | `cmd/gohumanize` (singlechecker) | 0.0% (1-liner `singlechecker.Main` wrapper — not coverable in-process) |
-| `plugin`                         | 95.7%                                                                  |
+| `plugin`                         | 97.1%                                                                  |

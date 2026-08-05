@@ -169,6 +169,19 @@ func TestRuleRelTime_Negative(t *testing.T) {
 	}
 }
 
+func TestRuleRelTime_DotImport(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleRelTime(), testdataDir(t, "h003_dot_import"))
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
+	}
+	// Dot-imported time constants should still produce full confidence.
+	if findings[0].Confidence != finding.ConfidenceFull {
+		t.Errorf("expected full confidence for dot-imported time threshold, got %v", findings[0].Confidence)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H004 — manual-plural
 // ---------------------------------------------------------------------------
