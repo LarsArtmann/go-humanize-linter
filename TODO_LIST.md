@@ -9,18 +9,20 @@
 
 ## Summary
 
-| #   | Task                                                         | Tier   | Effort | Status  |
-| --- | ------------------------------------------------------------ | ------ | ------ | ------- |
-| T1  | Tag `v0.2.0` (code shipped; tag missing)                     | High   | XS     | blocked |
-| T2  | Real-world validation sweep with H008 + H009 + new detection | High   | M      | planned |
-| T14 | Benchmark import-alias-aware `isPackageCall`                 | Medium | S      | planned |
-| T15 | Plugin integration test through `custom-gcl` binary          | Medium | S      | planned |
-| T16 | Dot-import (`. "strings"`) support for alias resolution      | Low    | S      | planned |
-| T17 | H009/H002 overlap disambiguation                             | Low    | M      | planned |
-| T18 | Publish to golangci-lint plugin index                        | Low    | S      | blocked |
-| T19 | Per-statement `//nolint` suppression support                 | Medium | M      | planned |
-| T20 | `--behavior-delta` flag for regression testing               | Low    | M      | planned |
-| T21 | Propose `ExitCodeFromReportConfidence` upstream              | Low    | S      | planned |
+| #   | Task                                                              | Tier   | Effort | Status  |
+| --- | ----------------------------------------------------------------- | ------ | ------ | ------- |
+| T1  | Tag `v0.2.0` (code shipped; tag missing)                          | High   | XS     | blocked |
+| T2  | Real-world validation sweep with new detection + features         | High   | M      | planned |
+| T15 | Plugin integration test through `custom-gcl` binary               | Medium | S      | planned |
+| T16 | Dot-import (`. "strings"`) support for alias resolution           | Low    | S      | planned |
+| T17 | H009/H002 overlap disambiguation                                  | Low    | M      | planned |
+| T18 | Publish to golangci-lint plugin index                             | Low    | S      | blocked |
+| T19 | Per-statement `//nolint` suppression support                      | Medium | M      | planned |
+| T20 | `--behavior-delta` flag for regression testing                    | Low    | M      | planned |
+| T21 | Propose `ExitCodeFromReportConfidence` upstream                   | Low    | S      | planned |
+| T22 | Protect `findingToTokenPos` against out-of-range line numbers     | High   | XS     | planned |
+| T23 | Exclude H0SUP findings from confidence filtering                  | Medium | XS     | planned |
+| T24 | Remove dead `RunOverPackage` method                               | Low    | XS     | planned |
 
 ---
 
@@ -35,49 +37,58 @@ All v0.2.0 features are merged to `main` and documented in `CHANGELOG.md` under
 - [ ] Tag `v0.2.0` on `main` (requires explicit user approval — never tag without it)
 - [ ] Verify the release workflow fires and publishes GitHub release notes
 
-### T2 — Real-world validation sweep with H008 + H009 + new features · High · _planned_
+### T2 — Real-world validation sweep with new detection + features · High · _planned_
 
-H001–H007 were swept against 190+ Go projects
-(`docs/validation/2026-07-30_real-world-sweep.md`). H008, H009, package-level
-var detection, import-alias-aware detection, the H001 size-bucket filter, and
-the new `--verify-suppressions` / `--min-confidence` features have never been
-swept against the corpus, so the "~0% FP" claim does not yet extend to them.
+H001–H009 were swept against 327 Go projects
+(`docs/validation/2026-07-31_real-world-sweep.md`), but the new features
+(`--verify-suppressions`, `--min-confidence`, plugin confidence filtering, the
+H001 size-bucket filter, import-alias-aware detection, and the gogenfilter
+generated-file integration) have not been validated against the corpus with
+these features active.
 
-- [ ] Run the linter over the 190+ project corpus with all 9 rules enabled
-- [ ] Record H008/H009 finding counts and false-positive rate
-- [ ] Record false-positive rate for package-level var detection and alias-aware detection
-- [ ] Verify H001 size-bucket filter eliminates false positives on lookup tables
+- [ ] Run the linter over the 327-project corpus with all 9 rules enabled
 - [ ] Run `--verify-suppressions` on the corpus and record stale-directive rate
-- [ ] Save to `docs/validation/`
+- [ ] Run `--min-confidence high` and compare finding counts
+- [ ] Verify the gogenfilter integration does not skip hand-written files erroneously
+- [ ] Save results to `docs/validation/`
 
 ---
 
-## Performance
+## Plugin robustness
 
-### T14 — Benchmark import-alias-aware `isPackageCall` · Medium · _planned_
+### T22 — Protect `findingToTokenPos` against out-of-range line numbers · High · _planned_
 
-The `isPackageCall` function now accepts a variadic `aliases ...map[string]string`
-parameter. No performance data exists for the alias-resolution path.
+`findingToTokenPos` (`plugin/plugin.go`) guards against `f.Position.Line < 1`
+but does NOT guard against line numbers exceeding the file's actual line count.
+`token.File.LineStart(line)` panics with "illegal line number (past end of
+file)" on out-of-range input. While unlikely in normal operation (findings use
+the same `FileSet`), a defensive check is required — a linter crashing is worse
+than a linter reporting at position 0.
 
-- [ ] Write `BenchmarkIsPackageCall_WithAliases` and `BenchmarkIsPackageCall_WithoutAliases`
-- [ ] Compare with `benchstat` to confirm no regression on the no-alias path
-- [ ] Profile `buildImportAliases` for large files
+- [ ] Add `tf.LineCount() >= f.Position.Line` check before calling `LineStart`
+- [ ] Add `TestFindingToTokenPos_OutOfRangeLine` panic-recovery test
 
----
+### T23 — Exclude H0SUP findings from confidence filtering · Medium · _planned_
 
-## Testing
+Suppression-verification findings (H0SUP) carry `ConfidenceHigh` (0.75). If a
+user sets `minConfidence: "full"` (1.0), all H0SUP findings are filtered out.
+This is wrong — suppression verification is a meta-diagnostic about directive
+correctness, not a confidence-rated code-pattern finding. It should bypass
+confidence filtering in `runDetector`.
+
+- [ ] In `runDetector`, exclude H0SUP findings from the confidence filter check
+- [ ] Add `TestRunDetector_H0SUPBypassesConfidenceFilter`
 
 ### T15 — Plugin integration test through `custom-gcl` binary · Medium · _planned_
 
-The golangci-lint v2 module plugin registration is verified manually (see
-`.golangci.custom.yml` and the plugin.go doc comment for the workflow) but
-there is no automated integration test. Unit tests pass but don't exercise
-the golangci-lint runtime discovery path.
+Plugin registration is verified via `TestPluginRegisteredWithGolangciLint` and
+`TestPluginRegisteredWithSettings`. However, no test exercises the full
+`runDetector` pipeline through the golangci-lint runtime: building the
+`custom-gcl` binary, running it on testdata with `minConfidence` and
+`verifySuppressions` enabled, and asserting the diagnostics appear correctly.
 
-- [ ] Write a test that builds the `custom-gcl` binary, runs it on testdata,
-      and asserts findings are produced
-- [ ] Gate behind `testing.Short()` skip or a build tag since it requires
-      `golangci-lint custom` (network + git clone)
+- [ ] Write a test that builds `custom-gcl`, runs it on testdata, asserts findings
+- [ ] Gate behind `testing.Short()` skip (requires `golangci-lint custom` — network + git clone)
 
 ---
 
@@ -96,7 +107,7 @@ without a package qualifier. ADR 0001 documents this as a known gap.
 ### T17 — H009/H002 overlap disambiguation · Low · _planned_
 
 H009 (manual-commaf) and H002 (manual-comma-format) can both match the same
-code when it involved `%.Nf` formatting plus comma-grouping loops. Currently
+code when it involves `%.Nf` formatting plus comma-grouping loops. Currently
 both rules fire independently. A prioritization or suppression mechanism
 would reduce noise.
 
@@ -131,11 +142,25 @@ for detecting false-positive regressions when detector logic changes.
 
 ---
 
+## Code cleanup
+
+### T24 — Remove dead `RunOverPackage` method · Low · _planned_
+
+`HumanizeDetector.RunOverPackage()` in `rules.go` was the old plugin entry
+point. The plugin now uses `runDetector` which inlines the same logic.
+`RunOverPackage` has no live callers (verified via grep — only a commented-out
+reference exists).
+
+- [ ] Remove `RunOverPackage` or deprecate with a `// Deprecated:` comment
+- [ ] Update `CHANGELOG.md` Removed section
+
+---
+
 ## Upstream contributions
 
 ### T21 — Propose `ExitCodeFromReportConfidence` upstream · Low · _planned_
 
-The CLI now implements its own `exitCodeFromReport()` with ternary exit codes
+The CLI implements its own `exitCodeFromReport()` with ternary exit codes
 (0=clean, 1=must fix, 2=triage). The SDK's `linter.ExitCodeFromReport` is still
 binary (0 or 1). Proposing `ExitCodeFromReportConfidence` upstream would let
 all SDK-based linters benefit from confidence-aware exit codes without

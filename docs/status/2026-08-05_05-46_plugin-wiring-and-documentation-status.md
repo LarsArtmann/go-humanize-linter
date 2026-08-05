@@ -55,7 +55,7 @@ These 5 improvements from the prior session are fully implemented and tested:
 
 ### 7. Plugin Wiring: `--verify-suppressions` and `--min-confidence` into `plugin/plugin.go`
 
-**STATE: BROKEN — BUILD FAILS.** The `multiedit` applied 4 of 5 edits. The 5th edit (replacing the `runDetector` function body) **failed silently**. The result is a signature mismatch:
+**STATE: ~~BROKEN — BUILD FAILS.~~ FIXED — the `runDetector` function was rewritten with the new 4-arg signature, confidence filtering, suppression verification, and `findingToTokenPos` helper in the next session (commits `85457dd`, `b26d66a`).** The original `multiedit` failure described below was resolved by rewriting `runDetector` from scratch. Build, tests, and lint all pass.
 
 - **Callers updated** (lines 112, 142): `runDetector(pass, detector, minConf, verify)` — new 4-arg signature.
 - **Function definition NOT updated** (line 149): `func runDetector(pass *analysis.Pass, detector *humanizelint.HumanizeDetector)` — still old 2-arg signature.

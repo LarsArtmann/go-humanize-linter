@@ -74,6 +74,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `plugin/plugin.go` doc comment rewritten with complete 4-step integration guide including the critical `linters.settings.custom` section.
 - Coverage: core 88.5% (was 87.9%), CLI 40.9% (was 31.4%), plugin 89.6% (was 93.8% — additional branches from configurable rules and suppression verification).
 - Dependencies: `github.com/golangci/plugin-module-register v0.1.2` and `gopkg.in/yaml.v3 v3.0.1` promoted from indirect to direct.
+- `plugin.run` → `plugin.analyzeHumanize` (better grep-ability).
+- `printRules()` now writes to stdout (was: stderr) so it pipes cleanly.
+- Refactored suppression parser to support both `//nolint:` and `//lint:ignore` flavours with colon-scoped rule IDs.
+- `gofumpt` + `goimports -local github.com/larsartmann/` formatting applied.
+- `TestRuleBytes_SuppressedByDirective` → `TestCLI_SuppressedByDirective` (clarity).
+- `hasPercentNF` split into `walkFormatFloatVerbs` + `scanDottedPercentFloat` + `scanBarePercentFloat` so each helper stays under the cyclop/gocognit/nestif thresholds.
+- Replaced magic numbers in `pattern_ordinal.go` and `pattern_commaf.go` with named constants (`ordinalModTen`, `minOrdinalSuffixesHit`, `percentChar`, `floatVerb`, …).
+- `TestHasEqualsOneBranch` and `TestHasCommaOrSeparator` extracted their case tables into shared `boolSrcCase`-typed helpers so the test functions stay under the funlen threshold.
+- `ruleExplanations` map switched to local `h001`–`h009` constants so `goconst` doesn't flag the repeated rule-ID strings.
+- Removed `//nolint:erraudit` directives from `walker.go` (the tool is not a golangci-lint linter — referenced directly in prose comments instead).
+- `nix run .#lint` now filters the informational "Found unknown linters in //nolint directives: gohumanize" warning that golangci-lint emits for the project's own plugin-loaded analyzer.
 
 ### Fixed
 

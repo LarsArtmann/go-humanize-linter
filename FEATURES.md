@@ -72,19 +72,21 @@ All 9 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
 
 ## Validation
 
-- H001–H007 swept against 190+ Go projects in `~/projects/` (97 findings across ~30 projects).
+- H001–H009 swept against 327 Go projects in `~/projects/` (242 findings across ~80 files).
 - ~0% false positive rate on H001–H006; H004 tuned from ~60% FP to ~0% FP across two iterations.
-- H008 and H009 have **not** been swept against the corpus yet (TODO T2).
-- Import-alias-aware detection and package-level var detection have **not** been swept yet (TODO T2).
-- Full sweep results: `docs/validation/2026-07-30_real-world-sweep.md`.
+- H008: 0 findings in corpus. H009: 3 findings, all true positives.
+- Import-alias-aware detection: 0 real-world hits but verified via testdata.
+- Package-level var detection: 1 true positive (`clean-wizard`).
+- The `--min-confidence`, `--verify-suppressions`, and `--behavior-delta` features have **not** been swept against the corpus yet (TODO T2).
+- Full sweep results: `docs/validation/2026-07-31_real-world-sweep.md`.
 
 ## Test coverage
 
-Computed via `go test ./... -cover` on 2026-07-31:
+Computed via `go test ./... -cover` on 2026-08-05:
 
 | Package                          | Coverage                                                               |
 | -------------------------------- | ---------------------------------------------------------------------- |
-| `go-humanize-linter` (core)      | 89.6%                                                                  |
-| `cmd/go-humanize-linter` (CLI)   | 40.4%                                                                  |
+| `go-humanize-linter` (core)      | 88.5%                                                                  |
+| `cmd/go-humanize-linter` (CLI)   | 40.9%                                                                  |
 | `cmd/gohumanize` (singlechecker) | 0.0% (1-liner `singlechecker.Main` wrapper — not coverable in-process) |
-| `plugin`                         | 91.3%                                                                  |
+| `plugin`                         | 89.6%                                                                  |
