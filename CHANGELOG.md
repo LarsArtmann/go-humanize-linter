@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`--min-confidence <level>` CLI flag** — Filter findings by confidence level (`low`, `medium`, `high`, `full`, default: `low`). Uses `finding.ByConfidenceAtLeast` from go-finding to produce a filtered report.
+- **`--verify-suppressions` CLI flag** — Report `//nolint:gohumanize` directives that suppress zero findings, and `//nolint` directives that use a misspelled linter name containing "humanize" (e.g. `go-humanize-linter`). Uses pseudo-rule ID `H0SUP`.
+- **Confidence-aware exit codes** — Exit 0 = clean, exit 1 = at least one high/full-confidence finding (must fix), exit 2 = only medium/low-confidence findings remain (triage). Lets CI distinguish "review" from "fix now".
+- **H0SUP pseudo-rule** — Diagnostic rule ID for suppression-verification findings. Not registered in `AllRules()` (meta-diagnostic, not a code pattern).
+- **Suppression verification system** (`suppression.go`) — `VerifySuppressions(dir, report)` detects stale and misspelled `//nolint` directives. Exported for CLI and future plugin use.
+- **`hasSwitchStatement()` helper** (`pattern_bytes.go`) — Reports whether a function contains any `switch` or type-switch statement. Used by the H001 size-bucket false-positive filter.
+- **`parseConfidenceLevel()`** and **`exitCodeFromReport()`** functions in the CLI for confidence filtering and ternary exit codes.
+- `TestParseConfidenceLevel`, `TestExitCodeFromReport`, `TestFilterReportByConfidence`, `TestCLI_MinConfidence`, `TestCLI_VerifySuppressions_UnknownLinterName`, `TestCLI_VerifySuppressions_StaleSuppression` — tests for confidence thresholding and suppression verification.
+- `TestSuppressesGohumanize`, `TestHasUnknownHumanizeLinterName`, `TestVerifySuppressions_UnknownLinterName`, `TestVerifySuppressions_StaleSuppression`, `TestVerifySuppressions_UsedSuppression` — unit tests for suppression verification logic.
+- `TestRuleBytes_SizeBucket_NoFalsePositive` — regression test for H001 size-bucket filter.
+- Testdata fixture: `testdata/h001_sizebucket/` (switch + slice-based size-bucket lookups that must not trigger H001).
+- **ADR 0002** (`docs/adr/0002-suppression-verification.md`) — Documents the design decision to run suppression verification as a separate post-detection pass rather than integrating into the main detection loop.
+- **ADR 0003** (`docs/adr/0003-confidence-aware-exit-codes.md`) — Documents the ternary exit-code scheme (0/1/2) and the decision to implement it in the CLI rather than in go-linter-sdk.
 - **Exported `RuleIDH001`–`RuleIDH009` constants** — single source of truth for rule IDs in `rules.go`, imported by CLI, plugin, and all rule files. Eliminates duplicated string literals.
 - **Package-level `var` detection for H007** — `scanFileLevelByteMultiplierMaps` detects `var byteMultipliers = map[string]int64{"KB": 1024}` at package scope. Type-checks map value type (`int*`) to avoid false positives on lookup sets like `map[string]bool`.
 - **Import-alias-aware detection** — `buildImportAliases(file)` resolves import aliases (e.g., `str "strings"`) from the AST. Threaded through all pattern helpers via variadic `aliases ...map[string]string` parameter. ADR 0001 documents the syntactic-resolution design decision.
@@ -27,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **H004 suggestion text corrected** — Now references `github.com/dustin/go-humanize/english.Plural` and `english.PluralWord` (the correct sub-package APIs), not the non-existent `humanize.Plural`.
+- **H001 confidence levels refined** — Unit-slice matches without division-by-1024 are lowered from `ConfidenceFull` to `ConfidenceMedium`. Switch-based and unit-slice size-bucket lookups without div1024 are suppressed entirely (`return nil`).
+- **CLI `main()` refactored** — Extracted into `run()` + `runScan()` for testability and to stay under the cyclop complexity threshold. New sentinel errors `errNoPath` and `errInvalidConfidence`.
 - `isPackageCall` now accepts variadic `aliases ...map[string]string` for import-alias resolution — backward compatible (existing callers compile without changes).
 - `flake.nix` lint script improved: proper exit-code propagation via `output=$(...); code=$?; ... exit $code` pattern (was `grep -v ... || true` which swallowed exit codes).
 - `plugin/plugin.go` doc comment rewritten with complete 4-step integration guide including the critical `linters.settings.custom` section.
@@ -35,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **H004 suggested a non-existent API** — `humanize.Plural` does not exist in the root package. The correct functions are `english.PluralWord(n, singular, plural)` and `english.Plural(n, singular, plural)` in the `english` sub-package. This caused downstream projects to apply suggested fixes that would not compile.
+- **H001 false-positive on size-bucket lookup tables** — Functions with a `switch` statement or `[]string` of byte-unit labels but no division by 1024 are size-bucket lookup tables, not byte formatters. They are no longer flagged.
 - **golangci-lint v2 module plugin discovery** — Root cause identified: `.golangci.yml` requires `linters.settings.custom.gohumanize.type: "module"` section for golangci-lint to discover the linter at runtime. Without it, the custom binary reports "unknown linters: gohumanize". Documented in plugin.go and `.golangci.custom.yml`.
 - H007 no longer false-positives on `map[string]bool` lookup sets — `isByteUnitMultiplierMapLiteral` type-checks the map value to ensure it's numeric (`int*`).
 - Rule ID string literals replaced with exported `RuleIDH001`–`RuleIDH009` constants across all 9 rule files, `rules.go`, and `main.go` — eliminates duplication and `goconst` warnings.

@@ -18,6 +18,9 @@
 | T16 | Dot-import (`. "strings"`) support for alias resolution      | Low    | S      | planned |
 | T17 | H009/H002 overlap disambiguation                             | Low    | M      | planned |
 | T18 | Publish to golangci-lint plugin index                        | Low    | S      | blocked |
+| T19 | Per-statement `//nolint` suppression support                 | Medium | M      | planned |
+| T20 | `--behavior-delta` flag for regression testing               | Low    | M      | planned |
+| T21 | Propose `ExitCodeFromReportConfidence` upstream              | Low    | S      | planned |
 
 ---
 
@@ -32,16 +35,19 @@ All v0.2.0 features are merged to `main` and documented in `CHANGELOG.md` under
 - [ ] Tag `v0.2.0` on `main` (requires explicit user approval — never tag without it)
 - [ ] Verify the release workflow fires and publishes GitHub release notes
 
-### T2 — Real-world validation sweep with H008 + H009 + new detection · High · _planned_
+### T2 — Real-world validation sweep with H008 + H009 + new features · High · _planned_
 
 H001–H007 were swept against 190+ Go projects
 (`docs/validation/2026-07-30_real-world-sweep.md`). H008, H009, package-level
-var detection, and import-alias-aware detection have never been swept against
-the corpus, so the "~0% FP" claim does not yet extend to them.
+var detection, import-alias-aware detection, the H001 size-bucket filter, and
+the new `--verify-suppressions` / `--min-confidence` features have never been
+swept against the corpus, so the "~0% FP" claim does not yet extend to them.
 
 - [ ] Run the linter over the 190+ project corpus with all 9 rules enabled
 - [ ] Record H008/H009 finding counts and false-positive rate
 - [ ] Record false-positive rate for package-level var detection and alias-aware detection
+- [ ] Verify H001 size-bucket filter eliminates false positives on lookup tables
+- [ ] Run `--verify-suppressions` on the corpus and record stale-directive rate
 - [ ] Save to `docs/validation/`
 
 ---
@@ -90,12 +96,53 @@ without a package qualifier. ADR 0001 documents this as a known gap.
 ### T17 — H009/H002 overlap disambiguation · Low · _planned_
 
 H009 (manual-commaf) and H002 (manual-comma-format) can both match the same
-code when it involves `%.Nf` formatting plus comma-grouping loops. Currently
+code when it involved `%.Nf` formatting plus comma-grouping loops. Currently
 both rules fire independently. A prioritization or suppression mechanism
 would reduce noise.
 
 - [ ] When H009 fires, suppress H002 on the same function (or vice versa)
 - [ ] Document the precedence rule
+
+---
+
+## Suppression & confidence features
+
+### T19 — Per-statement `//nolint` suppression support · Medium · _planned_
+
+Currently, `//nolint:gohumanize` directives are matched at the function-declaration
+level (the finding position is `fn.Pos()`). AIs and developers often want to
+suppress a finding on a specific line or statement inside a function. This
+requires either per-statement findings (each detector returns a specific
+`token.Pos` instead of `fn.Pos()`) or a line-range-based suppression matcher.
+
+- [ ] Decide approach: per-statement `token.Pos` in detectors vs. line-range matching
+- [ ] Implement the chosen approach
+- [ ] Add testdata for per-statement suppression
+
+### T20 — `--behavior-delta` flag for regression testing · Low · _planned_
+
+A `--behavior-delta <baseline.json>` flag would compare the current run's
+findings against a saved baseline and report additions/removals. This is useful
+for detecting false-positive regressions when detector logic changes.
+
+- [ ] Implement baseline loading and comparison
+- [ ] Report added findings (potential new false positives) and removed findings (potential missed detections)
+- [ ] Exit code: 0 = no delta, 1 = delta found
+
+---
+
+## Upstream contributions
+
+### T21 — Propose `ExitCodeFromReportConfidence` upstream · Low · _planned_
+
+The CLI now implements its own `exitCodeFromReport()` with ternary exit codes
+(0=clean, 1=must fix, 2=triage). The SDK's `linter.ExitCodeFromReport` is still
+binary (0 or 1). Proposing `ExitCodeFromReportConfidence` upstream would let
+all SDK-based linters benefit from confidence-aware exit codes without
+re-implementing the logic.
+
+- [ ] Open PR to `go-linter-sdk` with `ExitCodeFromReportConfidence(report, minConfidence)`
+- [ ] Replace CLI's local `exitCodeFromReport` with the upstream version once merged
 
 ---
 

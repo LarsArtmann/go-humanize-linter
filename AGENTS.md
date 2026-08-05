@@ -20,6 +20,7 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 | `pattern_parsebytes.go`          | H007 AST helpers (byte-unit suffix checks, multiplier maps, package-level var scan)                                                                                                                                                                                                                                     |
 | `pattern_ordinal.go`             | H008 AST helpers (ordinal switch detection)                                                                                                                                                                                                                                                                             |
 | `pattern_commaf.go`              | H009 AST helpers (float formatting + comma grouping)                                                                                                                                                                                                                                                                    |
+| `suppression.go`                 | `VerifySuppressions`, `SuppressionDirective`, `collectSuppressions` — post-detection pass that finds stale and misspelled `//nolint` directives. Produces `H0SUP` findings.                                                                                                                                            |
 | `rules.go`                       | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, exported `RuleIDH001`-`H009` constants                                                                                                                                                                                                                           |
 | `rule_bytes.go`                  | H001 - manual byte-size formatting                                                                                                                                                                                                                                                                                      |
 | `rule_comma.go`                  | H002 - manual comma/thousands separator                                                                                                                                                                                                                                                                                 |
@@ -33,7 +34,7 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 | `doc.go`                         | Package documentation                                                                                                                                                                                                                                                                                                   |
 | `plugin/plugin.go`               | golangci-lint v2 module plugin (`register.Plugin("gohumanize", ...)`), configurable rules via `.golangci.yml`                                                                                                                                                                                                           |
 | `plugin/plugin_internal_test.go` | White-box tests for `parseRuleIDs`, `filterRules`, `newPlugin`, `BuildAnalyzers`                                                                                                                                                                                                                                        |
-| `cmd/go-humanize-linter/`        | CLI binary with `--enable`, `--disable`, `--config`, `--format text\|json\|sarif`, `--output`, `--quiet`, `--explain`, `--list-files`, `--version`                                                                                                                                                                      |
+| `cmd/go-humanize-linter/`        | CLI binary with `--enable`, `--disable`, `--config`, `--format text\|json\|sarif`, `--output`, `--quiet`, `--explain`, `--list-files`, `--version`, `--min-confidence`, `--verify-suppressions`                                                                                                                        |
 | `cmd/gohumanize/`                | singlechecker entry point for standalone plugin testing                                                                                                                                                                                                                                                                 |
 | `.custom-gcl.yml`                | Build config for `golangci-lint custom` (module plugin compilation)                                                                                                                                                                                                                                                     |
 | `.golangci.custom.yml`           | Runtime config example showing `linters.settings.custom.gohumanize.type: "module"`                                                                                                                                                                                                                                      |
@@ -43,14 +44,16 @@ AST-based linter detecting hand-rolled reimplementations of `dustin/go-humanize`
 
 H001-H009, stable identifiers for suppression matching and filter config. Exported as `RuleIDH001`-`RuleIDH009` constants in `rules.go`.
 
+**H0SUP** is a pseudo-rule ID (not in `AllRules()`, not filterable by `--enable`/`--disable`) used by `--verify-suppressions` for suppression-verification diagnostics.
+
 ## Detection Philosophy
 
 Each rule requires **multiple corroborating signals** in the same function:
 
-- **H001**: byte-unit strings + division by 1024, OR "KMGTPE" index, OR unit slice, OR 3+ unit strings
+- **H001**: byte-unit strings + division by 1024, OR "KMGTPE" index, OR unit slice, OR 3+ unit strings. Size-bucket lookup tables (switch or unit-slice WITHOUT div1024) are excluded as false positives. Unit-slice matches without div1024 are lowered to `ConfidenceMedium`.
 - **H002**: grouping signal (mod-3 or step-by-3 or digit-conversion) + separator writing
 - **H003**: time-difference computation + "ago" string + time threshold comparison
-- **H004**: `if x == 1` on simple identifier (not `len(x)`) where branch contains strings AND function returns string type; OR singular/plural params
+- **H004**: `if x == 1` on simple identifier (not `len(x)`) where branch contains strings AND function returns string type; OR singular/plural params. Suggests `english.PluralWord` / `english.Plural` (NOT `humanize.Plural` which does not exist).
 - **H005**: division by power of 1000 + K/M/G/T suffix (excludes byte units)
 - **H006**: nested `strings.TrimRight(strings.TrimRight(x, "0"), ".")`
 - **H007**: 2+ HasSuffix/CutSuffix/TrimSuffix on byte units OR `map[string]int*` multiplier with byte-unit keys (function-scope AND package-level vars)
@@ -73,6 +76,35 @@ Together: 44 -> 24 findings, ~0% FP.
 **Known gap:** Dot imports (`. "strings"`) are not handled - see ADR 0001 and TODO T16.
 
 **Design decision:** Syntactic (AST-only) resolution was chosen over full `go/types` because the CLI path uses `go/parser` only. See `docs/adr/0001-import-alias-detection.md`.
+
+## Suppression Verification
+
+`--verify-suppressions` runs a post-detection pass (`VerifySuppressions` in `suppression.go`) that checks every `//nolint` directive in the scanned directory for two classes of problems:
+
+1. **Unknown linter names** — directives containing "humanize" but not exactly "gohumanize" (e.g., `//nolint:go-humanize-linter/H003`). These silently do nothing because the suppression namespace is `gohumanize`, not the module path.
+2. **Stale suppressions** — `//nolint:gohumanize[:Hxxx]` directives that did not suppress any finding in the current run. These accumulate when code is refactored after the suppression was added.
+
+Findings use pseudo-rule ID `H0SUP` (not in `AllRules()`, not filterable by `--enable`/`--disable`). See ADR 0002.
+
+The suppression namespace is `gohumanize` (the analyzer name registered with golangci-lint), NOT `go-humanize-linter` (the module path). AIs frequently write the module path, producing no-op directives.
+
+## Confidence System
+
+Every finding carries a `finding.Confidence` value (from go-finding): `None` (0.0), `Low` (0.25), `Medium` (0.5), `High` (0.75), `Full` (1.0).
+
+- **`--min-confidence <level>`** filters findings to those at or above the threshold (default: `low` = show everything).
+- **Confidence-aware exit codes** (ternary, implemented in CLI, not SDK):
+  - Exit **0** = no findings after filtering
+  - Exit **1** = at least one high/full-confidence finding (must fix)
+  - Exit **2** = only medium/low-confidence findings remain (triage)
+
+The SDK's `linter.ExitCodeFromReport` is binary (0/1). The CLI uses its own `exitCodeFromReport()` for the ternary scheme. See ADR 0003 and TODO T21 (propose upstream).
+
+Confidence assignment per rule:
+- `ConfidenceFull`: KMGTPE index trick (H001), namedParams + equalsOne (H004), exact nested TrimRight (H006)
+- `ConfidenceHigh`: 3+ unit strings with div1024 (H001), equalsOne + string return (H004), most other strong-signal matches
+- `ConfidenceMedium`: unit slice without div1024 (H001), weaker signal combinations
+- `ConfidenceLow`: minimal signal matches
 
 ## Critical: GOEXPERIMENT=jsonv2 REQUIRED
 
@@ -140,7 +172,7 @@ The project's own `.golangci.yml` does NOT include the custom section because st
 
 `testdata/` contains positive and negative test fixtures per rule. The walker skips `testdata/` during real scans (see `skipDirs` in `walker.go`).
 
-New testdata directories: `testdata/h007_package_var/` (package-level var multiplier map), `testdata/h007_aliased_import/` (aliased `strings` import).
+New testdata directories: `testdata/h007_package_var/` (package-level var multiplier map), `testdata/h007_aliased_import/` (aliased `strings` import), `testdata/h001_sizebucket/` (switch + slice size-bucket lookups that must NOT trigger H001).
 
 ## Gotchas
 
@@ -157,3 +189,8 @@ New testdata directories: `testdata/h007_package_var/` (package-level var multip
 - **`strings.SplitSeq` (Go 1.24+)** - returns `iter.Seq[string]` which only allows ONE range variable, not two.
 - **`gogenfilter` Uses a Strict Generator Table** - it does NOT enumerate every tooling convention. The generic `_gen.go` and `.gen.go` suffixes (used by hand-rolled `go generate` outputs and project-specific codegen) are not in gogenfilter's table. `IsGeneratedFile` keeps a tiny legacy-suffix fallback for these. If gogenfilter later adds the generic `_gen.go`/`_gen.go`/`_templ.go` patterns, the fallback becomes a no-op and can be removed.
 - **Module Path Casing** - `gogenfilter` is at `github.com/LarsArtmann/gogenfilter/v3` (capital L) while sibling deps are at `github.com/larsartmann/*` (lowercase). `GOPRIVATE` and `GONOSUMDB` list BOTH case variants so Go doesn't hit the public proxy for either.
+- **H004 correct API** - The suggestion text references `github.com/dustin/go-humanize/english.Plural` and `english.PluralWord`, NOT `humanize.Plural` (which does not exist in the root package).
+- **H0SUP not in AllRules()** - `H0SUP` is a pseudo-rule ID hardcoded in `suppression.go`. It does not appear in `AllRules()`, `DefaultRegistry()`, or `--enable`/`--disable`. It is only produced by `--verify-suppressions`.
+- **H001 size-bucket filter** - A function with a `switch` statement or `[]string` of byte-unit labels but NO division by 1024 is treated as a size-bucket lookup table (not a byte formatter) and skipped entirely. See `switchOnly` in `rule_bytes.go`.
+- **CLI ternary exit codes** - Exit 0 = clean, exit 1 = high/full-confidence finding (must fix), exit 2 = only medium/low (triage). The SDK's `ExitCodeFromReport` is binary; the CLI uses its own `exitCodeFromReport()`.
+- **`runScan()` pipeline** - The CLI scan pipeline is: `buildRegistry` → `registry.Run` → optional `VerifySuppressions` → `filterReportByConfidence` → `writeReport` → `exitCodeFromReport`. All in `cmd/go-humanize-linter/main.go`.

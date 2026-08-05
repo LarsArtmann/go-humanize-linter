@@ -15,8 +15,9 @@
 - **Type-aware detection** — optional `go/types` / `pass.TypesInfo` integration to
   resolve import aliases (`s "strings"`) and typed values. Would cut false negatives
   on aliased and generic code.
-- **Configurable confidence threshold** — `--threshold=high` to filter low-confidence
-  findings; per-rule FP-rate calibration from validation-sweep data.
+- **Per-statement suppression** — today `//nolint` directives are matched at the
+  function level; per-statement or per-line suppression would let developers
+  silence individual findings within a function (see TODO T19).
 - **Rule-overlap disambiguation** — H009 (manual-commaf) and H002 (manual-comma)
   both fire on the same comma-loop pattern, producing double diagnostics for one
   mistake. H009 should require a signal H002 cannot match (e.g. `strconv.FormatFloat`
