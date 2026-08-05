@@ -3,7 +3,7 @@ module github.com/larsartmann/go-humanize-linter
 go 1.26.5
 
 require (
-	github.com/LarsArtmann/gogenfilter/v3 v3.3.2
+	github.com/LarsArtmann/gogenfilter/v3 v3.4.0
 	github.com/golangci/plugin-module-register v0.1.2
 	github.com/larsartmann/go-finding v1.4.1
 	github.com/larsartmann/go-linter-sdk v0.1.0

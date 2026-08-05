@@ -41,6 +41,7 @@
 ### 5. Documentation sweep (7 files)
 
 **What:** Updated all stale documentation:
+
 - **FEATURES.md** — coverage table updated to 88.9% / 57.7% / 97.1%
 - **CHANGELOG.md** — coverage line updated + new entries for ADRs, action.yml inputs, dot-import testdata, CONTRIBUTING workflow, new tests
 - **CONTRIBUTING.md** — new "Behavior Delta Workflow" section (60 lines) with save/compare/CI integration guide
@@ -64,6 +65,7 @@
 **What works:** Coverage recomputed, FEATURES.md and CHANGELOG.md updated with new numbers.
 
 **What's still missing:**
+
 - `isTimeDurationSelector` is at 56.2% — the alias-resolution branch (where `ident.Name` is neither `time` nor in the aliases map) is still uncovered. Needs a testdata fixture with an aliased time import (e.g., `tm "time"` → `tm.Hour`).
 - `saveBaseline` is at 77.8% — the `MarshalIndent` error path and `WriteFile` error path are uncovered (hard to trigger without mock filesystem).
 - `sortEntries` is at 50.0% — only one branch of the comparator is exercised.
@@ -75,6 +77,7 @@
 **What works:** 9 new tests covering the critical path helpers.
 
 **What's missing:**
+
 - `runBehaviorDelta` still has an uncovered branch (the `os.Exit(1)` path when delta exists — tested via integration test in `TestCLI_BehaviorDelta` but not unit-tested directly, because `os.Exit` terminates the test process).
 - No test for the `runBehaviorDelta` "no delta → return nil" early-exit when `behaviorDeltaPath` is empty (this path doesn't exist — it's guarded by the caller).
 - `saveBaselineAndNotify` error path (saveBaseline failure) uncovered.

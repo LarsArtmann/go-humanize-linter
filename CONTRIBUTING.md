@@ -154,11 +154,11 @@ go-humanize-linter --behavior-delta baseline.json ./...
 
 Exit codes:
 
-| Exit | Meaning                                                       |
-| ---- | ------------------------------------------------------------- |
-| 0    | No delta — the (rule, file, line) set matches the baseline.  |
-| 1    | Findings added or removed since the baseline.                 |
-| 2    | Linter error (baseline file missing, unreadable, etc.).       |
+| Exit | Meaning                                                     |
+| ---- | ----------------------------------------------------------- |
+| 0    | No delta — the (rule, file, line) set matches the baseline. |
+| 1    | Findings added or removed since the baseline.               |
+| 2    | Linter error (baseline file missing, unreadable, etc.).     |
 
 The delta is printed to stderr in human-readable form. Findings whose message
 changed but whose (rule, file, line) tuple is unchanged are **not** reported
@@ -174,4 +174,3 @@ A typical PR-check workflow:
 
 This catches silent regressions (a refactor that drops a finding) and silent
 noise additions (a detector broadening that introduces new findings) equally.
-

@@ -67,6 +67,7 @@
 **What works:** The flag wiring, `behavior_delta.go` with `loadBaseline`, `saveBaseline`, `computeDelta`, `printDelta`, `reportToBaselineEntries`. Unit tests cover `computeDelta` (no-delta, added, removed), `loadBaseline` (valid, missing file).
 
 **What's missing:**
+
 - **No CLI integration test** — never built the binary and ran `--save-baseline` then `--behavior-delta` end-to-end.
 - **`saveBaseline` is untested** — the unit test doesn't exercise it.
 - **`printDelta` is untested** — output format never verified.
@@ -251,6 +252,7 @@ Midway through verification, `go test ./...` failed with `"errors" imported and 
 ### 1. Should I tag v0.2.0 now?
 
 The code is ready (all features implemented, tests pass, CHANGELOG written). But:
+
 - Coverage dropped (CLI 38.4%)
 - `nix run .#lint` was never run (unknown lint issues may exist)
 - `--behavior-delta` has no integration test
@@ -270,19 +272,19 @@ I rewrote the `//nolint:gosec` comment to say "trust is delegated to the caller.
 
 ## Session Metrics
 
-| Metric | Value |
-|--------|-------|
-| Commits | 9 |
-| Files changed | 25 |
-| Lines added | 810 |
-| Lines removed | 116 |
-| Tasks attempted | 13 of 25 medium tasks |
-| Tasks fully done | 10 (M2, M3, M5, M7, M8, M17, M18, M19, M24 + docs) |
-| Tasks partially done | 3 (M6, M15, M20) |
-| Tasks skipped | 9 (M1, M4, M9-M14, M16, M21-M23, M25) |
-| New tests added | 10 (6 plugin/core + 4 behavior_delta) |
-| New testdata fixtures | 3 (`h007_dot_import`, `h009_h002_overlap`, `h0supbypass`) |
-| Coverage change | core: 88.5%→88.4% (-0.1), CLI: 40.9%→38.4% (-2.5), plugin: 89.6%→95.7% (+6.1) |
-| `nix run .#lint` run? | **NO** — major process failure |
-| Integration tests added? | **NO** for `--behavior-delta` |
-| README updated? | **NO** for new flags |
+| Metric                   | Value                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Commits                  | 9                                                                             |
+| Files changed            | 25                                                                            |
+| Lines added              | 810                                                                           |
+| Lines removed            | 116                                                                           |
+| Tasks attempted          | 13 of 25 medium tasks                                                         |
+| Tasks fully done         | 10 (M2, M3, M5, M7, M8, M17, M18, M19, M24 + docs)                            |
+| Tasks partially done     | 3 (M6, M15, M20)                                                              |
+| Tasks skipped            | 9 (M1, M4, M9-M14, M16, M21-M23, M25)                                         |
+| New tests added          | 10 (6 plugin/core + 4 behavior_delta)                                         |
+| New testdata fixtures    | 3 (`h007_dot_import`, `h009_h002_overlap`, `h0supbypass`)                     |
+| Coverage change          | core: 88.5%→88.4% (-0.1), CLI: 40.9%→38.4% (-2.5), plugin: 89.6%→95.7% (+6.1) |
+| `nix run .#lint` run?    | **NO** — major process failure                                                |
+| Integration tests added? | **NO** for `--behavior-delta`                                                 |
+| README updated?          | **NO** for new flags                                                          |

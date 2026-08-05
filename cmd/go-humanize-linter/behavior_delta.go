@@ -1,7 +1,8 @@
 package main
 
 import (
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"fmt"
 	"io"
 	"os"
@@ -69,7 +70,7 @@ func saveBaseline(path string, report *finding.Report) error {
 
 	bf := baselineFile{Findings: entries}
 
-	data, err := json.MarshalIndent(bf, "", "  ")
+	data, err := json.Marshal(bf, jsontext.WithIndentPrefix(""), jsontext.WithIndent("  "))
 	if err != nil {
 		return fmt.Errorf("marshal baseline: %w", err)
 	}

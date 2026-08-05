@@ -31,6 +31,7 @@
 **What:** Added `TestSaveBaseline`, `TestReportToBaselineEntries`, `TestPrintDelta_NoDelta`, `TestPrintDelta_AddedAndRemoved`, and a shared `newFinding` helper.
 
 **Verification:** Coverage for `behavior_delta.go` functions:
+
 - `HasDelta`: 100%
 - `loadBaseline`: 85.7%
 - `saveBaseline`: 77.8%
@@ -78,6 +79,7 @@
 **What works:** Coverage recomputed via `nix run .#coverage`.
 
 **What's missing:**
+
 - `FEATURES.md` coverage table still shows the old numbers (88.4% / 38.4% / 95.7%). Not yet updated.
 - `CHANGELOG.md` coverage line not yet updated.
 - Some new helper functions in `pattern_time.go` are uncovered; core coverage dipped from 88.4% to 88.1%.
@@ -87,6 +89,7 @@
 **What works:** Flags wired, unit tests added, integration test added, lint clean.
 
 **What's missing:**
+
 - `CONTRIBUTING.md` has no `--behavior-delta` workflow documentation.
 - `action.yml` does not expose `--save-baseline` / `--behavior-delta` as optional inputs.
 - No ADR documenting the baseline/delta design decision.
