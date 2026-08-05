@@ -31,10 +31,11 @@ import (
 	"os"
 	"strings"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/larsartmann/go-finding"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/larsartmann/go-linter-sdk"
-	"gopkg.in/yaml.v3"
 )
 
 // versionDev is the placeholder used when the binary is built without
@@ -165,7 +166,19 @@ func run() error {
 		return errNoPath
 	}
 
-	return runScan(args[0], configPath, enableIDs, disableIDs, minConfidence, verifySupps, outputPath, format, quiet, behaviorDelta, saveBaseline)
+	return runScan(
+		args[0],
+		configPath,
+		enableIDs,
+		disableIDs,
+		minConfidence,
+		verifySupps,
+		outputPath,
+		format,
+		quiet,
+		behaviorDelta,
+		saveBaseline,
+	)
 }
 
 // runScan runs the linter against dir, optionally verifies suppressions, filters
@@ -180,16 +193,9 @@ func runScan(
 	quiet bool,
 	behaviorDeltaPath, saveBaselinePath string,
 ) error {
-	var cfgEnable, cfgDisable []string
-
-	if configPath != "" {
-		cfg, err := loadConfig(configPath)
-		if err != nil {
-			return fmt.Errorf("load config: %w", err)
-		}
-
-		cfgEnable = cfg.Enable
-		cfgDisable = cfg.Disable
+	cfgEnable, cfgDisable, err := loadConfigRules(configPath)
+	if err != nil {
+		return err
 	}
 
 	registry := buildRegistry(append(cfgEnable, enableIDs...), append(cfgDisable, disableIDs...))
@@ -200,13 +206,9 @@ func runScan(
 	}
 
 	if verifySupps {
-		verifyFindings, verifyErr := humanizelint.VerifySuppressions(dir, report)
-		if verifyErr != nil {
-			return fmt.Errorf("verify suppressions: %w", verifyErr)
+		if err := appendSuppressionFindings(dir, report); err != nil {
+			return err
 		}
-
-		report.AddFindings(verifyFindings)
-		report.ComputeSummary()
 	}
 
 	minConf, err := humanizelint.ParseConfidenceLevel(minConfidence)
@@ -217,38 +219,81 @@ func runScan(
 	filteredReport := filterReportByConfidence(report, minConf)
 
 	if saveBaselinePath != "" {
-		if err := saveBaseline(saveBaselinePath, filteredReport); err != nil {
-			return fmt.Errorf("save baseline: %w", err)
+		if err := saveBaselineAndNotify(saveBaselinePath, filteredReport); err != nil {
+			return err
 		}
-
-		count := 0
-		for range filteredReport.All() {
-			count++
-		}
-
-		fmt.Fprintf(os.Stderr, "baseline saved to %s (%d findings)\n", saveBaselinePath, count)
 	}
 
 	if behaviorDeltaPath != "" {
-		baseline, err := loadBaseline(behaviorDeltaPath)
-		if err != nil {
-			return fmt.Errorf("load baseline: %w", err)
-		}
-
-		current := reportToBaselineEntries(filteredReport)
-		delta := computeDelta(current, baseline)
-		printDelta(os.Stderr, delta)
-
-		if delta.HasDelta() {
-			os.Exit(1)
-		}
-
-		return nil
+		return runBehaviorDelta(behaviorDeltaPath, filteredReport)
 	}
 
 	writeReport(outputPath, filteredReport, format, quiet)
 
 	os.Exit(exitCodeFromReport(filteredReport))
+
+	return nil
+}
+
+// loadConfigRules loads rule enable/disable settings from configPath when given.
+func loadConfigRules(configPath string) (enable, disable []string, err error) {
+	if configPath == "" {
+		return nil, nil, nil
+	}
+
+	cfg, err := loadConfig(configPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("load config: %w", err)
+	}
+
+	return cfg.Enable, cfg.Disable, nil
+}
+
+// appendSuppressionFindings runs suppression verification and appends H0SUP
+// findings to the report.
+func appendSuppressionFindings(dir string, report *finding.Report) error {
+	verifyFindings, err := humanizelint.VerifySuppressions(dir, report)
+	if err != nil {
+		return fmt.Errorf("verify suppressions: %w", err)
+	}
+
+	report.AddFindings(verifyFindings)
+	report.ComputeSummary()
+
+	return nil
+}
+
+// saveBaselineAndNotify writes a baseline file and prints a summary to stderr.
+func saveBaselineAndNotify(path string, report *finding.Report) error {
+	if err := saveBaseline(path, report); err != nil {
+		return fmt.Errorf("save baseline: %w", err)
+	}
+
+	count := 0
+	for range report.All() {
+		count++
+	}
+
+	fmt.Fprintf(os.Stderr, "baseline saved to %s (%d findings)\n", path, count)
+
+	return nil
+}
+
+// runBehaviorDelta compares the current report against a saved baseline and
+// exits 1 when they differ.
+func runBehaviorDelta(path string, report *finding.Report) error {
+	baseline, err := loadBaseline(path)
+	if err != nil {
+		return fmt.Errorf("load baseline: %w", err)
+	}
+
+	current := reportToBaselineEntries(report)
+	delta := computeDelta(current, baseline)
+	printDelta(os.Stderr, delta)
+
+	if delta.HasDelta() {
+		os.Exit(1)
+	}
 
 	return nil
 }
