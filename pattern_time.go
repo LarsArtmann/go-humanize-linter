@@ -14,8 +14,8 @@ import (
 func hasTimeSinceOrSub(fn *ast.FuncDecl, aliases map[string]string) bool {
 	hit := false
 
-	ast.Inspect(fn, func(n ast.Node) bool {
-		call, ok := n.(*ast.CallExpr)
+	ast.Inspect(fn, func(node ast.Node) bool {
+		call, ok := node.(*ast.CallExpr)
 		if !ok {
 			return true
 		}
@@ -40,61 +40,102 @@ func hasTimeSinceOrSub(fn *ast.FuncDecl, aliases map[string]string) bool {
 	return hit
 }
 
+// timePackagePath is the canonical import path for the time package.
+const timePackagePath = "time"
+
+// timeDurationConstants holds the names of time-package duration constants that
+// typically appear in relative-time threshold comparisons.
+var timeDurationConstants = map[string]bool{
+	"Second": true,
+	"Minute": true,
+	"Hour":   true,
+	"Day":    true,
+	"Week":   true,
+	"Month":  true,
+	"Year":   true,
+}
+
+// isDotImportOf reports whether the aliases map contains a dot import for the
+// given canonical package path.
+func isDotImportOf(aliases map[string]string, path string) bool {
+	if aliases == nil {
+		return false
+	}
+
+	resolved, ok := aliases["."]
+	if !ok {
+		return false
+	}
+
+	return resolved == path || strings.HasSuffix(resolved, "/"+path)
+}
+
+// isTimeDurationIdentifier reports whether node is a bare identifier that names a
+// time-package duration constant. This only matches when a dot import for the
+// time package is active.
+func isTimeDurationIdentifier(node ast.Node) bool {
+	ident, ok := node.(*ast.Ident)
+	if !ok {
+		return false
+	}
+
+	return timeDurationConstants[ident.Name]
+}
+
+// isTimeDurationSelector reports whether node is a selector expression that
+// resolves to a time-package duration constant (e.g. time.Hour, tm.Hour).
+func isTimeDurationSelector(node ast.Node, aliases map[string]string) bool {
+	sel, ok := node.(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+
+	name := sel.Sel.Name
+	if !timeDurationConstants[name] {
+		return false
+	}
+
+	ident, ok := sel.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+
+	if ident.Name == timePackagePath {
+		return true
+	}
+
+	if aliases == nil {
+		return false
+	}
+
+	resolved, ok := aliases[ident.Name]
+	if !ok {
+		return false
+	}
+
+	return resolved == timePackagePath || strings.HasSuffix(resolved, "/"+timePackagePath)
+}
+
 // hasTimeThresholdComparison reports whether fn compares an expression against
 // a time-package duration constant (time.Minute, time.Hour, time.Second, etc.)
 // or a multiplication of one (e.g. 24*time.Hour). Supports named aliases
 // (tm "time" → tm.Hour) and dot imports (. "time" → bare Hour).
 func hasTimeThresholdComparison(fn *ast.FuncDecl, aliases map[string]string) bool {
-	timeConsts := map[string]bool{
-		"Second": true, "Minute": true, "Hour": true,
-		"Day": true, "Week": true, "Month": true, "Year": true,
-	}
-
-	dotTime := false
-	if aliases != nil {
-		if resolved, ok := aliases["."]; ok {
-			if resolved == "time" || strings.HasSuffix(resolved, "/time") {
-				dotTime = true
-			}
-		}
-	}
+	dotTime := aliases != nil && isDotImportOf(aliases, timePackagePath)
 
 	hit := false
 
-	ast.Inspect(fn, func(n ast.Node) bool {
-		// time.Hour, tm.Hour (SelectorExpr form)
-		if sel, ok := n.(*ast.SelectorExpr); ok {
-			if !timeConsts[sel.Sel.Name] {
-				return true
-			}
+	ast.Inspect(fn, func(node ast.Node) bool {
+		if isTimeDurationSelector(node, aliases) {
+			hit = true
 
-			if ident, ok := sel.X.(*ast.Ident); ok {
-				if ident.Name == "time" {
-					hit = true
-					return false
-				}
-
-				if aliases != nil {
-					if resolved, ok := aliases[ident.Name]; ok {
-						if resolved == "time" || strings.HasSuffix(resolved, "/time") {
-							hit = true
-							return false
-						}
-					}
-				}
-			}
-
-			return true
+			return false
 		}
 
-		// Dot import: bare Hour (Ident form)
-		if dotTime {
-			if ident, ok := n.(*ast.Ident); ok {
-				if timeConsts[ident.Name] {
-					hit = true
-					return false
-				}
-			}
+		if dotTime && isTimeDurationIdentifier(node) {
+			hit = true
+
+			return false
 		}
 
 		return true

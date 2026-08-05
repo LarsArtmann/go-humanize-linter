@@ -88,7 +88,7 @@ func TestLoadBaseline(t *testing.T) {
 		t.Fatalf("marshal: %v", err)
 	}
 
-	if err := os.WriteFile(path, raw, 0o644); err != nil {
+	if err := os.WriteFile(path, raw, 0o600); err != nil {
 		t.Fatalf("write: %v", err)
 	}
 

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"sort"
 
@@ -45,7 +46,7 @@ func (d behaviorDelta) HasDelta() bool {
 
 // loadBaseline reads a JSON baseline file and returns its findings.
 func loadBaseline(path string) ([]baselineEntry, error) {
-	data, err := os.ReadFile(path) //nolint:gosec // path from user-supplied --behavior-delta flag
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read baseline: %w", err)
 	}
@@ -71,7 +72,7 @@ func saveBaseline(path string, report *finding.Report) error {
 
 	data = append(data, '\n')
 
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err := os.WriteFile(path, data, 0o600); err != nil {
 		return fmt.Errorf("write baseline: %w", err)
 	}
 
@@ -84,13 +85,13 @@ func saveBaseline(path string, report *finding.Report) error {
 // behavioral regression.
 func computeDelta(current []baselineEntry, baseline []baselineEntry) behaviorDelta {
 	currentSet := make(map[findingKey]baselineEntry, len(current))
-	for _, e := range current {
-		currentSet[findingKey{e.Rule, e.File, e.Line}] = e
+	for _, entry := range current {
+		currentSet[findingKey(entry)] = entry
 	}
 
 	baselineSet := make(map[findingKey]baselineEntry, len(baseline))
-	for _, e := range baseline {
-		baselineSet[findingKey{e.Rule, e.File, e.Line}] = e
+	for _, entry := range baseline {
+		baselineSet[findingKey(entry)] = entry
 	}
 
 	var delta behaviorDelta
@@ -114,25 +115,25 @@ func computeDelta(current []baselineEntry, baseline []baselineEntry) behaviorDel
 }
 
 // printDelta writes the delta to the given writer in a human-readable format.
-func printDelta(w *os.File, delta behaviorDelta) {
+func printDelta(writer io.Writer, delta behaviorDelta) {
 	if len(delta.Added) > 0 {
-		fmt.Fprintf(w, "Added findings (%d — potential new false positives):\n", len(delta.Added))
+		fmt.Fprintf(writer, "Added findings (%d — potential new false positives):\n", len(delta.Added))
 
-		for _, e := range delta.Added {
-			fmt.Fprintf(w, "  + %s %s:%d\n", e.Rule, e.File, e.Line)
+		for _, entry := range delta.Added {
+			fmt.Fprintf(writer, "  + %s %s:%d\n", entry.Rule, entry.File, entry.Line)
 		}
 	}
 
 	if len(delta.Removed) > 0 {
-		fmt.Fprintf(w, "Removed findings (%d — potential missed detections):\n", len(delta.Removed))
+		fmt.Fprintf(writer, "Removed findings (%d — potential missed detections):\n", len(delta.Removed))
 
-		for _, e := range delta.Removed {
-			fmt.Fprintf(w, "  - %s %s:%d\n", e.Rule, e.File, e.Line)
+		for _, entry := range delta.Removed {
+			fmt.Fprintf(writer, "  - %s %s:%d\n", entry.Rule, entry.File, entry.Line)
 		}
 	}
 
 	if !delta.HasDelta() {
-		fmt.Fprintln(w, "No behavior delta — findings match baseline exactly.")
+		fmt.Fprintln(writer, "No behavior delta — findings match baseline exactly.")
 	}
 }
 
@@ -140,11 +141,11 @@ func printDelta(w *os.File, delta behaviorDelta) {
 func reportToBaselineEntries(report *finding.Report) []baselineEntry {
 	var entries []baselineEntry
 
-	for f := range report.All() {
+	for finding := range report.All() {
 		entries = append(entries, baselineEntry{
-			Rule: string(f.Rule),
-			File: string(f.Position.File),
-			Line: f.Position.Line,
+			Rule: string(finding.Rule),
+			File: string(finding.Position.File),
+			Line: finding.Position.Line,
 		})
 	}
 
@@ -154,15 +155,15 @@ func reportToBaselineEntries(report *finding.Report) []baselineEntry {
 }
 
 func sortEntries(entries []baselineEntry) {
-	sort.Slice(entries, func(i, j int) bool {
-		if entries[i].File != entries[j].File {
-			return entries[i].File < entries[j].File
+	sort.Slice(entries, func(left, right int) bool {
+		if entries[left].File != entries[right].File {
+			return entries[left].File < entries[right].File
 		}
 
-		if entries[i].Line != entries[j].Line {
-			return entries[i].Line < entries[j].Line
+		if entries[left].Line != entries[right].Line {
+			return entries[left].Line < entries[right].Line
 		}
 
-		return entries[i].Rule < entries[j].Rule
+		return entries[left].Rule < entries[right].Rule
 	})
 }
