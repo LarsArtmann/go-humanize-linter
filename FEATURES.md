@@ -34,7 +34,7 @@ All 9 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
 | -------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | CLI binary           | FULLY_FUNCTIONAL | `--enable`, `--disable`, `--config`, `--format`, `--output`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain`, `--min-confidence`, `--verify-suppressions` (`cmd/go-humanize-linter/main.go`)                |
 | Go library           | FULLY_FUNCTIONAL | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run` / `RunOverPackage`, exported `RuleIDH001`–`H009` constants (`rules.go`)                                                        |
-| golangci-lint plugin | FULLY_FUNCTIONAL | `plugin/plugin.go` (91.3% coverage) using `plugin-module-register` v2 module plugin pattern. Configurable enable/disable via `.golangci.yml` `linters.settings.custom.gohumanize.settings`. Reports at func-decl position. |
+| golangci-lint plugin | FULLY_FUNCTIONAL | `plugin/plugin.go` using `plugin-module-register` v2 module plugin pattern. Configurable enable/disable, `minConfidence`, and `verifySuppressions` via `.golangci.yml` `linters.settings.custom.gohumanize.settings`. Diagnostics at finding position via `findingToTokenPos`. |
 | GitHub Action        | FULLY_FUNCTIONAL | `action.yml` composite Action with inputs: path, enable, disable, format, version                                                                                                                                          |
 | Nix flake            | FULLY_FUNCTIONAL | `test`, `test-race`, `bench`, `build`, `vet`, `lint`, `coverage` apps                                                                                                                                                      |
 | CI workflow          | FULLY_FUNCTIONAL | test + vet + coverage (Codecov) job and golangci-lint job (`.github/workflows/ci.yml`). Versions pinned: `govulncheck@v1.6.0`, `golangci-lint v2.12.2`.                                                                    |
@@ -66,6 +66,8 @@ All 9 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
 | CLI `--verify-suppressions` flag | FULLY_FUNCTIONAL | Detects stale `//nolint:gohumanize` directives (suppress zero findings) and misspelled linter names. Reports as `H0SUP`.   |
 | CLI confidence-aware exit codes  | FULLY_FUNCTIONAL | Exit 0 = clean, exit 1 = high/full-confidence finding (must fix), exit 2 = only medium/low (triage).                       |
 | Plugin enable/disable settings   | FULLY_FUNCTIONAL | `linters.settings.custom.gohumanize.settings.enable`/`disable` in `.golangci.yml`                                          |
+| Plugin `minConfidence` setting   | FULLY_FUNCTIONAL | `linters.settings.custom.gohumanize.settings.minConfidence` in `.golangci.yml` — same levels as CLI `--min-confidence`      |
+| Plugin `verifySuppressions`      | FULLY_FUNCTIONAL | `linters.settings.custom.gohumanize.settings.verifySuppressions` in `.golangci.yml` — same as CLI `--verify-suppressions`   |
 | Scoped `//nolint` directives     | FULLY_FUNCTIONAL | Per-function suppression via `//nolint:gohumanize:H001`                                                                    |
 
 ## Validation

@@ -33,3 +33,7 @@ linters:
           # enable: "H001,H003"
           # Optional: skip specific rules (comma-separated)
           # disable: "H004"
+          # Optional: minimum confidence to report (low, medium, high, full)
+          # minConfidence: "medium"
+          # Optional: report //nolint:gohumanize directives that suppress zero findings
+          # verifySuppressions: true

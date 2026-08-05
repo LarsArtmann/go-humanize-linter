@@ -1,8 +1,11 @@
 package plugin
 
 import (
+	"go/parser"
+	"go/token"
 	"testing"
 
+	"github.com/larsartmann/go-finding"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 )
 
@@ -108,8 +111,10 @@ func TestNewPluginWithSettings(t *testing.T) {
 	t.Parallel()
 
 	plug, err := newPlugin(map[string]any{
-		"enable":  "H001,H002",
-		"disable": "H003",
+		"enable":             "H001,H002",
+		"disable":            "H003",
+		"minConfidence":      "high",
+		"verifySuppressions": true,
 	})
 	if err != nil {
 		t.Fatalf("newPlugin failed: %v", err)
@@ -126,6 +131,91 @@ func TestNewPluginWithSettings(t *testing.T) {
 
 	if impl.settings.Disable != "H003" {
 		t.Errorf("expected Disable=%q, got %q", "H003", impl.settings.Disable)
+	}
+
+	if impl.settings.MinConfidence != "high" {
+		t.Errorf("expected MinConfidence=%q, got %q", "high", impl.settings.MinConfidence)
+	}
+
+	if !impl.settings.VerifySuppressions {
+		t.Error("expected VerifySuppressions=true")
+	}
+}
+
+func TestBuildAnalyzers_MinConfidence(t *testing.T) {
+	t.Parallel()
+
+	plug, err := newPlugin(map[string]any{
+		"minConfidence": "medium",
+	})
+	if err != nil {
+		t.Fatalf("newPlugin failed: %v", err)
+	}
+
+	analyzers, err := plug.BuildAnalyzers()
+	if err != nil {
+		t.Fatalf("BuildAnalyzers with minConfidence=medium failed: %v", err)
+	}
+
+	if len(analyzers) != 1 {
+		t.Fatalf("expected 1 analyzer, got %d", len(analyzers))
+	}
+}
+
+func TestBuildAnalyzers_InvalidMinConfidence(t *testing.T) {
+	t.Parallel()
+
+	plug, err := newPlugin(map[string]any{
+		"minConfidence": "bogus",
+	})
+	if err != nil {
+		t.Fatalf("newPlugin failed: %v", err)
+	}
+
+	if _, err := plug.BuildAnalyzers(); err == nil {
+		t.Fatal("expected error for invalid confidence level, got nil")
+	}
+}
+
+func TestBuildAnalyzers_VerifySuppressions(t *testing.T) {
+	t.Parallel()
+
+	plug, err := newPlugin(map[string]any{
+		"verifySuppressions": true,
+	})
+	if err != nil {
+		t.Fatalf("newPlugin failed: %v", err)
+	}
+
+	analyzers, err := plug.BuildAnalyzers()
+	if err != nil {
+		t.Fatalf("BuildAnalyzers with verifySuppressions failed: %v", err)
+	}
+
+	if len(analyzers) != 1 {
+		t.Fatalf("expected 1 analyzer, got %d", len(analyzers))
+	}
+}
+
+func TestNewPluginWithEmptySettings_NewFieldsDefault(t *testing.T) {
+	t.Parallel()
+
+	plug, err := newPlugin(nil)
+	if err != nil {
+		t.Fatalf("newPlugin(nil) failed: %v", err)
+	}
+
+	impl, ok := plug.(*humanizePlugin)
+	if !ok {
+		t.Fatalf("expected *humanizePlugin, got %T", plug)
+	}
+
+	if impl.settings.MinConfidence != "" {
+		t.Errorf("empty settings: MinConfidence should be empty, got %q", impl.settings.MinConfidence)
+	}
+
+	if impl.settings.VerifySuppressions {
+		t.Error("empty settings: VerifySuppressions should be false")
 	}
 }
 
@@ -173,5 +263,87 @@ func TestBuildAnalyzersProducesConfiguredDetector(t *testing.T) {
 
 	if analyzers[0].Run == nil {
 		t.Fatal("analyzer.Run must not be nil")
+	}
+}
+
+func TestFindingToTokenPos(t *testing.T) {
+	t.Parallel()
+
+	src := "package main\n\nfunc foo() {\n\t_ = 1024\n}\n"
+	fset := token.NewFileSet()
+
+	f, err := parser.ParseFile(fset, "test.go", src, parser.SkipObjectResolution)
+	if err != nil {
+		t.Fatalf("parser.ParseFile failed: %v", err)
+	}
+
+	tf := fset.File(f.Pos())
+	tokenFiles := map[string]*token.File{"test.go": tf}
+
+	line3Start := tf.LineStart(3)
+
+	tests := []struct {
+		name      string
+		finding   finding.Finding
+		wantNoPos bool
+		want      token.Pos
+	}{
+		{
+			name:      "valid position line 3 col 1",
+			finding:   makeTestFinding("test.go", 3, 1), //nolint:exhaustruct
+			want:      line3Start,
+			wantNoPos: false,
+		},
+		{
+			name:      "valid position line 3 col 5",
+			finding:   makeTestFinding("test.go", 3, 5), //nolint:exhaustruct
+			want:      line3Start + 4,
+			wantNoPos: false,
+		},
+		{
+			name:      "missing file returns NoPos",
+			finding:   makeTestFinding("other.go", 3, 1), //nolint:exhaustruct
+			wantNoPos: true,
+		},
+		{
+			name:      "zero line returns NoPos",
+			finding:   makeTestFinding("test.go", 0, 0), //nolint:exhaustruct
+			wantNoPos: true,
+		},
+		{
+			name:      "negative line returns NoPos",
+			finding:   makeTestFinding("test.go", -1, 0), //nolint:exhaustruct
+			wantNoPos: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := findingToTokenPos(tokenFiles, tt.finding)
+
+			if tt.wantNoPos {
+				if got != token.NoPos {
+					t.Errorf("expected NoPos, got %d", got)
+				}
+
+				return
+			}
+
+			if got != tt.want {
+				t.Errorf("expected %d, got %d", tt.want, got)
+			}
+		})
+	}
+}
+
+func makeTestFinding(file string, line, col int) finding.Finding {
+	return finding.Finding{ //nolint:exhaustruct
+		Position: finding.Position{ //nolint:exhaustruct
+			File:   finding.FilePath(file),
+			Line:   line,
+			Column: col,
+		},
 	}
 }

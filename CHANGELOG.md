@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Confidence-aware exit codes** — Exit 0 = clean, exit 1 = at least one high/full-confidence finding (must fix), exit 2 = only medium/low-confidence findings remain (triage). Lets CI distinguish "review" from "fix now".
 - **H0SUP pseudo-rule** — Diagnostic rule ID for suppression-verification findings. Not registered in `AllRules()` (meta-diagnostic, not a code pattern).
 - **Suppression verification system** (`suppression.go`) — `VerifySuppressions(dir, report)` detects stale and misspelled `//nolint` directives. Exported for CLI and future plugin use.
+- **Plugin confidence filtering and suppression verification** — golangci-lint v2 module plugin now supports `minConfidence` and `verifySuppressions` settings in `.golangci.yml`. Findings are filtered by confidence before reporting. Plugin diagnostics use the finding's specific position (via `findingToTokenPos`) instead of the function declaration.
+- **Shared `ParseConfidenceLevel`** (`confidence.go`) — Exported core-package function parsing confidence level strings. Used by both CLI and plugin paths.
+- **`VerifySuppressionsInFiles`** (`suppression.go`) — Plugin-path variant of `VerifySuppressions` that collects directives from pre-parsed `pass.Files` instead of walking a directory.
 - **`hasSwitchStatement()` helper** (`pattern_bytes.go`) — Reports whether a function contains any `switch` or type-switch statement. Used by the H001 size-bucket false-positive filter.
 - **`parseConfidenceLevel()`** and **`exitCodeFromReport()`** functions in the CLI for confidence filtering and ternary exit codes.
 - `TestParseConfidenceLevel`, `TestExitCodeFromReport`, `TestFilterReportByConfidence`, `TestCLI_MinConfidence`, `TestCLI_VerifySuppressions_UnknownLinterName`, `TestCLI_VerifySuppressions_StaleSuppression` — tests for confidence thresholding and suppression verification.

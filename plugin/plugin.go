@@ -28,8 +28,10 @@
 //	        type: "module"
 //	        description: "Detect hand-rolled reimplementations of go-humanize"
 //	        settings:
-//	          enable: "H001,H003"   # optional: only run these rules
-//	          # disable: "H004"     # optional: skip these rules
+//	          enable: "H001,H003"        # optional: only run these rules
+//	          # disable: "H004"          # optional: skip these rules
+//	          # minConfidence: "medium"  # optional: low (default), medium, high, full
+//	          # verifySuppressions: true # optional: report stale //nolint directives
 //
 // 4. Run the custom binary:
 //
