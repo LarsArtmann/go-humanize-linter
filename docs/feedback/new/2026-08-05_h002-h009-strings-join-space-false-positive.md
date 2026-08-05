@@ -96,7 +96,7 @@ exit status 1
 - Both findings emit `confidence: 0.5` (medium) — should have been a clue.
 - The signal string is `"for-loop + comma + digit-conversion (no literal 3 detected)"` — the fallback heuristic, not the strong path.
 - Column 1, function-level location — the linter reports the enclosing function, not the actual offending line.
-- All three triggers fire on the *function as a whole* (any function with a for-loop + strconv.Itoa + strings.Join), not on a specific anti-pattern.
+- All three triggers fire on the _function as a whole_ (any function with a for-loop + strconv.Itoa + strings.Join), not on a specific anti-pattern.
 
 ---
 
@@ -129,10 +129,10 @@ So H002 **and** H009 both suffer from the same bug.
 
 ### Trigger chain for `StartServer`
 
-| Heuristic helper                  | Triggered by                                                                              |
-| --------------------------------- | ----------------------------------------------------------------------------------------- |
-| `hasForLoop(fn)`                  | `for time.Now().Before(deadline)` at line 781                                             |
-| `hasDigitConversion(fn, aliases)` | `strconv.Itoa(...)` calls at lines 730, 733, 737, 745, 746, 748, 766, 810                 |
+| Heuristic helper                                                | Triggered by                                                                           |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `hasForLoop(fn)`                                                | `for time.Now().Before(deadline)` at line 781                                          |
+| `hasDigitConversion(fn, aliases)`                               | `strconv.Itoa(...)` calls at lines 730, 733, 737, 745, 746, 748, 766, 810              |
 | `hasCommaOrSeparator(fn, aliases)` (via `isCommaSeparatorCall`) | `strings.Join(args, " ")` at line 753 — **false match because " " is not a separator** |
 
 The strong paths (`mod3`, `step3`) do not trigger — those checks require `n%3` or `i += 3`, which don't exist. So the fallback path fires:
@@ -190,7 +190,7 @@ This bug makes the first linter run on a typical Go codebase produce findings th
 
 1. **Erosion of trust.** A user who sees two false positives on the first function in their codebase will assume the rest of the findings are also untrustworthy — including potentially real ones.
 2. **Wasted triage time.** I spent ~20 minutes confirming the false positives before digging into the linter source. A casual user would either (a) skip the linter entirely, (b) suppress globally, or (c) file a bug report. All three are bad outcomes.
-3. **Encourages suppressions over fixes.** A user who adds `.go-humanize-linter.yml` to silence H002/H009 never learns that the linter *should* flag their real `n%3` patterns elsewhere — those get suppressed too.
+3. **Encourages suppressions over fixes.** A user who adds `.go-humanize-linter.yml` to silence H002/H009 never learns that the linter _should_ flag their real `n%3` patterns elsewhere — those get suppressed too.
 
 ---
 
@@ -202,7 +202,7 @@ I added `.go-humanize-linter.yml` to disable H002 and H009 in `AI-Speed-Test`. *
 
 ## Suggested follow-ups (out of scope for this report but worth considering)
 
-1. **Tighten the fallback heuristic.** The `for-loop + comma + digit-conversion` fallback fires on *any* function with these traits. Consider requiring the loop body to actually consume the formatted digits (e.g. `WriteString(",")` inside the loop, or `s = s + ","`), not just any for-loop in the function. Otherwise any function that joins CLI args with a space gets flagged.
+1. **Tighten the fallback heuristic.** The `for-loop + comma + digit-conversion` fallback fires on _any_ function with these traits. Consider requiring the loop body to actually consume the formatted digits (e.g. `WriteString(",")` inside the loop, or `s = s + ","`), not just any for-loop in the function. Otherwise any function that joins CLI args with a space gets flagged.
 
 2. **Investigate other rules for the same class of bug.** H001/H005/H006/H008 may have similar over-broadened heuristics. Worth a sweep.
 

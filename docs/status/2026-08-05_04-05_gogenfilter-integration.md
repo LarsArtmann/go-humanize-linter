@@ -54,10 +54,10 @@
 
 The auto-commit daemon created two clean commits:
 
-| Commit | Type | Description |
-|---|---|---|
+| Commit    | Type     | Description                                                                                            |
+| --------- | -------- | ------------------------------------------------------------------------------------------------------ |
 | `400c5c6` | refactor | Use shared gogenfilter for generated file detection (code + flake + go.mod + tests, 7 files, +223/-31) |
-| `61b2190` | docs | Follow-up AGENTS.md updates (4 files, +88/-26) |
+| `61b2190` | docs     | Follow-up AGENTS.md updates (4 files, +88/-26)                                                         |
 
 Both are ahead of `origin/main`, the working tree is clean.
 
@@ -98,7 +98,7 @@ Both are ahead of `origin/main`, the working tree is clean.
 The only thing that could be called "fucked up" in the spirit of brutal honesty:
 
 - **The plan should have included testing the custom-gcl plugin path**, not just `nix run .#test`. The plugin runtime is how 90% of users actually run this linter, and the full integration there is unverified. The flat `go test ./plugin/` covers the unit-tested parts but not the actual golangci-lint runtime discovery.
-- **Initial test broke** — the first attempt at `TestIsGeneratedFile_FilenameOnly` had `enum_file.go` (no suffix match) and `deepcopy_zz_generated.baz.go` (wrong prefix) — both expectations were wrong. The tests had to be rewritten against actual gogenfilter behavior. This is a *process* fuck-up: I should have written a quick smoke test before designing the table.
+- **Initial test broke** — the first attempt at `TestIsGeneratedFile_FilenameOnly` had `enum_file.go` (no suffix match) and `deepcopy_zz_generated.baz.go` (wrong prefix) — both expectations were wrong. The tests had to be rewritten against actual gogenfilter behavior. This is a _process_ fuck-up: I should have written a quick smoke test before designing the table.
 
 ---
 

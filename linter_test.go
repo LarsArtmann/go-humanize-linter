@@ -282,7 +282,11 @@ func TestRuleCommaf_StringsJoinSpace_NoFalsePositive(t *testing.T) {
 
 	findings := runRule(t, humanizelint.RuleCommaf(), testdataDir(t, "h002_strings_join_space"))
 	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings on strings.Join(args, \" \") fixture for H009, got %d: %+v", len(findings), findings)
+		t.Fatalf(
+			"expected 0 findings on strings.Join(args, \" \") fixture for H009, got %d: %+v",
+			len(findings),
+			findings,
+		)
 	}
 }
 

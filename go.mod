@@ -3,6 +3,7 @@ module github.com/larsartmann/go-humanize-linter
 go 1.26.5
 
 require (
+	github.com/LarsArtmann/gogenfilter/v3 v3.3.2
 	github.com/golangci/plugin-module-register v0.1.2
 	github.com/larsartmann/go-finding v1.4.1
 	github.com/larsartmann/go-linter-sdk v0.1.0
@@ -11,7 +12,6 @@ require (
 )
 
 require (
-	github.com/LarsArtmann/gogenfilter/v3 v3.3.2 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
 	github.com/go-faster/errors v0.8.0 // indirect
 	github.com/go-faster/jx v1.2.0 // indirect
