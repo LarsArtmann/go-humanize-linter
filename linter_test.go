@@ -81,6 +81,15 @@ func TestRuleBytes_Negative(t *testing.T) {
 	}
 }
 
+func TestRuleBytes_SizeBucket_NoFalsePositive(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_sizebucket"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings on size-bucket lookup code, got %d: %+v", len(findings), findings)
+	}
+}
+
 func TestCLI_SuppressedByDirective(t *testing.T) {
 	t.Parallel()
 

@@ -124,6 +124,7 @@ func hasSwitchStatement(fn *ast.FuncDecl) bool {
 	return hit
 }
 
+// hasDivisionByPowerOf1024 reports whether fn contains a binary division whose
 // divisor is the literal 1024, 1048576 (1024²), 1073741824 (1024³), or any
 // expression multiplying by 1024.
 func hasDivisionByPowerOf1024(fn *ast.FuncDecl) bool {

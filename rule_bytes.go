@@ -44,7 +44,14 @@ func detectBytesFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 	unitSlice := hasByteUnitSlice(fn)
 	units := countByteUnits(fn)
 	div1024 := hasDivisionByPowerOf1024(fn) || hasConst1024(file, fn)
+	switchOnly := hasSwitchStatement(fn) && !div1024
 	unitCount := len(units)
+
+	// Size-bucket lookup tables: a switch or []string of byte-unit labels
+	// without any division by 1024 is almost never a byte-size formatter.
+	if switchOnly || (unitSlice && !div1024) {
+		return nil
+	}
 
 	msg, confidence, found := bytesFindingResult(kmgtp, unitSlice, unitCount, div1024)
 	if !found {
@@ -78,11 +85,19 @@ func bytesFindingResult(
 		return "manual byte-size formatting (KMGTPE index trick) — use humanize.Bytes or humanize.IBytes instead",
 			finding.ConfidenceFull, true
 	case unitSlice:
+		conf := finding.ConfidenceFull
+		if !div1024 {
+			// A unit slice without division-by-1024 is often a bucket lookup
+			// table (e.g. []string{"B","KB","MB","GB"}) rather than a
+			// formatter. Keep the finding but lower the confidence.
+			conf = finding.ConfidenceMedium
+		}
+
 		return fmt.Sprintf(
 				"manual byte-size formatting (unit string slice, %d unit strings) — use humanize.Bytes or humanize.IBytes instead",
 				unitCount,
 			),
-			finding.ConfidenceFull, true
+			conf, true
 	case unitCount >= minUnitCountStrongSignal:
 		return fmt.Sprintf(
 				"manual byte-size formatting (%d unit strings, div1024=%v) — use humanize.Bytes or humanize.IBytes instead",
