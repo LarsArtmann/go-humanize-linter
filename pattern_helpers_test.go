@@ -602,7 +602,7 @@ func f(n int) string {
 // TestHasCommaOrSeparator. Extracted from the test function body so the test
 // stays under the funlen threshold while each fixture remains inline for
 // readability.
-func hasCommaOrSeparatorCases() []boolSrcCase {
+func hasCommaOrSeparatorCases() []boolSrcCase { //nolint:funlen // test fixture table: many cases for completeness
 	return []boolSrcCase{
 		{
 			name: "WriteString comma",
