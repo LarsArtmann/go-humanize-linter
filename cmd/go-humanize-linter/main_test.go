@@ -928,6 +928,7 @@ func main() {
 	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", "--verify-suppressions", dir,
 	)
+
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	out, err := cmd.CombinedOutput()
@@ -972,6 +973,7 @@ func main() {
 	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", "--verify-suppressions", dir,
 	)
+
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	out, err := cmd.CombinedOutput()

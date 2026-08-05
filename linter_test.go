@@ -272,7 +272,7 @@ func TestRuleCommaf_Negative(t *testing.T) {
 }
 
 // TestRuleComma_StringsJoinSpace_NoFalsePositive is a regression test for the
-// bug where H002/H009 fired on functions that joined CLI args with a single
+// issue where H002/H009 fired on functions that joined CLI args with a single
 // space (" "). A space is not a thousands separator, so this pattern must
 // stay clean even when paired with a for-loop and strconv.Itoa (the fallback
 // heuristic's other triggers). See pattern_comma.go and the feedback doc at

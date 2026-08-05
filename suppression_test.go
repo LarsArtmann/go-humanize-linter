@@ -88,6 +88,7 @@ func main() {
 `)
 
 	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
+
 	findings, err := VerifySuppressions(dir, report)
 	if err != nil {
 		t.Fatalf("VerifySuppressions failed: %v", err)
@@ -120,6 +121,7 @@ func main() {
 `)
 
 	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
+
 	findings, err := VerifySuppressions(dir, report)
 	if err != nil {
 		t.Fatalf("VerifySuppressions failed: %v", err)
