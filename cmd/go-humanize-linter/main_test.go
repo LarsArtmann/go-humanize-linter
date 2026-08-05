@@ -739,3 +739,240 @@ func TestLoadConfig_InvalidYAML(t *testing.T) {
 		t.Fatal("expected error for invalid YAML, got nil")
 	}
 }
+
+func TestParseConfidenceLevel(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		input string
+		want  finding.Confidence
+		err   bool
+	}{
+		{"low", finding.ConfidenceLow, false},
+		{"medium", finding.ConfidenceMedium, false},
+		{"high", finding.ConfidenceHigh, false},
+		{"full", finding.ConfidenceFull, false},
+		{"", finding.ConfidenceNone, true},
+		{"invalid", finding.ConfidenceNone, true},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.input, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := parseConfidenceLevel(tt.input)
+			if (err != nil) != tt.err {
+				t.Fatalf("parseConfidenceLevel(%q) error = %v, wantErr %v", tt.input, err, tt.err)
+			}
+
+			if got != tt.want {
+				t.Errorf("parseConfidenceLevel(%q) = %v, want %v", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestExitCodeFromReport(t *testing.T) {
+	t.Parallel()
+
+	t.Run("nil report", func(t *testing.T) {
+		t.Parallel()
+		if got := exitCodeFromReport(nil); got != 0 {
+			t.Errorf("exitCodeFromReport(nil) = %d, want 0", got)
+		}
+	})
+
+	t.Run("empty report", func(t *testing.T) {
+		t.Parallel()
+		report := finding.NewReport(finding.ToolInfo{Name: "test"})
+		if got := exitCodeFromReport(report); got != 0 {
+			t.Errorf("exitCodeFromReport(empty) = %d, want 0", got)
+		}
+	})
+
+	t.Run("medium only", func(t *testing.T) {
+		t.Parallel()
+		report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
+			makeFinding(finding.ConfidenceMedium),
+		})
+		if got := exitCodeFromReport(report); got != 2 {
+			t.Errorf("exitCodeFromReport(medium) = %d, want 2", got)
+		}
+	})
+
+	t.Run("high only", func(t *testing.T) {
+		t.Parallel()
+		report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
+			makeFinding(finding.ConfidenceHigh),
+		})
+		if got := exitCodeFromReport(report); got != 1 {
+			t.Errorf("exitCodeFromReport(high) = %d, want 1", got)
+		}
+	})
+
+	t.Run("mixed medium and high", func(t *testing.T) {
+		t.Parallel()
+		report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
+			makeFinding(finding.ConfidenceMedium),
+			makeFinding(finding.ConfidenceHigh),
+		})
+		if got := exitCodeFromReport(report); got != 1 {
+			t.Errorf("exitCodeFromReport(mixed) = %d, want 1", got)
+		}
+	})
+}
+
+func makeFinding(conf finding.Confidence) finding.Finding {
+	return finding.NewBuilder(
+		finding.RuleName("H001"),
+		finding.ToolName("test"),
+		"test finding",
+		finding.SeverityWarning,
+		finding.Pos(finding.FilePath("test.go"), 1, 1),
+	).
+		WithConfidence(conf).
+		MustBuild()
+}
+
+func TestFilterReportByConfidence(t *testing.T) {
+	t.Parallel()
+
+	report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
+		makeFinding(finding.ConfidenceMedium),
+		makeFinding(finding.ConfidenceHigh),
+	})
+
+	filtered := filterReportByConfidence(report, finding.ConfidenceHigh)
+	if filtered.Len() != 1 {
+		t.Fatalf("expected 1 high finding, got %d", filtered.Len())
+	}
+}
+
+func TestCLI_MinConfidence(t *testing.T) {
+	t.Parallel()
+
+	binary := buildCLI(t)
+	dir := t.TempDir()
+
+	err := os.WriteFile(
+		filepath.Join(dir, "main.go"),
+		[]byte(`package main
+
+func labels() string {
+	return "KB and MB"
+}
+
+func main() {
+	_ = labels()
+}
+`),
+		0o644,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// With the default (low) threshold the two unit strings produce a finding.
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", dir,
+	)
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("expected non-zero exit with default threshold, got success: %s", out)
+	}
+
+	// With --min-confidence high the medium-confidence finding is filtered out.
+	cmd = exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", "--min-confidence", "high", dir,
+	)
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err = cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("expected exit 0 with --min-confidence high, got error: %v\n%s", err, out)
+	}
+}
+
+func TestCLI_VerifySuppressions_UnknownLinterName(t *testing.T) {
+	t.Parallel()
+
+	binary := buildCLI(t)
+	dir := t.TempDir()
+
+	err := os.WriteFile(
+		filepath.Join(dir, "main.go"),
+		[]byte(`package main
+
+//nolint:go-humanize-linter/H003
+func staleSuppression() {}
+
+func main() {
+	staleSuppression()
+}
+`),
+		0o644,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", "--verify-suppressions", dir,
+	)
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("expected non-zero exit with stale suppression, got success: %s", out)
+	}
+
+	if !strings.Contains(string(out), "H0SUP") {
+		t.Errorf("expected H0SUP verification finding, got: %s", out)
+	}
+
+	if !strings.Contains(string(out), "gohumanize") {
+		t.Errorf("expected hint about gohumanize, got: %s", out)
+	}
+}
+
+func TestCLI_VerifySuppressions_StaleSuppression(t *testing.T) {
+	t.Parallel()
+
+	binary := buildCLI(t)
+	dir := t.TempDir()
+
+	err := os.WriteFile(
+		filepath.Join(dir, "main.go"),
+		[]byte(`package main
+
+//nolint:gohumanize:H001
+func noByteFormatting() string {
+	return "hello"
+}
+
+func main() {
+	_ = noByteFormatting()
+}
+`),
+		0o644,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", "--verify-suppressions", dir,
+	)
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("expected non-zero exit with stale suppression, got success: %s", out)
+	}
+
+	if !strings.Contains(string(out), "H0SUP") {
+		t.Errorf("expected H0SUP verification finding, got: %s", out)
+	}
+}
