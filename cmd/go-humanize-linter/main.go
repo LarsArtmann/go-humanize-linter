@@ -242,8 +242,8 @@ var ruleExplanations = map[string]string{ //nolint:gochecknoglobals // CLI looku
 		"strings + time threshold comparisons. humanize.RelTime / " +
 		"humanize.Time handle singular/plural forms and locale strings.",
 	humanizelint.RuleIDH004: "English pluralization via 'if n == 1' switches or singular/plural " +
-		"parameter pairs. humanize.Plural / humanize.PluralWord cover 100+ " +
-		"locales.",
+		"parameter pairs. github.com/dustin/go-humanize/english.Plural / " +
+		"english.PluralWord cover 100+ locales.",
 	humanizelint.RuleIDH005: "Manual SI-prefix formatting (1.5K, 2.3M) via division by 1000 " +
 		"plus 'K'/'M' suffix strings. humanize.SI is a drop-in replacement.",
 	humanizelint.RuleIDH006: "Manual trailing-zero stripping via nested " +

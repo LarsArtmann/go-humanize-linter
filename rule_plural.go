@@ -11,7 +11,7 @@ import (
 )
 
 // RulePlural (H004) detects manual English pluralization that should use
-// humanize.Plural or humanize.PluralWord.
+// github.com/dustin/go-humanize/english.Plural or english.PluralWord.
 //
 // Triggers when a function:
 //   - Has parameters named "singular" and "plural" (explicit reimplementation)
@@ -22,7 +22,7 @@ func RulePlural() linter.RuleFunc {
 		Meta: linter.RuleMeta{
 			ID:          RuleIDH004,
 			Name:        "manual-plural",
-			Description: "Manual pluralization — use humanize.Plural or humanize.PluralWord instead of if-n==1 switches",
+			Description: "Manual pluralization — use github.com/dustin/go-humanize/english.Plural or english.PluralWord instead of if-n==1 switches",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
 		},
@@ -58,10 +58,10 @@ func detectPlural(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath s
 		makeFindingWithConfidence(
 			RuleIDH004,
 			fmt.Sprintf(
-				"manual pluralization (namedParams=%v, equalsOne=%v) — use humanize.Plural instead",
+				"manual pluralization (namedParams=%v, equalsOne=%v) — use github.com/dustin/go-humanize/english instead",
 				namedParams, equalsOne,
 			),
-			"Replace with humanize.Plural(n, \"item\", \"\") or humanize.PluralWord(n, singular, plural).",
+			"Replace with english.PluralWord(n, singular, plural) for just the word, or english.Plural(n, singular, plural) for \"count word\".",
 			line, col, filePath, confidence,
 		),
 	}
