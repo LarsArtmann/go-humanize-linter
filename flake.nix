@@ -12,6 +12,26 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     systems.url = "github:nix-systems/default";
+
+    go-nix-helpers = {
+      url = "git+ssh://git@github.com/LarsArtmann/go-nix-helpers?ref=master";
+      flake = false;
+    };
+
+    go-finding = {
+      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=master";
+      flake = false;
+    };
+
+    go-linter-sdk = {
+      url = "git+ssh://git@github.com/LarsArtmann/go-linter-sdk?ref=master";
+      flake = false;
+    };
+
+    go-error-family = {
+      url = "git+ssh://git@github.com/LarsArtmann/go-error-family?ref=master";
+      flake = false;
+    };
   };
 
   outputs =
@@ -21,6 +41,7 @@
       flake-parts,
       treefmt-nix,
       systems,
+      ...
     }:
     let
       inherit (nixpkgs) lib;
@@ -39,6 +60,24 @@
         }:
         let
           goPkg = pkgs.go_1_26;
+          buildGoModule = pkgs.buildGoModule.override { go = goPkg; };
+
+          version = self.shortRev or self.dirtyShortRev or "dev";
+
+          mkPreparedSource = import (inputs.go-nix-helpers + "/mkPreparedSource.nix") {
+            inherit pkgs lib goPkg;
+          };
+
+          preparedSrc = mkPreparedSource {
+            name = "go-humanize-linter";
+            inherit version;
+            src = lib.cleanSource ./.;
+            deps = {
+              "github.com/larsartmann/go-finding" = inputs.go-finding;
+              "github.com/larsartmann/go-linter-sdk" = inputs.go-linter-sdk;
+              "github.com/larsartmann/go-error-family" = inputs.go-error-family;
+            };
+          };
 
           mkApp = name: description: script: {
             type = "app";
@@ -113,6 +152,39 @@
             env = {
               GOEXPERIMENT = "jsonv2";
               GOPRIVATE = "github.com/larsartmann/*";
+            };
+          };
+
+          packages = {
+            default = buildGoModule {
+              pname = "go-humanize-linter";
+              inherit version;
+              src = preparedSrc;
+              vendorHash = "sha256-ha23fLC1NiUIlS5bv1Retia40MK8WDLDywdpAKS6KVY=";
+              proxyVendor = false;
+              subPackages = [ "cmd/go-humanize-linter" ];
+              doCheck = true;
+              preBuild = ''
+                export GOEXPERIMENT=jsonv2
+              '';
+              ldflags = [
+                "-s"
+                "-w"
+                "-X main.version=${version}"
+              ];
+              meta = {
+                description = "AST linter that detects hand-rolled reimplementations of go-humanize";
+                homepage = "https://github.com/larsartmann/go-humanize-linter";
+                license = lib.licenses.mit;
+                platforms = lib.platforms.unix;
+                maintainers = [
+                  {
+                    name = "Lars Artmann";
+                    github = "LarsArtmann";
+                  }
+                ];
+                mainProgram = "go-humanize-linter";
+              };
             };
           };
 

@@ -20,6 +20,74 @@
         "type": "github"
       }
     },
+    "go-error-family": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785685683,
+        "narHash": "sha256-+3jnUTCv+PgqTJdmAWEoQwMfIujUIxCvz0OtOyaQmrI=",
+        "ref": "master",
+        "rev": "0e670aaf926341ffd27b392e434434f9e5c26c81",
+        "revCount": 272,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-error-family"
+      },
+      "original": {
+        "ref": "master",
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-error-family"
+      }
+    },
+    "go-finding": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785778049,
+        "narHash": "sha256-ug8yNsfI8zfQZmW3Kska8KlhFXfSmwU2GT1jitwYaC0=",
+        "ref": "master",
+        "rev": "52e62d82669f79da54eb15fabe4dedf8f640911e",
+        "revCount": 1082,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-finding"
+      },
+      "original": {
+        "ref": "master",
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-finding"
+      }
+    },
+    "go-linter-sdk": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785427308,
+        "narHash": "sha256-65UtFkSX16/x/vk/SwL6fLMqDAhoo+m5APZekPAVSCU=",
+        "ref": "master",
+        "rev": "3d01db18b4f19c42f723912fff62f4d0bb80e4db",
+        "revCount": 52,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-linter-sdk"
+      },
+      "original": {
+        "ref": "master",
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-linter-sdk"
+      }
+    },
+    "go-nix-helpers": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785743198,
+        "narHash": "sha256-cRW/a5j2gXorDw7xOyzwdm1Z56xo+/JyOFl6SmgVy+w=",
+        "ref": "master",
+        "rev": "064a269eecb548c64bbd8bd3627f99a13db952bb",
+        "revCount": 103,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
+      },
+      "original": {
+        "ref": "master",
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1785828668,
@@ -39,6 +107,10 @@
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
+        "go-error-family": "go-error-family",
+        "go-finding": "go-finding",
+        "go-linter-sdk": "go-linter-sdk",
+        "go-nix-helpers": "go-nix-helpers",
         "nixpkgs": "nixpkgs",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix"
