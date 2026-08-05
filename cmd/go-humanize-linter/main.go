@@ -200,7 +200,7 @@ func runScan(
 		report.ComputeSummary()
 	}
 
-	minConf, err := parseConfidenceLevel(minConfidence)
+	minConf, err := humanizelint.ParseConfidenceLevel(minConfidence)
 	if err != nil {
 		return err
 	}
@@ -394,27 +394,6 @@ func loadConfig(path string) (*Config, error) {
 	}
 
 	return &cfg, nil
-}
-
-// errInvalidConfidence is returned when --min-confidence is not one of the
-// supported level strings.
-var errInvalidConfidence = errors.New("invalid confidence level: use low, medium, high, or full")
-
-// parseConfidenceLevel maps CLI strings to finding.Confidence values.
-// Returns errInvalidConfidence for unsupported values.
-func parseConfidenceLevel(level string) (finding.Confidence, error) {
-	switch level {
-	case confidenceLow:
-		return finding.ConfidenceLow, nil
-	case confidenceMedium:
-		return finding.ConfidenceMedium, nil
-	case confidenceHigh:
-		return finding.ConfidenceHigh, nil
-	case confidenceFull:
-		return finding.ConfidenceFull, nil
-	}
-
-	return finding.ConfidenceNone, errInvalidConfidence
 }
 
 // filterReportByConfidence returns a report containing only findings whose

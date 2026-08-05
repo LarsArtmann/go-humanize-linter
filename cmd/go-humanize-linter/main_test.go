@@ -752,7 +752,7 @@ func TestParseConfidenceLevel(t *testing.T) {
 		{"medium", finding.ConfidenceMedium, false},
 		{"high", finding.ConfidenceHigh, false},
 		{"full", finding.ConfidenceFull, false},
-		{"", finding.ConfidenceNone, true},
+		{"", finding.ConfidenceLow, false},
 		{"invalid", finding.ConfidenceNone, true},
 	}
 
@@ -760,13 +760,13 @@ func TestParseConfidenceLevel(t *testing.T) {
 		t.Run(tt.input, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := parseConfidenceLevel(tt.input)
+			got, err := humanizelint.ParseConfidenceLevel(tt.input)
 			if (err != nil) != tt.err {
-				t.Fatalf("parseConfidenceLevel(%q) error = %v, wantErr %v", tt.input, err, tt.err)
+				t.Fatalf("ParseConfidenceLevel(%q) error = %v, wantErr %v", tt.input, err, tt.err)
 			}
 
 			if got != tt.want {
-				t.Errorf("parseConfidenceLevel(%q) = %v, want %v", tt.input, got, tt.want)
+				t.Errorf("ParseConfidenceLevel(%q) = %v, want %v", tt.input, got, tt.want)
 			}
 		})
 	}

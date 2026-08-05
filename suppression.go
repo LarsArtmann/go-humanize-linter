@@ -152,6 +152,40 @@ func VerifySuppressions(dir string, report *finding.Report) ([]finding.Finding, 
 		return nil, err
 	}
 
+	return verifyDirectives(directives, report), nil
+}
+
+// VerifySuppressionsInFiles is the plugin-path variant of VerifySuppressions.
+// It collects directives from pre-parsed files (pass.Files) instead of walking
+// a directory, making it suitable for use in analysis.Analyzer.Run where the
+// files are already parsed by the driver.
+func VerifySuppressionsInFiles(
+	fset *token.FileSet,
+	files []*ast.File,
+	report *finding.Report,
+) []finding.Finding {
+	var directives []SuppressionDirective
+
+	for _, file := range files {
+		filePath := fset.Position(file.Pos()).Filename
+
+		for _, decl := range file.Decls {
+			fn, ok := decl.(*ast.FuncDecl)
+			if !ok {
+				continue
+			}
+
+			directives = append(directives, extractFunctionSuppressions(fset, file, fn, filePath)...)
+		}
+	}
+
+	return verifyDirectives(directives, report)
+}
+
+// verifyDirectives is the shared core of VerifySuppressions and
+// VerifySuppressionsInFiles. It checks each directive for unknown linter
+// names and stale suppressions, returning H0SUP findings for problems.
+func verifyDirectives(directives []SuppressionDirective, report *finding.Report) []finding.Finding {
 	findingsByPosition := findingsByFileLine(report)
 
 	var out []finding.Finding
@@ -176,7 +210,7 @@ func VerifySuppressions(dir string, report *finding.Report) ([]finding.Finding, 
 		}
 	}
 
-	return out, nil
+	return out
 }
 
 // findingsByFileLine indexes the report's findings by file path and line
