@@ -176,7 +176,7 @@ The project's own `.golangci.yml` does NOT include the custom section because st
 
 `testdata/` contains positive and negative test fixtures per rule. The walker skips `testdata/` during real scans (see `skipDirs` in `walker.go`).
 
-New testdata directories: `testdata/h007_package_var/` (package-level var multiplier map), `testdata/h007_aliased_import/` (aliased `strings` import), `testdata/h001_sizebucket/` (switch + slice size-bucket lookups that must NOT trigger H001).
+New testdata directories: `testdata/h007_package_var/` (package-level var multiplier map), `testdata/h007_aliased_import/` (aliased `strings` import), `testdata/h007_dot_import/` (dot-imported `strings` functions), `testdata/h001_sizebucket/` (switch + slice size-bucket lookups that must NOT trigger H001), `testdata/h009_h002_overlap/` (float+comma vs integer+comma — verifies H002 suppressed when H009 fires), `testdata/analysistest/h0supbypass/` (stale `//nolint` directive for H0SUP confidence-bypass test).
 
 ## Gotchas
 
@@ -198,4 +198,4 @@ New testdata directories: `testdata/h007_package_var/` (package-level var multip
 - **H0SUP bypasses confidence filtering** - In the plugin path (`runDetector`), H0SUP findings skip the `minConfidence` check. This ensures stale-directive diagnostics are always surfaced regardless of the confidence threshold. Without this bypass, `minConfidence: "full"` would silently hide all H0SUP diagnostics (they are `ConfidenceHigh`, which is below `ConfidenceFull`).
 - **H001 size-bucket filter** - A function with a `switch` statement or `[]string` of byte-unit labels but NO division by 1024 is treated as a size-bucket lookup table (not a byte formatter) and skipped entirely. See `switchOnly` in `rule_bytes.go`.
 - **CLI ternary exit codes** - Exit 0 = clean, exit 1 = high/full-confidence finding (must fix), exit 2 = only medium/low (triage). The SDK's `ExitCodeFromReport` is binary; the CLI uses its own `exitCodeFromReport()`.
-- **`runScan()` pipeline** - The CLI scan pipeline is: `buildRegistry` → `registry.Run` → optional `VerifySuppressions` → `filterReportByConfidence` → `writeReport` → `exitCodeFromReport`. All in `cmd/go-humanize-linter/main.go`.
+- **`runScan()` pipeline** - The CLI scan pipeline is: `buildRegistry` → `registry.Run` → optional `VerifySuppressions` → `filterReportByConfidence` → optional `saveBaseline` → optional `behaviorDelta` comparison → `writeReport` → `exitCodeFromReport`. All in `cmd/go-humanize-linter/main.go`.

@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `isPackageCall` now accepts variadic `aliases ...map[string]string` for import-alias resolution — backward compatible (existing callers compile without changes).
 - `flake.nix` lint script improved: proper exit-code propagation via `output=$(...); code=$?; ... exit $code` pattern (was `grep -v ... || true` which swallowed exit codes).
 - `plugin/plugin.go` doc comment rewritten with complete 4-step integration guide including the critical `linters.settings.custom` section.
-- Coverage: core 89.4%, CLI 40.9%, plugin 95.7% (plugin up from 89.6% due to H0SUP bypass and confidence-filter analysistest coverage).
+- Coverage: core 88.4%, CLI 38.4%, plugin 95.7% (plugin up from 89.6% due to H0SUP bypass and confidence-filter analysistest coverage).
 - Dependencies: `github.com/golangci/plugin-module-register v0.1.2` and `gopkg.in/yaml.v3 v3.0.1` promoted from indirect to direct.
 - `plugin.run` → `plugin.analyzeHumanize` (better grep-ability).
 - `printRules()` now writes to stdout (was: stderr) so it pipes cleanly.
