@@ -985,3 +985,90 @@ func main() {
 		t.Errorf("expected H0SUP verification finding, got: %s", out)
 	}
 }
+
+func TestCLI_BehaviorDelta(t *testing.T) {
+	t.Parallel()
+
+	binary := buildCLI(t)
+	dir := t.TempDir()
+
+	if err := os.WriteFile(
+		filepath.Join(dir, "main.go"),
+		[]byte(`package main
+
+func labels() string {
+	return "KB and MB"
+}
+
+func main() {
+	_ = labels()
+}
+`),
+		0o600,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	baselinePath := filepath.Join(dir, "baseline.json")
+
+	// Save the current findings as a baseline. The run exits 1 because H001
+	// fires, but the baseline file is written before exiting.
+	saveCmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", "--save-baseline", baselinePath, dir,
+	)
+	saveCmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	if _, err := saveCmd.CombinedOutput(); err == nil {
+		t.Fatal("expected non-zero exit when saving baseline with findings")
+	}
+
+	// Re-running against the same code with --behavior-delta should report
+	// no delta and exit 0.
+	deltaCmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", "--behavior-delta", baselinePath, dir,
+	)
+	deltaCmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err := deltaCmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("expected no delta, got error: %v\n%s", err, out)
+	}
+
+	// Add a second H001-style function so the next run has an added finding.
+	if err := os.WriteFile(
+		filepath.Join(dir, "main.go"),
+		[]byte(`package main
+
+func labels() string {
+	return "KB and MB"
+}
+
+func moreLabels() string {
+	return "GB and TB"
+}
+
+func main() {
+	_ = labels()
+	_ = moreLabels()
+}
+`),
+		0o600,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	// The delta should now detect an added finding and exit 1.
+	deltaCmd = exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", "--behavior-delta", baselinePath, dir,
+	)
+	deltaCmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err = deltaCmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("expected delta exit 1, got success: %s", out)
+	}
+
+	if !strings.Contains(string(out), "Added findings") {
+		t.Errorf("expected added-finding message, got: %s", out)
+	}
+}

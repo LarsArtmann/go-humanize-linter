@@ -422,6 +422,27 @@ func TestRunDetector_FiltersByConfidence(t *testing.T) {
 	analysistest.Run(t, testdata, analyzers[0], "./h001positive")
 }
 
+func TestRunDetector_FiltersOutMediumConfidence(t *testing.T) {
+	t.Parallel()
+
+	// h002mediumconfidence triggers H002 via the fallback path, which is
+	// ConfidenceMedium. With minConfidence "full" it must be filtered out.
+	plug, err := newPlugin(map[string]any{
+		"minConfidence": "full",
+	})
+	if err != nil {
+		t.Fatalf("newPlugin failed: %v", err)
+	}
+
+	analyzers, err := plug.BuildAnalyzers()
+	if err != nil {
+		t.Fatalf("BuildAnalyzers failed: %v", err)
+	}
+
+	testdata := filepath.Join("..", "testdata", "analysistest")
+	analysistest.Run(t, testdata, analyzers[0], "./h002mediumconfidence")
+}
+
 func TestRunDetector_VerifySuppressions(t *testing.T) {
 	t.Parallel()
 
