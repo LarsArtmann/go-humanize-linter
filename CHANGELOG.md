@@ -103,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `go.mod` `replace` directives removed (were re-added for local dev after v0.1.0, blocking `go install` and plugin loading).
 - 9 lint issues across `pattern_commaf.go`, `pattern_ordinal.go`, `pattern_helpers_test.go`, and `cmd/go-humanize-linter/main.go` resolved (was: 9 issues, now: 0).
 - **H002/H009 false positive on `strings.Join(args, " ")`** — Space is not a thousands separator. Removed `" "` from the separator list in `isCommaSeparatorCall` (`pattern_comma.go`). Regression tests added: `TestRuleComma_StringsJoinSpace_NoFalsePositive` and `TestRuleCommaf_StringsJoinSpace_NoFalsePositive`.
+- **`findingToTokenPos` panic on out-of-range line numbers** — Added defensive `tf.LineCount() < f.Position.Line` guard before `token.File.LineStart`, which panics with "illegal line number (past end of file)" on out-of-range input. Regression test: `TestFindingToTokenPos_OutOfRangeLine`.
 
 ## [0.1.0] - 2026-07-30
 

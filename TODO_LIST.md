@@ -20,7 +20,6 @@
 | T19 | Per-statement `//nolint` suppression support                      | Medium | M      | planned |
 | T20 | `--behavior-delta` flag for regression testing                    | Low    | M      | planned |
 | T21 | Propose `ExitCodeFromReportConfidence` upstream                   | Low    | S      | planned |
-| T22 | Protect `findingToTokenPos` against out-of-range line numbers     | High   | XS     | planned |
 | T23 | Exclude H0SUP findings from confidence filtering                  | Medium | XS     | planned |
 | T24 | Remove dead `RunOverPackage` method                               | Low    | XS     | done    |
 
@@ -55,18 +54,6 @@ these features active.
 ---
 
 ## Plugin robustness
-
-### T22 — Protect `findingToTokenPos` against out-of-range line numbers · High · _planned_
-
-`findingToTokenPos` (`plugin/plugin.go`) guards against `f.Position.Line < 1`
-but does NOT guard against line numbers exceeding the file's actual line count.
-`token.File.LineStart(line)` panics with "illegal line number (past end of
-file)" on out-of-range input. While unlikely in normal operation (findings use
-the same `FileSet`), a defensive check is required — a linter crashing is worse
-than a linter reporting at position 0.
-
-- [ ] Add `tf.LineCount() >= f.Position.Line` check before calling `LineStart`
-- [ ] Add `TestFindingToTokenPos_OutOfRangeLine` panic-recovery test
 
 ### T23 — Exclude H0SUP findings from confidence filtering · Medium · _planned_
 
