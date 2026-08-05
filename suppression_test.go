@@ -98,8 +98,8 @@ func main() {
 		t.Fatalf("expected 1 suppression finding, got %d: %+v", len(findings), findings)
 	}
 
-	if string(findings[0].Rule) != suppressionVerificationRuleID {
-		t.Errorf("expected rule %s, got %s", suppressionVerificationRuleID, findings[0].Rule)
+	if string(findings[0].Rule) != RuleIDH0SUP {
+		t.Errorf("expected rule %s, got %s", RuleIDH0SUP, findings[0].Rule)
 	}
 }
 
@@ -131,8 +131,8 @@ func main() {
 		t.Fatalf("expected 1 stale suppression finding, got %d: %+v", len(findings), findings)
 	}
 
-	if string(findings[0].Rule) != suppressionVerificationRuleID {
-		t.Errorf("expected rule %s, got %s", suppressionVerificationRuleID, findings[0].Rule)
+	if string(findings[0].Rule) != RuleIDH0SUP {
+		t.Errorf("expected rule %s, got %s", RuleIDH0SUP, findings[0].Rule)
 	}
 }
 

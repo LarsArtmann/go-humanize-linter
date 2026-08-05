@@ -258,11 +258,9 @@ func directiveMatchesFinding(
 	return false
 }
 
-const suppressionVerificationRuleID = "H0SUP"
-
 func makeSuppressionVerificationFinding(d SuppressionDirective, message string) finding.Finding {
 	return finding.NewBuilder(
-		finding.RuleName(suppressionVerificationRuleID),
+		finding.RuleName(RuleIDH0SUP),
 		finding.ToolName("go-humanize-linter"),
 		message,
 		finding.SeverityWarning,

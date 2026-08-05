@@ -191,7 +191,10 @@ func runDetector(
 	}
 
 	for _, f := range allFindings {
-		if f.Confidence.Compare(minConfidence) < 0 {
+		// Suppression-verification findings (H0SUP) bypass the confidence
+		// filter. They are meta-diagnostics about directive health, not code
+		// patterns, and must always be reported when verifySuppressions is on.
+		if string(f.Rule) != humanizelint.RuleIDH0SUP && f.Confidence.Compare(minConfidence) < 0 {
 			continue
 		}
 

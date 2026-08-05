@@ -24,6 +24,12 @@ const (
 	RuleIDH009 = "H009"
 )
 
+// RuleIDH0SUP is the pseudo-rule ID for suppression-verification diagnostics.
+// It is NOT in AllRules() and cannot be enabled/disabled via --enable/--disable.
+// It is produced only by VerifySuppressions and must bypass confidence filtering
+// so that stale or misspelled //nolint directives are always surfaced.
+const RuleIDH0SUP = "H0SUP"
+
 // DefaultRegistry returns a Registry pre-loaded with all humanize-lint rules,
 // all enabled by default.
 func DefaultRegistry() *linter.Registry {
