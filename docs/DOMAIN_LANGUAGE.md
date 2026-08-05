@@ -97,6 +97,16 @@ A rule that is registered in the registry but never fires on any test fixture. T
 
 `IsGeneratedFile` is the single source of truth for skipping generated files. Uses `gogenfilter` two-phase detection (filename-only + content) with a legacy suffix fallback (`_gen.go`, `.gen.go`, `_templ.go`) for generators gogenfilter doesn't enumerate.
 
+### Baseline
+
+A JSON snapshot of the (rule ID, file, line) tuples for every finding in a scan, written by `--save-baseline <file>`. The suggestion-message text is intentionally excluded so rewording a finding's message never registers as a delta. The schema is a JSON array of `{rule, file, line}` entries, sorted for deterministic diffs.
+
+### Behavior Delta
+
+The set difference between a previously saved **baseline** and the current scan's findings, computed by `--behavior-delta <file>`. A delta exists when a finding's (rule, file, line) tuple is present in one set but not the other. Exit codes: 0 = no delta, 1 = findings added or removed, 2 = baseline read error.
+
+Rationale for ignoring message text: detector wording changes frequently during development, but those changes are not behavioral. Tracking only the structural tuple keeps the delta signal focused on genuine detection shifts (added/missed findings). See `docs/adr/0004-behavior-delta.md`.
+
 ## Configuration Terms
 
 | Term | Meaning |

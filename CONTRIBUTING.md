@@ -122,3 +122,56 @@ testdata/
 ## Reporting Issues
 
 Please use GitHub Issues to report bugs or request features.
+
+## Behavior Delta Workflow
+
+`--save-baseline` and `--behavior-delta` together let you detect when a change
+to the linter (or to the codebase under test) alters the set of findings.
+This is invaluable for refactor PRs that touch detection logic — reviewers
+can see exactly which findings shifted without diffing raw output.
+
+### Saving a baseline
+
+Run the linter once against your target codebase, saving the findings to a
+JSON file:
+
+```bash
+go-humanize-linter --save-baseline baseline.json ./...
+```
+
+The baseline file is a JSON array of `{rule, file, line}` entries. The
+suggestion message text is intentionally excluded — only the
+(rule, file, line) tuple is compared, so rewording a message never causes a
+delta. See `docs/adr/0004-behavior-delta.md` for the rationale.
+
+### Comparing against a baseline
+
+After making changes, re-run with `--behavior-delta`:
+
+```bash
+go-humanize-linter --behavior-delta baseline.json ./...
+```
+
+Exit codes:
+
+| Exit | Meaning                                                       |
+| ---- | ------------------------------------------------------------- |
+| 0    | No delta — the (rule, file, line) set matches the baseline.  |
+| 1    | Findings added or removed since the baseline.                 |
+| 2    | Linter error (baseline file missing, unreadable, etc.).       |
+
+The delta is printed to stderr in human-readable form. Findings whose message
+changed but whose (rule, file, line) tuple is unchanged are **not** reported
+as a delta — only structural changes (added/removed findings) trigger exit 1.
+
+### CI integration
+
+A typical PR-check workflow:
+
+1. The `main` branch CI saves `baseline.json` as a build artifact.
+2. PR builds download `baseline.json` and run with `--behavior-delta`.
+3. A non-zero exit fails the check, surfacing the finding diff to the reviewer.
+
+This catches silent regressions (a refactor that drops a finding) and silent
+noise additions (a detector broadening that introduces new findings) equally.
+

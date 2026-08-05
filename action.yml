@@ -29,6 +29,14 @@ inputs:
     description: "Report stale or misspelled //nolint:gohumanize directives"
     required: false
     default: "false"
+  save-baseline:
+    description: "Path to save the current findings as a baseline JSON file (for later --behavior-delta comparison). Empty disables."
+    required: false
+    default: ""
+  behavior-delta:
+    description: "Path to a previously saved baseline JSON file. The action exits non-zero if findings have been added or removed since the baseline. Empty disables."
+    required: false
+    default: ""
   version:
     description: "Version of go-humanize-linter to install (e.g. v0.2.0)"
     required: false
@@ -69,6 +77,12 @@ runs:
         args+=(--min-confidence "${{ inputs.min-confidence }}")
         if [ "${{ inputs.verify-suppressions }}" = "true" ]; then
           args+=(--verify-suppressions)
+        fi
+        if [ -n "${{ inputs.save-baseline }}" ]; then
+          args+=(--save-baseline "${{ inputs.save-baseline }}")
+        fi
+        if [ -n "${{ inputs.behavior-delta }}" ]; then
+          args+=(--behavior-delta "${{ inputs.behavior-delta }}")
         fi
         args+=("${{ inputs.path }}")
         go-humanize-linter "${args[@]}"
