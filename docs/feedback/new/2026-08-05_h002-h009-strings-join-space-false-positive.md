@@ -4,7 +4,7 @@
 **Date:** 2026-08-05
 **Linter version:** latest from `/home/lars/projects/go-humanize-linter` (built binary `/tmp/go-humanize-linter`)
 **Severity:** medium — produces false positives on common Go code; first impression is a noisy tool
-**Status:** root cause identified; one-line fix; regression test missing
+**Status:** root cause identified; one-line fix shipped locally; regression test added; awaiting upstream push
 
 ---
 
@@ -219,3 +219,25 @@ I added `.go-humanize-linter.yml` to disable H002 and H009 in `AI-Speed-Test`. *
 - Linter source: `/home/lars/projects/go-humanize-linter/rule_comma.go` (fallback path at line 57)
 - Downstream project: `/home/lars/projects/AI-Speed-Test/gemma4-bench/main.go` (line 725, function `StartServer`)
 - Downstream session status: `/home/lars/projects/AI-Speed-Test/docs/status/2026-08-05_03-02_go-humanize-linter-bug-investigation.md`
+
+---
+
+## Resolution (2026-08-05)
+
+Applied the suggested patch and shipped regression tests in two commits:
+
+1. `fix(pattern-comma): exclude space separator from strings.Join detection`
+   - `pattern_comma.go:62` — `isCommaSeparatorCall` now asks `isSeparatorLiteral(call.Args[1], ",", ".")` for the `strings.Join` branch. The `" "` token is gone.
+   - Comment added explaining why a space is not a thousands separator and what classes of patterns this excludes from the heuristic.
+2. `test(linter): add regression tests for H002/H009 strings.Join space false positive`
+   - `pattern_helpers_test.go` — flipped the `strings.Join with space` table case from `want: true` to `want: false`; added a `strings.Join with double space` case to guard against "two-character sequence" workarounds.
+   - `testdata/h002_strings_join_space/main.go` — new fixture mirroring `StartServer`'s shape (for-loop + `strconv.Itoa` + `strings.Join(args, " ")`).
+   - `linter_test.go` — `TestRuleComma_StringsJoinSpace_NoFalsePositive` and `TestRuleCommaf_StringsJoinSpace_NoFalsePositive` exercising H002 and H009 end-to-end against the new fixture.
+
+Verification results:
+
+- `go test ./...` in the linter repo: all 4 packages pass (including the strong-path positive tests `TestRuleComma_Modulo3`, `TestRuleComma_StepBy3`, `TestRuleComma_FallbackNamedConstant` — these still detect real violations).
+- `/tmp/go-humanize-linter-fixed .` against `AI-Speed-Test`: 0 findings (previously 2).
+- `go build ./...` and `go test ./...` in `AI-Speed-Test`: clean.
+
+Both new commits are local to `/home/lars/projects/go-humanize-linter` (ahead of `origin/main` by 6 commits). Push to `github.com/larsartmann/go-humanize-linter` recommended; see NOT STARTED list in the status report.
