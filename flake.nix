@@ -182,7 +182,7 @@
               pname = "go-humanize-linter";
               inherit version;
               src = preparedSrc;
-              vendorHash = "sha256-ha23fLC1NiUIlS5bv1Retia40MK8WDLDywdpAKS6KVY=";
+              vendorHash = "sha256-yar9zYINrBITiQ1slmHfd5+wkecvfU2Oy/mJpb2Rodw=";
               proxyVendor = false;
               subPackages = [ "cmd/go-humanize-linter" ];
               # CLA tests shell out to `go build` via exec.Command, which requires
