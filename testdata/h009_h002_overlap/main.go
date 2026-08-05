@@ -13,27 +13,27 @@ func formatPrice(price float64) string {
 	parts := strings.Split(s, ".")
 	intPart := parts[0]
 
-	var result []byte
+	var b strings.Builder
 	for i := 0; i < len(intPart); i++ {
 		if i > 0 && (len(intPart)-i)%3 == 0 {
-			result = append(result, ',')
+			b.WriteString(",")
 		}
-		result = append(result, intPart[i])
+		b.WriteByte(intPart[i])
 	}
 
-	return string(result) + "." + parts[1]
+	return b.String() + "." + parts[1]
 }
 
 // formatPriceInt reimplements humanize.Comma: integer-only comma formatting.
 // This should trigger H002 ONLY, not H009 (no float formatting).
 func formatPriceInt(n int) string {
 	s := strconv.Itoa(n)
-	var result []byte
+	var b strings.Builder
 	for i := 0; i < len(s); i++ {
 		if i > 0 && (len(s)-i)%3 == 0 {
-			result = append(result, ',')
+			b.WriteString(",")
 		}
-		result = append(result, s[i])
+		b.WriteByte(s[i])
 	}
-	return string(result)
+	return b.String()
 }

@@ -6,10 +6,9 @@ import (
 )
 
 // formatAmount reimplements humanize.Commaf using fmt.Sprintf("%.2f") + a
-// manual separator loop. It also triggers H002 (comma formatting) because the
-// mod-3 grouping + WriteString(",") pattern overlaps with integer comma
-// formatting. The analysistest framework asserts both diagnostics.
-func formatAmount(f float64) string { // want "H002" "H009"
+// manual separator loop. H009 fires (float + comma) and H002 is suppressed
+// because H009 is the more specific diagnosis.
+func formatAmount(f float64) string { // want "H009"
 	s := fmt.Sprintf("%.2f", f)
 	var b strings.Builder
 	dot := strings.Index(s, ".")

@@ -399,3 +399,47 @@ func TestRunDetector_H0SUPBypassesConfidenceFilter(t *testing.T) {
 	testdata := filepath.Join("..", "testdata", "analysistest")
 	analysistest.Run(t, testdata, analyzers[0], "./h0supbypass")
 }
+
+func TestRunDetector_FiltersByConfidence(t *testing.T) {
+	t.Parallel()
+
+	// H001 on h001positive is ConfidenceFull (KMGTPE trick). With
+	// minConfidence "full", it should still fire — proving the filter
+	// passes full-confidence findings through.
+	plug, err := newPlugin(map[string]any{
+		"minConfidence": "full",
+	})
+	if err != nil {
+		t.Fatalf("newPlugin failed: %v", err)
+	}
+
+	analyzers, err := plug.BuildAnalyzers()
+	if err != nil {
+		t.Fatalf("BuildAnalyzers failed: %v", err)
+	}
+
+	testdata := filepath.Join("..", "testdata", "analysistest")
+	analysistest.Run(t, testdata, analyzers[0], "./h001positive")
+}
+
+func TestRunDetector_VerifySuppressions(t *testing.T) {
+	t.Parallel()
+
+	// With verifySuppressions enabled at default confidence, H0SUP fires
+	// on stale directives. The h0supbypass fixture has a stale //nolint
+	// directive on a clean function.
+	plug, err := newPlugin(map[string]any{
+		"verifySuppressions": true,
+	})
+	if err != nil {
+		t.Fatalf("newPlugin failed: %v", err)
+	}
+
+	analyzers, err := plug.BuildAnalyzers()
+	if err != nil {
+		t.Fatalf("BuildAnalyzers failed: %v", err)
+	}
+
+	testdata := filepath.Join("..", "testdata", "analysistest")
+	analysistest.Run(t, testdata, analyzers[0], "./h0supbypass")
+}

@@ -21,6 +21,14 @@ inputs:
     description: "Output format: text, json, or sarif"
     required: false
     default: "text"
+  min-confidence:
+    description: "Minimum confidence level to report: low, medium, high, full"
+    required: false
+    default: "low"
+  verify-suppressions:
+    description: "Report stale or misspelled //nolint:gohumanize directives"
+    required: false
+    default: "false"
   version:
     description: "Version of go-humanize-linter to install (e.g. v0.2.0)"
     required: false
@@ -38,7 +46,7 @@ runs:
       shell: bash
       env:
         GOEXPERIMENT: jsonv2
-        GOPRIVATE: "github.com/larsartmann/*"
+        GOPRIVATE: "github.com/larsartmann/*,github.com/LarsArtmann/*"
       run: go install github.com/larsartmann/go-humanize-linter/cmd/go-humanize-linter@${{ inputs.version }}
 
     - name: Run go-humanize-linter
@@ -58,5 +66,9 @@ runs:
           done
         fi
         args+=(--format "${{ inputs.format }}")
+        args+=(--min-confidence "${{ inputs.min-confidence }}")
+        if [ "${{ inputs.verify-suppressions }}" = "true" ]; then
+          args+=(--verify-suppressions)
+        fi
         args+=("${{ inputs.path }}")
         go-humanize-linter "${args[@]}"

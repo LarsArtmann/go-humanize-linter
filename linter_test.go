@@ -419,8 +419,18 @@ func TestH009H002_NoOverlap(t *testing.T) {
 	// Verify H009 and H002 don't fire on the SAME function. The overlap
 	// fixture has two functions: one float+comma (should fire H009 only)
 	// and one integer+comma (should fire H002 only). Each should fire exactly once.
-	h009Count := slices.Count(ids, "H009")
-	h002Count := slices.Count(ids, "H002")
+	countRule := func(ruleID string) int {
+		c := 0
+		for _, id := range ids {
+			if id == ruleID {
+				c++
+			}
+		}
+		return c
+	}
+
+	h009Count := countRule("H009")
+	h002Count := countRule("H002")
 
 	if h009Count != 1 {
 		t.Errorf("expected exactly 1 H009 finding, got %d (rules: %v)", h009Count, ids)
