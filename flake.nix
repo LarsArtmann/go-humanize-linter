@@ -71,7 +71,22 @@
           preparedSrc = mkPreparedSource {
             name = "go-humanize-linter";
             inherit version;
-            src = lib.cleanSource ./.;
+            src = lib.cleanSourceWith {
+              src = ./.;
+              filter = path: type:
+                let
+                  base = baseNameOf path;
+                  excludedDirs = [
+                    ".direnv"
+                    "result"
+                    "reports"
+                    "custom-gcl"
+                  ];
+                  isInExcludedDir = lib.any (d: lib.hasInfix "/${d}/" path) excludedDirs;
+                  isExcludedBase = lib.elem base excludedDirs;
+                in
+                !(isInExcludedDir || isExcludedBase);
+            };
             deps = {
               "github.com/larsartmann/go-finding" = inputs.go-finding;
               "github.com/larsartmann/go-linter-sdk" = inputs.go-linter-sdk;
@@ -168,6 +183,7 @@
               # (Nix sandbox has no writability). The upstream CI runs tests
               # separately via `nix run .#test`.
               doCheck = false;
+              env.GOWORK = "off";
               preBuild = ''
                 export GOEXPERIMENT=jsonv2
               '';
