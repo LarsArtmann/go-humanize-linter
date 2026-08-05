@@ -32,6 +32,11 @@
       url = "git+ssh://git@github.com/LarsArtmann/go-error-family?ref=master";
       flake = false;
     };
+
+    go-gogenfilter = {
+      url = "git+ssh://git@github.com/LarsArtmann/gogenfilter?ref=master";
+      flake = false;
+    };
   };
 
   outputs =
@@ -92,6 +97,7 @@
               "github.com/larsartmann/go-finding" = inputs.go-finding;
               "github.com/larsartmann/go-linter-sdk" = inputs.go-linter-sdk;
               "github.com/larsartmann/go-error-family" = inputs.go-error-family;
+              "github.com/LarsArtmann/gogenfilter/v3" = inputs.go-gogenfilter;
             };
           };
 
@@ -150,12 +156,12 @@
 
             env = {
               GOEXPERIMENT = "jsonv2";
-              GOPRIVATE = "github.com/larsartmann/*";
+              GOPRIVATE = "github.com/larsartmann/*,github.com/LarsArtmann/*";
             };
 
             shellHook = ''
               echo "go-humanize-linter dev shell — $(go version)"
-              echo "GOEXPERIMENT=jsonv2 + GOPRIVATE=github.com/larsartmann/* active"
+              echo "GOEXPERIMENT=jsonv2 + GOPRIVATE=github.com/larsartmann/*,github.com/LarsArtmann/* active"
             '';
           };
 
@@ -167,7 +173,7 @@
 
             env = {
               GOEXPERIMENT = "jsonv2";
-              GOPRIVATE = "github.com/larsartmann/*";
+              GOPRIVATE = "github.com/larsartmann/*,github.com/LarsArtmann/*";
             };
           };
 
@@ -212,38 +218,38 @@
           apps = {
             test = mkApp "test" "Run all tests" ''
               export GOEXPERIMENT=jsonv2
-              export GOPRIVATE='github.com/larsartmann/*'
+              export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
               go test ./... -count=1 "$@"
             '';
 
             test-race = mkApp "test-race" "Run all tests with race detector" ''
               export GOEXPERIMENT=jsonv2
-              export GOPRIVATE='github.com/larsartmann/*'
+              export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
               go test ./... -race -count=1 "$@"
             '';
 
             bench = mkApp "bench" "Run benchmarks" ''
               export GOEXPERIMENT=jsonv2
-              export GOPRIVATE='github.com/larsartmann/*'
+              export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
               go test ./... -bench=. -benchmem "$@"
             '';
 
             build = mkApp "build" "Build all packages and CLI" ''
               export GOEXPERIMENT=jsonv2
-              export GOPRIVATE='github.com/larsartmann/*'
+              export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
               go build ./...
               go build -o go-humanize-linter ./cmd/go-humanize-linter/
             '';
 
             vet = mkApp "vet" "Run go vet" ''
               export GOEXPERIMENT=jsonv2
-              export GOPRIVATE='github.com/larsartmann/*'
+              export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
               go vet ./...
             '';
 
             lint = mkApp "lint" "Run golangci-lint" ''
               export GOEXPERIMENT=jsonv2
-              export GOPRIVATE='github.com/larsartmann/*'
+              export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
               # golangci-lint emits "Found unknown linters in //nolint
               # directives" for our //nolint:gohumanize directives because
               # the gohumanize linter is a module plugin (not a built-in).
@@ -261,7 +267,7 @@
 
             coverage = mkApp "coverage" "Run tests with coverage report" ''
               export GOEXPERIMENT=jsonv2
-              export GOPRIVATE='github.com/larsartmann/*'
+              export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
               mkdir -p reports
               go test ./... -coverprofile=reports/coverage.out -covermode=atomic "$@"
               go tool cover -func=reports/coverage.out
@@ -269,8 +275,8 @@
 
             custom-lint = mkApp "custom-lint" "Build custom golangci-lint with gohumanize plugin and run it" ''
               export GOEXPERIMENT=jsonv2
-              export GOPRIVATE='github.com/larsartmann/*'
-              export GONOSUMDB='github.com/larsartmann/*'
+              export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
+              export GONOSUMDB='github.com/larsartmann/*,github.com/LarsArtmann/*'
               golangci-lint custom
               ./custom-gcl run -c .golangci.custom.yml ./... "$@"
             '';

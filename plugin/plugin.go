@@ -131,12 +131,14 @@ func analyzeHumanize(pass *analysis.Pass) (any, error) {
 }
 
 // runDetector applies the given detector to every function declaration in
-// every Go file in the package, converting findings to diagnostics.
+// every Go file in the package, converting findings to diagnostics. Generated
+// files (sqlc, templ, protobuf, wire, mockgen, etc.) are skipped via the
+// shared gogenfilter helper — pass nil content to skip the content phase.
 func runDetector(pass *analysis.Pass, detector *humanizelint.HumanizeDetector) (any, error) {
 	for _, file := range pass.Files {
 		filePath := pass.Fset.Position(file.Pos()).Filename
 
-		if isGenerated(filePath) {
+		if humanizelint.IsGeneratedFile(filePath, nil) {
 			continue
 		}
 
@@ -198,16 +200,4 @@ func filterRules(all []linter.RuleFunc, enable, disable map[string]bool) []linte
 	}
 
 	return filtered
-}
-
-// isGenerated reports whether a file path looks like generated Go code.
-func isGenerated(path string) bool {
-	base := path
-	if idx := strings.LastIndex(path, "/"); idx >= 0 {
-		base = path[idx+1:]
-	}
-
-	return strings.HasSuffix(base, "_gen.go") ||
-		strings.HasSuffix(base, ".gen.go") ||
-		strings.HasSuffix(base, "_templ.go")
 }

@@ -11,8 +11,16 @@ require (
 )
 
 require (
+	github.com/LarsArtmann/gogenfilter/v3 v3.3.2 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
+	github.com/go-faster/errors v0.8.0 // indirect
+	github.com/go-faster/jx v1.2.0 // indirect
+	github.com/go-faster/yaml v0.4.6 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/larsartmann/go-error-family v0.10.0 // indirect
+	github.com/segmentio/asm v1.2.1 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 )

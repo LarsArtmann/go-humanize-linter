@@ -6,6 +6,7 @@ import (
 	"go/parser"
 	"go/token"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -54,6 +55,10 @@ var skipDirs = map[string]bool{ //nolint:gochecknoglobals // package-level looku
 // wrapping the underlying fs error. Callers should errors.AsType[*WalkError](err)
 // to read .Dir.
 //
+// Each file is read once and the content is reused for both the generated-file
+// check (via gogenfilter) and the AST parser. This keeps the walker I/O-free
+// beyond a single read per file and gives full two-phase generated detection.
+//
 // Always returns *WalkError (an error type) — signature stays `error` for
 // v0.1.x API compatibility.
 func WalkGoDir(dir string) ([]ParsedFile, error) {
@@ -74,7 +79,7 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 			return nil
 		}
 
-		if !strings.HasSuffix(path, ".go") {
+		if filepath.Ext(path) != ".go" {
 			return nil
 		}
 
@@ -83,13 +88,17 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 		}
 
 		// Skip generated files — they are not hand-written reimplementations.
-		base := filepath.Base(path)
-		if strings.HasSuffix(base, "_gen.go") || strings.HasSuffix(base, ".gen.go") ||
-			strings.HasSuffix(base, "_templ.go") {
+		// Read once and reuse the bytes for both the check and the parser.
+		content, readErr := os.ReadFile(path) //nolint:gosec // G304: walker is fed trusted project dirs
+		if readErr != nil {
+			return nil //nolint:nilerr // unreadable files are the OS's problem, not the linter's
+		}
+
+		if IsGeneratedFile(path, content) {
 			return nil
 		}
 
-		file, parseErr := parser.ParseFile(fset, path, nil, parser.ParseComments)
+		file, parseErr := parser.ParseFile(fset, path, content, parser.ParseComments)
 		if parseErr != nil {
 			return nil //nolint:nilerr // syntax errors are the compiler's job, not the linter's
 		}
