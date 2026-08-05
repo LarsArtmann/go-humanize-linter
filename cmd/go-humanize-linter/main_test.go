@@ -1016,6 +1016,7 @@ func main() {
 	saveCmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", "--save-baseline", baselinePath, dir,
 	)
+
 	saveCmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	if _, err := saveCmd.CombinedOutput(); err == nil {
@@ -1027,6 +1028,7 @@ func main() {
 	deltaCmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", "--behavior-delta", baselinePath, dir,
 	)
+
 	deltaCmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	out, err := deltaCmd.CombinedOutput()
@@ -1061,6 +1063,7 @@ func main() {
 	deltaCmd = exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", "--behavior-delta", baselinePath, dir,
 	)
+
 	deltaCmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	out, err = deltaCmd.CombinedOutput()

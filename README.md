@@ -119,6 +119,19 @@ go-humanize-linter --version
 # Explain a rule or list which files would be scanned
 go-humanize-linter --explain H001
 go-humanize-linter --list-files ./...
+
+# Filter by confidence (low, medium, high, full)
+# Useful for triage: high/full findings are strong signals, medium/low need review.
+go-humanize-linter --min-confidence high ./...
+
+# Verify suppression directives are still needed
+go-humanize-linter --verify-suppressions ./...
+
+# Save a baseline and compare future runs against it
+# First, save the current findings as a baseline:
+go-humanize-linter --save-baseline baseline.json ./...
+# Then in CI, fail only when findings are added or removed:
+go-humanize-linter --behavior-delta baseline.json ./...
 ```
 
 ### As a GitHub Action
