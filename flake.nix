@@ -163,7 +163,11 @@
               vendorHash = "sha256-ha23fLC1NiUIlS5bv1Retia40MK8WDLDywdpAKS6KVY=";
               proxyVendor = false;
               subPackages = [ "cmd/go-humanize-linter" ];
-              doCheck = true;
+              # CLA tests shell out to `go build` via exec.Command, which requires
+              # a writable HOME and can't run during buildGoModule's doCheck
+              # (Nix sandbox has no writability). The upstream CI runs tests
+              # separately via `nix run .#test`.
+              doCheck = false;
               preBuild = ''
                 export GOEXPERIMENT=jsonv2
               '';
