@@ -218,7 +218,7 @@ func runScan(
 	filteredReport := filterReportByConfidence(report, minConf)
 
 	if saveBaselinePath != "" {
-		if err := saveBaselineAndNotify(saveBaselinePath, filteredReport); err != nil {
+		if err := saveBaselineAndNotify(saveBaselinePath, filteredReport, os.Stderr); err != nil {
 			return err
 		}
 	}
@@ -263,7 +263,7 @@ func appendSuppressionFindings(dir string, report *finding.Report) error {
 }
 
 // saveBaselineAndNotify writes a baseline file and prints a summary to stderr.
-func saveBaselineAndNotify(path string, report *finding.Report) error {
+func saveBaselineAndNotify(path string, report *finding.Report, notify io.Writer) error {
 	if err := saveBaseline(path, report); err != nil {
 		return fmt.Errorf("save baseline: %w", err)
 	}
@@ -273,7 +273,7 @@ func saveBaselineAndNotify(path string, report *finding.Report) error {
 		count++
 	}
 
-	fmt.Fprintf(os.Stderr, "baseline saved to %s (%d findings)\n", path, count)
+	fmt.Fprintf(notify, "baseline saved to %s (%d findings)\n", path, count)
 
 	return nil
 }

@@ -6,7 +6,6 @@ import (
 	"encoding/json/v2"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -1169,31 +1168,19 @@ func TestSaveBaselineAndNotify(t *testing.T) {
 		[]finding.Finding{makeFinding(finding.ConfidenceHigh)},
 	)
 
-	// Redirect stderr to capture the notification message.
-	oldStderr := os.Stderr
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("pipe: %v", err)
-	}
+	var buf bytes.Buffer
 
-	os.Stderr = w
-
-	err = saveBaselineAndNotify(path, report)
-
-	_ = w.Close()
-	os.Stderr = oldStderr
-
-	if err != nil {
+	if err := saveBaselineAndNotify(path, report, &buf); err != nil {
 		t.Fatalf("saveBaselineAndNotify failed: %v", err)
 	}
 
-	captured, _ := io.ReadAll(r)
+	captured := buf.String()
 
-	if !strings.Contains(string(captured), "baseline saved") {
+	if !strings.Contains(captured, "baseline saved") {
 		t.Errorf("expected 'baseline saved' notification, got: %s", captured)
 	}
 
-	if !strings.Contains(string(captured), path) {
+	if !strings.Contains(captured, path) {
 		t.Errorf("expected notification to include path %s, got: %s", path, captured)
 	}
 
