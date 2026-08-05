@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `TestSinglechecker_CleanCode` + `TestSinglechecker_PositiveFinding` — closes 0% coverage gap on the singlechecker binary.
 - **Dot-import support** — `buildImportAliases` and `isPackageCall` now handle dot imports (`. "strings"` → bare `HasSuffix` calls). `hasTimeThresholdComparison` also supports dot-imported time constants.
 - **H009/H002 overlap disambiguation** — H002 is suppressed when H009 fires on the same function, preventing double diagnostics for float-with-comma formatting.
+- **`--behavior-delta` and `--save-baseline` CLI flags** — Save a finding baseline with `--save-baseline baseline.json`, then compare future runs with `--behavior-delta baseline.json`. Exits 0 if no delta, 1 if findings added or removed. Comparison is by (rule, file, line) tuple — message text changes don't trigger a delta.
 - **`RuleIDH0SUP` exported constant** — The pseudo-rule ID for suppression verification is now an exported constant in `rules.go`, replacing the private `suppressionVerificationRuleID`.
 - **`docs/DOMAIN_LANGUAGE.md`** — Ubiquitous-language glossary covering rule IDs, corroborating signals, confidence levels, suppression directives, and detection architecture.
 - **`action.yml` inputs** — Added `min-confidence` and `verify-suppressions` inputs to the GitHub Action.

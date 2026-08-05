@@ -15,6 +15,8 @@
 //	--output <file>  Write report to file instead of stdout.
 //	--min-confidence <level>  Minimum confidence to report: low, medium, high, full (default: low).
 //	--verify-suppressions     Report //nolint:gohumanize directives that suppress zero findings.
+//	--behavior-delta <file>   Compare findings against a baseline JSON; exits 1 if any delta.
+//	--save-baseline <file>    Save current findings as a baseline for future --behavior-delta.
 //	--quiet          Suppress summary line.
 //	--rules          List all rules with descriptions and exit.
 //	--version, -v    Print version and exit.
@@ -85,18 +87,20 @@ func main() {
 // is provided, and returns any other error for the caller to print and exit.
 func run() error {
 	var (
-		enableIDs     stringList
-		disableIDs    stringList
-		format        string
-		quiet         bool
-		showVersion   bool
-		showRules     bool
-		listFiles     bool
-		explain       string
-		outputPath    string
-		configPath    string
-		minConfidence string
-		verifySupps   bool
+		enableIDs       stringList
+		disableIDs      stringList
+		format          string
+		quiet           bool
+		showVersion     bool
+		showRules       bool
+		listFiles       bool
+		explain         string
+		outputPath      string
+		configPath      string
+		minConfidence   string
+		verifySupps     bool
+		behaviorDelta   string
+		saveBaseline    string
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
@@ -114,6 +118,10 @@ func run() error {
 	flag.StringVar(&explain, "explain", "", "print the rationale for a rule (e.g. --explain H001) and exit")
 	flag.BoolVar(&verifySupps, "verify-suppressions", false,
 		"also report //nolint:gohumanize directives that suppress zero findings")
+	flag.StringVar(&behaviorDelta, "behavior-delta", "",
+		"compare findings against a baseline JSON file; exits 1 if any findings were added or removed")
+	flag.StringVar(&saveBaseline, "save-baseline", "",
+		"save current findings as a baseline JSON file (for future --behavior-delta comparison)")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [flags] <path>\n\n", os.Args[0])
@@ -157,7 +165,7 @@ func run() error {
 		return errNoPath
 	}
 
-	return runScan(args[0], configPath, enableIDs, disableIDs, minConfidence, verifySupps, outputPath, format, quiet)
+	return runScan(args[0], configPath, enableIDs, disableIDs, minConfidence, verifySupps, outputPath, format, quiet, behaviorDelta, saveBaseline)
 }
 
 // runScan runs the linter against dir, optionally verifies suppressions, filters
@@ -170,6 +178,7 @@ func runScan(
 	verifySupps bool,
 	outputPath, format string,
 	quiet bool,
+	behaviorDeltaPath, saveBaselinePath string,
 ) error {
 	var cfgEnable, cfgDisable []string
 
@@ -206,6 +215,36 @@ func runScan(
 	}
 
 	filteredReport := filterReportByConfidence(report, minConf)
+
+	if saveBaselinePath != "" {
+		if err := saveBaseline(saveBaselinePath, filteredReport); err != nil {
+			return fmt.Errorf("save baseline: %w", err)
+		}
+
+		count := 0
+		for range filteredReport.All() {
+			count++
+		}
+
+		fmt.Fprintf(os.Stderr, "baseline saved to %s (%d findings)\n", saveBaselinePath, count)
+	}
+
+	if behaviorDeltaPath != "" {
+		baseline, err := loadBaseline(behaviorDeltaPath)
+		if err != nil {
+			return fmt.Errorf("load baseline: %w", err)
+		}
+
+		current := reportToBaselineEntries(filteredReport)
+		delta := computeDelta(current, baseline)
+		printDelta(os.Stderr, delta)
+
+		if delta.HasDelta() {
+			os.Exit(1)
+		}
+
+		return nil
+	}
 
 	writeReport(outputPath, filteredReport, format, quiet)
 
