@@ -48,6 +48,7 @@ package plugin
 import (
 	"fmt"
 	"go/ast"
+	"go/token"
 	"strings"
 
 	"github.com/golangci/plugin-module-register/register"
@@ -71,8 +72,8 @@ func init() { //nolint:gochecknoinits // required by golangci-lint plugin regist
 type pluginSettings struct {
 	Enable             string `json:"enable"`
 	Disable            string `json:"disable"`
-	MinConfidence      string `json:"min-confidence"`
-	VerifySuppressions bool   `json:"verify-suppressions"`
+	MinConfidence      string `json:"minConfidence"`
+	VerifySuppressions bool   `json:"verifySuppressions"`
 }
 
 // humanizePlugin implements [register.LinterPlugin] for golangci-lint v2
@@ -141,11 +142,26 @@ func analyzeHumanize(pass *analysis.Pass) (any, error) {
 	return runDetector(pass, humanizelint.NewHumanizeDetector(), finding.ConfidenceLow, false)
 }
 
-// runDetector applies the given detector to every function declaration in
-// every Go file in the package, converting findings to diagnostics. Generated
-// files (sqlc, templ, protobuf, wire, mockgen, etc.) are skipped via the
-// shared gogenfilter helper — pass nil content to skip the content phase.
-func runDetector(pass *analysis.Pass, detector *humanizelint.HumanizeDetector) (any, error) {
+// runDetector applies the given detector to every function declaration in every
+// Go file in the package. Generated files are skipped via IsGeneratedFile (nil
+// content skips the content phase). When verifySuppressions is true, a separate
+// pass checks //nolint:gohumanize directives for staleness or misspelled linter
+// names. Findings below minConfidence are filtered out before reporting.
+func runDetector(
+	pass *analysis.Pass,
+	detector *humanizelint.HumanizeDetector,
+	minConfidence finding.Confidence,
+	verifySuppressions bool,
+) (any, error) {
+	tokenFiles := make(map[string]*token.File)
+
+	for _, file := range pass.Files {
+		filePath := pass.Fset.Position(file.Pos()).Filename
+		tokenFiles[filePath] = pass.Fset.File(file.Pos())
+	}
+
+	var allFindings []finding.Finding
+
 	for _, file := range pass.Files {
 		filePath := pass.Fset.Position(file.Pos()).Filename
 
@@ -159,17 +175,54 @@ func runDetector(pass *analysis.Pass, detector *humanizelint.HumanizeDetector) (
 				continue
 			}
 
-			for _, f := range detector.Run(pass.Fset, file, fn, filePath) {
-				pass.Report(analysis.Diagnostic{
-					Pos:      fn.Pos(),
-					Message:  string(f.Rule) + ": " + f.Message,
-					Category: "humanize",
-				})
-			}
+			allFindings = append(allFindings, detector.Run(pass.Fset, file, fn, filePath)...)
 		}
 	}
 
+	if verifySuppressions {
+		report := finding.NewReportFromFindings(
+			finding.ToolInfo{Name: "go-humanize-linter"}, //nolint:exhaustruct
+			allFindings,
+		)
+		verifyFindings := humanizelint.VerifySuppressionsInFiles(pass.Fset, pass.Files, report)
+		allFindings = append(allFindings, verifyFindings...)
+	}
+
+	for _, f := range allFindings {
+		if f.Confidence.Compare(minConfidence) < 0 {
+			continue
+		}
+
+		pass.Report(analysis.Diagnostic{
+			Pos:      findingToTokenPos(tokenFiles, f),
+			Message:  string(f.Rule) + ": " + f.Message,
+			Category: "humanize",
+		})
+	}
+
 	return nil, nil //nolint:nilnil // analysis.Analyzer.Run requires (any, error) signature
+}
+
+// findingToTokenPos converts a finding.Finding's file/line/column position back
+// to a go/token position for the analysis.Diagnostic. This lets the plugin
+// report diagnostics at the finding's specific location rather than always at
+// the function declaration.
+func findingToTokenPos(tokenFiles map[string]*token.File, f finding.Finding) token.Pos {
+	if f.Position.Line < 1 {
+		return token.NoPos
+	}
+
+	tf := tokenFiles[string(f.Position.File)]
+	if tf == nil {
+		return token.NoPos
+	}
+
+	pos := tf.LineStart(f.Position.Line)
+	if f.Position.Column > 0 {
+		pos += token.Pos(f.Position.Column - 1)
+	}
+
+	return pos
 }
 
 // parseRuleIDs converts a comma-separated string of rule IDs into a set.

@@ -202,7 +202,7 @@ func runScan(
 
 	minConf, err := humanizelint.ParseConfidenceLevel(minConfidence)
 	if err != nil {
-		return err
+		return fmt.Errorf("parse min-confidence: %w", err)
 	}
 
 	filteredReport := filterReportByConfidence(report, minConf)
