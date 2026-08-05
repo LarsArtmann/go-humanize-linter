@@ -22,6 +22,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -65,20 +66,37 @@ const (
 	stageWrite  = "write"
 )
 
+// errNoPath is returned by run() when the CLI is invoked without a directory
+// argument. It is handled in main() with usage + exit 2.
+var errNoPath = errors.New("missing directory argument")
+
 func main() {
+	if err := run(); err != nil {
+		if errors.Is(err, errNoPath) {
+			flag.Usage()
+		}
+
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(2)
+	}
+}
+
+// run implements the CLI logic. It returns errNoPath when no directory argument
+// is provided, and returns any other error for the caller to print and exit.
+func run() error {
 	var (
-		enableIDs      stringList
-		disableIDs     stringList
-		format         string
-		quiet          bool
-		showVersion    bool
-		showRules      bool
-		listFiles      bool
-		explain        string
-		outputPath     string
-		configPath     string
-		minConfidence  string
-		verifySupps    bool
+		enableIDs     stringList
+		disableIDs    stringList
+		format        string
+		quiet         bool
+		showVersion   bool
+		showRules     bool
+		listFiles     bool
+		explain       string
+		outputPath    string
+		configPath    string
+		minConfidence string
+		verifySupps   bool
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
@@ -111,68 +129,59 @@ func main() {
 
 	flag.Parse()
 
-	if showVersion {
+	switch {
+	case showVersion:
 		fmt.Printf("go-humanize-linter %s\n", version) //nolint:forbidigo // CLI stdout for --version
 
 		if version == versionDev {
 			fmt.Fprintln(os.Stderr, "warning: version is unset — built without -ldflags \"-X main.version=...\"")
 		}
 
-		return
-	}
-
-	if showRules {
+		return nil
+	case showRules:
 		printRules()
 
-		return
-	}
-
-	if listFiles {
+		return nil
+	case listFiles:
 		printScannedFiles(flag.Args())
 
-		return
-	}
-
-	if explain != "" {
+		return nil
+	case explain != "":
 		printExplanation(explain)
 
-		return
+		return nil
 	}
 
 	args := flag.Args()
 	if len(args) == 0 {
-		flag.Usage()
-		os.Exit(2)
+		return errNoPath
 	}
 
 	dir := args[0]
 
-	// Load config file first, then let CLI flags override.
+	var cfgEnable, cfgDisable []string
+
 	if configPath != "" {
 		cfg, err := loadConfig(configPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
-			os.Exit(2)
+			return err
 		}
 
-		// Config values first, CLI values appended on top (both end up in sets).
-		enableIDs = append(stringList(cfg.Enable), enableIDs...)
-		disableIDs = append(stringList(cfg.Disable), disableIDs...)
+		cfgEnable = cfg.Enable
+		cfgDisable = cfg.Disable
 	}
 
-	registry := buildRegistry(enableIDs, disableIDs)
+	registry := buildRegistry(append(cfgEnable, enableIDs...), append(cfgDisable, disableIDs...))
 
 	report, err := registry.Run(context.Background(), dir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(2)
+		return err
 	}
 
 	if verifySupps {
 		verifyFindings, verifyErr := humanizelint.VerifySuppressions(dir, report)
 		if verifyErr != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", verifyErr)
-			os.Exit(2)
+			return verifyErr
 		}
 
 		report.AddFindings(verifyFindings)
@@ -181,8 +190,7 @@ func main() {
 
 	minConf, err := parseConfidenceLevel(minConfidence)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(2)
+		return err
 	}
 
 	filteredReport := filterReportByConfidence(report, minConf)
@@ -190,6 +198,8 @@ func main() {
 	writeReport(outputPath, filteredReport, format, quiet)
 
 	os.Exit(exitCodeFromReport(filteredReport))
+
+	return nil
 }
 
 // writeReport renders the report to stdout or to outputPath. When writing to a
@@ -374,8 +384,12 @@ func loadConfig(path string) (*Config, error) {
 	return &cfg, nil
 }
 
+// errInvalidConfidence is returned when --min-confidence is not one of the
+// supported level strings.
+var errInvalidConfidence = errors.New("invalid confidence level: use low, medium, high, or full")
+
 // parseConfidenceLevel maps CLI strings to finding.Confidence values.
-// Returns an error for unsupported values.
+// Returns errInvalidConfidence for unsupported values.
 func parseConfidenceLevel(level string) (finding.Confidence, error) {
 	switch level {
 	case confidenceLow:
@@ -388,7 +402,7 @@ func parseConfidenceLevel(level string) (finding.Confidence, error) {
 		return finding.ConfidenceFull, nil
 	}
 
-	return finding.ConfidenceNone, fmt.Errorf("invalid confidence level %q: use low, medium, high, or full", level)
+	return finding.ConfidenceNone, errInvalidConfidence
 }
 
 // filterReportByConfidence returns a report containing only findings whose

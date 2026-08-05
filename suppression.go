@@ -60,7 +60,7 @@ func hasUnknownHumanizeLinterName(suppressed []string) bool {
 	for _, s := range suppressed {
 		lower := strings.ToLower(s)
 
-		if lower == "gohumanize" || lower == "all" {
+		if lower == nolintLinterName || lower == nolintAllMarker {
 			continue
 		}
 
@@ -107,6 +107,7 @@ func extractFunctionSuppressions(
 	}
 
 	fnLine := fset.Position(fn.Pos()).Line
+
 	var out []SuppressionDirective
 
 	for _, group := range file.Comments {
@@ -140,8 +141,8 @@ func extractFunctionSuppressions(
 }
 
 // VerifySuppressions reports two classes of suppression problems:
-//   1. Unknown linter names that look like "gohumanize" (e.g. "go-humanize-linter").
-//   2. //nolint:gohumanize[:Hxxx] directives that did not suppress any finding.
+//  1. Unknown linter names that look like "gohumanize" (e.g. "go-humanize-linter").
+//  2. //nolint:gohumanize[:Hxxx] directives that did not suppress any finding.
 //
 // The returned findings use the pseudo-rule ID "H0SUP" so they are clearly
 // verification diagnostics, not humanize reimplementation findings.
@@ -241,7 +242,7 @@ func makeSuppressionVerificationFinding(d SuppressionDirective, message string) 
 // VerifySuppressionComment is a convenience helper for tests: it parses a
 // single comment string and returns whether it suppresses our linter and
 // whether it contains a misspelled linter name.
-func VerifySuppressionComment(comment string) (suppressesOurs, hasTypo bool) {
+func VerifySuppressionComment(comment string) (bool, bool) {
 	suppressed := suppressedRules(comment)
 	if suppressed == nil {
 		return false, false

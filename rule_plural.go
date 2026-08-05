@@ -59,10 +59,14 @@ func detectPlural(fset *token.FileSet, _ *ast.File, fn *ast.FuncDecl, filePath s
 			RuleIDH004,
 			fmt.Sprintf(
 				"manual pluralization (namedParams=%v, equalsOne=%v) — use github.com/dustin/go-humanize/english instead",
-				namedParams, equalsOne,
+				namedParams,
+				equalsOne,
 			),
 			"Replace with english.PluralWord(n, singular, plural) for just the word, or english.Plural(n, singular, plural) for \"count word\".",
-			line, col, filePath, confidence,
+			line,
+			col,
+			filePath,
+			confidence,
 		),
 	}
 }
