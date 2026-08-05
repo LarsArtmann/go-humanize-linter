@@ -12,7 +12,9 @@
 //	--disable <id>   Disable a specific rule (repeatable).
 //	--config <file>  Load rule enable/disable settings from a YAML file.
 //	--format <type>  Output format: text (default), json, sarif.
-//	--output <file>   Write report to file instead of stdout.
+//	--output <file>  Write report to file instead of stdout.
+//	--min-confidence <level>  Minimum confidence to report: low, medium, high, full (default: low).
+//	--verify-suppressions     Report //nolint:gohumanize directives that suppress zero findings.
 //	--quiet          Suppress summary line.
 //	--rules          List all rules with descriptions and exit.
 //	--version, -v    Print version and exit.
@@ -49,6 +51,14 @@ const (
 	formatSARIF = "sarif"
 )
 
+// Confidence-level identifiers for the --min-confidence flag.
+const (
+	confidenceLow    = "low"
+	confidenceMedium = "medium"
+	confidenceHigh   = "high"
+	confidenceFull   = "full"
+)
+
 // Failure-stage identifiers carried by *OutputError.Stage.
 const (
 	stageRender = "render"
@@ -57,16 +67,18 @@ const (
 
 func main() {
 	var (
-		enableIDs   stringList
-		disableIDs  stringList
-		format      string
-		quiet       bool
-		showVersion bool
-		showRules   bool
-		listFiles   bool
-		explain     string
-		outputPath  string
-		configPath  string
+		enableIDs      stringList
+		disableIDs     stringList
+		format         string
+		quiet          bool
+		showVersion    bool
+		showRules      bool
+		listFiles      bool
+		explain        string
+		outputPath     string
+		configPath     string
+		minConfidence  string
+		verifySupps    bool
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
@@ -74,12 +86,16 @@ func main() {
 	flag.StringVar(&format, "format", formatText, "output format: text, json, sarif")
 	flag.StringVar(&outputPath, "output", "", "write report to file instead of stdout")
 	flag.StringVar(&configPath, "config", "", "path to YAML config file for enable/disable rules")
+	flag.StringVar(&minConfidence, "min-confidence", confidenceLow,
+		"minimum confidence to report: low, medium, high, full (default: low)")
 	flag.BoolVar(&quiet, "quiet", false, "suppress summary line")
 	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 	flag.BoolVar(&showVersion, "v", false, "shorthand for --version")
 	flag.BoolVar(&showRules, "rules", false, "list all rules with descriptions and exit")
 	flag.BoolVar(&listFiles, "list-files", false, "list every Go file the walker would scan, then exit")
 	flag.StringVar(&explain, "explain", "", "print the rationale for a rule (e.g. --explain H001) and exit")
+	flag.BoolVar(&verifySupps, "verify-suppressions", false,
+		"also report //nolint:gohumanize directives that suppress zero findings")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [flags] <path>\n\n", os.Args[0])
@@ -152,9 +168,28 @@ func main() {
 		os.Exit(2)
 	}
 
-	writeReport(outputPath, report, format, quiet)
+	if verifySupps {
+		verifyFindings, verifyErr := humanizelint.VerifySuppressions(dir, report)
+		if verifyErr != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", verifyErr)
+			os.Exit(2)
+		}
 
-	os.Exit(linter.ExitCodeFromReport(report))
+		report.AddFindings(verifyFindings)
+		report.ComputeSummary()
+	}
+
+	minConf, err := parseConfidenceLevel(minConfidence)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(2)
+	}
+
+	filteredReport := filterReportByConfidence(report, minConf)
+
+	writeReport(outputPath, filteredReport, format, quiet)
+
+	os.Exit(exitCodeFromReport(filteredReport))
 }
 
 // writeReport renders the report to stdout or to outputPath. When writing to a
@@ -337,6 +372,55 @@ func loadConfig(path string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+// parseConfidenceLevel maps CLI strings to finding.Confidence values.
+// Returns an error for unsupported values.
+func parseConfidenceLevel(level string) (finding.Confidence, error) {
+	switch level {
+	case confidenceLow:
+		return finding.ConfidenceLow, nil
+	case confidenceMedium:
+		return finding.ConfidenceMedium, nil
+	case confidenceHigh:
+		return finding.ConfidenceHigh, nil
+	case confidenceFull:
+		return finding.ConfidenceFull, nil
+	}
+
+	return finding.ConfidenceNone, fmt.Errorf("invalid confidence level %q: use low, medium, high, or full", level)
+}
+
+// filterReportByConfidence returns a report containing only findings whose
+// confidence is at least minConfidence. The original report is not modified.
+func filterReportByConfidence(report *finding.Report, minConfidence finding.Confidence) *finding.Report {
+	return report.Filter(finding.ByConfidenceAtLeast(minConfidence))
+}
+
+// exitCodeFromReport returns a confidence-aware exit code for a lint run.
+//   - 0 when there are no findings (after filtering by min-confidence).
+//   - 1 when any remaining finding has high or full confidence (must fix).
+//   - 2 when the highest remaining finding is medium or low (triage).
+//
+// This lets CI distinguish "please review" from "must fix".
+func exitCodeFromReport(report *finding.Report) int {
+	if report == nil || report.Len() == 0 {
+		return 0
+	}
+
+	maxConfidence := finding.ConfidenceLow
+
+	for f := range report.All() {
+		if f.Confidence.Compare(maxConfidence) > 0 {
+			maxConfidence = f.Confidence
+		}
+	}
+
+	if maxConfidence >= finding.ConfidenceHigh {
+		return 1
+	}
+
+	return 2
 }
 
 // OutputError is returned by output() when rendering or writing a report
