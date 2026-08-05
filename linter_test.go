@@ -3,6 +3,7 @@ package humanizelint_test
 import (
 	"context"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -373,6 +374,60 @@ func TestRuleParseBytes_AliasedImport(t *testing.T) {
 	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_aliased_import"))
 	if len(findings) == 0 {
 		t.Fatal("expected H007 finding for aliased import, got 0")
+	}
+}
+
+func TestRuleParseBytes_DotImport(t *testing.T) {
+	t.Parallel()
+
+	// Verifies that H007 detects byte-unit suffix checks through a dot
+	// import (e.g. `import . "strings"` → bare HasSuffix calls).
+	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_dot_import"))
+	if len(findings) == 0 {
+		t.Fatal("expected H007 finding for dot import, got 0")
+	}
+}
+
+func TestH009H002_NoOverlap(t *testing.T) {
+	t.Parallel()
+
+	dir := testdataDir(t, "h009_h002_overlap")
+	r := humanizelint.DefaultRegistry()
+
+	report, err := r.Run(context.Background(), dir)
+	if err != nil {
+		t.Fatalf("registry.Run failed: %v", err)
+	}
+
+	var ids []string
+
+	for f := range report.All() {
+		ids = append(ids, string(f.Rule))
+	}
+
+	hasH009 := slices.Contains(ids, "H009")
+	hasH002 := slices.Contains(ids, "H002")
+
+	if !hasH009 {
+		t.Errorf("expected H009 finding (float+comma function), got rules: %v", ids)
+	}
+
+	if !hasH002 {
+		t.Errorf("expected H002 finding (integer-comma function), got rules: %v", ids)
+	}
+
+	// Verify H009 and H002 don't fire on the SAME function. The overlap
+	// fixture has two functions: one float+comma (should fire H009 only)
+	// and one integer+comma (should fire H002 only). Each should fire exactly once.
+	h009Count := slices.Count(ids, "H009")
+	h002Count := slices.Count(ids, "H002")
+
+	if h009Count != 1 {
+		t.Errorf("expected exactly 1 H009 finding, got %d (rules: %v)", h009Count, ids)
+	}
+
+	if h002Count != 1 {
+		t.Errorf("expected exactly 1 H002 finding, got %d (rules: %v)", h002Count, ids)
 	}
 }
 

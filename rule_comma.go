@@ -35,6 +35,14 @@ func RuleComma() linter.RuleFunc {
 
 func detectCommaFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding {
 	aliases := buildImportAliases(file)
+
+	// Suppress H002 when H009 (commaf) would fire on the same function.
+	// H009 is the more specific diagnosis: float formatting + comma grouping.
+	// Without this, a "%.Nf" + comma-loop function gets two diagnostics.
+	if hasCommafPattern(fn, aliases) {
+		return nil
+	}
+
 	mod3 := hasModulo3(fn)
 	step3 := hasStepBy3(fn)
 	sep := hasCommaOrSeparator(fn, aliases)
