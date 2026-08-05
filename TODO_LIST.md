@@ -14,13 +14,10 @@
 | T1  | Tag `v0.2.0` (code shipped; tag missing)                  | High   | XS     | blocked |
 | T2  | Real-world validation sweep with new detection + features | High   | M      | planned |
 | T15 | Plugin integration test through `custom-gcl` binary       | Medium | S      | planned |
-| T16 | Dot-import (`. "strings"`) support for alias resolution   | Low    | S      | planned |
-| T17 | H009/H002 overlap disambiguation                          | Low    | M      | planned |
 | T18 | Publish to golangci-lint plugin index                     | Low    | S      | blocked |
 | T19 | Per-statement `//nolint` suppression support              | Medium | M      | planned |
 | T20 | `--behavior-delta` flag for regression testing            | Low    | M      | planned |
 | T21 | Propose `ExitCodeFromReportConfidence` upstream           | Low    | S      | planned |
-| T23 | Exclude H0SUP findings from confidence filtering          | Medium | XS     | planned |
 
 ---
 
@@ -40,9 +37,9 @@ All v0.2.0 features are merged to `main` and documented in `CHANGELOG.md` under
 H001–H009 were swept against 327 Go projects
 (`docs/validation/2026-07-31_real-world-sweep.md`), but the new features
 (`--verify-suppressions`, `--min-confidence`, plugin confidence filtering, the
-H001 size-bucket filter, import-alias-aware detection, and the gogenfilter
-generated-file integration) have not been validated against the corpus with
-these features active.
+H001 size-bucket filter, import-alias-aware detection, dot-import support, and
+the gogenfilter generated-file integration) have not been validated against the
+corpus with these features active.
 
 - [ ] Run the linter over the 327-project corpus with all 9 rules enabled
 - [ ] Run `--verify-suppressions` on the corpus and record stale-directive rate
@@ -54,51 +51,18 @@ these features active.
 
 ## Plugin robustness
 
-### T23 — Exclude H0SUP findings from confidence filtering · Medium · _planned_
-
-Suppression-verification findings (H0SUP) carry `ConfidenceHigh` (0.75). If a
-user sets `minConfidence: "full"` (1.0), all H0SUP findings are filtered out.
-This is wrong — suppression verification is a meta-diagnostic about directive
-correctness, not a confidence-rated code-pattern finding. It should bypass
-confidence filtering in `runDetector`.
-
-- [ ] In `runDetector`, exclude H0SUP findings from the confidence filter check
-- [ ] Add `TestRunDetector_H0SUPBypassesConfidenceFilter`
-
 ### T15 — Plugin integration test through `custom-gcl` binary · Medium · _planned_
 
 Plugin registration is verified via `TestPluginRegisteredWithGolangciLint` and
-`TestPluginRegisteredWithSettings`. However, no test exercises the full
-`runDetector` pipeline through the golangci-lint runtime: building the
+`TestPluginRegisteredWithSettings`. Analysistest-based tests
+(`TestRunDetector_FiltersByConfidence`, `TestRunDetector_VerifySuppressions`,
+`TestRunDetector_H0SUPBypassesConfidenceFilter`) cover the `runDetector` pipeline.
+However, no test exercises the full golangci-lint runtime: building the
 `custom-gcl` binary, running it on testdata with `minConfidence` and
 `verifySuppressions` enabled, and asserting the diagnostics appear correctly.
 
 - [ ] Write a test that builds `custom-gcl`, runs it on testdata, asserts findings
 - [ ] Gate behind `testing.Short()` skip (requires `golangci-lint custom` — network + git clone)
-
----
-
-## Detection improvements
-
-### T16 — Dot-import (`. "strings"`) support for alias resolution · Low · _planned_
-
-The `buildImportAliases` function resolves named import aliases (e.g.,
-`str "strings"`) but does not handle dot imports (`. "strings"`). Dot imports
-inject all exported names into the current scope, so `HasSuffix` would be called
-without a package qualifier. ADR 0001 documents this as a known gap.
-
-- [ ] Detect dot imports in `buildImportAliases` and handle bare calls to
-      `HasSuffix`, `TrimRight`, etc. in pattern helpers
-
-### T17 — H009/H002 overlap disambiguation · Low · _planned_
-
-H009 (manual-commaf) and H002 (manual-comma-format) can both match the same
-code when it involves `%.Nf` formatting plus comma-grouping loops. Currently
-both rules fire independently. A prioritization or suppression mechanism
-would reduce noise.
-
-- [ ] When H009 fires, suppress H002 on the same function (or vice versa)
-- [ ] Document the precedence rule
 
 ---
 

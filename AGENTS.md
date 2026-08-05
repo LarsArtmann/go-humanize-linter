@@ -70,11 +70,13 @@ H004 was originally firing on any `if x == 1` with a simple identifier - ~60% fa
 
 Together: 44 -> 24 findings, ~0% FP.
 
+### H009/H002 overlap disambiguation
+
+When H009 (manual-commaf) fires on a function, H002 (manual-comma-format) is suppressed. H009 is the more specific diagnosis (float + comma), and H002's suggestion (`humanize.Comma`) is less precise than H009's (`humanize.Commaf`). Without this, a `%.2f` + comma-loop function gets two diagnostics.
+
 ## Import-Alias Resolution
 
-`buildImportAliases(file *ast.File) map[string]string` resolves import aliases from `ast.File.Imports`. Returns a map of alias to canonical package path (e.g., `{"str": "strings"}`). Passed to `isPackageCall` and pattern helpers via the variadic `aliases ...map[string]string` parameter.
-
-**Known gap:** Dot imports (`. "strings"`) are not handled - see ADR 0001 and TODO T16.
+`buildImportAliases(file *ast.File) map[string]string` resolves import aliases from `ast.File.Imports`. Returns a map of alias to canonical package path (e.g., `{"str": "strings"}`). For dot imports (`. "strings"`), the alias key is `"."` mapping to the package path. `isPackageCall` handles both `SelectorExpr` (normal/aliased) and bare `Ident` (dot-import) call forms. `hasTimeThresholdComparison` also resolves dot-imported and aliased time constants.
 
 **Design decision:** Syntactic (AST-only) resolution was chosen over full `go/types` because the CLI path uses `go/parser` only. See `docs/adr/0001-import-alias-detection.md`.
 

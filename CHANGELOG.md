@@ -49,6 +49,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--list-files <dir>` CLI flag for debugging walker scope.
 - `--explain Hxxx` CLI flag — prints a one-paragraph rationale for any rule.
 - `TestSinglechecker_CleanCode` + `TestSinglechecker_PositiveFinding` — closes 0% coverage gap on the singlechecker binary.
+- **Dot-import support** — `buildImportAliases` and `isPackageCall` now handle dot imports (`. "strings"` → bare `HasSuffix` calls). `hasTimeThresholdComparison` also supports dot-imported time constants.
+- **H009/H002 overlap disambiguation** — H002 is suppressed when H009 fires on the same function, preventing double diagnostics for float-with-comma formatting.
+- **`RuleIDH0SUP` exported constant** — The pseudo-rule ID for suppression verification is now an exported constant in `rules.go`, replacing the private `suppressionVerificationRuleID`.
+- **`docs/DOMAIN_LANGUAGE.md`** — Ubiquitous-language glossary covering rule IDs, corroborating signals, confidence levels, suppression directives, and detection architecture.
+- **`action.yml` inputs** — Added `min-confidence` and `verify-suppressions` inputs to the GitHub Action.
+- `TestRunDetector_H0SUPBypassesConfidenceFilter`, `TestRunDetector_FiltersByConfidence`, `TestRunDetector_VerifySuppressions` — analysistest-based plugin tests for confidence filtering and suppression verification.
+- `TestRuleParseBytes_DotImport` — verifies H007 detects dot-imported `strings` functions.
+- `TestH009H002_NoOverlap` — verifies H002 is suppressed when H009 fires.
+- Testdata fixtures: `testdata/h007_dot_import/`, `testdata/h009_h002_overlap/`, `testdata/analysistest/h0supbypass/`.
 - Analysistest fixtures H002-H009 wired into `TestAnalyzerAnalysistest` (was: H001 only).
 - `TestRuleCountConsistency` — anti-ghost-rule guard asserting `AllRules()` and `allRuleDetectors()` stay in sync.
 - `TestHasOrdinalSwitch` — 8-case table-driven test for H008's pattern detector.
@@ -105,6 +114,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 9 lint issues across `pattern_commaf.go`, `pattern_ordinal.go`, `pattern_helpers_test.go`, and `cmd/go-humanize-linter/main.go` resolved (was: 9 issues, now: 0).
 - **H002/H009 false positive on `strings.Join(args, " ")`** — Space is not a thousands separator. Removed `" "` from the separator list in `isCommaSeparatorCall` (`pattern_comma.go`). Regression tests added: `TestRuleComma_StringsJoinSpace_NoFalsePositive` and `TestRuleCommaf_StringsJoinSpace_NoFalsePositive`.
 - **`findingToTokenPos` panic on out-of-range line numbers** — Added defensive `tf.LineCount() < f.Position.Line` guard before `token.File.LineStart`, which panics with "illegal line number (past end of file)" on out-of-range input. Regression test: `TestFindingToTokenPos_OutOfRangeLine`.
+- **Dishonest `//nolint:gosec` comment** — `WalkGoDir` is a public API, so "trusted project dirs" was inaccurate. Comment rewritten to accurately describe the trust model: path comes from `filepath.WalkDir` on the caller-supplied directory; trust is delegated to the caller.
+- **`action.yml` and `CONTRIBUTING.md` missing capital-L `GOPRIVATE` variant** — Both listed only `github.com/larsartmann/*` but `gogenfilter` is at `github.com/LarsArtmann/gogenfilter/v3`. Both case variants are now documented.
 
 ## [0.1.0] - 2026-07-30
 
