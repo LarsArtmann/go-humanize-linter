@@ -102,15 +102,15 @@ Read all 29 go-humanize-linter-related status reports written today across the p
 
 However, the analysis revealed that **the linter itself contributed to several downstream breakages**, which is the central problem this session is meant to address:
 
-| # | Project | What the linter (or its absence) caused | Severity |
-|---|---------|----------------------------------------|----------|
-| 1 | `BuildFlow` | Linter suggested replacing pluralization; AI used `humanize.SIWithDigits` because the actual API (`english.PluralWord`) was not obvious. Now `execution/` and `internal/cli/` do not compile. | Critical |
-| 2 | `file-and-image-renamer` | Linter has no way to validate suppression syntax. AI committed `//nolint:go-humanize-linter/H003` (wrong namespace). The directive is a no-op; the finding will re-fire for anyone on that commit. | Medium |
-| 3 | `golangci-lint-auto-configure` | Linter hint text says `humanize.Plural`, which does not exist. AI guessed `github.com/larsartmann/go-humanize` (nonexistent) and gave up. Finding still reported. | Medium |
-| 4 | `AI-Speed-Test` | Linter H002/H009 falsely flagged `strings.Join(args, " ")` as a comma-separator. AI first cargo-culted a suppression config instead of reading the source. | Low (fixed, not pushed) |
-| 5 | `DiscordSync` | H001 false-positive on a size-bucket lookup table. AI added `//nolint:gochecknoglobals` for a read-only table rather than the linter learning the difference. | Low |
-| 6 | `KeyCountdown` | H005 fired at 0.75 confidence on `Nanoseconds()/1e6`. AI fixed it, but the rule message overstates the match ("1.5K, 2.3M" vs. actual ms conversion). | Low |
-| 7 | `mr-sync`, `emeet-pixyd`, `invoices` | Linter fixes required `go.mod` / `vendorHash` / `depguard` changes the linter cannot see. AI shipped source changes without verifying the build pipeline. | Medium |
+| #   | Project                              | What the linter (or its absence) caused                                                                                                                                                            | Severity                |
+| --- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 1   | `BuildFlow`                          | Linter suggested replacing pluralization; AI used `humanize.SIWithDigits` because the actual API (`english.PluralWord`) was not obvious. Now `execution/` and `internal/cli/` do not compile.      | Critical                |
+| 2   | `file-and-image-renamer`             | Linter has no way to validate suppression syntax. AI committed `//nolint:go-humanize-linter/H003` (wrong namespace). The directive is a no-op; the finding will re-fire for anyone on that commit. | Medium                  |
+| 3   | `golangci-lint-auto-configure`       | Linter hint text says `humanize.Plural`, which does not exist. AI guessed `github.com/larsartmann/go-humanize` (nonexistent) and gave up. Finding still reported.                                  | Medium                  |
+| 4   | `AI-Speed-Test`                      | Linter H002/H009 falsely flagged `strings.Join(args, " ")` as a comma-separator. AI first cargo-culted a suppression config instead of reading the source.                                         | Low (fixed, not pushed) |
+| 5   | `DiscordSync`                        | H001 false-positive on a size-bucket lookup table. AI added `//nolint:gochecknoglobals` for a read-only table rather than the linter learning the difference.                                      | Low                     |
+| 6   | `KeyCountdown`                       | H005 fired at 0.75 confidence on `Nanoseconds()/1e6`. AI fixed it, but the rule message overstates the match ("1.5K, 2.3M" vs. actual ms conversion).                                              | Low                     |
+| 7   | `mr-sync`, `emeet-pixyd`, `invoices` | Linter fixes required `go.mod` / `vendorHash` / `depguard` changes the linter cannot see. AI shipped source changes without verifying the build pipeline.                                          | Medium                  |
 
 **Honest process failures in this session:**
 
@@ -127,6 +127,7 @@ However, the analysis revealed that **the linter itself contributed to several d
 **Problem:** AIs write `//nolint:go-humanize-linter/H003` because the module path is `github.com/larsartmann/go-humanize-linter`. The actual analyzer name is `gohumanize`. There is no feedback when the directive is misspelled.
 
 **Solution:**
+
 - Add `//nolint:verify` or `--verify-suppressions` mode that reports directives referencing an unknown linter name.
 - Add a `--verify-suppressions` run that reports any `//nolint:gohumanize[:Hxxx]` directive that does not actually suppress a finding in the current run (stale or mis-scoped).
 
@@ -135,6 +136,7 @@ However, the analysis revealed that **the linter itself contributed to several d
 **Problem:** H004 says "use humanize.Plural / humanize.PluralWord". `humanize.Plural` does not exist in `github.com/dustin/go-humanize`. The real function is `english.PluralWord` in the `github.com/dustin/go-humanize/english` sub-package.
 
 **Solution:**
+
 - Update H004 suggestion text to: `humanize.Plural` is not exposed; use `github.com/dustin/go-humanize/english.PluralWord(n, singular, plural)` or `english.Plural(n, singular, plural)` depending on whether the count is rendered separately.
 - Add a doc/rule example showing both shapes.
 
@@ -143,6 +145,7 @@ However, the analysis revealed that **the linter itself contributed to several d
 **Problem:** H002/H009 flagged `strings.Join(args, " ")` because `isSeparatorLiteral` accepted space as a comma-like separator. H001 flags table-driven size buckets (`small`, `medium`, `large` thresholds) because it sees unit strings.
 
 **Solution:**
+
 - Merge the `AI-Speed-Test` `pattern_comma.go` fix (drop `" "` from separator list) and add regression tests.
 - Add an H001 false-positive filter: if the function contains a `switch` over thresholds with labels like `small/medium/large` and no actual byte-formatting output string, skip it.
 
@@ -151,6 +154,7 @@ However, the analysis revealed that **the linter itself contributed to several d
 **Problem:** Replacing `formatBytes` with `humanize.IBytes` changes `"1.0 KB"` to `"1.0 KiB"`. Replacing with `humanize.Bytes` changes `"1.0 GB"` to `"1.1 GB"` for `1<<30` bytes. The linter reports H001 but does not warn that the fix changes user-visible strings.
 
 **Solution:**
+
 - Add a `--behavior-delta` or `--strict-compat` mode that emits an extra warning when the suggested replacement's output would differ from common hand-rolled implementations.
 - Update H001 suggestion text to explicitly call out the SI vs IEC choice.
 
@@ -159,6 +163,7 @@ However, the analysis revealed that **the linter itself contributed to several d
 **Problem:** AIs treat every finding as a work order. Low-confidence H005 matches (0.75) caused AIs to refactor code that was not actually a hand-rolled SI-prefix formatter.
 
 **Solution:**
+
 - Add `--min-confidence low|medium|high|full` (default `low`).
 - Return exit 2 for medium-confidence findings, exit 1 for high/full findings, so CI can distinguish "please triage" from "must fix".
 
@@ -167,6 +172,7 @@ However, the analysis revealed that **the linter itself contributed to several d
 **Problem:** Some functions mix legitimate custom status copy with a single hand-rolled time-formatting block. AIs must suppress the whole function (`//nolint:gohumanize:H003` on the function line) because they cannot suppress the specific `time.Since` call.
 
 **Solution:**
+
 - Allow `//nolint:gohumanize:H003` on the line immediately above the suspicious expression (not just the function declaration).
 - This requires detectors to return a more specific `token.Pos` than `fn.Pos()`.
 
@@ -175,6 +181,7 @@ However, the analysis revealed that **the linter itself contributed to several d
 **Problem:** AIs create `.go-humanize-linter.yml` files with `--disable H002,H009` instead of fixing the underlying false positive.
 
 **Solution:**
+
 - Add `--verify-config` that validates rule IDs and emits warnings for disabled rules that correspond to known fixed false positives.
 
 ### 8. Add a project-level consistency check
@@ -182,6 +189,7 @@ However, the analysis revealed that **the linter itself contributed to several d
 **Problem:** `auto-deduplicate` ended up with both `humanize.Bytes` (SI) in one package and a custom `FileSize.String()` switch in another, producing inconsistent output.
 
 **Solution:**
+
 - Add a new rule or mode (`--consistency`) that flags multiple byte-formatting helpers in the same module using different conventions (SI vs IEC).
 - This is a meta-rule, not an AST rule; it may belong in a separate tool or a linter plugin.
 
@@ -257,7 +265,7 @@ Prioritized by Pareto impact (prevent the most AI damage with the least effort f
 
 ## g) UP TO 3 QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **Which improvement should ship first?** The fixes fall into two buckets: (a) linter-core fixes that prevent false positives and wrong suggestions (H002/H009, H004 suggestion text, suppression verification), and (b) downstream cleanup of the 7 broken projects. The latter are consequences of the linter's current gaps; fixing the linter first prevents more damage, but the downstream projects are broken *now*. Should I prioritize upstream linter fixes or stop-the-bleeding in sibling projects?
+1. **Which improvement should ship first?** The fixes fall into two buckets: (a) linter-core fixes that prevent false positives and wrong suggestions (H002/H009, H004 suggestion text, suppression verification), and (b) downstream cleanup of the 7 broken projects. The latter are consequences of the linter's current gaps; fixing the linter first prevents more damage, but the downstream projects are broken _now_. Should I prioritize upstream linter fixes or stop-the-bleeding in sibling projects?
 
 2. **Should the linter detect "wrong humanize API usage" as a new rule?** For example, `humanize.SIWithDigits(float64(count), 0, "")` used as a plural suffix is semantically wrong but is not a hand-rolled reimplementation of humanize. Adding a rule for misused humanize APIs expands the linter's scope beyond its current charter. Is that in scope, or should that live in a separate "humanize-usage" linter?
 
