@@ -6,6 +6,7 @@ import (
 	"encoding/json/v2"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -1073,5 +1074,131 @@ func main() {
 
 	if !strings.Contains(string(out), "Added findings") {
 		t.Errorf("expected added-finding message, got: %s", out)
+	}
+}
+
+func TestLoadConfigRules_EmptyPath(t *testing.T) {
+	t.Parallel()
+
+	enable, disable, err := loadConfigRules("")
+	if err != nil {
+		t.Fatalf("loadConfigRules with empty path failed: %v", err)
+	}
+
+	if enable != nil || disable != nil {
+		t.Errorf("expected nil slices for empty config path, got enable=%v disable=%v", enable, disable)
+	}
+}
+
+func TestLoadConfigRules_ValidConfig(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(path, []byte("enable:\n  - H001\ndisable:\n  - H002\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	enable, disable, err := loadConfigRules(path)
+	if err != nil {
+		t.Fatalf("loadConfigRules failed: %v", err)
+	}
+
+	if len(enable) != 1 || enable[0] != "H001" {
+		t.Errorf("expected enable=[H001], got %v", enable)
+	}
+
+	if len(disable) != 1 || disable[0] != "H002" {
+		t.Errorf("expected disable=[H002], got %v", disable)
+	}
+}
+
+func TestLoadConfigRules_MissingFile(t *testing.T) {
+	t.Parallel()
+
+	_, _, err := loadConfigRules("/nonexistent/config.yaml")
+	if err == nil {
+		t.Fatal("expected error for missing config file, got nil")
+	}
+}
+
+func TestAppendSuppressionFindings(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	// A Go file with a stale suppression directive: //nolint:gohumanize:H001
+	// on a function that does not trigger H001. VerifySuppressions should
+	// produce an H0SUP finding that gets appended to the report.
+	if err := os.WriteFile(
+		filepath.Join(dir, "main.go"),
+		[]byte(`package main
+
+//nolint:gohumanize:H001
+func cleanFunc() string {
+	return "hello"
+}
+
+func main() {
+	_ = cleanFunc()
+}
+`),
+		0o600,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	report := finding.NewReport(finding.ToolInfo{Name: "test"})
+
+	if err := appendSuppressionFindings(dir, report); err != nil {
+		t.Fatalf("appendSuppressionFindings failed: %v", err)
+	}
+
+	if report.Len() == 0 {
+		t.Fatal("expected at least one H0SUP finding appended to report, got 0")
+	}
+}
+
+func TestSaveBaselineAndNotify(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "baseline.json")
+
+	report := finding.NewReportFromFindings(
+		finding.ToolInfo{Name: "test"},
+		[]finding.Finding{makeFinding(finding.ConfidenceHigh)},
+	)
+
+	// Redirect stderr to capture the notification message.
+	oldStderr := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+
+	os.Stderr = w
+
+	err = saveBaselineAndNotify(path, report)
+
+	_ = w.Close()
+	os.Stderr = oldStderr
+
+	if err != nil {
+		t.Fatalf("saveBaselineAndNotify failed: %v", err)
+	}
+
+	captured, _ := io.ReadAll(r)
+
+	if !strings.Contains(string(captured), "baseline saved") {
+		t.Errorf("expected 'baseline saved' notification, got: %s", captured)
+	}
+
+	if !strings.Contains(string(captured), path) {
+		t.Errorf("expected notification to include path %s, got: %s", path, captured)
+	}
+
+	// The baseline file should exist.
+	if _, err := os.Stat(path); err != nil {
+		t.Errorf("expected baseline file to exist: %v", err)
 	}
 }

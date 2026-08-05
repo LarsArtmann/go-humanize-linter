@@ -52,6 +52,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dot-import support** — `buildImportAliases` and `isPackageCall` now handle dot imports (`. "strings"` → bare `HasSuffix` calls). `hasTimeThresholdComparison` also supports dot-imported time constants.
 - **H009/H002 overlap disambiguation** — H002 is suppressed when H009 fires on the same function, preventing double diagnostics for float-with-comma formatting.
 - **`--behavior-delta` and `--save-baseline` CLI flags** — Save a finding baseline with `--save-baseline baseline.json`, then compare future runs with `--behavior-delta baseline.json`. Exits 0 if no delta, 1 if findings added or removed. Comparison is by (rule, file, line) tuple — message text changes don't trigger a delta.
+- **`action.yml` `save-baseline` and `behavior-delta` inputs** — The GitHub Action now exposes both baseline flags for CI delta workflows.
+- **ADR 0004** (`docs/adr/0004-behavior-delta.md`) — Documents the (rule, file, line) comparison key decision, exit code semantics, and the `0o600` baseline file mode rationale.
+- **ADR 0005** (`docs/adr/0005-h009-h002-disambiguation.md`) — Documents the unidirectional suppression of H002 when H009's pattern matches, and why H009 (more specific) wins over H002.
+- **`CONTRIBUTING.md` behavior delta workflow** — Documents the save-baseline / behavior-delta CI workflow for contributor PRs.
+- **Dot-import H003 testdata** (`testdata/h003_dot_import/`) — Exercises `isTimeDurationIdentifier` and the dot-import branch of `isDotImportOf`, restoring core coverage above 88.4%.
+- `TestLoadConfigRules_*`, `TestAppendSuppressionFindings`, `TestSaveBaselineAndNotify`, `TestRunBehaviorDelta_*`, `TestLoadBaseline_MalformedJSON`, `TestSaveBaseline_FilePermissions`, `TestRuleRelTime_DotImport` — unit tests for CLI helpers and dot-import H003 detection.
 - **`RuleIDH0SUP` exported constant** — The pseudo-rule ID for suppression verification is now an exported constant in `rules.go`, replacing the private `suppressionVerificationRuleID`.
 - **`docs/DOMAIN_LANGUAGE.md`** — Ubiquitous-language glossary covering rule IDs, corroborating signals, confidence levels, suppression directives, and detection architecture.
 - **`action.yml` inputs** — Added `min-confidence` and `verify-suppressions` inputs to the GitHub Action.
@@ -83,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `isPackageCall` now accepts variadic `aliases ...map[string]string` for import-alias resolution — backward compatible (existing callers compile without changes).
 - `flake.nix` lint script improved: proper exit-code propagation via `output=$(...); code=$?; ... exit $code` pattern (was `grep -v ... || true` which swallowed exit codes).
 - `plugin/plugin.go` doc comment rewritten with complete 4-step integration guide including the critical `linters.settings.custom` section.
-- Coverage: core 88.9%, CLI 46.9%, plugin 97.1% (all packages up from prior release: core 88.4%, CLI 38.4%, plugin 95.7%).
+- Coverage: core 88.9%, CLI 57.7%, plugin 97.1% (all packages up from prior release: core 88.4%, CLI 38.4%, plugin 95.7%).
 - Dependencies: `github.com/golangci/plugin-module-register v0.1.2` and `gopkg.in/yaml.v3 v3.0.1` promoted from indirect to direct.
 - `plugin.run` → `plugin.analyzeHumanize` (better grep-ability).
 - `printRules()` now writes to stdout (was: stderr) so it pipes cleanly.

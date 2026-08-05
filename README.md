@@ -143,6 +143,10 @@ go-humanize-linter --behavior-delta baseline.json ./...
     # enable: H001,H003     # only run these rules
     # disable: H004          # skip these rules
     # format: sarif          # text (default), json, or sarif
+    # min-confidence: high   # low (default), medium, high, full
+    # verify-suppressions: true  # report stale //nolint directives
+    # behavior-delta: baseline.json  # fail if findings changed vs baseline
+    # save-baseline: baseline.json   # save current findings as baseline
 ```
 
 ### Suppressing findings

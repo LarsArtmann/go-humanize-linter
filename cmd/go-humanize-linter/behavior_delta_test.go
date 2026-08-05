@@ -220,3 +220,90 @@ func newFinding(rule, file string, line int) finding.Finding {
 		WithConfidence(finding.ConfidenceHigh).
 		MustBuild()
 }
+
+func TestLoadBaseline_MalformedJSON(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "baseline.json")
+
+	if err := os.WriteFile(path, []byte("{not valid json"), 0o600); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+
+	_, err := loadBaseline(path)
+	if err == nil {
+		t.Fatal("expected error for malformed JSON, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "parse baseline JSON") {
+		t.Errorf("expected parse error message, got: %v", err)
+	}
+}
+
+func TestSaveBaseline_FilePermissions(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "baseline.json")
+
+	report := finding.NewReportFromFindings(
+		finding.ToolInfo{Name: "test"},
+		[]finding.Finding{newFinding("H001", "a.go", 10)},
+	)
+
+	if err := saveBaseline(path, report); err != nil {
+		t.Fatalf("saveBaseline: %v", err)
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat: %v", err)
+	}
+
+	// baselineFileMode is 0o600 — only the owner can read/write.
+	const expectedPerm os.FileMode = 0o600
+	if info.Mode().Perm() != expectedPerm {
+		t.Errorf("expected file mode %v, got %v", expectedPerm, info.Mode().Perm())
+	}
+}
+
+func TestRunBehaviorDelta_NoDelta(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "baseline.json")
+
+	report := finding.NewReportFromFindings(
+		finding.ToolInfo{Name: "test"},
+		[]finding.Finding{newFinding("H001", "a.go", 10)},
+	)
+
+	// Save a baseline matching the report above.
+	if err := saveBaseline(path, report); err != nil {
+		t.Fatalf("saveBaseline: %v", err)
+	}
+
+	// runBehaviorDelta returns nil when the report matches the baseline.
+	if err := runBehaviorDelta(path, report); err != nil {
+		t.Fatalf("runBehaviorDelta with matching baseline returned error: %v", err)
+	}
+}
+
+func TestRunBehaviorDelta_MissingBaseline(t *testing.T) {
+	t.Parallel()
+
+	report := finding.NewReportFromFindings(
+		finding.ToolInfo{Name: "test"},
+		nil,
+	)
+
+	err := runBehaviorDelta("/nonexistent/baseline.json", report)
+	if err == nil {
+		t.Fatal("expected error for missing baseline file, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "load baseline") {
+		t.Errorf("expected load baseline error, got: %v", err)
+	}
+}
