@@ -262,6 +262,30 @@ func TestRuleCommaf_Negative(t *testing.T) {
 	}
 }
 
+// TestRuleComma_StringsJoinSpace_NoFalsePositive is a regression test for the
+// bug where H002/H009 fired on functions that joined CLI args with a single
+// space (" "). A space is not a thousands separator, so this pattern must
+// stay clean even when paired with a for-loop and strconv.Itoa (the fallback
+// heuristic's other triggers). See pattern_comma.go and the feedback doc at
+// docs/feedback/new/2026-08-05_h002-h009-strings-join-space-false-positive.md.
+func TestRuleComma_StringsJoinSpace_NoFalsePositive(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleComma(), testdataDir(t, "h002_strings_join_space"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings on strings.Join(args, \" \") fixture, got %d: %+v", len(findings), findings)
+	}
+}
+
+func TestRuleCommaf_StringsJoinSpace_NoFalsePositive(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleCommaf(), testdataDir(t, "h002_strings_join_space"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings on strings.Join(args, \" \") fixture for H009, got %d: %+v", len(findings), findings)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H008 — manual-ordinal
 // ---------------------------------------------------------------------------
