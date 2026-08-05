@@ -166,8 +166,8 @@ func isPackageCall(call *ast.CallExpr, pkg, name string, aliases ...map[string]s
 	return false
 }
 
-// aliasesResolveTo reports whether any of the provided alias maps maps local to
-// the canonical package path pkg.
+// aliasesResolveTo reports whether any of the provided alias maps resolves a
+// local identifier to the canonical package path pkg.
 func aliasesResolveTo(aliases []map[string]string, local, pkg string) bool {
 	for _, aliasMap := range aliases {
 		if resolved, ok := aliasMap[local]; ok {

@@ -31,11 +31,10 @@ import (
 	"os"
 	"strings"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/larsartmann/go-finding"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/larsartmann/go-linter-sdk"
+	"gopkg.in/yaml.v3"
 )
 
 // versionDev is the placeholder used when the binary is built without
@@ -88,20 +87,20 @@ func main() {
 // is provided, and returns any other error for the caller to print and exit.
 func run() error {
 	var (
-		enableIDs       stringList
-		disableIDs      stringList
-		format          string
-		quiet           bool
-		showVersion     bool
-		showRules       bool
-		listFiles       bool
-		explain         string
-		outputPath      string
-		configPath      string
-		minConfidence   string
-		verifySupps     bool
-		behaviorDelta   string
-		saveBaseline    string
+		enableIDs     stringList
+		disableIDs    stringList
+		format        string
+		quiet         bool
+		showVersion   bool
+		showRules     bool
+		listFiles     bool
+		explain       string
+		outputPath    string
+		configPath    string
+		minConfidence string
+		verifySupps   bool
+		behaviorDelta string
+		saveBaseline  string
 	)
 
 	flag.Var(&enableIDs, "enable", "enable specific rule ID (repeatable, default: all)")
@@ -236,7 +235,7 @@ func runScan(
 }
 
 // loadConfigRules loads rule enable/disable settings from configPath when given.
-func loadConfigRules(configPath string) (enable, disable []string, err error) {
+func loadConfigRules(configPath string) ([]string, []string, error) {
 	if configPath == "" {
 		return nil, nil, nil
 	}

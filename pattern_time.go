@@ -43,18 +43,6 @@ func hasTimeSinceOrSub(fn *ast.FuncDecl, aliases map[string]string) bool {
 // timePackagePath is the canonical import path for the time package.
 const timePackagePath = "time"
 
-// timeDurationConstants holds the names of time-package duration constants that
-// typically appear in relative-time threshold comparisons.
-var timeDurationConstants = map[string]bool{
-	"Second": true,
-	"Minute": true,
-	"Hour":   true,
-	"Day":    true,
-	"Week":   true,
-	"Month":  true,
-	"Year":   true,
-}
-
 // isDotImportOf reports whether the aliases map contains a dot import for the
 // given canonical package path.
 func isDotImportOf(aliases map[string]string, path string) bool {
@@ -70,16 +58,15 @@ func isDotImportOf(aliases map[string]string, path string) bool {
 	return resolved == path || strings.HasSuffix(resolved, "/"+path)
 }
 
-// isTimeDurationIdentifier reports whether node is a bare identifier that names a
-// time-package duration constant. This only matches when a dot import for the
-// time package is active.
-func isTimeDurationIdentifier(node ast.Node) bool {
-	ident, ok := node.(*ast.Ident)
-	if !ok {
+// isTimeDurationName reports whether name is one of the time-package duration
+// constants that typically appear in relative-time threshold comparisons.
+func isTimeDurationName(name string) bool {
+	switch name {
+	case "Second", "Minute", "Hour", "Day", "Week", "Month", "Year":
+		return true
+	default:
 		return false
 	}
-
-	return timeDurationConstants[ident.Name]
 }
 
 // isTimeDurationSelector reports whether node is a selector expression that
@@ -90,8 +77,7 @@ func isTimeDurationSelector(node ast.Node, aliases map[string]string) bool {
 		return false
 	}
 
-	name := sel.Sel.Name
-	if !timeDurationConstants[name] {
+	if !isTimeDurationName(sel.Sel.Name) {
 		return false
 	}
 
@@ -114,6 +100,18 @@ func isTimeDurationSelector(node ast.Node, aliases map[string]string) bool {
 	}
 
 	return resolved == timePackagePath || strings.HasSuffix(resolved, "/"+timePackagePath)
+}
+
+// isTimeDurationIdentifier reports whether node is a bare identifier that names a
+// time-package duration constant. This only matches when a dot import for the
+// time package is active.
+func isTimeDurationIdentifier(node ast.Node) bool {
+	ident, ok := node.(*ast.Ident)
+	if !ok {
+		return false
+	}
+
+	return isTimeDurationName(ident.Name)
 }
 
 // hasTimeThresholdComparison reports whether fn compares an expression against

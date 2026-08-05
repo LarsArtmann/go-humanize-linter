@@ -24,6 +24,10 @@ type baselineFile struct {
 	Findings []baselineEntry `json:"findings"`
 }
 
+// baselineFileMode is the file mode used when writing baseline JSON files.
+// It is restrictive because baselines may be checked into source control.
+const baselineFileMode = 0o600
+
 // findingKey is the stable identity tuple used for delta comparison.
 type findingKey struct {
 	Rule string
@@ -72,7 +76,7 @@ func saveBaseline(path string, report *finding.Report) error {
 
 	data = append(data, '\n')
 
-	if err := os.WriteFile(path, data, 0o600); err != nil {
+	if err := os.WriteFile(path, data, baselineFileMode); err != nil {
 		return fmt.Errorf("write baseline: %w", err)
 	}
 
