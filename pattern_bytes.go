@@ -102,7 +102,28 @@ func hasByteUnitSlice(fn *ast.FuncDecl) bool {
 	return hit
 }
 
-// hasDivisionByPowerOf1024 reports whether fn contains a binary division whose
+// hasSwitchStatement reports whether fn contains any switch statement.
+// Used as an H001 false-positive filter: a switch full of byte-unit labels
+// with no division by 1024 is usually a size-bucket lookup table, not a
+// byte-size formatter.
+func hasSwitchStatement(fn *ast.FuncDecl) bool {
+	hit := false
+
+	ast.Inspect(fn, func(n ast.Node) bool {
+		if _, ok := n.(*ast.SwitchStmt); ok {
+			hit = true
+		}
+
+		if _, ok := n.(*ast.TypeSwitchStmt); ok {
+			hit = true
+		}
+
+		return true
+	})
+
+	return hit
+}
+
 // divisor is the literal 1024, 1048576 (1024²), 1073741824 (1024³), or any
 // expression multiplying by 1024.
 func hasDivisionByPowerOf1024(fn *ast.FuncDecl) bool {
