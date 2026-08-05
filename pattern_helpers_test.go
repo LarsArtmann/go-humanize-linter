@@ -678,7 +678,19 @@ func f() string {
 	return strings.Join([]string{"a", "b"}, " ")
 }
 `,
-			want: true,
+			want: false,
+		},
+		{
+			name: "strings.Join with double space",
+			src: `package main
+
+import "strings"
+
+func f() string {
+	return strings.Join([]string{"a", "b"}, "  ")
+}
+`,
+			want: false,
 		},
 		{
 			name: "WriteString no separator",

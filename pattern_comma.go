@@ -57,9 +57,15 @@ func hasCommaOrSeparator(fn *ast.FuncDecl, aliases map[string]string) bool {
 
 // isCommaSeparatorCall reports whether a call expression writes a comma or
 // thousands separator via strings.Join, WriteString, WriteByte, or WriteRune.
+//
+// Note: strings.Join with a single space (" ") is treated as a non-signal:
+// " " is not a thousands separator, and joining CLI args with a space is a
+// common, legitimate pattern that shares none of the heuristic weight of ","
+// or ".". Including it here would cause false positives for any function that
+// builds a shell-style command line (see regression test).
 func isCommaSeparatorCall(call *ast.CallExpr, aliases map[string]string) bool {
 	if isPackageCall(call, "strings", "Join", aliases) && len(call.Args) >= 2 {
-		if isSeparatorLiteral(call.Args[1], ",", ".", " ") {
+		if isSeparatorLiteral(call.Args[1], ",", ".") {
 			return true
 		}
 	}
