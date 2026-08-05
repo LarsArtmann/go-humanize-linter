@@ -4,7 +4,7 @@
 **Date:** 2026-08-05
 **Linter version:** latest from `/home/lars/projects/go-humanize-linter` (built binary `/tmp/go-humanize-linter`)
 **Severity:** medium — produces false positives on common Go code; first impression is a noisy tool
-**Status:** root cause identified; one-line fix shipped locally; regression test added; awaiting upstream push
+**Status:** ~~root cause identified; one-line fix shipped locally; regression test added; awaiting upstream push~~ **RESOLVED** — fix merged upstream: `" "` removed from `isCommaSeparatorCall` separator list in `pattern_comma.go`. Regression tests `TestRuleComma_StringsJoinSpace_NoFalsePositive` and `TestRuleCommaf_StringsJoinSpace_NoFalsePositive` added. Documented in `CHANGELOG.md [0.2.0]` → Fixed.
 
 ---
 
