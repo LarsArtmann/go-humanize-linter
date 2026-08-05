@@ -73,7 +73,8 @@
             inherit version;
             src = lib.cleanSourceWith {
               src = ./.;
-              filter = path: type:
+              filter =
+                path: type:
                 let
                   base = baseNameOf path;
                   excludedDirs = [
