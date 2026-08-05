@@ -20,7 +20,7 @@
 | T19 | Per-statement `//nolint` suppression support              | Medium | M      | planned |
 | T20 | `--behavior-delta` flag for regression testing            | Low    | M      | planned |
 | T21 | Propose `ExitCodeFromReportConfidence` upstream           | Low    | S      | planned |
-| T23 | Exclude H0SUP findings from confidence filtering                  | Medium | XS     | planned |
+| T23 | Exclude H0SUP findings from confidence filtering          | Medium | XS     | planned |
 
 ---
 
