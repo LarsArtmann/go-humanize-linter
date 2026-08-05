@@ -66,13 +66,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **H0SUP bypasses confidence filtering** — Suppression-verification findings (`H0SUP`) now skip the `minConfidence` check in the plugin path. Without this, `minConfidence: "full"` would silently hide all stale-directive diagnostics (they are `ConfidenceHigh`, below `ConfidenceFull`). `RuleIDH0SUP` exported as a public constant in `rules.go`.
 - **H004 suggestion text corrected** — Now references `github.com/dustin/go-humanize/english.Plural` and `english.PluralWord` (the correct sub-package APIs), not the non-existent `humanize.Plural`.
 - **H001 confidence levels refined** — Unit-slice matches without division-by-1024 are lowered from `ConfidenceFull` to `ConfidenceMedium`. Switch-based and unit-slice size-bucket lookups without div1024 are suppressed entirely (`return nil`).
 - **CLI `main()` refactored** — Extracted into `run()` + `runScan()` for testability and to stay under the cyclop complexity threshold. New sentinel errors `errNoPath` and `errInvalidConfidence`.
 - `isPackageCall` now accepts variadic `aliases ...map[string]string` for import-alias resolution — backward compatible (existing callers compile without changes).
 - `flake.nix` lint script improved: proper exit-code propagation via `output=$(...); code=$?; ... exit $code` pattern (was `grep -v ... || true` which swallowed exit codes).
 - `plugin/plugin.go` doc comment rewritten with complete 4-step integration guide including the critical `linters.settings.custom` section.
-- Coverage: core 88.5% (was 87.9%), CLI 40.9% (was 31.4%), plugin 89.6% (was 93.8% — additional branches from configurable rules and suppression verification).
+- Coverage: core 89.4%, CLI 40.9%, plugin 95.7% (plugin up from 89.6% due to H0SUP bypass and confidence-filter analysistest coverage).
 - Dependencies: `github.com/golangci/plugin-module-register v0.1.2` and `gopkg.in/yaml.v3 v3.0.1` promoted from indirect to direct.
 - `plugin.run` → `plugin.analyzeHumanize` (better grep-ability).
 - `printRules()` now writes to stdout (was: stderr) so it pipes cleanly.
