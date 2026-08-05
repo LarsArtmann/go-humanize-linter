@@ -7,7 +7,6 @@ import (
 
 	"github.com/larsartmann/go-finding"
 	"github.com/larsartmann/go-linter-sdk"
-	"golang.org/x/tools/go/analysis"
 )
 
 // Rule ID constants — the single source of truth for rule identifiers.
@@ -70,10 +69,6 @@ func AllRules() []linter.RuleFunc {
 // Then run it on a single function:
 //
 //	findings := detector.Run(fset, file, fn, "demo.go")
-//
-// Or stream it across a whole package:
-//
-//	detector.RunOverPackage(pass) // plugin path — pass.Files iteration
 type HumanizeDetector struct {
 	detectors []ruleDetectors
 }
@@ -130,32 +125,6 @@ func (d *HumanizeDetector) Run(
 	}
 
 	return all
-}
-
-// RunOverPackage iterates over every Go file in pass.Files and applies the
-// detector to each function declaration. This is the entry point used by the
-// golangci-lint plugin path.
-func (d *HumanizeDetector) RunOverPackage(pass *analysis.Pass) (any, error) {
-	for _, file := range pass.Files {
-		filePath := pass.Fset.Position(file.Pos()).Filename
-
-		for _, decl := range file.Decls {
-			fn, ok := decl.(*ast.FuncDecl)
-			if !ok {
-				continue
-			}
-
-			for _, f := range d.Run(pass.Fset, file, fn, filePath) {
-				pass.Report(analysis.Diagnostic{
-					Pos:      fn.Pos(),
-					Message:  string(f.Rule) + ": " + f.Message,
-					Category: "humanize",
-				})
-			}
-		}
-	}
-
-	return nil, nil //nolint:nilnil // analysis.Analyzer.Run requires (any, error)
 }
 
 // ruleDetectors pairs each rule's detector with its ID so DetectFuncDecl can

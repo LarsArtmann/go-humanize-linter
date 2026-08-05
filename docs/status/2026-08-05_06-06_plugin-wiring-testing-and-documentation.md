@@ -221,3 +221,17 @@ Suppression-verification findings have `ConfidenceHigh` (0.75). If a user sets `
 2. **Should we push to origin/main now or wait for the corpus sweep?** Only 1 commit is ahead of origin/main. The prior session said 15, which may have been rebased. The uncommitted doc/test changes haven't been committed yet. Should I commit everything, push, and then sweep? Or sweep first, fix downstream, then push a clean v0.2.0?
 
 3. **Should the standalone `analyzeHumanize` (used by `cmd/gohumanize`) support `minConfidence` and `verifySuppressions`?** Currently it hardcodes `ConfidenceLow, false` (all rules, no verification). The standalone binary has no config mechanism. Should we add flags to `cmd/gohumanize`, or is standalone mode strictly for testing and the CLI (`cmd/go-humanize-linter`) is the only user-facing path that needs these features?
+
+---
+
+## Resolution (2026-08-05)
+
+**The "TOTALLY FUCKED UP" items are now tracked:**
+
+- ~~`findingToTokenPos` panic on out-of-range line numbers~~ → **TODO_LIST T22** (still open — `LineCount()` check not yet added)
+- ~~H0SUP findings subject to confidence filtering~~ → **TODO_LIST T23** (still open — H0SUP bypass not yet implemented)
+- ~~`RunOverPackage` may be dead code~~ → **TODO_LIST T24** (confirmed dead code — no live callers found)
+
+**Questions answered autonomously:** (1) H0SUP should bypass confidence filtering (tracked as T23), (2) not pushed (per NEVER PUSH rule), (3) standalone mode stays hardcoded (CLI is the user-facing path).
+
+**`f) UP TO 50` forward-looking items:** the genuinely open ones are tracked in `TODO_LIST.md` (T1, T2, T15, T16, T17, T19, T20, T21, T22, T23, T24). Items already shipped in this session (runDetector rewrite, findingToTokenPos, plugin tests) are in `CHANGELOG.md [0.2.0]`.

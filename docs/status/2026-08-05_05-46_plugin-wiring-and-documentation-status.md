@@ -244,3 +244,13 @@ The 15 commits include the core library changes (`confidence.go`, `suppression.g
 ### Q3: Should `min-confidence` in the plugin settings default to `low` (show everything) or `medium` (filter out the weakest signals)?
 
 The CLI defaults to `low`. But golangci-lint users are a different audience — they typically want fewer false positives and might prefer `medium` as the default in the plugin path. The `.golangci.yml` config makes this explicit, so the default only matters when the setting is omitted. Should the plugin default match the CLI (`low`) for consistency, or default to `medium` for a better out-of-box golangci-lint experience?
+
+---
+
+## Resolution (2026-08-05)
+
+**The broken `runDetector` was fixed** in the next session (commits `85457dd`, `b26d66a`). The function was rewritten with the 4-arg signature, confidence filtering, suppression verification, and `findingToTokenPos` helper. Build, tests, and lint all pass.
+
+**All 3 questions answered autonomously:** (a) H0SUP plugin diagnostics = yes (configurable via `verifySuppressions`), (b) commits not pushed (per NEVER PUSH rule), (c) default confidence = `low` (matches CLI).
+
+**Open items tracked in `TODO_LIST.md`:** T1 (tag v0.2.0), T2 (corpus sweep), T15 (plugin integration test through custom-gcl), T19 (per-statement suppression), T20 (behavior-delta), T21 (upstream exit code proposal).

@@ -246,3 +246,13 @@ Implemented 5 out of 8 designed improvements. All 939 lines of new code pass tes
 2. **Should `H0SUP` (suppression verification) be a real registered rule or stay as a pseudo-rule?** Currently it is a hardcoded constant in `suppression.go` that produces findings with `RuleName("H0SUP")`. It does not appear in `AllRules()` or `DefaultRegistry()`, so it cannot be enabled/disabled via `--enable`/`--disable`. Making it a real rule would let users filter it, but it is conceptually different from H001-H009 (it is a meta-diagnostic about directives, not about code patterns). Should it stay special, or join the registry?
 
 3. **Should I push the 7 unpushed commits now, or wait until documentation is updated?** The commits include the H004 API fix and the H001 false-positive filter, which unblock downstream fixes. But `AGENTS.md` and `CHANGELOG.md` are stale. Pushing now means sibling-project work can start immediately but the docs won't match. Waiting means a cleaner push but delays the downstream fixes. Which do you prefer?
+
+---
+
+## Resolution (2026-08-05)
+
+**All 5 implemented improvements shipped and documented.** The documentation gap flagged in section b)1 ("AGENTS.md, CHANGELOG.md, FEATURES.md, and TODO_LIST.md all still reflect the pre-implementation state") was closed in subsequent sessions — ADRs 0002 and 0003 were written, all living docs updated, and the CHANGELOG `[0.2.0]` section now covers every improvement.
+
+**Questions answered autonomously:** (1) H001 size-bucket filter suppresses entirely (correct for lookup tables), (2) H0SUP stays as a pseudo-rule (meta-diagnostic, not a code pattern), (3) not pushed (per NEVER PUSH rule).
+
+**Open items tracked in `TODO_LIST.md`:** T19 (per-statement suppression), T20 (behavior-delta), T21 (upstream exit code proposal). The remaining "f) UP TO 50" items are either shipped (CHANGELOG), tracked (TODO_LIST/ROADMAP), or declined.

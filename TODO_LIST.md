@@ -144,15 +144,15 @@ for detecting false-positive regressions when detector logic changes.
 
 ## Code cleanup
 
-### T24 — Remove dead `RunOverPackage` method · Low · _planned_
+### T24 — Remove dead `RunOverPackage` method · Low · _done_
 
 `HumanizeDetector.RunOverPackage()` in `rules.go` was the old plugin entry
 point. The plugin now uses `runDetector` which inlines the same logic.
 `RunOverPackage` has no live callers (verified via grep — only a commented-out
 reference exists).
 
-- [ ] Remove `RunOverPackage` or deprecate with a `// Deprecated:` comment
-- [ ] Update `CHANGELOG.md` Removed section
+- [x] Remove `RunOverPackage` or deprecate with a `// Deprecated:` comment
+- [x] Update `CHANGELOG.md` Removed section
 
 ---
 

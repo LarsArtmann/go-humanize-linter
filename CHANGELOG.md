@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **H009** (manual-commaf): Detects `%.Nf` + manual separator grouping. Suggests `humanize.Commaf`.
 - Scoped `//nolint:gohumanize:H001` directives — each rule can be suppressed individually.
 - Go-style `//lint:ignore gohumanize` alternative syntax.
-- `HumanizeDetector` facade with `Run` and `RunOverPackage` methods.
+- `HumanizeDetector` facade with `Run` method.
 - `--list-files <dir>` CLI flag for debugging walker scope.
 - `--explain Hxxx` CLI flag — prints a one-paragraph rationale for any rule.
 - `TestSinglechecker_CleanCode` + `TestSinglechecker_PositiveFinding` — closes 0% coverage gap on the singlechecker binary.
@@ -85,6 +85,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ruleExplanations` map switched to local `h001`–`h009` constants so `goconst` doesn't flag the repeated rule-ID strings.
 - Removed `//nolint:erraudit` directives from `walker.go` (the tool is not a golangci-lint linter — referenced directly in prose comments instead).
 - `nix run .#lint` now filters the informational "Found unknown linters in //nolint directives: gohumanize" warning that golangci-lint emits for the project's own plugin-loaded analyzer.
+
+### Removed
+
+- **`HumanizeDetector.RunOverPackage`** — Dead code; the golangci-lint plugin path uses `runDetector` (in `plugin/plugin.go`) which inlines the same iteration logic with additional features (generated-file skipping, confidence filtering, suppression verification, per-finding position reporting via `findingToTokenPos`). `RunOverPackage` had no live callers.
 
 ### Fixed
 

@@ -206,6 +206,22 @@ Pareto-prioritized — the top 5 deliver 80% of the value:
 
 ---
 
+## Resolution (2026-08-05)
+
+**CHANGELOG entry added** under `[0.2.0] - Unreleased` → Added section (gogenfilter integration). **AGENTS.md typos fixed** (counterfeiter duplication, `_gen.go`/`.gen.go` listing). **CHANGELOG line 21 stale `parseConfidenceLevel()` reference corrected.**
+
+**Items 1–2 (AGENTS.md typos):** Fixed. The "counterfeiter, counterfeiter" duplication and the `_gen.go`/`.gen.go` listing were corrected.
+
+**Item 3 (`//nolint:gosec` dishonest comment):** Still open — the walker is a public API and the comment still claims "trusted project dirs."
+
+**Items 5–6 (asymmetric CLI/plugin skip behavior):** Still open — documented in AGENTS.md as a known behavior difference.
+
+**Items 7–10 (process and code improvements):** Still open — tracked in TODO_LIST.md or AGENTS.md gotchas where relevant.
+
+**Open items tracked in `TODO_LIST.md`:** T2 (corpus sweep including gogenfilter verification).
+
+---
+
 ## g) UP TO 3 QUESTIONS I CANNOT FIGURE OUT MYSELF
 
 1. **Should the plugin path (`runDetector`) read the file from disk to feed `IsGeneratedFile` content, eliminating the asymmetric skip behavior?** The cost is one `os.ReadFile` per file per package load — small, but non-zero. The benefit is CLI/plugin parity. I cannot decide without knowing your tolerance for extra I/O in the golangci-lint runtime.

@@ -200,3 +200,13 @@ Prioritized by Pareto impact (1% over baseline → 51% of value first):
 2. **Should `matchesLegacyGeneratedSuffix` be removed in a follow-up PR (or as part of this one)?** The fallback is a workaround for gogenfilter's narrow table. It works today but adds debt. Removing it requires either (a) upstreaming to gogenfilter or (b) accepting that `foo_gen.go` files are linted as hand-written code. The trade-off cannot be resolved without knowing your appetite for upstream contributions and your tolerance for false positives.
 
 3. **Should the `walker.go` continue to use `os.ReadFile` for files outside the trusted project dirs, or should it require an `allowPaths` plugin option?** The current behavior scans whatever directory you pass it. The `//nolint:gosec` is correct for the CLI use case, but the walker is exported in a public package and could be misused by a downstream integration (e.g., a malicious `WalkGoDir("/etc")` call). I cannot decide whether to add a security boundary without knowing your threat model for the public API.
+
+---
+
+## Resolution (2026-08-05)
+
+**Superseded by `2026-08-05_05-29_gogenfilter-integration-brutal-reaudit.md`** — that report audited this session's work line-by-line and found the typos, the dishonest `//nolint:gosec` comment, and the asymmetric CLI/plugin skip behavior that this report missed.
+
+**CHANGELOG entry added** under `[0.2.0] - Unreleased` → Added section. **Questions:** (1) gogenfilter floats on master (matching sibling deps), (2) legacy fallback retained for now, (3) walker trust model still open.
+
+**Open items:** T2 (corpus sweep with gogenfilter verification), the `//nolint:gosec` honesty issue, and the asymmetric skip behavior are documented in AGENTS.md gotchas.

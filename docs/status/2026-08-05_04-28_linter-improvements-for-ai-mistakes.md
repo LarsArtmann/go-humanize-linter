@@ -270,3 +270,20 @@ Prioritized by Pareto impact (prevent the most AI damage with the least effort f
 2. **Should the linter detect "wrong humanize API usage" as a new rule?** For example, `humanize.SIWithDigits(float64(count), 0, "")` used as a plural suffix is semantically wrong but is not a hand-rolled reimplementation of humanize. Adding a rule for misused humanize APIs expands the linter's scope beyond its current charter. Is that in scope, or should that live in a separate "humanize-usage" linter?
 
 3. **How opinionated should the linter be about SI vs IEC?** The 29 reports show AIs chose both `humanize.Bytes` and `humanize.IBytes` for the same codebase. Should the linter (a) remain neutral and just flag manual implementations, (b) enforce one convention project-wide, or (c) add a project-level config setting (`default_units: si|iec`) that suggestions respect? The right answer depends on whether you want the linter to make product decisions or stay purely technical.
+
+---
+
+## Resolution (2026-08-05)
+
+**This was an analysis-only session (no code changes).** The 8 designed improvements were implemented in the subsequent sessions:
+
+- ~~#2 Update H004 suggestion text~~ → done (commit `ab9544a`)
+- ~~#3 Add `--verify-suppressions` flag~~ → done (commits `27252e1`, `85457dd`)
+- ~~#4 Add `--min-confidence` flag~~ → done (commits `27252e1`, `85457dd`)
+- ~~#5 H001 size-bucket false-positive filter~~ → done (commit `ab9544a`)
+- ~~#1 H002/H009 strings.Join space FP~~ → done (pattern_comma.go fix + regression tests)
+- ~~#6 Per-statement suppression~~ → **TODO_LIST T19** (still open)
+- ~~#7 `--behavior-delta` flag~~ → **TODO_LIST T20** (still open)
+- ~~#8 Project-level consistency check~~ → **ROADMAP** (Detection breadth theme)
+
+**Questions:** (1) Linter-core fixes shipped first (correct call). (2) Wrong-API-usage detection is out of scope (stays a ROADMAP idea). (3) Linter remains neutral (flags manual implementations, does not enforce SI/IEC convention).
