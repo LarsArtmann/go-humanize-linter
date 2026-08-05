@@ -777,6 +777,7 @@ func TestExitCodeFromReport(t *testing.T) {
 
 	t.Run("nil report", func(t *testing.T) {
 		t.Parallel()
+
 		if got := exitCodeFromReport(nil); got != 0 {
 			t.Errorf("exitCodeFromReport(nil) = %d, want 0", got)
 		}
@@ -784,6 +785,7 @@ func TestExitCodeFromReport(t *testing.T) {
 
 	t.Run("empty report", func(t *testing.T) {
 		t.Parallel()
+
 		report := finding.NewReport(finding.ToolInfo{Name: "test"})
 		if got := exitCodeFromReport(report); got != 0 {
 			t.Errorf("exitCodeFromReport(empty) = %d, want 0", got)
@@ -792,6 +794,7 @@ func TestExitCodeFromReport(t *testing.T) {
 
 	t.Run("medium only", func(t *testing.T) {
 		t.Parallel()
+
 		report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
 			makeFinding(finding.ConfidenceMedium),
 		})
@@ -802,6 +805,7 @@ func TestExitCodeFromReport(t *testing.T) {
 
 	t.Run("high only", func(t *testing.T) {
 		t.Parallel()
+
 		report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
 			makeFinding(finding.ConfidenceHigh),
 		})
@@ -812,6 +816,7 @@ func TestExitCodeFromReport(t *testing.T) {
 
 	t.Run("mixed medium and high", func(t *testing.T) {
 		t.Parallel()
+
 		report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
 			makeFinding(finding.ConfidenceMedium),
 			makeFinding(finding.ConfidenceHigh),
@@ -866,7 +871,7 @@ func main() {
 	_ = labels()
 }
 `),
-		0o644,
+		0o600,
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -876,6 +881,7 @@ func main() {
 	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", dir,
 	)
+
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	out, err := cmd.CombinedOutput()
@@ -887,6 +893,7 @@ func main() {
 	cmd = exec.CommandContext( //nolint:gosec // test binary path is trusted
 		context.Background(), binary, "--quiet", "--min-confidence", "high", dir,
 	)
+
 	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
 
 	out, err = cmd.CombinedOutput()
@@ -912,7 +919,7 @@ func main() {
 	staleSuppression()
 }
 `),
-		0o644,
+		0o600,
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -956,7 +963,7 @@ func main() {
 	_ = noByteFormatting()
 }
 `),
-		0o644,
+		0o600,
 	)
 	if err != nil {
 		t.Fatal(err)

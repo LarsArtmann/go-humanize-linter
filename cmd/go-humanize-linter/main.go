@@ -157,14 +157,26 @@ func run() error {
 		return errNoPath
 	}
 
-	dir := args[0]
+	return runScan(args[0], configPath, enableIDs, disableIDs, minConfidence, verifySupps, outputPath, format, quiet)
+}
 
+// runScan runs the linter against dir, optionally verifies suppressions, filters
+// by confidence, and writes the report. It exits the process with the
+// confidence-aware exit code.
+func runScan(
+	dir, configPath string,
+	enableIDs, disableIDs []string,
+	minConfidence string,
+	verifySupps bool,
+	outputPath, format string,
+	quiet bool,
+) error {
 	var cfgEnable, cfgDisable []string
 
 	if configPath != "" {
 		cfg, err := loadConfig(configPath)
 		if err != nil {
-			return err
+			return fmt.Errorf("load config: %w", err)
 		}
 
 		cfgEnable = cfg.Enable
@@ -175,13 +187,13 @@ func run() error {
 
 	report, err := registry.Run(context.Background(), dir)
 	if err != nil {
-		return err
+		return fmt.Errorf("run linter: %w", err)
 	}
 
 	if verifySupps {
 		verifyFindings, verifyErr := humanizelint.VerifySuppressions(dir, report)
 		if verifyErr != nil {
-			return verifyErr
+			return fmt.Errorf("verify suppressions: %w", verifyErr)
 		}
 
 		report.AddFindings(verifyFindings)
