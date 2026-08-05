@@ -338,6 +338,36 @@ func TestFindingToTokenPos(t *testing.T) {
 	}
 }
 
+func TestFindingToTokenPos_OutOfRangeLine(t *testing.T) {
+	t.Parallel()
+
+	src := "package main\n\nfunc foo() {\n\t_ = 1024\n}\n"
+	fset := token.NewFileSet()
+
+	f, err := parser.ParseFile(fset, "test.go", src, parser.SkipObjectResolution)
+	if err != nil {
+		t.Fatalf("parser.ParseFile failed: %v", err)
+	}
+
+	tf := fset.File(f.Pos())
+	tokenFiles := map[string]*token.File{"test.go": tf}
+
+	// Line 1000 is far beyond the file's 5 lines. Without the LineCount
+	// guard, token.File.LineStart panics: "illegal line number (past end of
+	// file)". A linter must never crash — it must return NoPos instead.
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("findingToTokenPos panicked on out-of-range line: %v", r)
+		}
+	}()
+
+	got := findingToTokenPos(tokenFiles, makeTestFinding("test.go", 1000, 1))
+
+	if got != token.NoPos {
+		t.Errorf("expected NoPos for out-of-range line, got %d", got)
+	}
+}
+
 func makeTestFinding(file string, line, col int) finding.Finding {
 	return finding.Finding{ //nolint:exhaustruct
 		Position: finding.Position{ //nolint:exhaustruct

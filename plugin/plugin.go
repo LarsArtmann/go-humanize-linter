@@ -219,6 +219,15 @@ func findingToTokenPos(tokenFiles map[string]*token.File, f finding.Finding) tok
 		return token.NoPos
 	}
 
+	// LineStart panics with "illegal line number (past end of file)" when
+	// the line exceeds the file's actual line count. While findings normally
+	// use the same FileSet as the parser, a defensive NoPos return is always
+	// preferable to a crash — a linter reporting at position 0 is better than
+	// a linter that takes down the entire golangci-lint process.
+	if tf.LineCount() < f.Position.Line {
+		return token.NoPos
+	}
+
 	pos := tf.LineStart(f.Position.Line)
 	if f.Position.Column > 0 {
 		pos += token.Pos(f.Position.Column - 1)

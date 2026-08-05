@@ -22,7 +22,7 @@
 | T21 | Propose `ExitCodeFromReportConfidence` upstream                   | Low    | S      | planned |
 | T22 | Protect `findingToTokenPos` against out-of-range line numbers     | High   | XS     | planned |
 | T23 | Exclude H0SUP findings from confidence filtering                  | Medium | XS     | planned |
-| T24 | Remove dead `RunOverPackage` method                               | Low    | XS     | planned |
+| T24 | Remove dead `RunOverPackage` method                               | Low    | XS     | done    |
 
 ---
 
