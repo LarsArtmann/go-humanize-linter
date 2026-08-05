@@ -87,9 +87,10 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 			return nil
 		}
 
-		// Skip generated files — they are not hand-written reimplementations.
 		// Read once and reuse the bytes for both the check and the parser.
-		content, readErr := os.ReadFile(path) //nolint:gosec // G304: path comes from filepath.WalkDir on the caller-supplied directory; trust is delegated to the caller (WalkGoDir is a public API)
+		// Path comes from filepath.WalkDir on the caller-supplied directory;
+		// trust is delegated to the caller (WalkGoDir is a public API).
+		content, readErr := os.ReadFile(path) //nolint:gosec // G304
 		if readErr != nil {
 			return nil //nolint:nilerr // unreadable files are the OS's problem, not the linter's
 		}

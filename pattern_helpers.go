@@ -152,13 +152,7 @@ func isPackageCall(call *ast.CallExpr, pkg, name string, aliases ...map[string]s
 			return true
 		}
 
-		for _, aliasMap := range aliases {
-			if resolved, ok := aliasMap[ident.Name]; ok {
-				if resolved == pkg || strings.HasSuffix(resolved, "/"+pkg) {
-					return true
-				}
-			}
-		}
+		return aliasesResolveTo(aliases, ident.Name, pkg)
 
 	case *ast.Ident:
 		// Dot import: bare function call without package prefix.
@@ -166,11 +160,19 @@ func isPackageCall(call *ast.CallExpr, pkg, name string, aliases ...map[string]s
 			return false
 		}
 
-		for _, aliasMap := range aliases {
-			if resolved, ok := aliasMap["."]; ok {
-				if resolved == pkg || strings.HasSuffix(resolved, "/"+pkg) {
-					return true
-				}
+		return aliasesResolveTo(aliases, ".", pkg)
+	}
+
+	return false
+}
+
+// aliasesResolveTo reports whether any of the provided alias maps maps local to
+// the canonical package path pkg.
+func aliasesResolveTo(aliases []map[string]string, local, pkg string) bool {
+	for _, aliasMap := range aliases {
+		if resolved, ok := aliasMap[local]; ok {
+			if resolved == pkg || strings.HasSuffix(resolved, "/"+pkg) {
+				return true
 			}
 		}
 	}

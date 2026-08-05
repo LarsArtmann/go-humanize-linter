@@ -420,13 +420,15 @@ func TestH009H002_NoOverlap(t *testing.T) {
 	// fixture has two functions: one float+comma (should fire H009 only)
 	// and one integer+comma (should fire H002 only). Each should fire exactly once.
 	countRule := func(ruleID string) int {
-		c := 0
+		matches := 0
+
 		for _, id := range ids {
 			if id == ruleID {
-				c++
+				matches++
 			}
 		}
-		return c
+
+		return matches
 	}
 
 	h009Count := countRule("H009")

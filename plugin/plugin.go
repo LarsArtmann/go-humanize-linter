@@ -217,8 +217,8 @@ func findingToTokenPos(tokenFiles map[string]*token.File, f finding.Finding) tok
 		return token.NoPos
 	}
 
-	tf := tokenFiles[string(f.Position.File)]
-	if tf == nil {
+	tokenFile := tokenFiles[string(f.Position.File)]
+	if tokenFile == nil {
 		return token.NoPos
 	}
 
@@ -227,11 +227,11 @@ func findingToTokenPos(tokenFiles map[string]*token.File, f finding.Finding) tok
 	// use the same FileSet as the parser, a defensive NoPos return is always
 	// preferable to a crash — a linter reporting at position 0 is better than
 	// a linter that takes down the entire golangci-lint process.
-	if tf.LineCount() < f.Position.Line {
+	if tokenFile.LineCount() < f.Position.Line {
 		return token.NoPos
 	}
 
-	pos := tf.LineStart(f.Position.Line)
+	pos := tokenFile.LineStart(f.Position.Line)
 	if f.Position.Column > 0 {
 		pos += token.Pos(f.Position.Column - 1)
 	}
