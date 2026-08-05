@@ -134,30 +134,43 @@ const stringTypeName = "string"
 
 // isPackageCall reports whether call is a function call of the form
 // pkg.FuncName (e.g. strings.TrimRight). When an aliases map is provided,
-// it also resolves import aliases (e.g. str "strings" → str.TrimRight).
+// it also resolves import aliases (e.g. str "strings" → str.TrimRight) and
+// dot imports (e.g. . "strings" → bare TrimRight call).
 func isPackageCall(call *ast.CallExpr, pkg, name string, aliases ...map[string]string) bool {
-	sel, ok := call.Fun.(*ast.SelectorExpr)
-	if !ok {
-		return false
-	}
+	switch fun := call.Fun.(type) {
+	case *ast.SelectorExpr:
+		if fun.Sel.Name != name {
+			return false
+		}
 
-	if sel.Sel.Name != name {
-		return false
-	}
+		ident, ok := fun.X.(*ast.Ident)
+		if !ok {
+			return false
+		}
 
-	ident, ok := sel.X.(*ast.Ident)
-	if !ok {
-		return false
-	}
+		if ident.Name == pkg {
+			return true
+		}
 
-	if ident.Name == pkg {
-		return true
-	}
+		for _, aliasMap := range aliases {
+			if resolved, ok := aliasMap[ident.Name]; ok {
+				if resolved == pkg || strings.HasSuffix(resolved, "/"+pkg) {
+					return true
+				}
+			}
+		}
 
-	for _, aliasMap := range aliases {
-		if resolved, ok := aliasMap[ident.Name]; ok {
-			if resolved == pkg || strings.HasSuffix(resolved, "/"+pkg) {
-				return true
+	case *ast.Ident:
+		// Dot import: bare function call without package prefix.
+		if fun.Name != name {
+			return false
+		}
+
+		for _, aliasMap := range aliases {
+			if resolved, ok := aliasMap["."]; ok {
+				if resolved == pkg || strings.HasSuffix(resolved, "/"+pkg) {
+					return true
+				}
 			}
 		}
 	}
@@ -169,6 +182,7 @@ func isPackageCall(call *ast.CallExpr, pkg, name string, aliases ...map[string]s
 // from local names to import paths. For non-aliased imports, the local name
 // is the package's last path segment (e.g. "strings" for "strings"). For
 // aliased imports, the local name is the alias (e.g. "str" for `str "strings"`).
+// For dot imports, the local name is "." (e.g. `. "strings"` → aliases["."] = "strings").
 func buildImportAliases(file *ast.File) map[string]string {
 	if file == nil {
 		return nil
