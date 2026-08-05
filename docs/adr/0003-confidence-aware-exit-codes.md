@@ -32,6 +32,7 @@ CLI path.
 ### Why ternary and not continuous?
 
 Three states map cleanly to CI semantics:
+
 - 0 = green (ship it)
 - 1 = red (block the PR)
 - 2 = yellow (warn but don't block)

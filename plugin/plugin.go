@@ -46,10 +46,12 @@
 package plugin
 
 import (
+	"fmt"
 	"go/ast"
 	"strings"
 
 	"github.com/golangci/plugin-module-register/register"
+	"github.com/larsartmann/go-finding"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/larsartmann/go-linter-sdk"
 	"golang.org/x/tools/go/analysis"
@@ -67,8 +69,10 @@ func init() { //nolint:gochecknoinits // required by golangci-lint plugin regist
 // When Enable is non-empty, only those rules run.
 // When Disable is non-empty, those rules are skipped.
 type pluginSettings struct {
-	Enable  string `json:"enable"`
-	Disable string `json:"disable"`
+	Enable             string `json:"enable"`
+	Disable            string `json:"disable"`
+	MinConfidence      string `json:"min-confidence"`
+	VerifySuppressions bool   `json:"verify-suppressions"`
 }
 
 // humanizePlugin implements [register.LinterPlugin] for golangci-lint v2
@@ -93,11 +97,18 @@ func (p *humanizePlugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
 	rules := filterRules(humanizelint.AllRules(), enableSet, disableSet)
 	detector := humanizelint.NewHumanizeDetector(rules...)
 
+	minConf, err := humanizelint.ParseConfidenceLevel(p.settings.MinConfidence)
+	if err != nil {
+		return nil, fmt.Errorf("parse min-confidence: %w", err)
+	}
+
+	verify := p.settings.VerifySuppressions
+
 	a := &analysis.Analyzer{ //nolint:exhaustruct
 		Name: analyzerName,
 		Doc:  "Detect hand-rolled reimplementations of github.com/dustin/go-humanize",
 		Run: func(pass *analysis.Pass) (any, error) {
-			return runDetector(pass, detector)
+			return runDetector(pass, detector, minConf, verify)
 		},
 	}
 
@@ -127,7 +138,7 @@ func newAnalyzer() *analysis.Analyzer {
 // mode (all rules). It iterates over every Go file in the package, finds
 // function declarations, and applies all detectors.
 func analyzeHumanize(pass *analysis.Pass) (any, error) {
-	return runDetector(pass, humanizelint.NewHumanizeDetector())
+	return runDetector(pass, humanizelint.NewHumanizeDetector(), finding.ConfidenceLow, false)
 }
 
 // runDetector applies the given detector to every function declaration in

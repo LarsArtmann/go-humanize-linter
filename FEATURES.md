@@ -16,23 +16,23 @@
 All 9 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
 (`rules.go`), and share a single per-function entry point `DetectFuncDecl()`.
 
-| Rule | Name                  | Status           | Detects                                                                                      | Suggests                                  |
-| ---- | --------------------- | ---------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| H001 | manual-bytes-format   | FULLY_FUNCTIONAL | KMGTPE index trick, unit slices, unit strings + div1024. Size-bucket lookup tables (switch/unit-slice without div1024) are excluded. | `humanize.Bytes` / `humanize.IBytes`      |
-| H002 | manual-comma-format   | FULLY_FUNCTIONAL | mod-3, step-by-3, digit-conversion fallback                                                  | `humanize.Comma`                          |
-| H003 | manual-reltime-format | FULLY_FUNCTIONAL | time-diff + "ago" + thresholds                                                               | `humanize.RelTime` / `humanize.Time`      |
-| H004 | manual-plural         | FULLY_FUNCTIONAL | `if x == 1` with string branch + string-return-type filters                                  | `english.Plural` / `english.PluralWord`  |
-| H005 | manual-si-format      | FULLY_FUNCTIONAL | division by 1000 + K/M suffix, excludes byte units                                           | `humanize.SI`                             |
-| H006 | manual-ftoa           | FULLY_FUNCTIONAL | nested `strings.TrimRight(strings.TrimRight(x,"0"),".")`                                     | `humanize.Ftoa`                           |
-| H007 | manual-parse-bytes    | FULLY_FUNCTIONAL | 2+ HasSuffix/CutSuffix on byte units, map multiplier (func + package scope), aliased imports | `humanize.ParseBytes`                     |
-| H008 | manual-ordinal        | FULLY_FUNCTIONAL | `switch n%10`/`n%100` with st/nd/rd/th cases                                                 | `humanize.Ordinal`                        |
-| H009 | manual-commaf         | FULLY_FUNCTIONAL | `%.Nf` Sprintf + manual comma/separator grouping loop                                        | `humanize.Commaf`                         |
+| Rule | Name                  | Status           | Detects                                                                                                                              | Suggests                                |
+| ---- | --------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
+| H001 | manual-bytes-format   | FULLY_FUNCTIONAL | KMGTPE index trick, unit slices, unit strings + div1024. Size-bucket lookup tables (switch/unit-slice without div1024) are excluded. | `humanize.Bytes` / `humanize.IBytes`    |
+| H002 | manual-comma-format   | FULLY_FUNCTIONAL | mod-3, step-by-3, digit-conversion fallback                                                                                          | `humanize.Comma`                        |
+| H003 | manual-reltime-format | FULLY_FUNCTIONAL | time-diff + "ago" + thresholds                                                                                                       | `humanize.RelTime` / `humanize.Time`    |
+| H004 | manual-plural         | FULLY_FUNCTIONAL | `if x == 1` with string branch + string-return-type filters                                                                          | `english.Plural` / `english.PluralWord` |
+| H005 | manual-si-format      | FULLY_FUNCTIONAL | division by 1000 + K/M suffix, excludes byte units                                                                                   | `humanize.SI`                           |
+| H006 | manual-ftoa           | FULLY_FUNCTIONAL | nested `strings.TrimRight(strings.TrimRight(x,"0"),".")`                                                                             | `humanize.Ftoa`                         |
+| H007 | manual-parse-bytes    | FULLY_FUNCTIONAL | 2+ HasSuffix/CutSuffix on byte units, map multiplier (func + package scope), aliased imports                                         | `humanize.ParseBytes`                   |
+| H008 | manual-ordinal        | FULLY_FUNCTIONAL | `switch n%10`/`n%100` with st/nd/rd/th cases                                                                                         | `humanize.Ordinal`                      |
+| H009 | manual-commaf         | FULLY_FUNCTIONAL | `%.Nf` Sprintf + manual comma/separator grouping loop                                                                                | `humanize.Commaf`                       |
 
 ## Interfaces
 
 | Feature              | Status           | Notes                                                                                                                                                                                                                      |
 | -------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CLI binary           | FULLY_FUNCTIONAL | `--enable`, `--disable`, `--config`, `--format`, `--output`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain`, `--min-confidence`, `--verify-suppressions` (`cmd/go-humanize-linter/main.go`)                                           |
+| CLI binary           | FULLY_FUNCTIONAL | `--enable`, `--disable`, `--config`, `--format`, `--output`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain`, `--min-confidence`, `--verify-suppressions` (`cmd/go-humanize-linter/main.go`)                |
 | Go library           | FULLY_FUNCTIONAL | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run` / `RunOverPackage`, exported `RuleIDH001`–`H009` constants (`rules.go`)                                                        |
 | golangci-lint plugin | FULLY_FUNCTIONAL | `plugin/plugin.go` (91.3% coverage) using `plugin-module-register` v2 module plugin pattern. Configurable enable/disable via `.golangci.yml` `linters.settings.custom.gohumanize.settings`. Reports at func-decl position. |
 | GitHub Action        | FULLY_FUNCTIONAL | `action.yml` composite Action with inputs: path, enable, disable, format, version                                                                                                                                          |
@@ -58,15 +58,15 @@ All 9 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
 
 ## Configuration
 
-| Feature                          | Status           | Notes                                                                                                   |
-| -------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------- |
-| CLI `--enable`/`--disable` flags | FULLY_FUNCTIONAL | Per-rule filtering on the command line                                                                  |
-| CLI `--config` YAML file         | FULLY_FUNCTIONAL | Load enable/disable rules from `.gohumanize.yaml`. Config-first, CLI-override with set-union semantics. |
+| Feature                          | Status           | Notes                                                                                                                      |
+| -------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| CLI `--enable`/`--disable` flags | FULLY_FUNCTIONAL | Per-rule filtering on the command line                                                                                     |
+| CLI `--config` YAML file         | FULLY_FUNCTIONAL | Load enable/disable rules from `.gohumanize.yaml`. Config-first, CLI-override with set-union semantics.                    |
 | CLI `--min-confidence` flag      | FULLY_FUNCTIONAL | Filter findings by confidence level: `low`, `medium`, `high`, `full` (default: `low`). Uses `finding.ByConfidenceAtLeast`. |
-| CLI `--verify-suppressions` flag | FULLY_FUNCTIONAL | Detects stale `//nolint:gohumanize` directives (suppress zero findings) and misspelled linter names. Reports as `H0SUP`. |
-| CLI confidence-aware exit codes  | FULLY_FUNCTIONAL | Exit 0 = clean, exit 1 = high/full-confidence finding (must fix), exit 2 = only medium/low (triage). |
-| Plugin enable/disable settings   | FULLY_FUNCTIONAL | `linters.settings.custom.gohumanize.settings.enable`/`disable` in `.golangci.yml`                       |
-| Scoped `//nolint` directives     | FULLY_FUNCTIONAL | Per-function suppression via `//nolint:gohumanize:H001`                                                 |
+| CLI `--verify-suppressions` flag | FULLY_FUNCTIONAL | Detects stale `//nolint:gohumanize` directives (suppress zero findings) and misspelled linter names. Reports as `H0SUP`.   |
+| CLI confidence-aware exit codes  | FULLY_FUNCTIONAL | Exit 0 = clean, exit 1 = high/full-confidence finding (must fix), exit 2 = only medium/low (triage).                       |
+| Plugin enable/disable settings   | FULLY_FUNCTIONAL | `linters.settings.custom.gohumanize.settings.enable`/`disable` in `.golangci.yml`                                          |
+| Scoped `//nolint` directives     | FULLY_FUNCTIONAL | Per-function suppression via `//nolint:gohumanize:H001`                                                                    |
 
 ## Validation
 
