@@ -3,10 +3,12 @@ package plugin
 import (
 	"go/parser"
 	"go/token"
+	"path/filepath"
 	"testing"
 
 	"github.com/larsartmann/go-finding"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
+	"golang.org/x/tools/go/analysis/analysistest"
 )
 
 func TestParseRuleIDs(t *testing.T) {
@@ -376,4 +378,24 @@ func makeTestFinding(file string, line, col int) finding.Finding {
 			Column: col,
 		},
 	}
+}
+
+func TestRunDetector_H0SUPBypassesConfidenceFilter(t *testing.T) {
+	t.Parallel()
+
+	plug, err := newPlugin(map[string]any{
+		"minConfidence":      "full",
+		"verifySuppressions": true,
+	})
+	if err != nil {
+		t.Fatalf("newPlugin failed: %v", err)
+	}
+
+	analyzers, err := plug.BuildAnalyzers()
+	if err != nil {
+		t.Fatalf("BuildAnalyzers failed: %v", err)
+	}
+
+	testdata := filepath.Join("..", "testdata", "analysistest")
+	analysistest.Run(t, testdata, analyzers[0], "./h0supbypass")
 }

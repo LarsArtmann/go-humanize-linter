@@ -18,12 +18,12 @@ Thanks for your interest in contributing to go-humanize-linter!
 
 ### Required Environment Variables
 
-All `go` commands require these env vars (Nix sets them automatically):
+All `go` commands require these env vars (Nix sets them automatically). Both case variants are needed because `gogenfilter` lives at `github.com/LarsArtmann/gogenfilter/v3` (capital L) while sibling deps use lowercase — module paths are case-sensitive on the wire.
 
 ```bash
 export GOEXPERIMENT=jsonv2
-export GOPRIVATE='github.com/larsartmann/*'
-export GONOSUMDB='github.com/larsartmann/*'
+export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
+export GONOSUMDB='github.com/larsartmann/*,github.com/LarsArtmann/*'
 ```
 
 ### Build Commands (via Nix)
@@ -41,7 +41,7 @@ nix run .#coverage      # go test with coverage report
 ### Build Commands (direct Go)
 
 ```bash
-export GOEXPERIMENT=jsonv2 GOPRIVATE='github.com/larsartmann/*' GONOSUMDB='github.com/larsartmann/*'
+export GOEXPERIMENT=jsonv2 GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*' GONOSUMDB='github.com/larsartmann/*,github.com/LarsArtmann/*'
 go build ./...
 go test ./... -race -count=1
 go vet ./...
