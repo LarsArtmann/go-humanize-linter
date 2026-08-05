@@ -1,6 +1,8 @@
 package humanizelint
 
 import (
+	"strings"
+
 	"github.com/LarsArtmann/gogenfilter/v3"
 )
 
@@ -20,8 +22,35 @@ import (
 //
 // Callers that already read the file (the walker) should pass the content;
 // callers that have only the path (the plugin) should pass nil.
+//
+// Compatibility note: gogenfilter does not enumerate every tooling convention.
+// In particular, the generic `_gen.go` and `.gen.go` suffixes (used by
+// go-enum-output, deep-copy generators, hand-rolled `go generate` outputs,
+// etc.) are NOT detected by gogenfilter's table (it only knows specific
+// patterns like `wire_gen.go`). To preserve the original behaviour of the
+// inline checks this helper replaced, we run a small fallback that catches
+// those three conventions when gogenfilter reports nothing.
 func IsGeneratedFile(path string, content []byte) bool {
 	reason := gogenfilter.DetectReason(path, string(content), gogenfilter.FilterAll)
+	if reason != gogenfilter.ReasonNotFiltered {
+		return true
+	}
 
-	return reason != gogenfilter.ReasonNotFiltered
+	return matchesLegacyGeneratedSuffix(path)
+}
+
+// matchesLegacyGeneratedSuffix reports whether the file basename ends with
+// one of the three legacy generated-file suffixes (_gen.go, .gen.go,
+// _templ.go) that the original inline isGenerated checked. Kept so existing
+// users of the linter don't get spurious findings on files gogenfilter does
+// not know about.
+func matchesLegacyGeneratedSuffix(path string) bool {
+	base := path
+	if idx := strings.LastIndex(path, "/"); idx >= 0 {
+		base = path[idx+1:]
+	}
+
+	return strings.HasSuffix(base, "_gen.go") ||
+		strings.HasSuffix(base, ".gen.go") ||
+		strings.HasSuffix(base, "_templ.go")
 }

@@ -35,21 +35,21 @@ func TestIsGeneratedFile_FilenameOnly(t *testing.T) {
 
 		// New generators brought in by gogenfilter — these previously
 		// slipped through and would have been linted as hand-written code.
-		{"models.go", true},               // sqlc
-		{"querier.go", true},              // sqlc
-		{"query.sql.go", true},            // sqlc
-		{"batch.go", true},                // sqlc
-		{"user.pb.go", true},              // protobuf
-		{"user_grpc.pb.go", true},         // protobuf
-		{"deepcopy_zz_generated.baz.go", true}, // deepcopy-gen (zz_generated.*.go)
-		{"wire_gen.go", true},             // wire
-		{"service_moq.go", true},          // moq
-		{"service_moq_test.go", true},     // moq
-		{"service_mock.go", true},         // mockgen
-		{"mock_service.go", true},         // mockery
-		{"models_easyjson.go", true},      // easyjson
-		{"fake_service.go", true},         // counterfeiter
-		{"enum_file.go", true},            // go-enum content-only without content — false
+		{"models.go", true},                // sqlc
+		{"querier.go", true},               // sqlc
+		{"query.sql.go", true},             // sqlc
+		{"batch.go", true},                 // sqlc
+		{"user.pb.go", true},               // protobuf
+		{"user_grpc.pb.go", true},          // protobuf
+		{"zz_generated.deepcopy.go", true}, // deepcopy-gen (zz_generated.*.go)
+		{"wire_gen.go", true},              // wire
+		{"service_moq.go", true},           // moq
+		{"service_moq_test.go", true},      // moq
+		{"service_mock.go", true},          // mockgen
+		{"mock_service.go", true},          // mockery
+		{"models_easyjson.go", true},       // easyjson
+		{"fake_service.go", true},          // counterfeiter
+		{"color_kind.go", false},           // not a known generator pattern
 	}
 
 	for _, tt := range cases {
