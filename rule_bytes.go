@@ -34,7 +34,7 @@ func RuleBytes() linter.RuleFunc {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, detectBytesFormat)
+			return checkFuncDecls(dir, RuleIDH001, detectBytesFormat)
 		},
 	}
 }

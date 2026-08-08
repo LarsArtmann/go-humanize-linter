@@ -29,7 +29,7 @@ func RuleParseBytes() linter.RuleFunc {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			funcFindings, err := checkFuncDecls(dir, detectParseBytes)
+			funcFindings, err := checkFuncDecls(dir, RuleIDH007, detectParseBytes)
 			if err != nil {
 				return nil, err
 			}

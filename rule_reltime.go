@@ -30,7 +30,7 @@ func RuleRelTime() linter.RuleFunc {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, detectRelTimeFormat)
+			return checkFuncDecls(dir, RuleIDH003, detectRelTimeFormat)
 		},
 	}
 }

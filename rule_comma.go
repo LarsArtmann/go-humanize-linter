@@ -29,7 +29,7 @@ func RuleComma() linter.RuleFunc {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, detectCommaFormat)
+			return checkFuncDecls(dir, RuleIDH002, detectCommaFormat)
 		},
 	}
 }

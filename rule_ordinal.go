@@ -29,7 +29,7 @@ func RuleOrdinal() linter.RuleFunc {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, detectOrdinal)
+			return checkFuncDecls(dir, RuleIDH008, detectOrdinal)
 		},
 	}
 }

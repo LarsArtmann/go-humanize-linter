@@ -279,46 +279,6 @@ func commentAssociatedWithFunc(fset *token.FileSet, fn *ast.FuncDecl, isDoc bool
 	return false
 }
 
-// hasNoLintDirective reports whether fn carries a //nolint directive that
-// suppresses this linter. A directive counts if it appears in the function's
-// doc comment, as a trailing comment on the func's own line, on the line
-// immediately before the declaration, or anywhere inside the function body.
-//
-// Recognised forms:
-//
-//	//nolint                     (suppresses everything)
-//	//nolint:all                 (suppresses everything)
-//	//nolint:gohumanize          (suppresses only this linter)
-//	//nolint:gohumanize,other    (comma-separated list)
-//	//nolint:gohumanize:H001     (scoped — suppresses only H001 in this linter)
-func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) bool {
-	if file == nil || fn == nil {
-		return false
-	}
-
-	for _, group := range file.Comments {
-		isDoc := group == fn.Doc
-
-		for _, comment := range group.List {
-			suppressed := suppressedRules(comment.Text)
-			if suppressed == nil {
-				continue
-			}
-
-			if !isSuppressedAll(suppressed) {
-				continue
-			}
-
-			cmtLine := fset.Position(comment.Pos()).Line
-			if commentAssociatedWithFunc(fset, fn, isDoc, cmtLine) {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
 // suppressedRules parses a suppression comment and returns the linter/rule
 // names it lists. Returns nil if the comment is not a suppression directive.
 //

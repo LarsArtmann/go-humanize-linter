@@ -29,7 +29,7 @@ func RuleFtoa() linter.RuleFunc {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, detectFtoa)
+			return checkFuncDecls(dir, RuleIDH006, detectFtoa)
 		},
 	}
 }

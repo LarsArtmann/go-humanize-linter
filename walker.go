@@ -120,10 +120,11 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 type detectorFunc func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePath string) []finding.Finding
 
 // checkFuncDecls walks dir, parses Go files, and applies detect to every
-// function declaration. This is the shared execution path used by every rule.
-// On walk failure it returns a *WalkError wrapping the underlying fs error so
-// callers can read Dir via errors.AsType[*WalkError].
-func checkFuncDecls(dir string, detect detectorFunc) ([]finding.Finding, error) {
+// function declaration. ruleID is used for per-rule //nolint scoping: a
+// directive like //nolint:gohumanize:H002 suppresses only H002, not every
+// rule. On walk failure it returns a *WalkError wrapping the underlying fs
+// error so callers can read Dir via errors.AsType[*WalkError].
+func checkFuncDecls(dir, ruleID string, detect detectorFunc) ([]finding.Finding, error) {
 	files, err := WalkGoDir(dir)
 	if err != nil {
 		return nil, &WalkError{Dir: dir, Err: err}
@@ -138,7 +139,7 @@ func checkFuncDecls(dir string, detect detectorFunc) ([]finding.Finding, error) 
 				continue
 			}
 
-			if hasNoLintDirective(pf.Fset, pf.File, fn) {
+			if isSuppressedRule(funcSuppressions(pf.Fset, pf.File, fn), ruleID) {
 				continue
 			}
 

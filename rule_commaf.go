@@ -28,7 +28,7 @@ func RuleCommaf() linter.RuleFunc {
 			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, detectCommaf)
+			return checkFuncDecls(dir, RuleIDH009, detectCommaf)
 		},
 	}
 }
