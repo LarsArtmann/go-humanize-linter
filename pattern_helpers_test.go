@@ -126,6 +126,67 @@ func f() {}
 `,
 			want: false,
 		},
+		{
+			name: "in-body trailing directive",
+			src: `package main
+
+func f() {
+	x := 1   //nolint:gohumanize
+	_ = x
+}
+`,
+			want: true,
+		},
+		{
+			name: "in-body standalone directive",
+			src: `package main
+
+func f() {
+	//nolint:gohumanize
+	x := 1
+	_ = x
+}
+`,
+			want: true,
+		},
+		{
+			name: "in-body on opening brace line",
+			src: `package main
+
+func f() { //nolint:gohumanize
+	x := 1
+	_ = x
+}
+`,
+			want: true,
+		},
+		{
+			name: "directive on closing brace line",
+			src: `package main
+
+func f() {
+	x := 1
+	_ = x
+} //nolint:gohumanize
+`,
+			want: true,
+		},
+		{
+			name: "directive on other function does not suppress",
+			src: `package main
+
+func f() {
+	x := 1
+	_ = x
+}
+
+func g() { //nolint:gohumanize
+	y := 2
+	_ = y
+}
+`,
+			want: false,
+		},
 	}
 
 	for _, tt := range cases {
