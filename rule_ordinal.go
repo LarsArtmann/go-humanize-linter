@@ -26,7 +26,7 @@ func RuleOrdinal() linter.RuleFunc {
 			Description: "Manual ordinal-suffix formatting (1st, 2nd, 3rd, 4th) — use humanize.Ordinal instead of a switch on n%10",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
-			ToolName:    "go-humanize-linter",
+			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			return checkFuncDecls(dir, detectOrdinal)

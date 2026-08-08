@@ -25,7 +25,7 @@ func RuleCommaf() linter.RuleFunc {
 			Description: "Manual float-with-comma formatting (%.Nf + manual group separator) — use humanize.Commaf instead",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
-			ToolName:    "go-humanize-linter",
+			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			return checkFuncDecls(dir, detectCommaf)

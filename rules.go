@@ -30,6 +30,9 @@ const (
 // so that stale or misspelled //nolint directives are always surfaced.
 const RuleIDH0SUP = "H0SUP"
 
+// toolName is the finding tool name for all humanize-lint findings.
+const toolName finding.ToolName = "go-humanize-linter"
+
 // DefaultRegistry returns a Registry pre-loaded with all humanize-lint rules,
 // all enabled by default.
 func DefaultRegistry() *linter.Registry {

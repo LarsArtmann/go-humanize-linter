@@ -223,4 +223,3 @@ func parseRuleIDs(spec string) map[string]bool {
 
 	return set
 }
-

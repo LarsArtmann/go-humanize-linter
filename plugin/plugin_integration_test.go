@@ -1,6 +1,7 @@
 package plugin_test
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -127,6 +128,7 @@ func TestCustomGCLIntegration(t *testing.T) {
 
 	buildCmd := exec.Command("golangci-lint", "custom")
 	buildCmd.Dir = projectRoot
+
 	buildCmd.Env = append(os.Environ(),
 		"GOEXPERIMENT=jsonv2",
 		"GOPRIVATE=github.com/larsartmann/*,github.com/LarsArtmann/*",
@@ -204,6 +206,7 @@ linters:
 	// Run custom-gcl on the temp module.
 	runCmd := exec.Command(customGCL, "run", "-c", filepath.Join(tmpDir, ".golangci.yml"), "./...")
 	runCmd.Dir = tmpDir
+
 	runCmd.Env = append(os.Environ(),
 		"GOEXPERIMENT=jsonv2",
 		"GOPRIVATE=github.com/larsartmann/*,github.com/LarsArtmann/*",
@@ -211,10 +214,10 @@ linters:
 	)
 
 	output, err := runCmd.CombinedOutput()
-
 	// golangci-lint exits 1 when findings are reported — that's expected.
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); !ok || exitErr.ExitCode() > 1 {
+		exitErr := &exec.ExitError{}
+		if errors.As(err, &exitErr) {
 			t.Fatalf("custom-gcl run failed unexpectedly: %v\n%s", err, output)
 		}
 	}

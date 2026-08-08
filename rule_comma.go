@@ -26,7 +26,7 @@ func RuleComma() linter.RuleFunc {
 			Description: "Manual comma/thousands-separator insertion — use humanize.Comma or humanize.Commaf instead of looping over digits",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
-			ToolName:    "go-humanize-linter",
+			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			return checkFuncDecls(dir, detectCommaFormat)

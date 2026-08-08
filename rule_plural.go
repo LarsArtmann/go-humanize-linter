@@ -25,7 +25,7 @@ func RulePlural() linter.RuleFunc {
 			Description: "Manual pluralization — use github.com/dustin/go-humanize/english.Plural or english.PluralWord instead of if-n==1 switches",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
-			ToolName:    "go-humanize-linter",
+			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			return checkFuncDecls(dir, detectPlural)

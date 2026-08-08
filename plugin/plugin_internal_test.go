@@ -325,7 +325,11 @@ func TestLineColToPos(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := gotoken.LineColToPos(tokenFiles[string(tt.finding.Position.File)], tt.finding.Position.Line, tt.finding.Position.Column)
+			got := gotoken.LineColToPos(
+				tokenFiles[string(tt.finding.Position.File)],
+				tt.finding.Position.Line,
+				tt.finding.Position.Column,
+			)
 
 			if tt.wantNoPos {
 				if got != token.NoPos {

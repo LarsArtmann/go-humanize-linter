@@ -27,7 +27,7 @@ func RuleSI() linter.RuleFunc {
 			Description: "Manual SI-prefix formatting (K/M) — use humanize.SI or humanize.SIWithDigits instead",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
-			ToolName:    "go-humanize-linter",
+			ToolName:    toolName,
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			return checkFuncDecls(dir, detectSIFormat)
