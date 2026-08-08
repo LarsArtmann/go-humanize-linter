@@ -16,7 +16,6 @@
 | T15 | Plugin integration test through `custom-gcl` binary       | Medium | S      | planned |
 | T18 | Publish to golangci-lint plugin index                     | Low    | S      | blocked |
 | T19 | Per-statement `//nolint` suppression support              | Medium | M      | planned |
-| T20 | `--behavior-delta` flag for regression testing            | Low    | M      | planned |
 | T21 | Propose `ExitCodeFromReportConfidence` upstream           | Low    | S      | planned |
 
 ---
@@ -79,16 +78,6 @@ requires either per-statement findings (each detector returns a specific
 - [ ] Decide approach: per-statement `token.Pos` in detectors vs. line-range matching
 - [ ] Implement the chosen approach
 - [ ] Add testdata for per-statement suppression
-
-### T20 — `--behavior-delta` flag for regression testing · Low · _planned_
-
-A `--behavior-delta <baseline.json>` flag would compare the current run's
-findings against a saved baseline and report additions/removals. This is useful
-for detecting false-positive regressions when detector logic changes.
-
-- [ ] Implement baseline loading and comparison
-- [ ] Report added findings (potential new false positives) and removed findings (potential missed detections)
-- [ ] Exit code: 0 = no delta, 1 = delta found
 
 ---
 
