@@ -190,6 +190,86 @@ func main() {
 	}
 }
 
+func TestVerifySuppressions_InBodyStale(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	writeFile(t, dir, "main.go", `package main
+
+func cleanFunc() string {
+	//nolint:gohumanize
+	return "hello"
+}
+
+func main() {
+	_ = cleanFunc()
+}
+`)
+
+	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
+
+	findings, err := VerifySuppressions(dir, report)
+	if err != nil {
+		t.Fatalf("VerifySuppressions failed: %v", err)
+	}
+
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 stale suppression finding, got %d: %+v", len(findings), findings)
+	}
+
+	if string(findings[0].Rule) != RuleIDH0SUP {
+		t.Errorf("expected rule %s, got %s", RuleIDH0SUP, findings[0].Rule)
+	}
+}
+
+func TestVerifySuppressions_InBodyUsed(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	writeFile(t, dir, "main.go", `package main
+
+import "fmt"
+
+func formatBytes(bytes int64) string {
+	const unit = 1024
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp]) //nolint:gohumanize:H001
+}
+
+func main() {
+	_ = formatBytes(1024)
+}
+`)
+
+	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
+	report.AddFinding(finding.NewBuilder(
+		finding.RuleName(RuleIDH001),
+		finding.ToolName("go-humanize-linter"),
+		"manual byte-size formatting",
+		finding.SeverityWarning,
+		finding.Pos(finding.FilePath(dir+"/main.go"), 5, 1),
+	).MustBuild())
+	report.ComputeSummary()
+
+	findings, err := VerifySuppressions(dir, report)
+	if err != nil {
+		t.Fatalf("VerifySuppressions failed: %v", err)
+	}
+
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings for used in-body suppression, got %d: %+v", len(findings), findings)
+	}
+}
+
 func writeFile(t *testing.T, dir, name, content string) {
 	t.Helper()
 

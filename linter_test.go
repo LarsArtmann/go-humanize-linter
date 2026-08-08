@@ -141,6 +141,15 @@ func TestCLI_ScopedSuppression_DoesNotSuppressOtherRule(t *testing.T) {
 	}
 }
 
+func TestCLI_InBodyDirectiveIsolation(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_inbody_isolation"))
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 finding (func B only; func A suppressed by in-body //nolint), got %d: %+v", len(findings), findings)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H002 — manual-comma-format
 // ---------------------------------------------------------------------------
