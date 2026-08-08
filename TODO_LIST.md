@@ -13,9 +13,7 @@
 | --- | --------------------------------------------------------- | ------ | ------ | ------- |
 | T1  | Tag `v0.2.0` (code shipped; tag missing)                  | High   | XS     | blocked |
 | T2  | Real-world validation sweep with new detection + features | High   | M      | planned |
-| T15 | Plugin integration test through `custom-gcl` binary       | Medium | S      | planned |
 | T18 | Publish to golangci-lint plugin index                     | Low    | S      | blocked |
-| T19 | Per-statement `//nolint` suppression support              | Medium | M      | planned |
 | T21 | Propose `ExitCodeFromReportConfidence` upstream           | Low    | S      | planned |
 
 ---
@@ -47,37 +45,6 @@ corpus with these features active.
 - [ ] Save results to `docs/validation/`
 
 ---
-
-## Plugin robustness
-
-### T15 — Plugin integration test through `custom-gcl` binary · Medium · _planned_
-
-Plugin registration is verified via `TestPluginRegisteredWithGolangciLint` and
-`TestPluginRegisteredWithSettings`. Analysistest-based tests
-(`TestRunDetector_FiltersByConfidence`, `TestRunDetector_VerifySuppressions`,
-`TestRunDetector_H0SUPBypassesConfidenceFilter`) cover the `runDetector` pipeline.
-However, no test exercises the full golangci-lint runtime: building the
-`custom-gcl` binary, running it on testdata with `minConfidence` and
-`verifySuppressions` enabled, and asserting the diagnostics appear correctly.
-
-- [ ] Write a test that builds `custom-gcl`, runs it on testdata, asserts findings
-- [ ] Gate behind `testing.Short()` skip (requires `golangci-lint custom` — network + git clone)
-
----
-
-## Suppression & confidence features
-
-### T19 — Per-statement `//nolint` suppression support · Medium · _planned_
-
-Currently, `//nolint:gohumanize` directives are matched at the function-declaration
-level (the finding position is `fn.Pos()`). AIs and developers often want to
-suppress a finding on a specific line or statement inside a function. This
-requires either per-statement findings (each detector returns a specific
-`token.Pos` instead of `fn.Pos()`) or a line-range-based suppression matcher.
-
-- [ ] Decide approach: per-statement `token.Pos` in detectors vs. line-range matching
-- [ ] Implement the chosen approach
-- [ ] Add testdata for per-statement suppression
 
 ---
 
