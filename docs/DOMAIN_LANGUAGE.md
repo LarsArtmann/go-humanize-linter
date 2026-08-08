@@ -48,6 +48,10 @@ The CLI's `--min-confidence` flag and the plugin's `minConfidence` setting filte
 
 A `//nolint:gohumanize` or `//nolint:gohumanize:Hxxx` comment that silences findings for a specific function. The linter namespace is `gohumanize` (the analyzer name), NOT `go-humanize-linter` (the module path).
 
+**In-body suppression** (line-range matching): A directive placed anywhere inside the function body (between `{` and `}`) is honoured as a function-level suppression. This lets developers and AIs annotate the specific statement rather than only the function declaration. See ADR 0006 for the design decision.
+
+**Scoped suppression**: `//nolint:gohumanize:H001` suppresses only H001, not all rules. Works identically in CLI and plugin paths via `isSuppressedRule`.
+
 ### Suppression Verification
 
 A post-detection pass (`--verify-suppressions`) that checks every `//nolint` directive in the scanned code for two problems:

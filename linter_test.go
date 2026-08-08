@@ -154,6 +154,15 @@ func TestCLI_InBodyDirectiveIsolation(t *testing.T) {
 	}
 }
 
+func TestCLI_InBodyDirectiveStandalone(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed_inbody_standalone"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings with standalone in-body //nolint, got %d: %+v", len(findings), findings)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H002 — manual-comma-format
 // ---------------------------------------------------------------------------

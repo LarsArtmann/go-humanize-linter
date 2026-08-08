@@ -92,7 +92,13 @@ Findings use pseudo-rule ID `H0SUP` (not in `AllRules()`, not filterable by `--e
 
 The suppression namespace is `gohumanize` (the analyzer name registered with golangci-lint), NOT `go-humanize-linter` (the module path). AIs frequently write the module path, producing no-op directives.
 
-`//nolint:gohumanize` directives are matched at the **function level** — any directive in the doc comment, on the declaration line, on the line before, or **anywhere inside the function body** (between `{` and `}`) suppresses the function's finding. This lets developers place the directive on the specific statement that triggers it.
+`//nolint:gohumanize` directives are matched at the **function level** — any directive in the doc comment, on the declaration line, on the line before, or **anywhere inside the function body** (between `{` and `}`) suppresses the function's finding. This lets developers place the directive on the specific statement that triggers it. See ADR 0006 for the design decision.
+
+### Unified Suppression Path
+
+All three suppression code paths (CLI `checkFuncDecls`, plugin `HumanizeDetector.Run`, verification `extractFunctionSuppressions`) now use the same `funcSuppressions` + `isSuppressedRule` functions. The old binary `hasNoLintDirective` (which used `isSuppressedAll` only, ignoring per-rule scoping) has been removed. Scoped `//nolint:gohumanize:H001` now works identically across CLI and plugin.
+
+`isSuppressedRule` uses `looksLikeRuleID` to distinguish rule IDs (H followed by digits) from comma-separated linter names. This prevents `//nolint:gohumanize,other` from accidentally treating "other" as a scoped sub-rule, which would suppress nothing instead of all H-rules.
 
 ## Confidence System
 
@@ -179,7 +185,7 @@ The project's own `.golangci.yml` does NOT include the custom section because st
 
 `testdata/` contains positive and negative test fixtures per rule. The walker skips `testdata/` during real scans (see `skipDirs` in `walker.go`).
 
-New testdata directories: `testdata/h007_package_var/` (package-level var multiplier map), `testdata/h007_aliased_import/` (aliased `strings` import), `testdata/h007_dot_import/` (dot-imported `strings` functions), `testdata/h001_sizebucket/` (switch + slice size-bucket lookups that must NOT trigger H001), `testdata/h009_h002_overlap/` (float+comma vs integer+comma — verifies H002 suppressed when H009 fires), `testdata/h001_suppressed_inbody/` (in-body `//nolint` directive suppression), `testdata/analysistest/h0supbypass/` (stale `//nolint` directive for H0SUP confidence-bypass test), `testdata/analysistest/h001_inbody_suppressed/` (plugin-path in-body suppression).
+New testdata directories: `testdata/h007_package_var/` (package-level var multiplier map), `testdata/h007_aliased_import/` (aliased `strings` import), `testdata/h007_dot_import/` (dot-imported `strings` functions), `testdata/h001_sizebucket/` (switch + slice size-bucket lookups that must NOT trigger H001), `testdata/h009_h002_overlap/` (float+comma vs integer+comma — verifies H002 suppressed when H009 fires), `testdata/h001_suppressed_inbody/` (in-body `//nolint` directive suppression), `testdata/h001_suppressed_inbody_standalone/` (standalone-line in-body suppression), `testdata/h001_scoped_h001/` (scoped `//nolint:gohumanize:H001` suppresses H001), `testdata/h001_scoped_h002_only/` (scoped `//nolint:gohumanize:H002` does NOT suppress H001), `testdata/h001_inbody_isolation/` (in-body directive in func A does NOT suppress func B), `testdata/analysistest/h0supbypass/` (stale `//nolint` directive for H0SUP confidence-bypass test), `testdata/analysistest/h001_inbody_suppressed/` (plugin-path in-body suppression).
 
 ## Gotchas
 

@@ -106,6 +106,9 @@ func extractFunctionSuppressions(
 		return nil
 	}
 
+	// fnLine is stored in SuppressionDirective.FunctionLine for use by
+	// directiveMatchesFinding, which looks up findings at this line.
+	// All detectors currently emit findings at fn.Pos(), so this matches.
 	fnLine := fset.Position(fn.Pos()).Line
 
 	var out []SuppressionDirective
@@ -239,6 +242,12 @@ func findingsByFileLine(report *finding.Report) map[string]map[int][]finding.Fin
 
 // directiveMatchesFinding reports whether any finding in the same function
 // (same file and function-start line) is covered by the suppression directive.
+//
+// Note: This keys on d.FunctionLine (the function declaration line), which
+// works because all detectors emit findings at fn.Pos(). If detectors are
+// upgraded to per-statement positions (see ADR 0006, Approach A), this lookup
+// must be changed to match the finding's line falling within the
+// [Lbrace, Rbrace] range instead.
 func directiveMatchesFinding(
 	d SuppressionDirective,
 	suppressed []string,

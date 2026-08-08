@@ -57,7 +57,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`action.yml` `save-baseline` and `behavior-delta` inputs** — The GitHub Action now exposes both baseline flags for CI delta workflows.
 - **ADR 0004** (`docs/adr/0004-behavior-delta.md`) — Documents the (rule, file, line) comparison key decision, exit code semantics, and the `0o600` baseline file mode rationale.
 - **ADR 0005** (`docs/adr/0005-h009-h002-disambiguation.md`) — Documents the unidirectional suppression of H002 when H009's pattern matches, and why H009 (more specific) wins over H002.
-- **`CONTRIBUTING.md` behavior delta workflow** — Documents the save-baseline / behavior-delta CI workflow for contributor PRs.
+- **ADR 0006** (`docs/adr/0006-per-statement-suppression.md`) — Documents the line-range matching approach (Approach B) for in-body suppression, why per-statement token.Pos (Approach A) was rejected, and when to upgrade.
+- **CLI suppression scoping fix** — `checkFuncDecls` now uses `funcSuppressions` + `isSuppressedRule` instead of the binary `hasNoLintDirective`. Scoped `//nolint:gohumanize:H001` directives now work identically in CLI and plugin paths. The dead `hasNoLintDirective` function has been removed.
+- **`looksLikeRuleID` helper** — Distinguishes rule IDs (H followed by digits) from comma-separated linter names in `isSuppressedRule`, preventing `//nolint:gohumanize,other` from accidentally scoping to the linter name "other" instead of suppressing all H-rules.
+- `TestCLI_ScopedSuppression_H001Only`, `TestCLI_ScopedSuppression_DoesNotSuppressOtherRule`, `TestCLI_InBodyDirectiveIsolation`, `TestCLI_InBodyDirectiveStandalone` — tests for scoped and in-body suppression in the CLI path.
+- `TestVerifySuppressions_InBodyStale`, `TestVerifySuppressions_InBodyUsed` — tests for in-body directive verification (stale detection and used-suppression detection).
+- `TestFuncSuppressionsAssociation` — replaces `TestHasNoLintDirective`, testing the new `funcSuppressions` + `isSuppressedRule` API with scoped-suppression cases.
+- Testdata fixtures: `testdata/h001_scoped_h001/`, `testdata/h001_scoped_h002_only/`, `testdata/h001_inbody_isolation/`, `testdata/h001_suppressed_inbody_standalone/`.
+- Extended `TestCustomGCLIntegration` with `t.Run` subtests for `minConfidence: "full"` and `verifySuppressions: true`.
+- Release notes draft (`docs/release-notes-v0.2.0.md`).
+- CONTRIBUTING.md suppression behavior section documenting three suppression paths, scoped directives, and namespace gotcha.
 - **Dot-import H003 testdata** (`testdata/h003_dot_import/`) — Exercises `isTimeDurationIdentifier` and the dot-import branch of `isDotImportOf`, restoring core coverage above 88.4%.
 - `TestLoadConfigRules_*`, `TestAppendSuppressionFindings`, `TestSaveBaselineAndNotify`, `TestRunBehaviorDelta_*`, `TestLoadBaseline_MalformedJSON`, `TestSaveBaseline_FilePermissions`, `TestRuleRelTime_DotImport` — unit tests for CLI helpers and dot-import H003 detection.
 - **`RuleIDH0SUP` exported constant** — The pseudo-rule ID for suppression verification is now an exported constant in `rules.go`, replacing the private `suppressionVerificationRuleID`.
