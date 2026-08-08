@@ -46,8 +46,6 @@ corpus with these features active.
 
 ---
 
----
-
 ## Upstream contributions
 
 ### T21 — Propose `ExitCodeFromReportConfidence` upstream · Low · _planned_
