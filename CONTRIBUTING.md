@@ -119,7 +119,45 @@ testdata/
 2. **`cmd/go-humanize-linter/main_test.go`** — Add test coverage.
 3. **`README.md`** — Document the flag in the usage section.
 
-## Reporting Issues
+## Suppression Behavior
+
+### How `//nolint` works
+
+`//nolint:gohumanize` directives suppress findings. The directive can be
+placed:
+
+1. On the function declaration line (trailing comment)
+2. In the doc comment (immediately before the function)
+3. On the line before the declaration
+4. **Inside the function body** (anywhere between `{` and `}`)
+
+This last placement is important for AI-generated code and code review: the
+directive can be placed on the exact statement that triggers the finding.
+
+### Scoped suppression
+
+`//nolint:gohumanize:H001` suppresses only H001, not all rules. This works
+identically in both the CLI and the plugin path. Internally, `checkFuncDecls`
+passes the rule ID to `isSuppressedRule(funcSuppressions(...), ruleID)`.
+
+### Three suppression paths
+
+There are three code paths that must stay consistent:
+
+1. **CLI** (`walker.go:checkFuncDecls`) — uses `funcSuppressions` + `isSuppressedRule`
+2. **Plugin** (`rules.go:HumanizeDetector.Run`) — same functions
+3. **Verification** (`suppression.go:extractFunctionSuppressions`) — same `commentAssociatedWithFunc` helper
+
+All three call `commentAssociatedWithFunc` for the association logic. If you
+change the association rules, update all three paths.
+
+### Namespace
+
+The suppression namespace is `gohumanize` (the analyzer name), NOT
+`go-humanize-linter` (the module path). `//nolint:go-humanize-linter` silently
+does nothing. The `--verify-suppressions` flag catches this.
+
+See ADR 0006 for the design decision on in-body (line-range) suppression.
 
 Please use GitHub Issues to report bugs or request features.
 

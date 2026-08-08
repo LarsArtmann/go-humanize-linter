@@ -213,6 +213,7 @@ func f() {}
 
 			fset, file, fn := parseFirstFunc(t, tt.src)
 			supps := funcSuppressions(fset, file, fn)
+
 			got := isSuppressedRule(supps, "H001")
 			if got != tt.want {
 				t.Errorf("isSuppressedRule(funcSuppressions(...), H001) = %v, want %v (supps=%v)", got, tt.want, supps)

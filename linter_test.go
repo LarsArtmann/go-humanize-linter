@@ -146,7 +146,11 @@ func TestCLI_InBodyDirectiveIsolation(t *testing.T) {
 
 	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_inbody_isolation"))
 	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding (func B only; func A suppressed by in-body //nolint), got %d: %+v", len(findings), findings)
+		t.Fatalf(
+			"expected 1 finding (func B only; func A suppressed by in-body //nolint), got %d: %+v",
+			len(findings),
+			findings,
+		)
 	}
 }
 

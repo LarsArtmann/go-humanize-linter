@@ -151,18 +151,35 @@ go-humanize-linter --behavior-delta baseline.json ./...
 
 ### Suppressing findings
 
-Add a `//nolint:gohumanize` directive to a function to suppress findings on it.
-This works in both the CLI and the golangci-lint plugin.
+Add a `//nolint:gohumanize` directive to suppress findings. The directive can
+be placed on the function declaration, in the doc comment, or anywhere inside
+the function body (on the specific statement that triggers the finding).
 
 ```go
+// On the function declaration:
 //nolint:gohumanize // intentional hand-rolled format
 func prettySize(b int64) string {
     return fmt.Sprintf("%.1f %cB", float64(b)/1048576, "M")
 }
+
+// Inside the function body (on the triggering line):
+func formatBytes(b int64) string {
+    return fmt.Sprintf("%.1f %cB", float64(b)/1048576, "M") //nolint:gohumanize
+}
 ```
 
-Recognised forms: `//nolint` (suppress all), `//nolint:all`, `//nolint:gohumanize`,
-and `//nolint:gohumanize,other` (comma-separated). A trailing `// reason` is allowed.
+Recognised forms:
+
+| Directive | Effect |
+|-----------|--------|
+| `//nolint` | Suppresses all linters |
+| `//nolint:all` | Suppresses all linters |
+| `//nolint:gohumanize` | Suppresses all gohumanize rules on this function |
+| `//nolint:gohumanize:H001` | Suppresses only H001 (scoped) |
+| `//nolint:gohumanize:H001,H002` | Suppresses H001 and H002 only |
+| `//nolint:gohumanize,other` | Suppresses gohumanize and another linter |
+
+A trailing `// reason` comment is allowed on any form.
 
 ## Build & Test
 
