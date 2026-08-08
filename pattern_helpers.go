@@ -392,14 +392,15 @@ func isSuppressedAll(suppressions []string) bool {
 //
 //	//nolint:all                            (suppresses everything)
 //	//nolint:gohumanize                     (suppresses every H-rule)
+//	//nolint:gohumanize,other               (suppresses every H-rule; "other" is another linter)
 //	//nolint:gohumanize:H001                (only H001)
 //	//nolint:gohumanize:H001,H002           (H001 and H002)
 //	//nolint:H001                           (only H001, unscoped)
 //
-// "gohumanize" alone is treated as "all H-rules" (suppresses every rule ID)
-// so existing //nolint:gohumanize behaviour is preserved. When scoped
-// sub-rules appear alongside "gohumanize", only those specific rule IDs are
-// suppressed.
+// Tokens that don't match the rule-ID pattern (H followed by digits) are
+// treated as other linter names and ignored, so comma-separated multi-linter
+// directives like //nolint:gohumanize,gofmt suppress all H-rules rather than
+// accidentally scoping to a linter name.
 func isSuppressedRule(suppressions []string, ruleID string) bool {
 	hasAll := false
 	hasLinter := false
@@ -412,9 +413,9 @@ func isSuppressedRule(suppressions []string, ruleID string) bool {
 		case nolintLinterName:
 			hasLinter = true
 		default:
-			// Sub-rule token (e.g. "H001"). Only meaningful when "gohumanize"
-			// is also present as a scope marker, but we record it either way.
-			scopedRules[s] = true
+			if looksLikeRuleID(s) {
+				scopedRules[s] = true
+			}
 		}
 	}
 
@@ -423,17 +424,32 @@ func isSuppressedRule(suppressions []string, ruleID string) bool {
 	}
 
 	if hasLinter {
-		// Scoped sub-rules: only suppress the rules explicitly named.
 		if len(scopedRules) > 0 {
 			return scopedRules[ruleID]
 		}
 
-		// Bare "gohumanize" without sub-rules → suppress every H-rule.
 		return true
 	}
 
-	// Unscoped sub-rule (e.g. //nolint:H001): suppress only that rule.
 	return scopedRules[ruleID]
+}
+
+// looksLikeRuleID reports whether s matches the rule-ID pattern (H followed by
+// digits, e.g. "H001"). This distinguishes scoped rule IDs from comma-separated
+// linter names in directives like //nolint:gohumanize,other where "other" is a
+// separate linter, not a scoped sub-rule of gohumanize.
+func looksLikeRuleID(s string) bool {
+	if len(s) < 2 || s[0] != 'H' {
+		return false
+	}
+
+	for _, c := range s[1:] {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+
+	return true
 }
 
 // noLintList extracts the comma-separated linter name list from the text that

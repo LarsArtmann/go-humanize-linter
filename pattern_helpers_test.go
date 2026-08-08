@@ -53,13 +53,13 @@ func equalSlices(a, b []string) bool {
 	return true
 }
 
-func TestHasNoLintDirective(t *testing.T) {
+func TestFuncSuppressionsAssociation(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
 		name string
 		src  string
-		want bool
+		want bool // whether func f() is suppressed for "H001"
 	}{
 		{
 			name: "leading directive",
@@ -187,6 +187,24 @@ func g() { //nolint:gohumanize
 `,
 			want: false,
 		},
+		{
+			name: "scoped directive suppresses only named rule",
+			src: `package main
+
+//nolint:gohumanize:H002
+func f() {}
+`,
+			want: false, // H001 NOT suppressed by H002-scoped directive
+		},
+		{
+			name: "scoped directive suppresses matching rule",
+			src: `package main
+
+//nolint:gohumanize:H001
+func f() {}
+`,
+			want: true, // H001 IS suppressed
+		},
 	}
 
 	for _, tt := range cases {
@@ -194,8 +212,10 @@ func g() { //nolint:gohumanize
 			t.Parallel()
 
 			fset, file, fn := parseFirstFunc(t, tt.src)
-			if got := hasNoLintDirective(fset, file, fn); got != tt.want {
-				t.Errorf("hasNoLintDirective = %v, want %v", got, tt.want)
+			supps := funcSuppressions(fset, file, fn)
+			got := isSuppressedRule(supps, "H001")
+			if got != tt.want {
+				t.Errorf("isSuppressedRule(funcSuppressions(...), H001) = %v, want %v (supps=%v)", got, tt.want, supps)
 			}
 		})
 	}

@@ -123,6 +123,24 @@ func TestCLI_SuppressedByInBodyDirective(t *testing.T) {
 	}
 }
 
+func TestCLI_ScopedSuppression_H001Only(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_scoped_h001"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings with //nolint:gohumanize:H001, got %d: %+v", len(findings), findings)
+	}
+}
+
+func TestCLI_ScopedSuppression_DoesNotSuppressOtherRule(t *testing.T) {
+	t.Parallel()
+
+	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_scoped_h002_only"))
+	if len(findings) != 1 {
+		t.Fatalf("expected 1 finding (H002 scope must NOT suppress H001), got %d: %+v", len(findings), findings)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H002 — manual-comma-format
 // ---------------------------------------------------------------------------
