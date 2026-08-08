@@ -26,6 +26,7 @@ func RuleParseBytes() linter.RuleFunc {
 			Description: "Manual byte-size string parsing — use humanize.ParseBytes instead of suffix matching and multiplication",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
+			ToolName:    "go-humanize-linter",
 		},
 		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
 			funcFindings, err := checkFuncDecls(dir, detectParseBytes)

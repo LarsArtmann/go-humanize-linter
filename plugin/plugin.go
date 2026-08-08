@@ -55,6 +55,7 @@ import (
 
 	"github.com/golangci/plugin-module-register/register"
 	"github.com/larsartmann/go-finding"
+	"github.com/larsartmann/go-finding/gotoken"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
 	"github.com/larsartmann/go-linter-sdk"
 	"golang.org/x/tools/go/analysis"
@@ -97,10 +98,10 @@ func (p *humanizePlugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
 	enableSet := parseRuleIDs(p.settings.Enable)
 	disableSet := parseRuleIDs(p.settings.Disable)
 
-	rules := filterRules(humanizelint.AllRules(), enableSet, disableSet)
+	rules := linter.FilterRules(humanizelint.AllRules(), enableSet, disableSet)
 	detector := humanizelint.NewHumanizeDetector(rules...)
 
-	minConf, err := humanizelint.ParseConfidenceLevel(p.settings.MinConfidence)
+	minConf, err := finding.ParseConfidence(p.settings.MinConfidence)
 	if err != nil {
 		return nil, fmt.Errorf("parse min-confidence: %w", err)
 	}
@@ -199,44 +200,13 @@ func runDetector(
 		}
 
 		pass.Report(analysis.Diagnostic{
-			Pos:      findingToTokenPos(tokenFiles, f),
+			Pos:      gotoken.LineColToPos(tokenFiles[string(f.Position.File)], f.Position.Line, f.Position.Column),
 			Message:  string(f.Rule) + ": " + f.Message,
 			Category: "humanize",
 		})
 	}
 
 	return nil, nil //nolint:nilnil // analysis.Analyzer.Run requires (any, error) signature
-}
-
-// findingToTokenPos converts a finding.Finding's file/line/column position back
-// to a go/token position for the analysis.Diagnostic. This lets the plugin
-// report diagnostics at the finding's specific location rather than always at
-// the function declaration.
-func findingToTokenPos(tokenFiles map[string]*token.File, f finding.Finding) token.Pos {
-	if f.Position.Line < 1 {
-		return token.NoPos
-	}
-
-	tokenFile := tokenFiles[string(f.Position.File)]
-	if tokenFile == nil {
-		return token.NoPos
-	}
-
-	// LineStart panics with "illegal line number (past end of file)" when
-	// the line exceeds the file's actual line count. While findings normally
-	// use the same FileSet as the parser, a defensive NoPos return is always
-	// preferable to a crash — a linter reporting at position 0 is better than
-	// a linter that takes down the entire golangci-lint process.
-	if tokenFile.LineCount() < f.Position.Line {
-		return token.NoPos
-	}
-
-	pos := tokenFile.LineStart(f.Position.Line)
-	if f.Position.Column > 0 {
-		pos += token.Pos(f.Position.Column - 1)
-	}
-
-	return pos
 }
 
 // parseRuleIDs converts a comma-separated string of rule IDs into a set.
@@ -254,28 +224,3 @@ func parseRuleIDs(spec string) map[string]bool {
 	return set
 }
 
-// filterRules returns the subset of rules that should run, given the enable
-// and disable sets. When enable is non-empty, only those rules are included
-// (minus any also disabled). When enable is empty, all rules except disabled
-// ones are included.
-func filterRules(all []linter.RuleFunc, enable, disable map[string]bool) []linter.RuleFunc {
-	if len(enable) == 0 && len(disable) == 0 {
-		return all
-	}
-
-	var filtered []linter.RuleFunc
-
-	for _, rule := range all {
-		if disable[rule.Meta.ID] {
-			continue
-		}
-
-		if len(enable) > 0 && !enable[rule.Meta.ID] {
-			continue
-		}
-
-		filtered = append(filtered, rule)
-	}
-
-	return filtered
-}

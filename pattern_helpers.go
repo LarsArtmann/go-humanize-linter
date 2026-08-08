@@ -210,6 +210,13 @@ func buildImportAliases(file *ast.File) map[string]string {
 	return aliases
 }
 
+// findingTemplate pre-configures the shared fields for all humanize-lint
+// findings: tool name, category, and fix strategy. Individual findings
+// override severity and confidence via the returned [finding.Builder].
+var findingTemplate = finding.NewTemplate(finding.ToolName("go-humanize-linter")). //nolint:gochecknoglobals // package-level template
+			WithCategory(finding.CategoryStyle).
+			WithFixStrategy(finding.FixStrategySuggest)
+
 // makeFindingWithConfidence constructs a finding with an explicit confidence
 // and suggestion text.
 func makeFindingWithConfidence(
@@ -218,16 +225,12 @@ func makeFindingWithConfidence(
 	filePath string,
 	conf finding.Confidence,
 ) finding.Finding {
-	b := finding.NewBuilder(
+	b := findingTemplate.Builder(
 		finding.RuleName(ruleID),
-		finding.ToolName("go-humanize-linter"),
 		message,
 		finding.SeverityWarning,
 		finding.Pos(finding.FilePath(filePath), line, col),
-	).
-		WithCategory(finding.CategoryStyle).
-		WithFixStrategy(finding.FixStrategySuggest).
-		WithConfidence(conf)
+	).WithConfidence(conf)
 
 	if suggestion != "" {
 		b = b.WithSuggestion(suggestion)

@@ -15,6 +15,7 @@ import (
 
 	"github.com/larsartmann/go-finding"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
+	"github.com/larsartmann/go-linter-sdk"
 )
 
 // binaryOnce ensures the CLI is built only once across all tests.
@@ -740,7 +741,7 @@ func TestLoadConfig_InvalidYAML(t *testing.T) {
 	}
 }
 
-func TestParseConfidenceLevel(t *testing.T) {
+func TestParseConfidence(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
@@ -760,26 +761,26 @@ func TestParseConfidenceLevel(t *testing.T) {
 		t.Run(tt.input, func(t *testing.T) {
 			t.Parallel()
 
-			got, err := humanizelint.ParseConfidenceLevel(tt.input)
+			got, err := finding.ParseConfidence(tt.input)
 			if (err != nil) != tt.err {
-				t.Fatalf("ParseConfidenceLevel(%q) error = %v, wantErr %v", tt.input, err, tt.err)
+				t.Fatalf("ParseConfidence(%q) error = %v, wantErr %v", tt.input, err, tt.err)
 			}
 
 			if got != tt.want {
-				t.Errorf("ParseConfidenceLevel(%q) = %v, want %v", tt.input, got, tt.want)
+				t.Errorf("ParseConfidence(%q) = %v, want %v", tt.input, got, tt.want)
 			}
 		})
 	}
 }
 
-func TestExitCodeFromReport(t *testing.T) {
+func TestExitCodeByConfidence(t *testing.T) {
 	t.Parallel()
 
 	t.Run("nil report", func(t *testing.T) {
 		t.Parallel()
 
-		if got := exitCodeFromReport(nil); got != 0 {
-			t.Errorf("exitCodeFromReport(nil) = %d, want 0", got)
+		if got := linter.ExitCodeByConfidence(nil, finding.ConfidenceHigh); got != 0 {
+			t.Errorf("ExitCodeByConfidence(nil) = %d, want 0", got)
 		}
 	})
 
@@ -787,8 +788,8 @@ func TestExitCodeFromReport(t *testing.T) {
 		t.Parallel()
 
 		report := finding.NewReport(finding.ToolInfo{Name: "test"})
-		if got := exitCodeFromReport(report); got != 0 {
-			t.Errorf("exitCodeFromReport(empty) = %d, want 0", got)
+		if got := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); got != 0 {
+			t.Errorf("ExitCodeByConfidence(empty) = %d, want 0", got)
 		}
 	})
 
@@ -798,8 +799,8 @@ func TestExitCodeFromReport(t *testing.T) {
 		report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
 			makeFinding(finding.ConfidenceMedium),
 		})
-		if got := exitCodeFromReport(report); got != 2 {
-			t.Errorf("exitCodeFromReport(medium) = %d, want 2", got)
+		if got := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); got != 2 {
+			t.Errorf("ExitCodeByConfidence(medium) = %d, want 2", got)
 		}
 	})
 
@@ -809,8 +810,8 @@ func TestExitCodeFromReport(t *testing.T) {
 		report := finding.NewReportFromFindings(finding.ToolInfo{Name: "test"}, []finding.Finding{
 			makeFinding(finding.ConfidenceHigh),
 		})
-		if got := exitCodeFromReport(report); got != 1 {
-			t.Errorf("exitCodeFromReport(high) = %d, want 1", got)
+		if got := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); got != 1 {
+			t.Errorf("ExitCodeByConfidence(high) = %d, want 1", got)
 		}
 	})
 
@@ -821,8 +822,8 @@ func TestExitCodeFromReport(t *testing.T) {
 			makeFinding(finding.ConfidenceMedium),
 			makeFinding(finding.ConfidenceHigh),
 		})
-		if got := exitCodeFromReport(report); got != 1 {
-			t.Errorf("exitCodeFromReport(mixed) = %d, want 1", got)
+		if got := linter.ExitCodeByConfidence(report, finding.ConfidenceHigh); got != 1 {
+			t.Errorf("ExitCodeByConfidence(mixed) = %d, want 1", got)
 		}
 	})
 }

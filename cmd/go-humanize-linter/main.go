@@ -210,7 +210,7 @@ func runScan(
 		}
 	}
 
-	minConf, err := humanizelint.ParseConfidenceLevel(minConfidence)
+	minConf, err := finding.ParseConfidence(minConfidence)
 	if err != nil {
 		return fmt.Errorf("parse min-confidence: %w", err)
 	}
@@ -229,7 +229,7 @@ func runScan(
 
 	writeReport(outputPath, filteredReport, format, quiet)
 
-	os.Exit(exitCodeFromReport(filteredReport))
+	os.Exit(linter.ExitCodeByConfidence(filteredReport, finding.ConfidenceHigh))
 
 	return nil
 }
@@ -423,31 +423,19 @@ func (s *stringList) Set(v string) error {
 }
 
 func buildRegistry(enableIDs, disableIDs []string) *linter.Registry {
-	disabled := make(map[string]bool, len(disableIDs))
-	for _, id := range disableIDs {
-		disabled[id] = true
-	}
-
-	enabledOnly := len(enableIDs) > 0
-
-	enableSet := make(map[string]bool, len(enableIDs))
+	enable := make(map[string]bool, len(enableIDs))
 	for _, id := range enableIDs {
-		enableSet[id] = true
+		enable[id] = true
 	}
 
-	registry := linter.NewRegistry()
+	disable := make(map[string]bool, len(disableIDs))
+	for _, id := range disableIDs {
+		disable[id] = true
+	}
 
-	for _, rule := range humanizelint.AllRules() {
-		ruleID := rule.Meta.ID
+	registry := linter.NewRegistry(linter.WithToolName("go-humanize-linter"))
 
-		if disabled[ruleID] {
-			continue
-		}
-
-		if enabledOnly && !enableSet[ruleID] {
-			continue
-		}
-
+	for _, rule := range linter.FilterRules(humanizelint.AllRules(), enable, disable) {
 		registry.Register(rule)
 	}
 
@@ -483,32 +471,6 @@ func loadConfig(path string) (*Config, error) {
 // confidence is at least minConfidence. The original report is not modified.
 func filterReportByConfidence(report *finding.Report, minConfidence finding.Confidence) *finding.Report {
 	return report.Filter(finding.ByConfidenceAtLeast(minConfidence))
-}
-
-// exitCodeFromReport returns a confidence-aware exit code for a lint run.
-//   - 0 when there are no findings (after filtering by min-confidence).
-//   - 1 when any remaining finding has high or full confidence (must fix).
-//   - 2 when the highest remaining finding is medium or low (triage).
-//
-// This lets CI distinguish "please review" from "must fix".
-func exitCodeFromReport(report *finding.Report) int {
-	if report == nil || report.Len() == 0 {
-		return 0
-	}
-
-	maxConfidence := finding.ConfidenceLow
-
-	for f := range report.All() {
-		if f.Confidence.Compare(maxConfidence) > 0 {
-			maxConfidence = f.Confidence
-		}
-	}
-
-	if maxConfidence >= finding.ConfidenceHigh {
-		return 1
-	}
-
-	return 2
 }
 
 // OutputError is returned by output() when rendering or writing a report

@@ -7,7 +7,9 @@ import (
 	"testing"
 
 	"github.com/larsartmann/go-finding"
+	"github.com/larsartmann/go-finding/gotoken"
 	humanizelint "github.com/larsartmann/go-humanize-linter"
+	"github.com/larsartmann/go-linter-sdk"
 	"golang.org/x/tools/go/analysis/analysistest"
 )
 
@@ -49,7 +51,7 @@ func TestFilterRules_NoConfigReturnsAll(t *testing.T) {
 	t.Parallel()
 
 	all := humanizelint.AllRules()
-	got := filterRules(all, nil, nil)
+	got := linter.FilterRules(all, nil, nil)
 
 	if len(got) != len(all) {
 		t.Errorf("no config: got %d rules, want %d", len(got), len(all))
@@ -61,7 +63,7 @@ func TestFilterRules_EnableOnly(t *testing.T) {
 
 	all := humanizelint.AllRules()
 	enable := map[string]bool{humanizelint.RuleIDH001: true, humanizelint.RuleIDH003: true}
-	got := filterRules(all, enable, nil)
+	got := linter.FilterRules(all, enable, nil)
 
 	if len(got) != 2 {
 		t.Fatalf("enable=H001,H003: got %d rules, want 2", len(got))
@@ -79,7 +81,7 @@ func TestFilterRules_DisableOnly(t *testing.T) {
 
 	all := humanizelint.AllRules()
 	disable := map[string]bool{humanizelint.RuleIDH001: true}
-	got := filterRules(all, nil, disable)
+	got := linter.FilterRules(all, nil, disable)
 
 	if len(got) != len(all)-1 {
 		t.Fatalf("disable=H001: got %d rules, want %d", len(got), len(all)-1)
@@ -98,7 +100,7 @@ func TestFilterRules_EnableOverridesDisable(t *testing.T) {
 	all := humanizelint.AllRules()
 	enable := map[string]bool{humanizelint.RuleIDH001: true, humanizelint.RuleIDH002: true}
 	disable := map[string]bool{humanizelint.RuleIDH001: true}
-	got := filterRules(all, enable, disable)
+	got := linter.FilterRules(all, enable, disable)
 
 	if len(got) != 1 {
 		t.Fatalf("enable=H001,H002 disable=H001: got %d rules, want 1 (only H002)", len(got))
@@ -268,7 +270,7 @@ func TestBuildAnalyzersProducesConfiguredDetector(t *testing.T) {
 	}
 }
 
-func TestFindingToTokenPos(t *testing.T) {
+func TestLineColToPos(t *testing.T) {
 	t.Parallel()
 
 	src := "package main\n\nfunc foo() {\n\t_ = 1024\n}\n"
@@ -323,7 +325,7 @@ func TestFindingToTokenPos(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := findingToTokenPos(tokenFiles, tt.finding)
+			got := gotoken.LineColToPos(tokenFiles[string(tt.finding.Position.File)], tt.finding.Position.Line, tt.finding.Position.Column)
 
 			if tt.wantNoPos {
 				if got != token.NoPos {
@@ -340,7 +342,7 @@ func TestFindingToTokenPos(t *testing.T) {
 	}
 }
 
-func TestFindingToTokenPos_OutOfRangeLine(t *testing.T) {
+func TestLineColToPos_OutOfRangeLine(t *testing.T) {
 	t.Parallel()
 
 	src := "package main\n\nfunc foo() {\n\t_ = 1024\n}\n"
@@ -359,11 +361,11 @@ func TestFindingToTokenPos_OutOfRangeLine(t *testing.T) {
 	// file)". A linter must never crash — it must return NoPos instead.
 	defer func() {
 		if r := recover(); r != nil {
-			t.Fatalf("findingToTokenPos panicked on out-of-range line: %v", r)
+			t.Fatalf("gotoken.LineColToPos panicked on out-of-range line: %v", r)
 		}
 	}()
 
-	got := findingToTokenPos(tokenFiles, makeTestFinding("test.go", 1000, 1))
+	got := gotoken.LineColToPos(tokenFiles["test.go"], 1000, 1)
 
 	if got != token.NoPos {
 		t.Errorf("expected NoPos for out-of-range line, got %d", got)
