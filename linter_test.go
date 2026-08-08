@@ -112,6 +112,17 @@ func TestCLI_SuppressedByDirectiveCommaList(t *testing.T) {
 	}
 }
 
+func TestCLI_SuppressedByInBodyDirective(t *testing.T) {
+	t.Parallel()
+
+	// Verifies that a //nolint:gohumanize directive placed INSIDE the function
+	// body (on a specific statement line) is honoured as a suppression.
+	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed_inbody"))
+	if len(findings) != 0 {
+		t.Fatalf("expected 0 findings with in-body //nolint, got %d: %+v", len(findings), findings)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // H002 — manual-comma-format
 // ---------------------------------------------------------------------------

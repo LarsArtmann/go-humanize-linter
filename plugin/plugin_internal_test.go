@@ -464,3 +464,23 @@ func TestRunDetector_VerifySuppressions(t *testing.T) {
 	testdata := filepath.Join("..", "testdata", "analysistest")
 	analysistest.Run(t, testdata, analyzers[0], "./h0supbypass")
 }
+
+func TestRunDetector_InBodySuppression(t *testing.T) {
+	t.Parallel()
+
+	// The h001_inbody_suppressed fixture has an H001 pattern (KMGTPE trick)
+	// with a //nolint:gohumanize directive INSIDE the function body. The
+	// plugin path must honour it — no diagnostic expected.
+	plug, err := newPlugin(map[string]any{})
+	if err != nil {
+		t.Fatalf("newPlugin failed: %v", err)
+	}
+
+	analyzers, err := plug.BuildAnalyzers()
+	if err != nil {
+		t.Fatalf("BuildAnalyzers failed: %v", err)
+	}
+
+	testdata := filepath.Join("..", "testdata", "analysistest")
+	analysistest.Run(t, testdata, analyzers[0], "./h001_inbody_suppressed")
+}

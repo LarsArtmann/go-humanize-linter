@@ -186,14 +186,12 @@ func DetectFuncDecl(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fileP
 
 // funcSuppressions collects every //nolint directive (parsed via
 // suppressedRules) that applies to fn — either as the doc comment, a
-// trailing comment, or a comment on the line before the declaration.
-// Returns nil if no directive applies.
+// trailing comment, a comment on the line before the declaration, or
+// a comment inside the function body. Returns nil if no directive applies.
 func funcSuppressions(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) []string {
 	if file == nil || fn == nil {
 		return nil
 	}
-
-	fnLine := fset.Position(fn.Pos()).Line
 
 	var merged []string
 
@@ -207,7 +205,7 @@ func funcSuppressions(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) []s
 			}
 
 			cmtLine := fset.Position(comment.Pos()).Line
-			if !isDoc && cmtLine != fnLine && cmtLine != fnLine-1 {
+			if !commentAssociatedWithFunc(fset, fn, isDoc, cmtLine) {
 				continue
 			}
 

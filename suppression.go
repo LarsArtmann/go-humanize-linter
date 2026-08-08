@@ -120,7 +120,7 @@ func extractFunctionSuppressions(
 			}
 
 			cmtLine := fset.Position(comment.Pos()).Line
-			if !isDoc && cmtLine != fnLine && cmtLine != fnLine-1 {
+			if !commentAssociatedWithFunc(fset, fn, isDoc, cmtLine) {
 				continue
 			}
 

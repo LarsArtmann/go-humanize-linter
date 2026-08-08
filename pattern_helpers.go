@@ -248,10 +248,37 @@ const nolintLinterName = "gohumanize"
 // //nolint directive (e.g. "//nolint" or "//nolint:all").
 const nolintAllMarker = "all"
 
+// commentAssociatedWithFunc reports whether a comment at cmtLine is associated
+// with fn for suppression purposes. This is true when the comment is:
+//   - the function's doc comment (isDoc),
+//   - on the function's own line (trailing comment),
+//   - on the line immediately before the declaration, or
+//   - anywhere inside the function body (between Lbrace and Rbrace inclusive).
+//
+// The in-body rule enables per-statement //nolint suppression: developers and
+// AIs can place the directive on the specific line that triggers the finding
+// rather than only on the function declaration.
+func commentAssociatedWithFunc(fset *token.FileSet, fn *ast.FuncDecl, isDoc bool, cmtLine int) bool {
+	fnLine := fset.Position(fn.Pos()).Line
+	if isDoc || cmtLine == fnLine || cmtLine == fnLine-1 {
+		return true
+	}
+
+	if fn.Body != nil {
+		lbrace := fset.Position(fn.Body.Lbrace).Line
+		rbrace := fset.Position(fn.Body.Rbrace).Line
+		if cmtLine >= lbrace && cmtLine <= rbrace {
+			return true
+		}
+	}
+
+	return false
+}
+
 // hasNoLintDirective reports whether fn carries a //nolint directive that
 // suppresses this linter. A directive counts if it appears in the function's
-// doc comment, as a trailing comment on the func's own line, or in any comment
-// group positioned on the line immediately before the declaration.
+// doc comment, as a trailing comment on the func's own line, on the line
+// immediately before the declaration, or anywhere inside the function body.
 //
 // Recognised forms:
 //
@@ -264,8 +291,6 @@ func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) b
 	if file == nil || fn == nil {
 		return false
 	}
-
-	fnLine := fset.Position(fn.Pos()).Line
 
 	for _, group := range file.Comments {
 		isDoc := group == fn.Doc
@@ -281,7 +306,7 @@ func hasNoLintDirective(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl) b
 			}
 
 			cmtLine := fset.Position(comment.Pos()).Line
-			if isDoc || cmtLine == fnLine || cmtLine == fnLine-1 {
+			if commentAssociatedWithFunc(fset, fn, isDoc, cmtLine) {
 				return true
 			}
 		}
