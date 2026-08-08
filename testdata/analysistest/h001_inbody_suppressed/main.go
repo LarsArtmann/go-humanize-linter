@@ -15,7 +15,11 @@ func formatBytesInBody(bytes int64) string {
 		div *= unit
 		exp++
 	}
-	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp]) //nolint:gohumanize // in-body suppression
+	return fmt.Sprintf(
+		"%.1f %cB",
+		float64(bytes)/float64(div),
+		"KMGTPE"[exp],
+	) //nolint:gohumanize // in-body suppression
 }
 
 func main() {

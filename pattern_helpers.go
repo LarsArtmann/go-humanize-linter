@@ -214,8 +214,8 @@ func buildImportAliases(file *ast.File) map[string]string {
 // findings: tool name, category, and fix strategy. Individual findings
 // override severity and confidence via the returned [finding.Builder].
 var findingTemplate = finding.NewTemplate(toolName). //nolint:gochecknoglobals // package-level template
-	WithCategory(finding.CategoryStyle).
-	WithFixStrategy(finding.FixStrategySuggest)
+							WithCategory(finding.CategoryStyle).
+							WithFixStrategy(finding.FixStrategySuggest)
 
 // makeFindingWithConfidence constructs a finding with an explicit confidence
 // and suggestion text.
