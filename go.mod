@@ -24,3 +24,7 @@ require (
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 )
+
+replace github.com/larsartmann/go-finding => /home/lars/projects/go-finding
+
+replace github.com/larsartmann/go-linter-sdk => /home/lars/projects/go-linter-sdk
