@@ -1,7 +1,6 @@
 package plugin_test
 
 import (
-	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -102,8 +101,13 @@ func TestPluginRegisteredWithSettings(t *testing.T) {
 }
 
 // TestCustomGCLIntegration builds the custom-gcl binary via
-// `golangci-lint custom`, runs it on a temp module containing a known H001
-// pattern, and asserts the gohumanize diagnostic appears.
+// `golangci-lint custom`, runs it on temp modules with various plugin
+// settings, and asserts the gohumanize diagnostics appear correctly.
+//
+// Subtests:
+//   - basic_detection: default settings, H001 fires
+//   - min_confidence_full: minConfidence "full", H001 (ConfidenceFull) still fires
+//   - verify_suppressions: stale //nolint directive produces H0SUP
 //
 // This test requires network access (golangci-lint custom clones the
 // golangci-lint source) and is therefore gated behind testing.Short().
@@ -123,7 +127,6 @@ func TestCustomGCLIntegration(t *testing.T) {
 
 	projectRoot := filepath.Dir(wd)
 
-	// Build the custom-gcl binary.
 	t.Log("building custom-gcl binary (this may take a while)...")
 
 	buildCmd := exec.Command("golangci-lint", "custom")
@@ -147,17 +150,6 @@ func TestCustomGCLIntegration(t *testing.T) {
 
 	t.Cleanup(func() { _ = os.Remove(customGCL) })
 
-	// Create a temp module with a known H001 pattern (KMGTPE index trick).
-	tmpDir := t.TempDir()
-
-	if err := os.WriteFile(
-		filepath.Join(tmpDir, "go.mod"),
-		[]byte("module testexample\n\ngo 1.26\n"),
-		0o644,
-	); err != nil {
-		t.Fatalf("write go.mod: %v", err)
-	}
-
 	h001Source := `package main
 
 import "fmt"
@@ -180,7 +172,74 @@ func main() {
 }
 `
 
-	if err := os.WriteFile(filepath.Join(tmpDir, "main.go"), []byte(h001Source), 0o644); err != nil {
+	t.Run("basic_detection", func(t *testing.T) {
+		t.Parallel()
+
+		out := runCustomGCL(t, customGCL, h001Source, "")
+
+		if !strings.Contains(out, "H001") {
+			t.Errorf("expected H001 diagnostic in output, got:\n%s", out)
+		}
+
+		if !strings.Contains(out, "gohumanize") {
+			t.Errorf("expected 'gohumanize' linter name in output, got:\n%s", out)
+		}
+	})
+
+	t.Run("min_confidence_full", func(t *testing.T) {
+		t.Parallel()
+
+		settings := `        settings:
+          minConfidence: "full"
+`
+
+		out := runCustomGCL(t, customGCL, h001Source, settings)
+
+		if !strings.Contains(out, "H001") {
+			t.Errorf("expected H001 (ConfidenceFull) to survive minConfidence=full, got:\n%s", out)
+		}
+	})
+
+	t.Run("verify_suppressions", func(t *testing.T) {
+		t.Parallel()
+
+		staleSource := `package main
+
+//nolint:gohumanize // stale: no humanize pattern here
+func cleanFunc() string {
+	return "hello"
+}
+
+func main() {
+	_ = cleanFunc()
+}
+`
+		settings := `        settings:
+          verifySuppressions: true
+`
+
+		out := runCustomGCL(t, customGCL, staleSource, settings)
+
+		if !strings.Contains(out, "H0SUP") {
+			t.Errorf("expected H0SUP diagnostic for stale directive, got:\n%s", out)
+		}
+	})
+}
+
+func runCustomGCL(t *testing.T, customGCL, source, settingsYAML string) string {
+	t.Helper()
+
+	tmpDir := t.TempDir()
+
+	if err := os.WriteFile(
+		filepath.Join(tmpDir, "go.mod"),
+		[]byte("module testexample\n\ngo 1.26\n"),
+		0o644,
+	); err != nil {
+		t.Fatalf("write go.mod: %v", err)
+	}
+
+	if err := os.WriteFile(filepath.Join(tmpDir, "main.go"), []byte(source), 0o644); err != nil {
 		t.Fatalf("write main.go: %v", err)
 	}
 
@@ -197,13 +256,12 @@ linters:
         type: "module"
         description: "test"
         original-url: github.com/LarsArtmann/go-humanize-linter
-`
+` + settingsYAML
 
 	if err := os.WriteFile(filepath.Join(tmpDir, ".golangci.yml"), []byte(gclConfig), 0o644); err != nil {
 		t.Fatalf("write .golangci.yml: %v", err)
 	}
 
-	// Run custom-gcl on the temp module.
 	runCmd := exec.Command(customGCL, "run", "-c", filepath.Join(tmpDir, ".golangci.yml"), "./...")
 	runCmd.Dir = tmpDir
 
@@ -213,22 +271,7 @@ linters:
 		"GONOSUMDB=github.com/larsartmann/*,github.com/LarsArtmann/*",
 	)
 
-	output, err := runCmd.CombinedOutput()
-	// golangci-lint exits 1 when findings are reported — that's expected.
-	if err != nil {
-		exitErr := &exec.ExitError{}
-		if errors.As(err, &exitErr) {
-			t.Fatalf("custom-gcl run failed unexpectedly: %v\n%s", err, output)
-		}
-	}
+	output, _ := runCmd.CombinedOutput()
 
-	out := string(output)
-
-	if !strings.Contains(out, "H001") {
-		t.Errorf("expected H001 diagnostic in custom-gcl output, got:\n%s", out)
-	}
-
-	if !strings.Contains(out, "gohumanize") {
-		t.Errorf("expected 'gohumanize' linter name in custom-gcl output, got:\n%s", out)
-	}
+	return string(output)
 }
