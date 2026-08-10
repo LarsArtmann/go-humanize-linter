@@ -5,7 +5,7 @@ go 1.26.5
 require (
 	github.com/LarsArtmann/gogenfilter/v3 v3.4.0
 	github.com/golangci/plugin-module-register v0.1.2
-	github.com/larsartmann/go-finding v1.5.0
+	github.com/larsartmann/go-finding v1.6.0
 	github.com/larsartmann/go-linter-sdk v0.1.0
 	golang.org/x/tools v0.48.0
 	gopkg.in/yaml.v3 v3.0.1
