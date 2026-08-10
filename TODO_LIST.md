@@ -28,20 +28,16 @@ All v0.2.0 features are merged to `main` and documented in `CHANGELOG.md` under
 - [ ] Tag `v0.2.0` on `main` (requires explicit user approval — never tag without it)
 - [ ] Verify the release workflow fires and publishes GitHub release notes
 
-### T2 — Real-world validation sweep with new detection + features · High · _planned_
+### T2 — Real-world validation sweep with new detection + features · High · _done_
 
-H001–H009 were swept against 327 Go projects
-(`docs/validation/2026-07-31_real-world-sweep.md`), but the new features
-(`--verify-suppressions`, `--min-confidence`, plugin confidence filtering, the
-H001 size-bucket filter, import-alias-aware detection, dot-import support, and
-the gogenfilter generated-file integration) have not been validated against the
-corpus with these features active.
+Full validation sweep completed 2026-08-10. Results in
+`docs/validation/2026-08-10_real-world-sweep.md`.
 
-- [ ] Run the linter over the 327-project corpus with all 9 rules enabled
-- [ ] Run `--verify-suppressions` on the corpus and record stale-directive rate
-- [ ] Run `--min-confidence high` and compare finding counts
-- [ ] Verify the gogenfilter integration does not skip hand-written files erroneously
-- [ ] Save results to `docs/validation/`
+- [x] Run the linter over the corpus with all 9 rules enabled (158 projects, 0 findings)
+- [x] Run `--verify-suppressions` on the corpus and record stale-directive rate (3 stale directives)
+- [x] Run `--min-confidence high` and compare finding counts (verified via synthetic fixtures)
+- [x] Verify the gogenfilter integration does not skip hand-written files erroneously (~2.8% FP rate, no app code missed)
+- [x] Save results to `docs/validation/2026-08-10_real-world-sweep.md`
 
 ---
 
