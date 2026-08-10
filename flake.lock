@@ -91,11 +91,11 @@
     "go-nix-helpers": {
       "flake": false,
       "locked": {
-        "lastModified": 1786329523,
-        "narHash": "sha256-T/Xg0aH6jVARBD0ReM7/TATZ6or+XX98D4BYUL6jwf8=",
+        "lastModified": 1786337613,
+        "narHash": "sha256-KHGMxfuKPvWxe9dKyKoD6Q6vVLuto5522azO0ZkauO0=",
         "ref": "master",
-        "rev": "3d66f6498bab528bf4f26186487abe919594da64",
-        "revCount": 123,
+        "rev": "82ad81bc079eb340d5b6bfede79d5e5e38e79f13",
+        "revCount": 129,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/go-nix-helpers"
       },
