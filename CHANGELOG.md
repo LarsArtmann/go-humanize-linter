@@ -19,13 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Shared `ParseConfidenceLevel`** (`confidence.go`) — Exported core-package function parsing confidence level strings. Used by both CLI and plugin paths.
 - **`VerifySuppressionsInFiles`** (`suppression.go`) — Plugin-path variant of `VerifySuppressions` that collects directives from pre-parsed `pass.Files` instead of walking a directory.
 - **`hasSwitchStatement()` helper** (`pattern_bytes.go`) — Reports whether a function contains any `switch` or type-switch statement. Used by the H001 size-bucket false-positive filter.
-- **`exitCodeFromReport()`** function in the CLI for ternary confidence-aware exit codes.
-- `TestParseConfidenceLevel`, `TestExitCodeFromReport`, `TestFilterReportByConfidence`, `TestCLI_MinConfidence`, `TestCLI_VerifySuppressions_UnknownLinterName`, `TestCLI_VerifySuppressions_StaleSuppression` — tests for confidence thresholding and suppression verification.
+- **SDK-provided ternary exit codes** — CLI uses `linter.ExitCodeByConfidence(report, threshold)` from `go-linter-sdk` (the local `exitCodeFromReport()` was replaced by the upstream function, resolving TODO T21).
+- `TestParseConfidenceLevel`, `TestExitCodeByConfidence`, `TestFilterReportByConfidence`, `TestCLI_MinConfidence`, `TestCLI_VerifySuppressions_UnknownLinterName`, `TestCLI_VerifySuppressions_StaleSuppression` — tests for confidence thresholding and suppression verification.
 - `TestSuppressesGohumanize`, `TestHasUnknownHumanizeLinterName`, `TestVerifySuppressions_UnknownLinterName`, `TestVerifySuppressions_StaleSuppression`, `TestVerifySuppressions_UsedSuppression` — unit tests for suppression verification logic.
 - `TestRuleBytes_SizeBucket_NoFalsePositive` — regression test for H001 size-bucket filter.
 - Testdata fixture: `testdata/h001_sizebucket/` (switch + slice-based size-bucket lookups that must not trigger H001).
 - **ADR 0002** (`docs/adr/0002-suppression-verification.md`) — Documents the design decision to run suppression verification as a separate post-detection pass rather than integrating into the main detection loop.
-- **ADR 0003** (`docs/adr/0003-confidence-aware-exit-codes.md`) — Documents the ternary exit-code scheme (0/1/2) and the decision to implement it in the CLI rather than in go-linter-sdk.
+- **ADR 0003** (`docs/adr/0003-confidence-aware-exit-codes.md`) — Documents the ternary exit-code scheme (0/1/2). Originally implemented as a CLI-local function; now uses the SDK's `linter.ExitCodeByConfidence` (see Resolution section).
 - **Exported `RuleIDH001`–`RuleIDH009` constants** — single source of truth for rule IDs in `rules.go`, imported by CLI, plugin, and all rule files. Eliminates duplicated string literals.
 - **Package-level `var` detection for H007** — `scanFileLevelByteMultiplierMaps` detects `var byteMultipliers = map[string]int64{"KB": 1024}` at package scope. Type-checks map value type (`int*`) to avoid false positives on lookup sets like `map[string]bool`.
 - **Import-alias-aware detection** — `buildImportAliases(file)` resolves import aliases (e.g., `str "strings"`) from the AST. Threaded through all pattern helpers via variadic `aliases ...map[string]string` parameter. ADR 0001 documents the syntactic-resolution design decision.

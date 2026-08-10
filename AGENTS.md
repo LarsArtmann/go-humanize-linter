@@ -105,12 +105,12 @@ All three suppression code paths (CLI `checkFuncDecls`, plugin `HumanizeDetector
 Every finding carries a `finding.Confidence` value (from go-finding): `None` (0.0), `Low` (0.25), `Medium` (0.5), `High` (0.75), `Full` (1.0).
 
 - **`--min-confidence <level>`** filters findings to those at or above the threshold (default: `low` = show everything).
-- **Confidence-aware exit codes** (ternary, implemented in CLI, not SDK):
+- **Confidence-aware exit codes** (ternary, via SDK's `linter.ExitCodeByConfidence`):
   - Exit **0** = no findings after filtering
   - Exit **1** = at least one high/full-confidence finding (must fix)
   - Exit **2** = only medium/low-confidence findings remain (triage)
 
-The SDK's `linter.ExitCodeFromReport` is binary (0/1). The CLI uses its own `exitCodeFromReport()` for the ternary scheme. See ADR 0003 and TODO T21 (propose upstream).
+The SDK ships `linter.ExitCodeByConfidence(report, threshold)` in `go-linter-sdk/registry.go`. The CLI calls it at `main.go:232`: `linter.ExitCodeByConfidence(filteredReport, finding.ConfidenceHigh)`. See ADR 0003. (T21 resolved — the SDK function was originally proposed as `ExitCodeFromReportConfidence` and shipped under the shorter name `ExitCodeByConfidence`.)
 
 Confidence assignment per rule:
 
@@ -206,5 +206,5 @@ New testdata directories: `testdata/h007_package_var/` (package-level var multip
 - **H0SUP not in AllRules()** - `H0SUP` is a pseudo-rule ID (exported as `RuleIDH0SUP` in `rules.go`, used by `suppression.go`). It does not appear in `AllRules()`, `DefaultRegistry()`, or `--enable`/`--disable`. It is only produced by `--verify-suppressions`.
 - **H0SUP bypasses confidence filtering** - In the plugin path (`runDetector`), H0SUP findings skip the `minConfidence` check. This ensures stale-directive diagnostics are always surfaced regardless of the confidence threshold. Without this bypass, `minConfidence: "full"` would silently hide all H0SUP diagnostics (they are `ConfidenceHigh`, which is below `ConfidenceFull`).
 - **H001 size-bucket filter** - A function with a `switch` statement or `[]string` of byte-unit labels but NO division by 1024 is treated as a size-bucket lookup table (not a byte formatter) and skipped entirely. See `switchOnly` in `rule_bytes.go`.
-- **CLI ternary exit codes** - Exit 0 = clean, exit 1 = high/full-confidence finding (must fix), exit 2 = only medium/low (triage). The SDK's `ExitCodeFromReport` is binary; the CLI uses its own `exitCodeFromReport()`.
-- **`runScan()` pipeline** - The CLI scan pipeline (`cmd/go-humanize-linter/main.go`) is decomposed into focused helpers: `buildRegistry` (applies `loadConfigRules` for config-file enable/disable) → `registry.Run` → optional `appendSuppressionFindings` (`VerifySuppressions` → H0SUP findings) → `filterReportByConfidence` → optional `saveBaselineAndNotify` (writes baseline JSON) OR optional `runBehaviorDelta` (compares against baseline, exits early) → `writeReport` → `exitCodeFromReport`. `--save-baseline` and `--behavior-delta` are mutually exclusive early-exit paths.
+- **CLI ternary exit codes** - Exit 0 = clean, exit 1 = high/full-confidence finding (must fix), exit 2 = only medium/low (triage). Implemented via the SDK's `linter.ExitCodeByConfidence` (the SDK's `ExitCodeFromReport` remains binary for ecosystem convention; `ExitCodeByConfidence` adds the triage tier).
+- **`runScan()` pipeline** - The CLI scan pipeline (`cmd/go-humanize-linter/main.go`) is decomposed into focused helpers: `buildRegistry` (applies `loadConfigRules` for config-file enable/disable) → `registry.Run` → optional `appendSuppressionFindings` (`VerifySuppressions` → H0SUP findings) → `filterReportByConfidence` → optional `saveBaselineAndNotify` (writes baseline JSON) OR optional `runBehaviorDelta` (compares against baseline, exits early) → `writeReport` → `os.Exit(linter.ExitCodeByConfidence(...))`. `--save-baseline` and `--behavior-delta` are mutually exclusive early-exit paths.

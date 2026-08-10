@@ -1,7 +1,7 @@
 # ADR 0003: Confidence-Aware Exit Codes
 
 **Date:** 2026-08-05
-**Status:** Accepted
+**Status:** Updated (2026-08-10) — see [Resolution](#resolution)
 
 ## Context
 
@@ -73,3 +73,19 @@ only medium findings produces exit 0 (they were filtered out).
 - **Negative:** Exit code 2 is unusual. Most CI systems expect 0 or 1.
   Pipelines that use `set -e` will treat exit 2 as failure. This is
   documented in `--help` output.
+
+## Resolution
+
+**2026-08-10:** The decision to keep the ternary logic in the CLI (Section:
+"Why in the CLI, not the SDK?") has been **superseded**. The SDK now ships
+`linter.ExitCodeByConfidence(report, threshold)` in `go-linter-sdk/registry.go`,
+providing the same tiered exit-code scheme (0/1/2) for all SDK-based linters.
+
+The CLI's local `exitCodeFromReport()` was removed and replaced with
+`linter.ExitCodeByConfidence(filteredReport, finding.ConfidenceHigh)` at
+`main.go:232`. This was originally tracked as TODO T21 (proposed as
+`ExitCodeFromReportConfidence`; shipped under the shorter name
+`ExitCodeByConfidence`).
+
+The core ternary scheme (0/1/2 semantics) remains unchanged. Only the
+implementation location moved from CLI-local to SDK-provided.

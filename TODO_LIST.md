@@ -14,7 +14,6 @@
 | T1  | Tag `v0.2.0` (code shipped; tag missing)                  | High | XS     | blocked |
 | T2  | Real-world validation sweep with new detection + features | High | M      | planned |
 | T18 | Publish to golangci-lint plugin index                     | Low  | S      | blocked |
-| T21 | Propose `ExitCodeFromReportConfidence` upstream           | Low  | S      | planned |
 
 ---
 
@@ -43,21 +42,6 @@ corpus with these features active.
 - [ ] Run `--min-confidence high` and compare finding counts
 - [ ] Verify the gogenfilter integration does not skip hand-written files erroneously
 - [ ] Save results to `docs/validation/`
-
----
-
-## Upstream contributions
-
-### T21 — Propose `ExitCodeFromReportConfidence` upstream · Low · _planned_
-
-The CLI implements its own `exitCodeFromReport()` with ternary exit codes
-(0=clean, 1=must fix, 2=triage). The SDK's `linter.ExitCodeFromReport` is still
-binary (0 or 1). Proposing `ExitCodeFromReportConfidence` upstream would let
-all SDK-based linters benefit from confidence-aware exit codes without
-re-implementing the logic.
-
-- [ ] Open PR to `go-linter-sdk` with `ExitCodeFromReportConfidence(report, minConfidence)`
-- [ ] Replace CLI's local `exitCodeFromReport` with the upstream version once merged
 
 ---
 
