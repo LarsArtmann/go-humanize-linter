@@ -19,15 +19,15 @@ jobs:
       GIT_CONFIG_VALUE_0: "https://github.com/"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup SSH for private repos
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version: "1.26"
 
@@ -57,7 +57,7 @@ jobs:
           go tool cover -func=reports/coverage.out
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
         with:
           files: reports/coverage.out
           flags: unittests
@@ -73,20 +73,20 @@ jobs:
       GIT_CONFIG_VALUE_0: "https://github.com/"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup SSH for private repos
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version: "1.26"
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6
         with:
           version: v2.12.2
           args: --timeout 5m

@@ -49,7 +49,7 @@
 
       go-standard = {
         pname = "go-humanize-linter";
-        vendorHash = "sha256-UZsYZuS7KK6mRGyEnBuj29eVrIsYYiP+bJoLFGAcihM=";
+        vendorHash = "sha256-rVU8I24JHDJaG/j7+Mxbw9PNlQ3+zsY4xI2AUvqHl0o=";
         description = "AST linter that detects hand-rolled reimplementations of go-humanize";
         enableCheck = false;
         subPackages = [ "cmd/go-humanize-linter" ];
@@ -64,7 +64,7 @@
         src = inputs.nixpkgs.lib.cleanSourceWith {
           src = ./.;
           filter =
-            path: type:
+            path: _type:
             let
               base = baseNameOf path;
               excludedDirs = [
@@ -73,7 +73,9 @@
                 "reports"
                 "custom-gcl"
               ];
-              isInExcludedDir = inputs.nixpkgs.lib.any (d: inputs.nixpkgs.lib.hasInfix "/${d}/" path) excludedDirs;
+              isInExcludedDir = inputs.nixpkgs.lib.any (
+                d: inputs.nixpkgs.lib.hasInfix "/${d}/" path
+              ) excludedDirs;
               isExcludedBase = inputs.nixpkgs.lib.elem base excludedDirs;
             in
             !(isInExcludedDir || isExcludedBase);
@@ -135,10 +137,12 @@
             maxLength = 120;
           };
 
-          apps.test = lib.mkForce (mkApp "test" ''
-            ${goEnv}
-            go test ./... -count=1 "$@"
-          '');
+          apps.test = lib.mkForce (
+            mkApp "test" ''
+              ${goEnv}
+              go test ./... -count=1 "$@"
+            ''
+          );
 
           apps.test-race = mkApp "test-race" ''
             ${goEnv}
@@ -161,13 +165,15 @@
             go vet ./...
           '';
 
-          apps.lint = lib.mkForce (mkApp "lint" ''
-            ${goEnv}
-            output=$(golangci-lint run ./... 2>&1)
-            code=$?
-            echo "$output" | grep -v 'Found unknown linters in //nolint directives'
-            exit $code
-          '');
+          apps.lint = lib.mkForce (
+            mkApp "lint" ''
+              ${goEnv}
+              output=$(golangci-lint run ./... 2>&1)
+              code=$?
+              echo "$output" | grep -v 'Found unknown linters in //nolint directives'
+              exit $code
+            ''
+          );
 
           apps.coverage = mkApp "coverage" ''
             ${goEnv}

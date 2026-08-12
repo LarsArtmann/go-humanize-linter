@@ -20,7 +20,7 @@ require (
 	github.com/larsartmann/go-error-family v0.10.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/mod v0.38.0 // indirect
+	golang.org/x/mod v0.39.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 )
