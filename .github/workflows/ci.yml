@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOEXPERIMENT: jsonv2
-      GOPRIVATE: github.com/larsartmann/*
+      GOPRIVATE: github.com/larsartmann/*,github.com/LarsArtmann/*
       GIT_CONFIG_COUNT: "1"
       GIT_CONFIG_KEY_0: "url.git@github.com:.insteadOf"
       GIT_CONFIG_VALUE_0: "https://github.com/"
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOEXPERIMENT: jsonv2
-      GOPRIVATE: github.com/larsartmann/*
+      GOPRIVATE: github.com/larsartmann/*,github.com/LarsArtmann/*
       GIT_CONFIG_COUNT: "1"
       GIT_CONFIG_KEY_0: "url.git@github.com:.insteadOf"
       GIT_CONFIG_VALUE_0: "https://github.com/"

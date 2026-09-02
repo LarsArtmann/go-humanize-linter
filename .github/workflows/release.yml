@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOEXPERIMENT: jsonv2
-      GOPRIVATE: github.com/larsartmann/*
+      GOPRIVATE: github.com/larsartmann/*,github.com/LarsArtmann/*
       GIT_CONFIG_COUNT: "1"
       GIT_CONFIG_KEY_0: "url.git@github.com:.insteadOf"
       GIT_CONFIG_VALUE_0: "https://github.com/"
@@ -46,22 +46,14 @@ jobs:
         run: |
           go build -ldflags "-X main.version=${VERSION}" -o "gohumanize" ./cmd/gohumanize/
 
-      - name: Upload release artifacts
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1
+      - name: Create GitHub release with artifacts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./go-humanize-linter
-          asset_name: go-humanize-linter-${{ github.ref_name }}-linux-amd64
-          asset_content_type: application/octet-stream
-
-      - name: Upload singlechecker
-        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./gohumanize
-          asset_name: gohumanize-${{ github.ref_name }}-linux-amd64
-          asset_content_type: application/octet-stream
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          gh release view "$VERSION" >/dev/null 2>&1 || \
+            gh release create "$VERSION" --title "$VERSION" --generate-notes --latest
+          gh release upload "$VERSION" \
+            "go-humanize-linter#go-humanize-linter-$VERSION-linux-amd64" \
+            "gohumanize#gohumanize-$VERSION-linux-amd64" \
+            --clobber
