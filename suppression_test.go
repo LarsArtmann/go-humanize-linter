@@ -77,7 +77,7 @@ func TestVerifySuppressions_UnknownLinterName(t *testing.T) {
 
 	dir := t.TempDir()
 
-	writeFile(t, dir, "main.go", `package main
+	writeFile(t, dir, `package main
 
 //nolint:go-humanize-linter/H003
 func staleSuppression() {}
@@ -108,7 +108,7 @@ func TestVerifySuppressions_StaleSuppression(t *testing.T) {
 
 	dir := t.TempDir()
 
-	writeFile(t, dir, "main.go", `package main
+	writeFile(t, dir, `package main
 
 //nolint:gohumanize:H001
 func noByteFormatting() string {
@@ -141,7 +141,7 @@ func TestVerifySuppressions_UsedSuppression(t *testing.T) {
 
 	dir := t.TempDir()
 
-	writeFile(t, dir, "main.go", `package main
+	writeFile(t, dir, `package main
 
 import "fmt"
 
@@ -195,7 +195,7 @@ func TestVerifySuppressions_InBodyStale(t *testing.T) {
 
 	dir := t.TempDir()
 
-	writeFile(t, dir, "main.go", `package main
+	writeFile(t, dir, `package main
 
 func cleanFunc() string {
 	//nolint:gohumanize
@@ -228,7 +228,7 @@ func TestVerifySuppressions_InBodyUsed(t *testing.T) {
 
 	dir := t.TempDir()
 
-	writeFile(t, dir, "main.go", `package main
+	writeFile(t, dir, `package main
 
 import "fmt"
 
@@ -270,10 +270,10 @@ func main() {
 	}
 }
 
-func writeFile(t *testing.T, dir, name, content string) {
+func writeFile(t *testing.T, dir, content string) {
 	t.Helper()
 
-	if err := os.WriteFile(dir+"/"+name, []byte(content), 0o600); err != nil {
+	if err := os.WriteFile(dir+"/main.go", []byte(content), 0o600); err != nil {
 		t.Fatalf("write test file: %v", err)
 	}
 }

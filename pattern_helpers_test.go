@@ -56,6 +56,8 @@ func equalSlices(a, b []string) bool {
 // funcSuppressionCases enumerates //nolint directive placements and whether
 // each suppresses H001 for func f(). Extracted from
 // TestFuncSuppressionsAssociation to keep the test function under funlen.
+//
+//nolint:gochecknoglobals // shared test table
 var funcSuppressionCases = []struct {
 	name string
 	src  string
