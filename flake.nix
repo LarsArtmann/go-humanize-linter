@@ -138,57 +138,59 @@
             maxLength = 120;
           };
 
-          apps.test = lib.mkForce (
-            mkApp "test" ''
+          apps = {
+            test = lib.mkForce (
+              mkApp "test" ''
+                ${goEnv}
+                go test ./... -count=1 "$@"
+              ''
+            );
+
+            test-race = mkApp "test-race" ''
               ${goEnv}
-              go test ./... -count=1 "$@"
-            ''
-          );
+              go test ./... -race -count=1 "$@"
+            '';
 
-          apps.test-race = mkApp "test-race" ''
-            ${goEnv}
-            go test ./... -race -count=1 "$@"
-          '';
-
-          apps.bench = mkApp "bench" ''
-            ${goEnv}
-            go test ./... -bench=. -benchmem "$@"
-          '';
-
-          apps.build = mkApp "build" ''
-            ${goEnv}
-            go build ./...
-            go build -o go-humanize-linter ./cmd/go-humanize-linter/
-          '';
-
-          apps.vet = mkApp "vet" ''
-            ${goEnv}
-            go vet ./...
-          '';
-
-          apps.lint = lib.mkForce (
-            mkApp "lint" ''
+            bench = mkApp "bench" ''
               ${goEnv}
-              output=$(golangci-lint run ./... 2>&1)
-              code=$?
-              echo "$output" | grep -v 'Found unknown linters in //nolint directives'
-              exit $code
-            ''
-          );
+              go test ./... -bench=. -benchmem "$@"
+            '';
 
-          apps.coverage = mkApp "coverage" ''
-            ${goEnv}
-            mkdir -p reports
-            go test ./... -coverprofile=reports/coverage.out -covermode=atomic "$@"
-            go tool cover -func=reports/coverage.out
-          '';
+            build = mkApp "build" ''
+              ${goEnv}
+              go build ./...
+              go build -o go-humanize-linter ./cmd/go-humanize-linter/
+            '';
 
-          apps.custom-lint = mkApp "custom-lint" ''
-            ${goEnv}
-            export GONOSUMDB='github.com/larsartmann/*,github.com/LarsArtmann/*'
-            golangci-lint custom
-            ./custom-gcl run -c .golangci.custom.yml ./... "$@"
-          '';
+            vet = mkApp "vet" ''
+              ${goEnv}
+              go vet ./...
+            '';
+
+            lint = lib.mkForce (
+              mkApp "lint" ''
+                ${goEnv}
+                output=$(golangci-lint run ./... 2>&1)
+                code=$?
+                echo "$output" | grep -v 'Found unknown linters in //nolint directives'
+                exit $code
+              ''
+            );
+
+            coverage = mkApp "coverage" ''
+              ${goEnv}
+              mkdir -p reports
+              go test ./... -coverprofile=reports/coverage.out -covermode=atomic "$@"
+              go tool cover -func=reports/coverage.out
+            '';
+
+            custom-lint = mkApp "custom-lint" ''
+              ${goEnv}
+              export GONOSUMDB='github.com/larsartmann/*,github.com/LarsArtmann/*'
+              golangci-lint custom
+              ./custom-gcl run -c .golangci.custom.yml ./... "$@"
+            '';
+          };
 
           # Fast vendorHash drift check: forces realization of the goModules
           # FOD. If vendorHash doesn't match go.sum, the FOD fails with a
