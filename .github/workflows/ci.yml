@@ -14,9 +14,6 @@ jobs:
     env:
       GOEXPERIMENT: jsonv2
       GOPRIVATE: github.com/larsartmann/*,github.com/LarsArtmann/*
-      GIT_CONFIG_COUNT: "1"
-      GIT_CONFIG_KEY_0: "url.git@github.com:.insteadOf"
-      GIT_CONFIG_VALUE_0: "https://github.com/"
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -25,6 +22,9 @@ jobs:
         uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Route private module fetches over SSH
+        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
 
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
@@ -68,9 +68,6 @@ jobs:
     env:
       GOEXPERIMENT: jsonv2
       GOPRIVATE: github.com/larsartmann/*,github.com/LarsArtmann/*
-      GIT_CONFIG_COUNT: "1"
-      GIT_CONFIG_KEY_0: "url.git@github.com:.insteadOf"
-      GIT_CONFIG_VALUE_0: "https://github.com/"
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -79,6 +76,9 @@ jobs:
         uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Route private module fetches over SSH
+        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
 
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
