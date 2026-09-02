@@ -9,11 +9,11 @@
 
 ## Summary
 
-| #   | Task                                                        | Tier   | Effort | Status  |
-| --- | ----------------------------------------------------------- | ------ | ------ | ------- |
-| T1  | Tag `v0.2.0` (code shipped; tag missing)                    | High   | XS     | ready   |
-| T18 | Publish to golangci-lint plugin index                       | Low    | S      | blocked |
-| T20 | Release gogenfilter (workspace sibling 30 commits ahead)    | Medium | S      | planned |
+| #   | Task                                                     | Tier   | Effort | Status  |
+| --- | -------------------------------------------------------- | ------ | ------ | ------- |
+| T1  | Tag `v0.2.0` (code shipped; tag missing)                 | High   | XS     | ready   |
+| T18 | Publish to golangci-lint plugin index                    | Low    | S      | blocked |
+| T20 | Release gogenfilter (workspace sibling 30 commits ahead) | Medium | S      | planned |
 
 ---
 
