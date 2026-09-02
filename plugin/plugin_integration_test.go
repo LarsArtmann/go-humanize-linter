@@ -120,6 +120,8 @@ func TestCustomGCLIntegration(t *testing.T) {
 		t.Skip("golangci-lint not found in PATH")
 	}
 
+	t.Parallel()
+
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("os.Getwd: %v", err)
@@ -129,7 +131,7 @@ func TestCustomGCLIntegration(t *testing.T) {
 
 	t.Log("building custom-gcl binary (this may take a while)...")
 
-	buildCmd := exec.Command("golangci-lint", "custom")
+	buildCmd := exec.CommandContext(t.Context(), "golangci-lint", "custom")
 	buildCmd.Dir = projectRoot
 
 	buildCmd.Env = append(os.Environ(),
@@ -234,12 +236,12 @@ func runCustomGCL(t *testing.T, customGCL, source, settingsYAML string) string {
 	if err := os.WriteFile(
 		filepath.Join(tmpDir, "go.mod"),
 		[]byte("module testexample\n\ngo 1.26\n"),
-		0o644,
+		0o600,
 	); err != nil {
 		t.Fatalf("write go.mod: %v", err)
 	}
 
-	if err := os.WriteFile(filepath.Join(tmpDir, "main.go"), []byte(source), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, "main.go"), []byte(source), 0o600); err != nil {
 		t.Fatalf("write main.go: %v", err)
 	}
 
@@ -258,11 +260,11 @@ linters:
         original-url: github.com/LarsArtmann/go-humanize-linter
 ` + settingsYAML
 
-	if err := os.WriteFile(filepath.Join(tmpDir, ".golangci.yml"), []byte(gclConfig), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, ".golangci.yml"), []byte(gclConfig), 0o600); err != nil {
 		t.Fatalf("write .golangci.yml: %v", err)
 	}
 
-	runCmd := exec.Command(customGCL, "run", "-c", filepath.Join(tmpDir, ".golangci.yml"), "./...")
+	runCmd := exec.CommandContext(t.Context(), customGCL, "run", "-c", filepath.Join(tmpDir, ".golangci.yml"), "./...") //nolint:gosec // customGCL is built by this test into the project dir
 	runCmd.Dir = tmpDir
 
 	runCmd.Env = append(os.Environ(),

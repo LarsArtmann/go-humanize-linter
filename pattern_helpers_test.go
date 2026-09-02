@@ -53,93 +53,93 @@ func equalSlices(a, b []string) bool {
 	return true
 }
 
-func TestFuncSuppressionsAssociation(t *testing.T) {
-	t.Parallel()
-
-	cases := []struct {
-		name string
-		src  string
-		want bool // whether func f() is suppressed for "H001"
-	}{
-		{
-			name: "leading directive",
-			src: `package main
+// funcSuppressionCases enumerates //nolint directive placements and whether
+// each suppresses H001 for func f(). Extracted from
+// TestFuncSuppressionsAssociation to keep the test function under funlen.
+var funcSuppressionCases = []struct {
+	name string
+	src  string
+	want bool // whether func f() is suppressed for "H001"
+}{
+	{
+		name: "leading directive",
+		src: `package main
 
 //nolint:gohumanize
 func f() {}
 `,
-			want: true,
-		},
-		{
-			name: "trailing directive",
-			src: `package main
+		want: true,
+	},
+	{
+		name: "trailing directive",
+		src: `package main
 
 func f() {} //nolint:gohumanize
 `,
-			want: true,
-		},
-		{
-			name: "multi-line doc comment with directive",
-			src: `package main
+		want: true,
+	},
+	{
+		name: "multi-line doc comment with directive",
+		src: `package main
 
 // f does things.
 //
 //nolint:gohumanize
 func f() {}
 `,
-			want: true,
-		},
-		{
-			name: "bare nolint",
-			src: `package main
+		want: true,
+	},
+	{
+		name: "bare nolint",
+		src: `package main
 
 //nolint
 func f() {}
 `,
-			want: true,
-		},
-		{
-			name: "no directive",
-			src: `package main
+		want: true,
+	},
+	{
+		name: "no directive",
+		src: `package main
 
 // just a doc comment
 func f() {}
 `,
-			want: false,
-		},
-		{
-			name: "directive for other linter",
-			src: `package main
+		want: false,
+	},
+	{
+		name: "directive for other linter",
+		src: `package main
 
 //nolint:other
 func f() {}
 `,
-			want: false,
-		},
-		{
-			name: "directive separated by blank line",
-			src: `package main
+		want: false,
+	},
+	{
+		name: "directive separated by blank line",
+		src: `package main
 
 //nolint:gohumanize
 
 func f() {}
 `,
-			want: false,
-		},
-		{
-			name: "in-body trailing directive",
-			src: `package main
+		want: false,
+	},
+	{
+		name: "in-body trailing directive",
+		src: `package main
 
 func f() {
 	x := 1   //nolint:gohumanize
 	_ = x
 }
 `,
-			want: true,
-		},
-		{
-			name: "in-body standalone directive",
-			src: `package main
+		want: true,
+	},
+	{
+		name: "in-body standalone directive",
+		src: `package main
 
 func f() {
 	//nolint:gohumanize
@@ -147,33 +147,33 @@ func f() {
 	_ = x
 }
 `,
-			want: true,
-		},
-		{
-			name: "in-body on opening brace line",
-			src: `package main
+		want: true,
+	},
+	{
+		name: "in-body on opening brace line",
+		src: `package main
 
 func f() { //nolint:gohumanize
 	x := 1
 	_ = x
 }
 `,
-			want: true,
-		},
-		{
-			name: "directive on closing brace line",
-			src: `package main
+		want: true,
+	},
+	{
+		name: "directive on closing brace line",
+		src: `package main
 
 func f() {
 	x := 1
 	_ = x
 } //nolint:gohumanize
 `,
-			want: true,
-		},
-		{
-			name: "directive on other function does not suppress",
-			src: `package main
+		want: true,
+	},
+	{
+		name: "directive on other function does not suppress",
+		src: `package main
 
 func f() {
 	x := 1
@@ -185,29 +185,32 @@ func g() { //nolint:gohumanize
 	_ = y
 }
 `,
-			want: false,
-		},
-		{
-			name: "scoped directive suppresses only named rule",
-			src: `package main
+		want: false,
+	},
+	{
+		name: "scoped directive suppresses only named rule",
+		src: `package main
 
 //nolint:gohumanize:H002
 func f() {}
 `,
-			want: false, // H001 NOT suppressed by H002-scoped directive
-		},
-		{
-			name: "scoped directive suppresses matching rule",
-			src: `package main
+		want: false, // H001 NOT suppressed by H002-scoped directive
+	},
+	{
+		name: "scoped directive suppresses matching rule",
+		src: `package main
 
 //nolint:gohumanize:H001
 func f() {}
 `,
-			want: true, // H001 IS suppressed
-		},
-	}
+		want: true, // H001 IS suppressed
+	},
+}
 
-	for _, tt := range cases {
+func TestFuncSuppressionsAssociation(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range funcSuppressionCases {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
