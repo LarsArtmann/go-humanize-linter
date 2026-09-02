@@ -9,18 +9,17 @@
 
 ## Summary
 
-| #   | Task                                                                     | Tier | Effort | Status  |
-| --- | ------------------------------------------------------------------------ | ---- | ------ | ------- |
-| T1  | Tag `v0.2.0` (code shipped; tag missing)                                 | High | XS     | blocked |
-| T2  | Real-world validation sweep with new detection + features                | High | M      | planned |
-| T18 | Publish to golangci-lint plugin index                                    | Low  | S      | blocked |
-| T19 | Release `go-linter-sdk` with `RuleMeta.ToolName` (unblocks plugin tests) | High | XS     | blocked |
+| #   | Task                                                        | Tier   | Effort | Status  |
+| --- | ----------------------------------------------------------- | ------ | ------ | ------- |
+| T1  | Tag `v0.2.0` (code shipped; tag missing)                    | High   | XS     | ready   |
+| T18 | Publish to golangci-lint plugin index                       | Low    | S      | blocked |
+| T20 | Release gogenfilter (workspace sibling 30 commits ahead)    | Medium | S      | planned |
 
 ---
 
 ## Release & validation
 
-### T1 — Tag `v0.2.0` (code shipped; tag missing) · High · _blocked_
+### T1 — Tag `v0.2.0` (code shipped; tag missing) · High · _ready_
 
 All v0.2.0 features are merged to `main` and documented in `CHANGELOG.md` under
 `[0.2.0] - Unreleased`. The only git tag is `v0.1.0`. The release workflow
@@ -29,16 +28,9 @@ All v0.2.0 features are merged to `main` and documented in `CHANGELOG.md` under
 - [ ] Tag `v0.2.0` on `main` (requires explicit user approval — never tag without it)
 - [ ] Verify the release workflow fires and publishes GitHub release notes
 
-### T2 — Real-world validation sweep with new detection + features · High · _done_
-
-Full validation sweep completed 2026-08-10. Results in
-`docs/validation/2026-08-10_real-world-sweep.md`.
-
-- [x] Run the linter over the corpus with all 9 rules enabled (158 projects, 0 findings)
-- [x] Run `--verify-suppressions` on the corpus and record stale-directive rate (3 stale directives)
-- [x] Run `--min-confidence high` and compare finding counts (verified via synthetic fixtures)
-- [x] Verify the gogenfilter integration does not skip hand-written files erroneously (~2.8% FP rate, no app code missed)
-- [x] Save results to `docs/validation/2026-08-10_real-world-sweep.md`
+Note: CI (`ci.yml`) currently fails at checkout — the `DEPLOY_KEY` secret is
+missing or invalid (`git@github.com: Permission denied (publickey)`). Fix the
+secret so the release run can go green.
 
 ---
 
@@ -46,17 +38,21 @@ Full validation sweep completed 2026-08-10. Results in
 
 ### T18 — Publish to golangci-lint plugin index · Low · _blocked_
 
-### T19 — Release `go-linter-sdk` with `RuleMeta.ToolName` · High · _blocked_
-
-The `plugin/` integration tests build a custom golangci-lint binary that
-resolves the PUBLISHED `go-linter-sdk` (v0.1.0), which lacks the `ToolName`
-field that `rule_*.go` now set. The workspace sibling has it locally, so the
-main package builds — only the plugin tests fail. Publishing an SDK version
-with `RuleMeta.ToolName` (then `go get` here) unblocks them.
-
-- [ ] Tag + push a `go-linter-sdk` release containing `RuleMeta.ToolName` (requires explicit user approval)
-- [ ] `go get github.com/larsartmann/go-linter-sdk@<new>` + `go mod tidy`
-- [ ] Re-run `go test ./plugin/...` and the custom-gcl build
-
 - [ ] Blocked on a tagged, `go install`-able version (v0.2.0 not tagged yet — see T1)
 - [ ] Submit to the plugin index once installable
+
+---
+
+## Upstream
+
+### T20 — Release gogenfilter with the new sqlc detection · Medium · _planned_
+
+The workspace sibling `../gogenfilter` is 30 commits ahead of the pinned v3.4.0,
+with significant sqlc detection changes. The `go.work` `use` entry serves the
+sibling locally, so local dev runs newer detection behavior than CI (pinned
+v3.4.0). Both currently agree on bare sqlc filename behavior, but the drift is
+a latent split-brain.
+
+- [ ] Tag + push a gogenfilter release (requires explicit user approval)
+- [ ] `go get github.com/LarsArtmann/gogenfilter/v3@<new>` + `go mod tidy`
+- [ ] Re-run the testdata sweep to confirm no detection behavior changed
