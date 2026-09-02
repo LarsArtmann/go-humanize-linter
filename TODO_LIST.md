@@ -9,12 +9,12 @@
 
 ## Summary
 
-| #   | Task                                                      | Tier | Effort | Status  |
-| --- | --------------------------------------------------------- | ---- | ------ | ------- |
-| T1  | Tag `v0.2.0` (code shipped; tag missing)                  | High | XS     | blocked |
-| T2  | Real-world validation sweep with new detection + features | High | M      | planned |
-| T18 | Publish to golangci-lint plugin index                     | Low  | S      | blocked |
-| T19 | Release `go-linter-sdk` with `RuleMeta.ToolName` (unblocks plugin tests) | High | XS | blocked |
+| #   | Task                                                                     | Tier | Effort | Status  |
+| --- | ------------------------------------------------------------------------ | ---- | ------ | ------- |
+| T1  | Tag `v0.2.0` (code shipped; tag missing)                                 | High | XS     | blocked |
+| T2  | Real-world validation sweep with new detection + features                | High | M      | planned |
+| T18 | Publish to golangci-lint plugin index                                    | Low  | S      | blocked |
+| T19 | Release `go-linter-sdk` with `RuleMeta.ToolName` (unblocks plugin tests) | High | XS     | blocked |
 
 ---
 

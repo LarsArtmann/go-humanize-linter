@@ -78,11 +78,11 @@
     "go-linter-sdk": {
       "flake": false,
       "locked": {
-        "lastModified": 1786358434,
-        "narHash": "sha256-ZeWr1eqyJ8fr/PCS2hhMfKi3mp6Wd+CjAXz8t9DHxoQ=",
+        "lastModified": 1788354373,
+        "narHash": "sha256-EWmgeX+l0qExsU4dSIB27cMQRT9KY3hSjT4zZNAFclo=",
         "ref": "master",
-        "rev": "bdfa1be8b437aa4a3c6545718b8ab6e0c0488ad3",
-        "revCount": 84,
+        "rev": "288939cb8a185ad1c004b2d783cbe0f9737f76e8",
+        "revCount": 90,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/go-linter-sdk"
       },
