@@ -112,6 +112,8 @@ func TestPluginRegisteredWithSettings(t *testing.T) {
 // This test requires network access (golangci-lint custom clones the
 // golangci-lint source) and is therefore gated behind testing.Short().
 func TestCustomGCLIntegration(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("skipping custom-gcl integration test in short mode (requires network + git clone)")
 	}
@@ -119,8 +121,6 @@ func TestCustomGCLIntegration(t *testing.T) {
 	if _, err := exec.LookPath("golangci-lint"); err != nil {
 		t.Skip("golangci-lint not found in PATH")
 	}
-
-	t.Parallel()
 
 	wd, err := os.Getwd()
 	if err != nil {
@@ -264,6 +264,7 @@ linters:
 		t.Fatalf("write .golangci.yml: %v", err)
 	}
 
+	//nolint:gosec // customGCL is built by this test into the project dir
 	runCmd := exec.CommandContext(
 		t.Context(),
 		customGCL,
@@ -271,7 +272,7 @@ linters:
 		"-c",
 		filepath.Join(tmpDir, ".golangci.yml"),
 		"./...",
-	) //nolint:gosec // customGCL is built by this test into the project dir
+	)
 	runCmd.Dir = tmpDir
 
 	runCmd.Env = append(os.Environ(),
