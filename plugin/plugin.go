@@ -123,6 +123,30 @@ func (p *humanizePlugin) GetLoadMode() string {
 	return register.LoadModeSyntax
 }
 
+// reanchorSuppressionFindings moves H0SUP diagnostics off the //nolint
+// directive line they report on. golangci-lint's nolint filter suppresses any
+// gohumanize finding positioned within a directive's coverage range, and a
+// stale-directive H0SUP is anchored exactly at that directive, so it would be
+// dropped before the user ever sees it. Re-anchoring at the file position and
+// embedding the directive coordinates in the message keeps the diagnostic
+// visible. The CLI path has no nolint filter and keeps the precise directive
+// position.
+func reanchorSuppressionFindings(findings []finding.Finding) {
+	for i := range findings {
+		f := &findings[i]
+		if string(f.Rule) != humanizelint.RuleIDH0SUP {
+			continue
+		}
+
+		f.Message = fmt.Sprintf("%s (directive at %s:%d)", f.Message, f.Position.File, f.Position.Line)
+		f.Position = finding.Position{ //nolint:exhaustruct
+			File:   f.Position.File,
+			Line:   1,
+			Column: 1,
+		}
+	}
+}
+
 // Analyzer is the standalone entry point. Exported for use with
 // golang.org/x/tools/go/analysis/singlechecker (cmd/gohumanize).
 // All 9 rules are enabled — standalone mode does not support per-rule
@@ -188,6 +212,7 @@ func runDetector(
 			allFindings,
 		)
 		verifyFindings := humanizelint.VerifySuppressionsInFiles(pass.Fset, pass.Files, report)
+		reanchorSuppressionFindings(verifyFindings)
 		allFindings = append(allFindings, verifyFindings...)
 	}
 
