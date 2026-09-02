@@ -34,15 +34,19 @@ jobs:
           printf '%s\n' "$K_GOGF" > ~/.ssh/gh_gogenfilter
           printf '%s\n' "$K_ERRFAM" > ~/.ssh/gh_errorfamily
           chmod 600 ~/.ssh/gh_*
+          # The go command sanitizes the environment of the git subprocesses
+          # it spawns for module downloads, so ssh there does not read the
+          # user ssh config. Register the Host aliases system-wide instead.
           for alias in gh_gohumanize gh_lintersdk gh_finding gh_gogenfilter gh_errorfamily; do
             {
-              printf 'Host %s\n' "$alias"
-              printf '  HostName github.com\n'
-              printf '  User git\n'
-              printf '  IdentityFile ~/.ssh/%s\n' "$alias"
-              printf '  IdentitiesOnly yes\n'
-              printf '  StrictHostKeyChecking accept-new\n\n'
-            } >> ~/.ssh/config
+              echo "Host $alias"
+              echo "  HostName github.com"
+              echo "  User git"
+              echo "  IdentityFile $HOME/.ssh/$alias"
+              echo "  IdentitiesOnly yes"
+              echo "  StrictHostKeyChecking accept-new"
+              echo ""
+            } | sudo tee -a /etc/ssh/ssh_config > /dev/null
           done
           git config --global url."gh-gohumanize:larsartmann/go-humanize-linter".insteadOf "https://github.com/larsartmann/go-humanize-linter"
           git config --global url."gh-lintersdk:larsartmann/go-linter-sdk".insteadOf "https://github.com/larsartmann/go-linter-sdk"
@@ -112,15 +116,19 @@ jobs:
           printf '%s\n' "$K_GOGF" > ~/.ssh/gh_gogenfilter
           printf '%s\n' "$K_ERRFAM" > ~/.ssh/gh_errorfamily
           chmod 600 ~/.ssh/gh_*
+          # The go command sanitizes the environment of the git subprocesses
+          # it spawns for module downloads, so ssh there does not read the
+          # user ssh config. Register the Host aliases system-wide instead.
           for alias in gh_gohumanize gh_lintersdk gh_finding gh_gogenfilter gh_errorfamily; do
             {
-              printf 'Host %s\n' "$alias"
-              printf '  HostName github.com\n'
-              printf '  User git\n'
-              printf '  IdentityFile ~/.ssh/%s\n' "$alias"
-              printf '  IdentitiesOnly yes\n'
-              printf '  StrictHostKeyChecking accept-new\n\n'
-            } >> ~/.ssh/config
+              echo "Host $alias"
+              echo "  HostName github.com"
+              echo "  User git"
+              echo "  IdentityFile $HOME/.ssh/$alias"
+              echo "  IdentitiesOnly yes"
+              echo "  StrictHostKeyChecking accept-new"
+              echo ""
+            } | sudo tee -a /etc/ssh/ssh_config > /dev/null
           done
           git config --global url."gh-gohumanize:larsartmann/go-humanize-linter".insteadOf "https://github.com/larsartmann/go-humanize-linter"
           git config --global url."gh-lintersdk:larsartmann/go-linter-sdk".insteadOf "https://github.com/larsartmann/go-linter-sdk"
@@ -134,7 +142,7 @@ jobs:
           go-version: "1.26"
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@55c2c1448f86e01eaae002a5a3a9624417608d84 # v6
+        uses: golangci/golangci-lint-action@9fae48acfc02a90574d7c304a1758ef9895495fa # v7
         with:
           version: v2.12.2
           args: --timeout 5m
