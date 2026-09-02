@@ -26,43 +26,43 @@ The linter has 7 working rules (H001-H007), 32 passing tests, a CLI, and a golan
 
 ### The 1% that delivers 51%
 
-| #   | Task                                                 | Why                                                                                                                                                    | Impact                  |
-| --- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
-| 1   | Tag go-linter-sdk v0.1.0 + remove replace directives | Nobody outside this machine can `go install` or `go get` the linter while replace directives exist. This single action unblocks all external adoption. | Adoption = 0 → possible |
-| 2   | Add LICENSE (MIT)                                    | No license = nobody can legally use it. Every LarsArtmann Go repo uses MIT.                                                                            | Legal blocker removed   |
+| # | Task                                                 | Why                                                                                                                                                    | Impact                  |
+| - | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 1 | Tag go-linter-sdk v0.1.0 + remove replace directives | Nobody outside this machine can `go install` or `go get` the linter while replace directives exist. This single action unblocks all external adoption. | Adoption = 0 → possible |
+| 2 | Add LICENSE (MIT)                                    | No license = nobody can legally use it. Every LarsArtmann Go repo uses MIT.                                                                            | Legal blocker removed   |
 
 ### The 4% that delivers 64%
 
-| #   | Task                                                  | Why                                                                                                                               | Impact                |
-| --- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| 3   | Fix plugin position mapping                           | Plugin reports ALL findings at `func` keyword line. Useless for IDE integration. Must map `finding.Position` back to `token.Pos`. | Plugin becomes usable |
-| 4   | Fix H001 "0 unit strings" message                     | 7 of 27 H001 findings show "0 unit strings" when KMGTPE trick is detected. Confusing and looks broken.                            | Message accuracy      |
-| 5   | Update README (add H007, plugin docs, accuracy fixes) | README is the sales page. Missing H007, no plugin integration instructions.                                                       | First impression      |
-| 6   | Update AGENTS.md (plugin, H007, new files)            | AGENTS.md is stale — doesn't mention `plugin/`, `cmd/gohumanize/`, `DetectFuncDecl`, H007, or the H004 fix.                       | Session context       |
+| # | Task                                                  | Why                                                                                                                               | Impact                |
+| - | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| 3 | Fix plugin position mapping                           | Plugin reports ALL findings at `func` keyword line. Useless for IDE integration. Must map `finding.Position` back to `token.Pos`. | Plugin becomes usable |
+| 4 | Fix H001 "0 unit strings" message                     | 7 of 27 H001 findings show "0 unit strings" when KMGTPE trick is detected. Confusing and looks broken.                            | Message accuracy      |
+| 5 | Update README (add H007, plugin docs, accuracy fixes) | README is the sales page. Missing H007, no plugin integration instructions.                                                       | First impression      |
+| 6 | Update AGENTS.md (plugin, H007, new files)            | AGENTS.md is stale — doesn't mention `plugin/`, `cmd/gohumanize/`, `DetectFuncDecl`, H007, or the H004 fix.                       | Session context       |
 
 ### The 20% that delivers 80%
 
-| #   | Task                                                                                          | Why                                                                                  | Impact                  |
-| --- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------- |
-| 7   | Split patterns.go (889 lines → 8 focused files)                                               | Maintainability. Every new detection helper goes into a single god-file.             | Code quality            |
-| 8   | Add CHANGELOG.md                                                                              | Standard release hygiene. No change history exists.                                  | Release readiness       |
-| 9   | Add negative testdata for H004                                                                | Only positive H004 fixtures exist. The false-positive fix needs regression coverage. | Test quality            |
-| 10  | Unit tests for new functions (exprIsStringy, funcReturnsString, isStringType, DetectFuncDecl) | 4 functions added this session have 0% direct coverage.                              | Coverage 74% → 80%+     |
-| 11  | Add FEATURES.md, TODO_LIST.md, ROADMAP.md                                                     | Standard project docs. Missing entirely.                                             | Professional appearance |
-| 12  | Fix golines formatting violation (rule_bytes.go:68)                                           | Known issue from session 1, never fixed.                                             | Code quality            |
-| 13  | Tag go-humanize-linter v0.1.0                                                                 | The release itself.                                                                  | Milestone               |
+| #  | Task                                                                                          | Why                                                                                  | Impact                  |
+| -- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------- |
+| 7  | Split patterns.go (889 lines → 8 focused files)                                               | Maintainability. Every new detection helper goes into a single god-file.             | Code quality            |
+| 8  | Add CHANGELOG.md                                                                              | Standard release hygiene. No change history exists.                                  | Release readiness       |
+| 9  | Add negative testdata for H004                                                                | Only positive H004 fixtures exist. The false-positive fix needs regression coverage. | Test quality            |
+| 10 | Unit tests for new functions (exprIsStringy, funcReturnsString, isStringType, DetectFuncDecl) | 4 functions added this session have 0% direct coverage.                              | Coverage 74% → 80%+     |
+| 11 | Add FEATURES.md, TODO_LIST.md, ROADMAP.md                                                     | Standard project docs. Missing entirely.                                             | Professional appearance |
+| 12 | Fix golines formatting violation (rule_bytes.go:68)                                           | Known issue from session 1, never fixed.                                             | Code quality            |
+| 13 | Tag go-humanize-linter v0.1.0                                                                 | The release itself.                                                                  | Milestone               |
 
 ### The other 20% (polish + future)
 
-| #   | Task                                              | Why                                    |
-| --- | ------------------------------------------------- | -------------------------------------- |
-| 14  | Add `//nolint:gohumanize` directive support       | Users need to suppress false positives |
-| 15  | Self-exclusion: don't flag own source code        | Linter flags its own rule_bytes.go     |
-| 16  | example_test.go with runnable Examples            | Godoc discoverability                  |
-| 17  | analysistest integration test for plugin          | Plugin.run() is at 0% coverage         |
-| 18  | Save validation sweep results to docs/validation/ | FP rate tracking over time             |
-| 19  | --version flag on CLI                             | Standard CLI practice                  |
-| 20  | Add --rules flag (list all rules)                 | Discoverability                        |
+| #  | Task                                              | Why                                    |
+| -- | ------------------------------------------------- | -------------------------------------- |
+| 14 | Add `//nolint:gohumanize` directive support       | Users need to suppress false positives |
+| 15 | Self-exclusion: don't flag own source code        | Linter flags its own rule_bytes.go     |
+| 16 | example_test.go with runnable Examples            | Godoc discoverability                  |
+| 17 | analysistest integration test for plugin          | Plugin.run() is at 0% coverage         |
+| 18 | Save validation sweep results to docs/validation/ | FP rate tracking over time             |
+| 19 | --version flag on CLI                             | Standard CLI practice                  |
+| 20 | Add --rules flag (list all rules)                 | Discoverability                        |
 
 ---
 

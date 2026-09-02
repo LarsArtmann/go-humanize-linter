@@ -10,6 +10,7 @@
 ### Task: Review T21
 
 T21 asked to:
+
 1. Open PR to `go-linter-sdk` with `ExitCodeFromReportConfidence(report, minConfidence)`
 2. Replace CLI's local `exitCodeFromReport` with the upstream version once merged
 
@@ -22,12 +23,12 @@ T21 asked to:
 
 ### Documentation Fixed (4 files)
 
-| File | What was wrong | What I did |
-|---|---|---|
-| `TODO_LIST.md` | T21 listed as `_planned_` with unchecked boxes; summary table row present | Deleted T21 entirely (summary row + detail section + orphaned "Upstream contributions" header). Per TODO_LIST.md policy: "When a task is finished, delete it here and record it in CHANGELOG.md." |
-| `AGENTS.md` | 3 stale references: (1) "implemented in CLI, not SDK" + "CLI uses its own exitCodeFromReport()" in confidence section, (2) "CLI uses its own exitCodeFromReport()" in CLI-ternary-exit-codes gotcha, (3) `exitCodeFromReport` at end of runScan pipeline description | Updated all 3 to reference `linter.ExitCodeByConfidence` and the SDK |
-| `docs/adr/0003-confidence-aware-exit-codes.md` | Status "Accepted", body says "Why in the CLI, not the SDK?", consequences say CLI diverges from SDK | Status changed to "Updated (2026-08-10)"; added Resolution section documenting SDK adoption and supersession of the CLI-local decision |
-| `CHANGELOG.md` | (1) Listed `exitCodeFromReport()` as a CLI feature, (2) Referenced `TestExitCodeFromReport` (test no longer exists), (3) ADR 0003 description said "decision to implement it in the CLI rather than in go-linter-sdk" | Updated all 3 entries to reflect SDK-provided `ExitCodeByConfidence`; corrected test name to `TestExitCodeByConfidence` |
+| File                                           | What was wrong                                                                                                                                                                                                                                                       | What I did                                                                                                                                                                                        |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TODO_LIST.md`                                 | T21 listed as `_planned_` with unchecked boxes; summary table row present                                                                                                                                                                                            | Deleted T21 entirely (summary row + detail section + orphaned "Upstream contributions" header). Per TODO_LIST.md policy: "When a task is finished, delete it here and record it in CHANGELOG.md." |
+| `AGENTS.md`                                    | 3 stale references: (1) "implemented in CLI, not SDK" + "CLI uses its own exitCodeFromReport()" in confidence section, (2) "CLI uses its own exitCodeFromReport()" in CLI-ternary-exit-codes gotcha, (3) `exitCodeFromReport` at end of runScan pipeline description | Updated all 3 to reference `linter.ExitCodeByConfidence` and the SDK                                                                                                                              |
+| `docs/adr/0003-confidence-aware-exit-codes.md` | Status "Accepted", body says "Why in the CLI, not the SDK?", consequences say CLI diverges from SDK                                                                                                                                                                  | Status changed to "Updated (2026-08-10)"; added Resolution section documenting SDK adoption and supersession of the CLI-local decision                                                            |
+| `CHANGELOG.md`                                 | (1) Listed `exitCodeFromReport()` as a CLI feature, (2) Referenced `TestExitCodeFromReport` (test no longer exists), (3) ADR 0003 description said "decision to implement it in the CLI rather than in go-linter-sdk"                                                | Updated all 3 entries to reflect SDK-provided `ExitCodeByConfidence`; corrected test name to `TestExitCodeByConfidence`                                                                           |
 
 ### Verification
 

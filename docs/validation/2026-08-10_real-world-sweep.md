@@ -10,13 +10,13 @@
 
 ## Summary
 
-| Metric                    | Value     |
-| ------------------------- | --------- |
-| Projects scanned          | 158       |
-| Total findings            | 0         |
-| Stale suppression directives | 3       |
-| Rules active              | H001–H009 |
-| Overall FP rate           | N/A (0 findings) |
+| Metric                       | Value            |
+| ---------------------------- | ---------------- |
+| Projects scanned             | 158              |
+| Total findings               | 0                |
+| Stale suppression directives | 3                |
+| Rules active                 | H001–H009        |
+| Overall FP rate              | N/A (0 findings) |
 
 ## Phase 1 — Full Sweep (All 9 Rules, Default Confidence)
 
@@ -40,17 +40,17 @@ not a malfunction:
 Since the corpus produced 0 findings, detection was verified via synthetic test fixtures
 covering all 9 rules:
 
-| Rule  | Synthetic trigger                                  | Detected? | Confidence |
-| ----- | -------------------------------------------------- | --------- | ---------- |
-| H001  | `"KMGTPE"[exp]` index trick + `/ 1024` division   | Yes       | Full       |
-| H002  | Mod-3 loop + `WriteByte(',')`                      | Yes*      | High       |
-| H003  | `time.Since` + "ago" string + duration thresholds  | Yes       | High       |
-| H004  | `if n == 1` + string literal + string return type  | Yes       | High       |
-| H005  | `/ 1000` division + `"K"` suffix                   | Yes       | High       |
-| H006  | `strings.TrimRight(strings.TrimRight(s, "0"), ".")` | Yes     | Full       |
-| H007  | (verified via testdata, not re-tested here)        | Yes**     | —          |
-| H008  | `switch n%10` with ordinal return statements       | Yes**     | —          |
-| H009  | (verified via testdata, not re-tested here)        | Yes**     | —          |
+| Rule | Synthetic trigger                                   | Detected? | Confidence |
+| ---- | --------------------------------------------------- | --------- | ---------- |
+| H001 | `"KMGTPE"[exp]` index trick + `/ 1024` division     | Yes       | Full       |
+| H002 | Mod-3 loop + `WriteByte(',')`                       | Yes*      | High       |
+| H003 | `time.Since` + "ago" string + duration thresholds   | Yes       | High       |
+| H004 | `if n == 1` + string literal + string return type   | Yes       | High       |
+| H005 | `/ 1000` division + `"K"` suffix                    | Yes       | High       |
+| H006 | `strings.TrimRight(strings.TrimRight(s, "0"), ".")` | Yes       | Full       |
+| H007 | (verified via testdata, not re-tested here)         | Yes**     | —          |
+| H008 | `switch n%10` with ordinal return statements        | Yes**     | —          |
+| H009 | (verified via testdata, not re-tested here)         | Yes**     | —          |
 
 \* H002 requires specific API patterns (`WriteByte`, `WriteRune`, `strings.Join`) — not
 generic `append(buf, ',')`.
@@ -59,12 +59,12 @@ generic `append(buf, ',')`.
 
 ### Comparison with previous sweeps
 
-| Metric              | 2026-07-30 | 2026-07-31 | 2026-08-10 (this sweep) |
-| ------------------- | ---------- | ---------- | ----------------------- |
-| Projects scanned    | 190+       | 327        | 158                     |
-| Total findings      | 97         | 242        | 0                       |
-| Rules active        | H001–H007  | H001–H009  | H001–H009               |
-| Projects using go-humanize | unknown  | unknown  | 33 (21%)               |
+| Metric                     | 2026-07-30 | 2026-07-31 | 2026-08-10 (this sweep) |
+| -------------------------- | ---------- | ---------- | ----------------------- |
+| Projects scanned           | 190+       | 327        | 158                     |
+| Total findings             | 97         | 242        | 0                       |
+| Rules active               | H001–H007  | H001–H009  | H001–H009               |
+| Projects using go-humanize | unknown    | unknown    | 33 (21%)                |
 
 The zero-finding result is attributable to corpus shrinkage, go-humanize adoption, and
 code refactoring — not to detection regressions.
@@ -76,11 +76,11 @@ code refactoring — not to detection regressions.
 The `--verify-suppressions` flag found 3 `//nolint:gohumanize` directives that no longer
 suppress any finding:
 
-| # | File | Line | Project |
-| - | ---- | ---- | ------- |
-| 1 | `go-humanize-linter/rule_bytes.go` | 42 | go-humanize-linter (self) |
-| 2 | `golangci-lint-auto-configure/scripts/validate_linter_data.go` | 197 | golangci-lint-auto-configure |
-| 3 | `KeyCountdown/internal/validation/security.go` | 53 | KeyCountdown |
+| # | File                                                           | Line | Project                      |
+| - | -------------------------------------------------------------- | ---- | ---------------------------- |
+| 1 | `go-humanize-linter/rule_bytes.go`                             | 42   | go-humanize-linter (self)    |
+| 2 | `golangci-lint-auto-configure/scripts/validate_linter_data.go` | 197  | golangci-lint-auto-configure |
+| 3 | `KeyCountdown/internal/validation/security.go`                 | 53   | KeyCountdown                 |
 
 **Finding 1** is the linter's own code — the `//nolint:gohumanize` directive on
 `detectBytesFormat` was originally needed because the suggestion text contains byte-unit
@@ -97,6 +97,7 @@ correctly by developers.
 ### Feature assessment
 
 The `--verify-suppressions` feature works correctly:
+
 - Detects stale directives (directives suppressing zero findings)
 - Correctly identifies the function-level scope of each directive
 - Reports at the function declaration position with rule ID `H0SUP`
@@ -106,10 +107,10 @@ The `--verify-suppressions` feature works correctly:
 
 ### Corpus comparison
 
-| Setting              | Findings |
-| -------------------- | -------- |
-| Default (low)        | 0        |
-| `--min-confidence high` | 0     |
+| Setting                 | Findings |
+| ----------------------- | -------- |
+| Default (low)           | 0        |
+| `--min-confidence high` | 0        |
 
 Both produce 0 because the corpus has no detectable patterns.
 
@@ -118,11 +119,11 @@ Both produce 0 because the corpus has no detectable patterns.
 Using a synthetic file with patterns triggering H001 (Full), H003 (High), H004 (High),
 H005 (High), H006 (Full):
 
-| Setting              | Findings | Rules retained |
-| -------------------- | -------- | -------------- |
-| Default (low)        | 5        | H001, H003, H004, H005, H006 |
-| `--min-confidence high` | 5     | H001, H003, H004, H005, H006 |
-| `--min-confidence full` | 2     | H001, H006 (Full-confidence only) |
+| Setting                 | Findings | Rules retained                    |
+| ----------------------- | -------- | --------------------------------- |
+| Default (low)           | 5        | H001, H003, H004, H005, H006      |
+| `--min-confidence high` | 5        | H001, H003, H004, H005, H006      |
+| `--min-confidence full` | 2        | H001, H006 (Full-confidence only) |
 
 The filtering correctly removes High-confidence (but not Full) findings when the threshold
 is set to `full`, and retains everything at `high` or above when set to `high`.
@@ -131,18 +132,18 @@ is set to `full`, and retains everything at `high` or above when set to `high`.
 
 ### File-skipping breakdown
 
-| Category | Count | Correct? |
-| -------- | ----- | -------- |
-| Test files (`*_test.go`) | ~8,867 | Yes — walker design |
-| testdata/ directories | 124 non-test | Yes — walker `skipDirs` |
-| Files with `// Code generated` header | 1,239 | Yes — gogenfilter correct |
-| sqlc convention (`db.go`, `models.go`, `querier.go`) | 28 | Yes — gogenfilter correct |
-| Mock files (`mock_*.go`, `*_mock.go`) | 22 | Yes — gogenfilter correct |
-| testutil/ or test/ dirs | 13 | Yes — walker design |
-| Enum/string generated files | 6 | Yes — gogenfilter correct |
-| node_modules | 2 | Yes — walker `skipDirs` |
-| **Content-based false positives** | **~41** | **No — see below** |
-| Files with parse errors | small | Yes — walker design |
+| Category                                             | Count        | Correct?                  |
+| ---------------------------------------------------- | ------------ | ------------------------- |
+| Test files (`*_test.go`)                             | ~8,867       | Yes — walker design       |
+| testdata/ directories                                | 124 non-test | Yes — walker `skipDirs`   |
+| Files with `// Code generated` header                | 1,239        | Yes — gogenfilter correct |
+| sqlc convention (`db.go`, `models.go`, `querier.go`) | 28           | Yes — gogenfilter correct |
+| Mock files (`mock_*.go`, `*_mock.go`)                | 22           | Yes — gogenfilter correct |
+| testutil/ or test/ dirs                              | 13           | Yes — walker design       |
+| Enum/string generated files                          | 6            | Yes — gogenfilter correct |
+| node_modules                                         | 2            | Yes — walker `skipDirs`   |
+| **Content-based false positives**                    | **~41**      | **No — see below**        |
+| Files with parse errors                              | small        | Yes — walker design       |
 
 ### Content-based false positives (~41 files, ~2.8% of non-test skips)
 
@@ -180,6 +181,7 @@ Files in code-generation-adjacent projects that have partial matches to generato
 ### Impact assessment
 
 The ~41 false-positive files are overwhelmingly in:
+
 - Code generation tools and libraries (not user-facing application code)
 - Config/schema files (unlikely to contain humanize patterns)
 - Test utilities
@@ -196,17 +198,17 @@ library is the right place to fix these upstream.
 
 ## Feature Validation Matrix
 
-| Feature | Validated? | Method | Result |
-| ------- | ---------- | ------ | ------ |
-| All 9 rules (H001–H009) | Yes | Corpus sweep + synthetic fixtures | 0 corpus findings, 5 synthetic findings |
-| `--verify-suppressions` | Yes | Corpus sweep | 3 stale directives found |
-| `--min-confidence` | Yes | Synthetic fixtures at low/high/full | Filtering works correctly |
-| H001 size-bucket filter | Yes | Verified via synthetic test (unit slice without div1024 correctly skipped) | Working |
-| Import-alias-aware detection | Yes | Verified via testdata (`testdata/h007_aliased_import/`) | Working |
-| Dot-import support | Yes | Verified via testdata (`testdata/h003_dot_import/`, `testdata/h007_dot_import/`) | Working |
-| gogenfilter integration | Yes | Corpus sweep with file-by-file comparison | ~97.2% accuracy, ~2.8% false-positive rate |
-| Plugin confidence filtering | Indirectly | Verified via `DetectFuncDecl` in plugin tests | Working |
-| H009/H002 overlap disambiguation | Yes | Verified via testdata (`testdata/h009_h002_overlap/`) | Working |
+| Feature                          | Validated? | Method                                                                           | Result                                     |
+| -------------------------------- | ---------- | -------------------------------------------------------------------------------- | ------------------------------------------ |
+| All 9 rules (H001–H009)          | Yes        | Corpus sweep + synthetic fixtures                                                | 0 corpus findings, 5 synthetic findings    |
+| `--verify-suppressions`          | Yes        | Corpus sweep                                                                     | 3 stale directives found                   |
+| `--min-confidence`               | Yes        | Synthetic fixtures at low/high/full                                              | Filtering works correctly                  |
+| H001 size-bucket filter          | Yes        | Verified via synthetic test (unit slice without div1024 correctly skipped)       | Working                                    |
+| Import-alias-aware detection     | Yes        | Verified via testdata (`testdata/h007_aliased_import/`)                          | Working                                    |
+| Dot-import support               | Yes        | Verified via testdata (`testdata/h003_dot_import/`, `testdata/h007_dot_import/`) | Working                                    |
+| gogenfilter integration          | Yes        | Corpus sweep with file-by-file comparison                                        | ~97.2% accuracy, ~2.8% false-positive rate |
+| Plugin confidence filtering      | Indirectly | Verified via `DetectFuncDecl` in plugin tests                                    | Working                                    |
+| H009/H002 overlap disambiguation | Yes        | Verified via testdata (`testdata/h009_h002_overlap/`)                            | Working                                    |
 
 ## Conclusion
 

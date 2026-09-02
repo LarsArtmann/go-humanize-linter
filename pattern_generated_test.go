@@ -35,10 +35,16 @@ func TestIsGeneratedFile_FilenameOnly(t *testing.T) {
 
 		// New generators brought in by gogenfilter — these previously
 		// slipped through and would have been linted as hand-written code.
-		{"models.go", true},                // sqlc
-		{"querier.go", true},               // sqlc
-		{"query.sql.go", true},             // sqlc
-		{"batch.go", true},                 // sqlc
+		// sqlc's default output names (models.go, querier.go, batch.go) are
+		// deliberately NOT detected from the filename alone: a hand-written
+		// models.go in a non-sqlc directory must not be classified as
+		// generated (see gogenfilter's detection notes). They are detected
+		// via the .sql.go suffix, content markers, or a declared sqlc
+		// output dir at the walker's call site.
+		{"models.go", false},               // sqlc default name — needs dir/content context
+		{"querier.go", false},              // sqlc default name — needs dir/content context
+		{"query.sql.go", true},             // sqlc per-query convention
+		{"batch.go", false},                // sqlc default name — needs dir/content context
 		{"user.pb.go", true},               // protobuf
 		{"user_grpc.pb.go", true},          // protobuf
 		{"zz_generated.deepcopy.go", true}, // deepcopy-gen (zz_generated.*.go)

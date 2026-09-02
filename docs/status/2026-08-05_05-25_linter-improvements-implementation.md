@@ -1,8 +1,8 @@
 # Status Report — 2026-08-05 05:25 CEST — Linter Improvements Implementation Session
 
-**Date:** 2026-08-05 05:25 CEST  
-**Session scope:** Implement concrete linter improvements derived from the 29 sibling-project AI-mistake status reports analyzed in the prior session (2026-08-05_04-28). Focus: fix the highest-impact failure modes that caused downstream breakages.  
-**Branch:** `main` (7 commits ahead of `origin/main` from this session; working tree clean)  
+**Date:** 2026-08-05 05:25 CEST\
+**Session scope:** Implement concrete linter improvements derived from the 29 sibling-project AI-mistake status reports analyzed in the prior session (2026-08-05_04-28). Focus: fix the highest-impact failure modes that caused downstream breakages.\
+**Branch:** `main` (7 commits ahead of `origin/main` from this session; working tree clean)\
 **Author:** Crush
 
 ---

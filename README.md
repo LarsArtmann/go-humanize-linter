@@ -170,14 +170,14 @@ func formatBytes(b int64) string {
 
 Recognised forms:
 
-| Directive | Effect |
-|-----------|--------|
-| `//nolint` | Suppresses all linters |
-| `//nolint:all` | Suppresses all linters |
-| `//nolint:gohumanize` | Suppresses all gohumanize rules on this function |
-| `//nolint:gohumanize:H001` | Suppresses only H001 (scoped) |
-| `//nolint:gohumanize:H001,H002` | Suppresses H001 and H002 only |
-| `//nolint:gohumanize,other` | Suppresses gohumanize and another linter |
+| Directive                       | Effect                                           |
+| ------------------------------- | ------------------------------------------------ |
+| `//nolint`                      | Suppresses all linters                           |
+| `//nolint:all`                  | Suppresses all linters                           |
+| `//nolint:gohumanize`           | Suppresses all gohumanize rules on this function |
+| `//nolint:gohumanize:H001`      | Suppresses only H001 (scoped)                    |
+| `//nolint:gohumanize:H001,H002` | Suppresses H001 and H002 only                    |
+| `//nolint:gohumanize,other`     | Suppresses gohumanize and another linter         |
 
 A trailing `// reason` comment is allowed on any form.
 

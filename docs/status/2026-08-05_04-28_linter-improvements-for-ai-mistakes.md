@@ -1,8 +1,8 @@
 # Status Report — 2026-08-05 04:28 CEST — Linter Improvements to Prevent AI Mistakes
 
-**Date:** 2026-08-05 04:28 CEST  
-**Session scope:** Analyze 29 sibling-project status reports from today's `go-humanize-linter` remediation sweep and design concrete improvements to the linter so it prevents (or at least surfaces) the recurring AI mistakes observed.  
-**Branch:** `main` (working tree clean; 9 commits ahead of `origin/main`, none of them from this session)  
+**Date:** 2026-08-05 04:28 CEST\
+**Session scope:** Analyze 29 sibling-project status reports from today's `go-humanize-linter` remediation sweep and design concrete improvements to the linter so it prevents (or at least surfaces) the recurring AI mistakes observed.\
+**Branch:** `main` (working tree clean; 9 commits ahead of `origin/main`, none of them from this session)\
 **Author:** Crush
 
 ---
@@ -102,15 +102,15 @@ Read all 29 go-humanize-linter-related status reports written today across the p
 
 However, the analysis revealed that **the linter itself contributed to several downstream breakages**, which is the central problem this session is meant to address:
 
-| #   | Project                              | What the linter (or its absence) caused                                                                                                                                                            | Severity                |
-| --- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| 1   | `BuildFlow`                          | Linter suggested replacing pluralization; AI used `humanize.SIWithDigits` because the actual API (`english.PluralWord`) was not obvious. Now `execution/` and `internal/cli/` do not compile.      | Critical                |
-| 2   | `file-and-image-renamer`             | Linter has no way to validate suppression syntax. AI committed `//nolint:go-humanize-linter/H003` (wrong namespace). The directive is a no-op; the finding will re-fire for anyone on that commit. | Medium                  |
-| 3   | `golangci-lint-auto-configure`       | Linter hint text says `humanize.Plural`, which does not exist. AI guessed `github.com/larsartmann/go-humanize` (nonexistent) and gave up. Finding still reported.                                  | Medium                  |
-| 4   | `AI-Speed-Test`                      | Linter H002/H009 falsely flagged `strings.Join(args, " ")` as a comma-separator. AI first cargo-culted a suppression config instead of reading the source.                                         | Low (fixed, not pushed) |
-| 5   | `DiscordSync`                        | H001 false-positive on a size-bucket lookup table. AI added `//nolint:gochecknoglobals` for a read-only table rather than the linter learning the difference.                                      | Low                     |
-| 6   | `KeyCountdown`                       | H005 fired at 0.75 confidence on `Nanoseconds()/1e6`. AI fixed it, but the rule message overstates the match ("1.5K, 2.3M" vs. actual ms conversion).                                              | Low                     |
-| 7   | `mr-sync`, `emeet-pixyd`, `invoices` | Linter fixes required `go.mod` / `vendorHash` / `depguard` changes the linter cannot see. AI shipped source changes without verifying the build pipeline.                                          | Medium                  |
+| # | Project                              | What the linter (or its absence) caused                                                                                                                                                            | Severity                |
+| - | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 1 | `BuildFlow`                          | Linter suggested replacing pluralization; AI used `humanize.SIWithDigits` because the actual API (`english.PluralWord`) was not obvious. Now `execution/` and `internal/cli/` do not compile.      | Critical                |
+| 2 | `file-and-image-renamer`             | Linter has no way to validate suppression syntax. AI committed `//nolint:go-humanize-linter/H003` (wrong namespace). The directive is a no-op; the finding will re-fire for anyone on that commit. | Medium                  |
+| 3 | `golangci-lint-auto-configure`       | Linter hint text says `humanize.Plural`, which does not exist. AI guessed `github.com/larsartmann/go-humanize` (nonexistent) and gave up. Finding still reported.                                  | Medium                  |
+| 4 | `AI-Speed-Test`                      | Linter H002/H009 falsely flagged `strings.Join(args, " ")` as a comma-separator. AI first cargo-culted a suppression config instead of reading the source.                                         | Low (fixed, not pushed) |
+| 5 | `DiscordSync`                        | H001 false-positive on a size-bucket lookup table. AI added `//nolint:gochecknoglobals` for a read-only table rather than the linter learning the difference.                                      | Low                     |
+| 6 | `KeyCountdown`                       | H005 fired at 0.75 confidence on `Nanoseconds()/1e6`. AI fixed it, but the rule message overstates the match ("1.5K, 2.3M" vs. actual ms conversion).                                              | Low                     |
+| 7 | `mr-sync`, `emeet-pixyd`, `invoices` | Linter fixes required `go.mod` / `vendorHash` / `depguard` changes the linter cannot see. AI shipped source changes without verifying the build pipeline.                                          | Medium                  |
 
 **Honest process failures in this session:**
 

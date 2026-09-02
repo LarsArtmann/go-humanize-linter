@@ -73,9 +73,9 @@ verification against the project corpus. Save results to `docs/validation/`.
    This means if anyone wants to audit the sweep by reading the text output, they can't.
 
 2. **Sweep script ran the linter 4x per project** (full + verify-suppressions + min-confidence
-   + list-files). 158 projects × 4 passes = 632 linter invocations. Should have combined
-   passes or used parallelism. The sweep took several minutes when it could have been
-   under a minute.
+   - list-files). 158 projects × 4 passes = 632 linter invocations. Should have combined
+     passes or used parallelism. The sweep took several minutes when it could have been
+     under a minute.
 
 3. **Used raw `go build` instead of `nix run .#build`.** AGENTS.md explicitly says to
    use `nix run` commands. I used `go build` with manual `GOEXPERIMENT`/`GOPRIVATE`/`GONOSUMDB`

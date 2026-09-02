@@ -31,14 +31,14 @@
         --radius: 0px;
         --radius-sm: 0px;
         --font-heading:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-body:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-mono:
-          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
-          monospace;
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
       }
       * {
         box-sizing: border-box;
@@ -203,15 +203,27 @@
       }
       .card-problem {
         border-left-color: var(--problem);
-        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
       }
       .card-solution {
         border-left-color: var(--solution);
-        background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
       }
       .card-warning {
         border-left-color: var(--warning);
-        background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
       }
       .issue {
         background: var(--surface-raised);
@@ -222,15 +234,27 @@
       }
       .issue-critical {
         border-left-color: var(--problem);
-        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
       }
       .issue-important {
         border-left-color: var(--warning);
-        background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
       }
       .issue-nice {
         border-left-color: var(--solution);
-        background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
       }
       .issue h3 {
         margin-bottom: 0.3rem;
@@ -506,8 +530,9 @@
           <div class="hero-badge">Session 2</div>
           <h1>Real-World Validation &amp; Plugin Mode</h1>
           <p class="hero-subtitle">
-            Ran the linter against all ~/projects/ (190+ Go projects), fixed H004 false-positive
-            storm (44&rarr;24), added golangci-lint plugin mode, and discovered what we missed.
+            Ran the linter against all ~/projects/ (190+ Go projects), fixed
+            H004 false-positive storm (44&rarr;24), added golangci-lint plugin
+            mode, and discovered what we missed.
           </p>
         </div>
 
@@ -543,26 +568,32 @@
         </div>
 
         <blockquote>
-          <strong>Update 2026-07-30:</strong> the stat cards above are frozen at the v0.1.0
-          session state. Since then the project moved to <strong>9 rules</strong> (H008 ordinal +
-          H009 commaf added), core coverage <strong>87.8%</strong> / plugin <strong>93.8%</strong>,
-          LICENSE added, and <code>//nolint:gohumanize</code> suppression shipped. The replace
-          directives have since been removed (deps now resolve from tags). The validation figures (97 findings, ~30 projects) remain accurate.
-          Remaining open work lives in <code>TODO_LIST.md</code>.
+          <strong>Update 2026-07-30:</strong> the stat cards above are frozen at
+          the v0.1.0 session state. Since then the project moved to
+          <strong>9 rules</strong> (H008 ordinal + H009 commaf added), core
+          coverage <strong>87.8%</strong> / plugin <strong>93.8%</strong>,
+          LICENSE added, and <code>//nolint:gohumanize</code> suppression
+          shipped. The replace directives have since been removed (deps now
+          resolve from tags). The validation figures (97 findings, ~30 projects)
+          remain accurate. Remaining open work lives in
+          <code>TODO_LIST.md</code>.
         </blockquote>
 
         <p>
-          This session did three things: (1) ran the linter against all 190+ Go projects in
-          <code>~/projects/</code>, producing 97 findings; (2) fixed H004's false-positive storm by
-          adding two discriminators (string-in-branch + string-return-type); and (3) built a
-          golangci-lint plugin wrapper in <code>plugin/plugin.go</code> with a standalone
-          singlechecker entry point at <code>cmd/gohumanize/</code>.
+          This session did three things: (1) ran the linter against all 190+ Go
+          projects in
+          <code>~/projects/</code>, producing 97 findings; (2) fixed H004's
+          false-positive storm by adding two discriminators (string-in-branch +
+          string-return-type); and (3) built a golangci-lint plugin wrapper in
+          <code>plugin/plugin.go</code> with a standalone singlechecker entry
+          point at <code>cmd/gohumanize/</code>.
         </p>
 
         <p>
-          The validation revealed that 6 of 7 rules have near-zero false positive rates. H004 was
-          the outlier at ~60% FP, now reduced to ~0%. The linter is production-usable for H001-H003,
-          H005-H007. H004 is now acceptable but still has edge cases.
+          The validation revealed that 6 of 7 rules have near-zero false
+          positive rates. H004 was the outlier at ~60% FP, now reduced to ~0%.
+          The linter is production-usable for H001-H003, H005-H007. H004 is now
+          acceptable but still has edge cases.
         </p>
 
         <!-- ================================================================ -->
@@ -576,10 +607,12 @@
               <strong>H004 false-positive fix (two-stage filter)</strong>
               <span>
                 Stage 1: <code>branchContainsString()</code> requires the
-                <code>if x == 1</code> branch body to contain a string literal or concatenation.
-                Stage 2: <code>funcReturnsString()</code> requires the enclosing function to return
-                <code>string</code> or <code>[]string</code>. Together: 44 &rarr; 24 findings, ~60%
-                FP &rarr; ~0% FP. All 24 remaining are genuine pluralization.
+                <code>if x == 1</code> branch body to contain a string literal
+                or concatenation. Stage 2:
+                <code>funcReturnsString()</code> requires the enclosing function
+                to return <code>string</code> or <code>[]string</code>.
+                Together: 44 &rarr; 24 findings, ~60% FP &rarr; ~0% FP. All 24
+                remaining are genuine pluralization.
               </span>
             </div>
           </div>
@@ -588,21 +621,27 @@
             <div class="text">
               <strong>Real-world sweep against 190+ projects</strong>
               <span>
-                97 findings across ~30 projects. H001: 27, H003: 25, H004: 24, H005: 10, H002: 7,
-                H006: 2, H007: 2. Top projects: ast-state-analyzer (9), SEC (8), KeyCountdown (8),
-                BuildFlow (8), CreditReformBilanzampel (7).
+                97 findings across ~30 projects. H001: 27, H003: 25, H004: 24,
+                H005: 10, H002: 7, H006: 2, H007: 2. Top projects:
+                ast-state-analyzer (9), SEC (8), KeyCountdown (8), BuildFlow
+                (8), CreditReformBilanzampel (7).
               </span>
             </div>
           </div>
           <div class="strength">
             <div class="check">+</div>
             <div class="text">
-              <strong>golangci-lint plugin mode (<code>plugin/plugin.go</code>)</strong>
+              <strong
+                >golangci-lint plugin mode
+                (<code>plugin/plugin.go</code>)</strong
+              >
               <span>
-                Exports <code>plugin.Analyzer</code> (*analysis.Analyzer) wrapping all 7 rules. New
-                <code>DetectFuncDecl()</code> in rules.go is the shared per-function entry point.
-                Includes <code>cmd/gohumanize/main.go</code> singlechecker for standalone testing.
-                Verified against testdata via <code>go run ./cmd/gohumanize ./testdata/...</code>.
+                Exports <code>plugin.Analyzer</code> (*analysis.Analyzer)
+                wrapping all 7 rules. New <code>DetectFuncDecl()</code> in
+                rules.go is the shared per-function entry point. Includes
+                <code>cmd/gohumanize/main.go</code> singlechecker for standalone
+                testing. Verified against testdata via
+                <code>go run ./cmd/gohumanize ./testdata/...</code>.
               </span>
             </div>
           </div>
@@ -611,7 +650,8 @@
             <div class="text">
               <strong>All 32 tests pass with race detector</strong>
               <span>
-                Core: 23 tests, CLI: 3 integration tests, Plugin: 3 tests. Core coverage 86.9%.
+                Core: 23 tests, CLI: 3 integration tests, Plugin: 3 tests. Core
+                coverage 86.9%.
                 <code>go vet</code> clean. <code>go build ./...</code> clean.
               </span>
             </div>
@@ -621,9 +661,11 @@
             <div class="text">
               <strong>go.mod updated with direct x/tools dependency</strong>
               <span>
-                <code>go mod tidy</code> promoted <code>golang.org/x/tools</code> from indirect to
-                direct (needed for plugin's analysis.Analyzer). Pulls
-                <code>golang.org/x/mod</code> and <code>golang.org/x/sync</code> as indirect deps.
+                <code>go mod tidy</code> promoted
+                <code>golang.org/x/tools</code> from indirect to direct (needed
+                for plugin's analysis.Analyzer). Pulls
+                <code>golang.org/x/mod</code> and
+                <code>golang.org/x/sync</code> as indirect deps.
               </span>
             </div>
           </div>
@@ -635,33 +677,42 @@
 
         <div class="issue issue-important">
           <span class="severity severity-important">Plugin</span>
-          <h3>golangci-lint plugin reports at function-decl position, not finding position</h3>
+          <h3>
+            golangci-lint plugin reports at function-decl position, not finding
+            position
+          </h3>
           <div class="where">
             plugin/plugin.go:79-84 — toDiagnostic uses fn.Pos() for ALL findings
           </div>
           <p>
-            The plugin's <code>run()</code> reports every finding at the <code>FuncDecl</code>
-            position (<code>fn.Pos()</code>), ignoring the precise line/column from
-            <code>finding.Position</code>. This means if a function has 3 byte-format issues, all 3
-            are reported at the same line (the <code>func</code> keyword). The CLI path is correct;
-            only the plugin path loses precision.
+            The plugin's <code>run()</code> reports every finding at the
+            <code>FuncDecl</code>
+            position (<code>fn.Pos()</code>), ignoring the precise line/column
+            from
+            <code>finding.Position</code>. This means if a function has 3
+            byte-format issues, all 3 are reported at the same line (the
+            <code>func</code> keyword). The CLI path is correct; only the plugin
+            path loses precision.
           </p>
           <div class="callout callout-warning">
             <strong>Fix needed:</strong>
-            Map finding.Position.Line/Column back to token.Pos using pass.Fset, or store the AST
-            node position in the finding itself.
+            Map finding.Position.Line/Column back to token.Pos using pass.Fset,
+            or store the AST node position in the finding itself.
           </div>
         </div>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Coverage</span>
           <h3>Plugin package at 6.2% coverage, DetectFuncDecl at 0%</h3>
-          <div class="where">plugin/plugin.go:50 run() — 0%; rules.go:41 DetectFuncDecl — 0%</div>
+          <div class="where">
+            plugin/plugin.go:50 run() — 0%; rules.go:41 DetectFuncDecl — 0%
+          </div>
           <p>
-            The plugin tests only exercise <code>DetectFuncDecl</code> directly (via the exported
-            function), but <code>plugin.run()</code> itself is at 0% because it requires a full
-            <code>analysis.Pass</code> with loaded packages. <code>DetectFuncDecl</code> is at 0%
-            because the plugin tests call it but coverage isn't tracked cross-package.
+            The plugin tests only exercise <code>DetectFuncDecl</code> directly
+            (via the exported function), but <code>plugin.run()</code> itself is
+            at 0% because it requires a full <code>analysis.Pass</code> with
+            loaded packages. <code>DetectFuncDecl</code> is at 0% because the
+            plugin tests call it but coverage isn't tracked cross-package.
           </p>
         </div>
 
@@ -669,14 +720,16 @@
           <span class="severity severity-important">H004</span>
           <h3>Two borderline H004 findings on wave-label functions</h3>
           <div class="where">
-            project-dependency-graph/release_suggestions.go:157, update_plan_render.go:13
+            project-dependency-graph/release_suggestions.go:157,
+            update_plan_render.go:13
           </div>
           <p>
-            <code>waveLabel(wave int, ...) string</code> uses <code>if wave == 1</code> to produce
-            different description strings. This is technically pluralization-like (1 thing vs N
-            things) but the "plural" form is a full sentence, not just an "s" suffix. These are
-            arguably acceptable findings (the user IS hand-rolling count-based text selection), but
-            a human might find them noisy.
+            <code>waveLabel(wave int, ...) string</code> uses
+            <code>if wave == 1</code> to produce different description strings.
+            This is technically pluralization-like (1 thing vs N things) but the
+            "plural" form is a full sentence, not just an "s" suffix. These are
+            arguably acceptable findings (the user IS hand-rolling count-based
+            text selection), but a human might find them noisy.
           </p>
         </div>
 
@@ -684,13 +737,15 @@
           <span class="severity severity-important">CLI</span>
           <h3>CLI main.go still at 0% direct coverage</h3>
           <div class="where">
-            cmd/go-humanize-linter/main.go — main, buildRegistry, output, stringList
+            cmd/go-humanize-linter/main.go — main, buildRegistry, output,
+            stringList
           </div>
           <p>
-            The 3 CLI integration tests build the binary and exec it, but Go's coverage tool can't
-            attribute exec'd binary coverage to the source. <code>buildRegistry()</code>,
-            <code>output()</code>, and <code>stringList</code> are testable as unit tests but
-            weren't extracted or tested this session.
+            The 3 CLI integration tests build the binary and exec it, but Go's
+            coverage tool can't attribute exec'd binary coverage to the source.
+            <code>buildRegistry()</code>, <code>output()</code>, and
+            <code>stringList</code> are testable as unit tests but weren't
+            extracted or tested this session.
           </p>
         </div>
 
@@ -808,82 +863,100 @@
         <div class="issue issue-critical">
           <span class="severity severity-critical">Critical</span>
           <h3>H004 was shipped with ~60% false positive rate</h3>
-          <div class="where">patterns.go:489 hasEqualsOneBranch — original version</div>
+          <div class="where">
+            patterns.go:489 hasEqualsOneBranch — original version
+          </div>
           <p>
-            The original H004 fired on ANY <code>if x == 1</code> where <code>x</code> was a simple
-            identifier. This matched percentile calculations (<code
-              >if n == 1 { return sorted[0] }</code
-            >), SQL health checks (<code>if result != 1 { return fmt.Errorf(...) }</code>),
-            exit-code extraction, IBAN validation, database readiness checks, and code generation.
-            Of 44 findings, ~29 were false positives. The rule was essentially useless as shipped.
+            The original H004 fired on ANY <code>if x == 1</code> where
+            <code>x</code> was a simple identifier. This matched percentile
+            calculations (<code>if n == 1 { return sorted[0] }</code>), SQL
+            health checks (<code>if result != 1 { return fmt.Errorf(...) }</code
+            >), exit-code extraction, IBAN validation, database readiness
+            checks, and code generation. Of 44 findings, ~29 were false
+            positives. The rule was essentially useless as shipped.
           </p>
           <div class="callout callout-solution">
             <strong>Fixed this session:</strong>
-            Two-stage filter: (1) branch body must contain a string literal/concatenation, (2)
-            function must return string type. Result: 44 &rarr; 24, ~0% FP.
+            Two-stage filter: (1) branch body must contain a string
+            literal/concatenation, (2) function must return string type. Result:
+            44 &rarr; 24, ~0% FP.
           </div>
         </div>
 
         <div class="issue issue-critical">
           <span class="severity severity-critical">Critical</span>
           <h3>H001 reports "0 unit strings" when triggered by div1024 alone</h3>
-          <div class="where">rule_bytes.go:37 detectBytesFormat — message construction</div>
+          <div class="where">
+            rule_bytes.go:37 detectBytesFormat — message construction
+          </div>
           <p>
-            The KMGTPE testdata (<code>"%.1f %cB"</code> with <code>"KMGTPE"[exp]</code>) embeds
-            unit strings inside format strings, not as standalone strings.
-            <code>countByteUnits()</code> uses <code>\b</code> word boundaries on extracted string
-            literal values, but <code>"%.1f %cB"</code> doesn't contain literal "KB" or "MB" — the
-            unit is assembled at runtime via <code>%cB</code>. So the message says "0 unit strings,
-            div1024=true" which is confusing and technically wrong — the function IS formatting
-            bytes, the detector just can't see the unit strings because they're constructed
+            The KMGTPE testdata (<code>"%.1f %cB"</code> with
+            <code>"KMGTPE"[exp]</code>) embeds unit strings inside format
+            strings, not as standalone strings.
+            <code>countByteUnits()</code> uses <code>\b</code> word boundaries
+            on extracted string literal values, but
+            <code>"%.1f %cB"</code> doesn't contain literal "KB" or "MB" — the
+            unit is assembled at runtime via <code>%cB</code>. So the message
+            says "0 unit strings, div1024=true" which is confusing and
+            technically wrong — the function IS formatting bytes, the detector
+            just can't see the unit strings because they're constructed
             dynamically.
           </p>
           <div class="callout callout-problem">
             <strong>Still broken:</strong>
-            The message should say something like "KMGTPE index trick detected" instead of "0 unit
-            strings" when <code>kmgtp=true</code>.
+            The message should say something like "KMGTPE index trick detected"
+            instead of "0 unit strings" when <code>kmgtp=true</code>.
           </div>
         </div>
 
         <div class="issue issue-critical">
           <span class="severity severity-critical">Critical</span>
           <h3>
-            Plugin reports ALL findings at function declaration line, not the actual code line
+            Plugin reports ALL findings at function declaration line, not the
+            actual code line
           </h3>
-          <div class="where">plugin/plugin.go:79 — uses fn.Pos() unconditionally</div>
+          <div class="where">
+            plugin/plugin.go:79 — uses fn.Pos() unconditionally
+          </div>
           <p>
-            <code>toDiagnostic()</code> uses <code>fn.Pos()</code> (the <code>func</code> keyword
-            position) for every finding. If a 50-line function has byte formatting on line 30 and
-            comma formatting on line 40, both are reported at line 1 (the func declaration). The
-            finding.Position has the correct line/column from the detector, but the plugin ignores
-            it. This makes the plugin nearly useless for IDE integration — you can't jump to the
-            actual code.
+            <code>toDiagnostic()</code> uses <code>fn.Pos()</code> (the
+            <code>func</code> keyword position) for every finding. If a 50-line
+            function has byte formatting on line 30 and comma formatting on line
+            40, both are reported at line 1 (the func declaration). The
+            finding.Position has the correct line/column from the detector, but
+            the plugin ignores it. This makes the plugin nearly useless for IDE
+            integration — you can't jump to the actual code.
           </p>
           <div class="callout callout-problem">
             <strong>Still broken:</strong>
-            Need to either store the AST node position in the finding or reverse-map
-            finding.Position to token.Pos via pass.Fset.
+            Need to either store the AST node position in the finding or
+            reverse-map finding.Position to token.Pos via pass.Fset.
           </div>
         </div>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Important</span>
           <h3>golines formatting violation in rule_bytes.go:68</h3>
-          <div class="where">rule_bytes.go:68 — known from previous session, not fixed</div>
+          <div class="where">
+            rule_bytes.go:68 — known from previous session, not fixed
+          </div>
           <p>
-            A line exceeds the golines max-length. This was flagged in the previous session's status
-            report and was not addressed this session.
+            A line exceeds the golines max-length. This was flagged in the
+            previous session's status report and was not addressed this session.
           </p>
         </div>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Important</span>
           <h3>exprIsStringy() has 0% coverage</h3>
-          <div class="where">patterns.go:572 — new function added this session</div>
+          <div class="where">
+            patterns.go:572 — new function added this session
+          </div>
           <p>
-            <code>exprIsStringy()</code> was added as part of the H004 fix but has no direct test
-            coverage. It's exercised indirectly through <code>branchContainsString()</code>, but
-            edge cases (non-BasicLit, non-Ident expressions) are untested.
+            <code>exprIsStringy()</code> was added as part of the H004 fix but
+            has no direct test coverage. It's exercised indirectly through
+            <code>branchContainsString()</code>, but edge cases (non-BasicLit,
+            non-Ident expressions) are untested.
           </p>
         </div>
 
@@ -892,9 +965,10 @@
           <h3>DetectFuncDecl has 0% coverage in core package</h3>
           <div class="where">rules.go:41 — new function added this session</div>
           <p>
-            <code>DetectFuncDecl()</code> is the shared entry point for the plugin, but it's only
-            tested from the plugin package (external test). Core package coverage doesn't attribute
-            it. Should have a direct test in <code>linter_test.go</code>.
+            <code>DetectFuncDecl()</code> is the shared entry point for the
+            plugin, but it's only tested from the plugin package (external
+            test). Core package coverage doesn't attribute it. Should have a
+            direct test in <code>linter_test.go</code>.
           </p>
         </div>
 
@@ -903,54 +977,74 @@
         <!-- ================================================================ -->
 
         <div class="card card-problem">
-          <h4>1. H004 should require string output in BOTH branches, not just the == 1 branch</h4>
+          <h4>
+            1. H004 should require string output in BOTH branches, not just the
+            == 1 branch
+          </h4>
           <p>
-            Current logic: <code>branchContainsString(ifStmt.Body)</code> checks the
-            <code>== 1</code> branch only. But true pluralization has strings in BOTH branches
-            (singular AND plural). The waveLabel borderline false positives pass because the
-            <code>else</code> branch also has strings. Requiring both branches to have strings would
-            be stricter but might miss some patterns. Consider: require strings in the function body
-            overall (already done) OR in the specific branch (current approach).
+            Current logic: <code>branchContainsString(ifStmt.Body)</code> checks
+            the <code>== 1</code> branch only. But true pluralization has
+            strings in BOTH branches (singular AND plural). The waveLabel
+            borderline false positives pass because the <code>else</code> branch
+            also has strings. Requiring both branches to have strings would be
+            stricter but might miss some patterns. Consider: require strings in
+            the function body overall (already done) OR in the specific branch
+            (current approach).
           </p>
         </div>
 
         <div class="card card-problem">
           <h4>2. Plugin position mapping is fundamentally broken</h4>
           <p>
-            The plugin must map <code>finding.Position{File, Line, Column}</code> back to a
-            <code>token.Pos</code> for <code>pass.Report()</code>. Options: (a) store the AST node
-            position in the finding (adds a field or metadata), (b) use
-            <code>pass.Fset.File(file.Pos()).LineStart(line) + token.Offset(col-1)</code> to
-            reverse-map, or (c) have detectors return <code>token.Pos</code> alongside findings.
-            Option (c) is cleanest but requires API change.
+            The plugin must map
+            <code>finding.Position{File, Line, Column}</code> back to a
+            <code>token.Pos</code> for <code>pass.Report()</code>. Options: (a)
+            store the AST node position in the finding (adds a field or
+            metadata), (b) use
+            <code
+              >pass.Fset.File(file.Pos()).LineStart(line) +
+              token.Offset(col-1)</code
+            >
+            to reverse-map, or (c) have detectors return
+            <code>token.Pos</code> alongside findings. Option (c) is cleanest
+            but requires API change.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>3. patterns.go is still 850+ lines and growing</h4>
           <p>
-            Every new detection helper goes into the same file. Should split into:
-            <code>pattern_bytes.go</code> (H001), <code>pattern_comma.go</code> (H002),
-            <code>pattern_time.go</code> (H003), <code>pattern_plural.go</code> (H004),
-            <code>pattern_si.go</code> (H005), <code>pattern_ftoa.go</code> (H006),
-            <code>pattern_parsebytes.go</code> (H007), <code>pattern_helpers.go</code> (shared).
+            Every new detection helper goes into the same file. Should split
+            into:
+            <code>pattern_bytes.go</code> (H001),
+            <code>pattern_comma.go</code> (H002),
+            <code>pattern_time.go</code> (H003),
+            <code>pattern_plural.go</code> (H004),
+            <code>pattern_si.go</code> (H005),
+            <code>pattern_ftoa.go</code> (H006),
+            <code>pattern_parsebytes.go</code> (H007),
+            <code>pattern_helpers.go</code> (shared).
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>4. No --version flag on CLI</h4>
           <p>
-            Standard CLI practice. Should be <code>--version</code> that prints the module version
-            (injectable via <code>-ldflags "-X main.version=..."</code>).
+            Standard CLI practice. Should be <code>--version</code> that prints
+            the module version (injectable via
+            <code>-ldflags "-X main.version=..."</code>).
           </p>
         </div>
 
         <div class="card card-warning">
-          <h4>5. H001 confidence calibration is off for the "0 unit strings" case</h4>
+          <h4>
+            5. H001 confidence calibration is off for the "0 unit strings" case
+          </h4>
           <p>
-            When <code>kmgtp=true</code> and <code>unitCount=0</code>, confidence is set to
-            <code>ConfidenceFull</code> (correct — KMGTPE index is a slam dunk) but the message says
-            "0 unit strings" which makes it look like a weak signal. The message and the confidence
+            When <code>kmgtp=true</code> and <code>unitCount=0</code>,
+            confidence is set to <code>ConfidenceFull</code> (correct — KMGTPE
+            index is a slam dunk) but the message says "0 unit strings" which
+            makes it look like a weak signal. The message and the confidence
             disagree.
           </p>
         </div>
@@ -959,19 +1053,21 @@
           <h4>6. No CI test for the plugin path</h4>
           <p>
             The plugin's <code>run()</code> function requires a real
-            <code>analysis.Pass</code> which needs package loading. The integration test should use
-            <code>analyisttest</code> or <code> analysistest.testing</code> to verify the plugin
-            produces correct diagnostics on testdata packages. Currently only the exported
-            <code>DetectFuncDecl</code> is tested.
+            <code>analysis.Pass</code> which needs package loading. The
+            integration test should use <code>analyisttest</code> or
+            <code> analysistest.testing</code> to verify the plugin produces
+            correct diagnostics on testdata packages. Currently only the
+            exported <code>DetectFuncDecl</code> is tested.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>7. Self-detection: linter flags its own rule_bytes.go</h4>
           <p>
-            <code>go-humanize-linter/rule_bytes.go:37</code> is flagged as H001 because it contains
-            byte-unit string literals and division-like patterns in the detection code itself.
-            Should add the linter's own source to an ignore list, or add
+            <code>go-humanize-linter/rule_bytes.go:37</code> is flagged as H001
+            because it contains byte-unit string literals and division-like
+            patterns in the detection code itself. Should add the linter's own
+            source to an ignore list, or add
             <code>//nolint:gohumanize</code>
             directive support.
           </p>
@@ -980,22 +1076,26 @@
         <div class="card card-warning">
           <h4>8. No nolint directive support</h4>
           <p>
-            Users can't suppress false positives with <code>//nolint:gohumanize</code> or similar.
-            Standard linter feature. The CLI and plugin both need this.
+            Users can't suppress false positives with
+            <code>//nolint:gohumanize</code> or similar. Standard linter
+            feature. The CLI and plugin both need this.
           </p>
         </div>
 
         <div class="card card-solution">
           <h4>9. Sweep results should be saved as a report artifact</h4>
           <p>
-            The JSON output from the full <code>~/projects/</code> sweep was written to
-            <code>/tmp/hlint-results-v3.json</code> which will be deleted. Should save a snapshot to
-            <code>docs/validation/</code> for tracking FP rate over time.
+            The JSON output from the full <code>~/projects/</code> sweep was
+            written to <code>/tmp/hlint-results-v3.json</code> which will be
+            deleted. Should save a snapshot to <code>docs/validation/</code> for
+            tracking FP rate over time.
           </p>
         </div>
 
         <!-- ================================================================ -->
-        <h2 id="next-50"><span class="num">F</span>Next 50 Tasks (Prioritized)</h2>
+        <h2 id="next-50">
+          <span class="num">F</span>Next 50 Tasks (Prioritized)
+        </h2>
         <!-- ================================================================ -->
 
         <table>
@@ -1017,7 +1117,9 @@
             <tr>
               <td>2</td>
               <td><span class="badge badge-critical">P0</span></td>
-              <td>Fix plugin position mapping (fn.Pos &rarr; finding.Position)</td>
+              <td>
+                Fix plugin position mapping (fn.Pos &rarr; finding.Position)
+              </td>
               <td>2 hrs</td>
             </tr>
             <tr>
@@ -1035,13 +1137,17 @@
             <tr>
               <td>5</td>
               <td><span class="badge badge-critical">P0</span></td>
-              <td>Remove go.mod replace directives (needs go-linter-sdk tag)</td>
+              <td>
+                Remove go.mod replace directives (needs go-linter-sdk tag)
+              </td>
               <td>blocked</td>
             </tr>
             <tr>
               <td>6</td>
               <td><span class="badge badge-high">P1</span></td>
-              <td>Tag go-linter-sdk v0.1.0 so replace directives can be removed</td>
+              <td>
+                Tag go-linter-sdk v0.1.0 so replace directives can be removed
+              </td>
               <td>15 min</td>
             </tr>
             <tr>
@@ -1107,13 +1213,18 @@
             <tr>
               <td>17</td>
               <td><span class="badge badge-medium">P2</span></td>
-              <td>Add negative testdata for H004 (if x==1 without string return)</td>
+              <td>
+                Add negative testdata for H004 (if x==1 without string return)
+              </td>
               <td>30 min</td>
             </tr>
             <tr>
               <td>18</td>
               <td><span class="badge badge-medium">P2</span></td>
-              <td>Add unit tests for exprIsStringy, funcReturnsString, isStringType</td>
+              <td>
+                Add unit tests for exprIsStringy, funcReturnsString,
+                isStringType
+              </td>
               <td>30 min</td>
             </tr>
             <tr>
@@ -1173,7 +1284,9 @@
             <tr>
               <td>28</td>
               <td><span class="badge badge-medium">P2</span></td>
-              <td>Self-exclusion: don't flag go-humanize-linter's own source</td>
+              <td>
+                Self-exclusion: don't flag go-humanize-linter's own source
+              </td>
               <td>1 hr</td>
             </tr>
             <tr>
@@ -1215,7 +1328,9 @@
             <tr>
               <td>35</td>
               <td><span class="badge badge-low">P3</span></td>
-              <td>Add --rules flag to CLI (list all rules with descriptions)</td>
+              <td>
+                Add --rules flag to CLI (list all rules with descriptions)
+              </td>
               <td>30 min</td>
             </tr>
             <tr>
@@ -1312,19 +1427,22 @@
         </table>
 
         <!-- ================================================================ -->
-        <h2 id="questions"><span class="num">G</span>Questions I Cannot Answer Myself</h2>
+        <h2 id="questions">
+          <span class="num">G</span>Questions I Cannot Answer Myself
+        </h2>
         <!-- ================================================================ -->
 
         <div class="issue issue-critical">
           <span class="severity severity-critical">Q1</span>
           <h3>Should I tag go-linter-sdk as v0.1.0 right now?</h3>
           <p>
-            go-linter-sdk has no published tags. The go.mod replace directives (<code
-              >=> ../go-linter-sdk</code
-            >) prevent anyone outside this machine from building the project. I can tag it myself (I
-            have push access), but I don't know if you consider go-linter-sdk API-stable enough for
-            a v0.1.0 tag, or if there are pending breaking changes. This blocks: removing replace
-            directives, tagging go-humanize-linter v0.1.0, and anyone else using the linter.
+            go-linter-sdk has no published tags. The go.mod replace directives
+            (<code>=> ../go-linter-sdk</code>) prevent anyone outside this
+            machine from building the project. I can tag it myself (I have push
+            access), but I don't know if you consider go-linter-sdk API-stable
+            enough for a v0.1.0 tag, or if there are pending breaking changes.
+            This blocks: removing replace directives, tagging go-humanize-linter
+            v0.1.0, and anyone else using the linter.
           </p>
         </div>
 
@@ -1332,31 +1450,33 @@
           <span class="severity severity-important">Q2</span>
           <h3>What license do you want?</h3>
           <p>
-            I assumed MIT (standard for Go tooling, matches your other repos), but there's no
-            LICENSE file and I don't want to guess wrong on something legally binding. MIT? Apache
-            2? Something else?
+            I assumed MIT (standard for Go tooling, matches your other repos),
+            but there's no LICENSE file and I don't want to guess wrong on
+            something legally binding. MIT? Apache 2? Something else?
           </p>
         </div>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Q3</span>
           <h3>
-            Should the plugin map findings to per-line diagnostics, or is function-level acceptable
-            for v0.1.0?
+            Should the plugin map findings to per-line diagnostics, or is
+            function-level acceptable for v0.1.0?
           </h3>
           <p>
-            The plugin currently reports at the function declaration line (all findings from one
-            function get the same position). Fixing this requires either storing AST node positions
-            in findings (API change to the finding/detector functions) or reverse-mapping
-            line/column to token.Pos (fragile). I can do either, but it's a 2-3 hour effort and I
-            don't know if you want to ship the plugin now and fix positions later, or fix it before
-            anyone uses it.
+            The plugin currently reports at the function declaration line (all
+            findings from one function get the same position). Fixing this
+            requires either storing AST node positions in findings (API change
+            to the finding/detector functions) or reverse-mapping line/column to
+            token.Pos (fragile). I can do either, but it's a 2-3 hour effort and
+            I don't know if you want to ship the plugin now and fix positions
+            later, or fix it before anyone uses it.
           </p>
         </div>
 
         <footer class="footer">
-          Generated 2026-07-30 17:48 &middot; Based on session 2 work only &middot; All finding
-          counts from <code>~/.cache/hlint --format json ~/projects/</code> sweep
+          Generated 2026-07-30 17:48 &middot; Based on session 2 work only
+          &middot; All finding counts from
+          <code>~/.cache/hlint --format json ~/projects/</code> sweep
         </footer>
       </main>
     </div>

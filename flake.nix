@@ -49,7 +49,7 @@
 
       go-standard = {
         pname = "go-humanize-linter";
-        vendorHash = "sha256-rVU8I24JHDJaG/j7+Mxbw9PNlQ3+zsY4xI2AUvqHl0o=";
+        vendorHash = "sha256-9NuxH6YUImLT9kSmkEoX8A4cG+OUCBWQcN0AZZjtOQA=";
         description = "AST linter that detects hand-rolled reimplementations of go-humanize";
         enableCheck = false;
         subPackages = [ "cmd/go-humanize-linter" ];
@@ -108,6 +108,7 @@
         {
           pkgs,
           lib,
+          config,
           ...
         }:
         let
@@ -187,6 +188,14 @@
             export GONOSUMDB='github.com/larsartmann/*,github.com/LarsArtmann/*'
             golangci-lint custom
             ./custom-gcl run -c .golangci.custom.yml ./... "$@"
+          '';
+
+          # Fast vendorHash drift check: forces realization of the goModules
+          # FOD. If vendorHash doesn't match go.sum, the FOD fails with a
+          # clear hash mismatch error — before any Go code compiles.
+          checks.vendor-hash = pkgs.runCommand "vendor-hash" { } ''
+            echo "vendor hash verified: ${config.packages.default.goModules}"
+            touch $out
           '';
         };
     };

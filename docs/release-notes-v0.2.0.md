@@ -14,10 +14,12 @@ rules, confidence filtering, and suppression verification.
 ### Highlights
 
 **Two new rules:**
+
 - **H008** (manual-ordinal): Detects `switch n%10` with st/nd/rd/th cases. Suggests `humanize.Ordinal`.
 - **H009** (manual-commaf): Detects `%.Nf` + manual comma/separator grouping. Suggests `humanize.Commaf`.
 
 **CLI improvements:**
+
 - `--min-confidence` — Filter findings by confidence (low/medium/high/full). Exit 1 for high/full, exit 2 for medium/low only.
 - `--verify-suppressions` — Report stale and misspelled `//nolint` directives.
 - `--save-baseline` / `--behavior-delta` — Track finding changes across refactors by (rule, file, line) tuple.
@@ -26,17 +28,20 @@ rules, confidence filtering, and suppression verification.
 - `--explain` / `--list-files` — Inspection and debugging flags.
 
 **Plugin improvements:**
+
 - Configurable rules via `.golangci.yml` (`enable`/`disable` settings).
 - `minConfidence` and `verifySuppressions` settings.
 - golangci-lint v2 module plugin registration via `plugin-module-register`.
 
 **Suppression system:**
+
 - Scoped `//nolint:gohumanize:H001` directives — suppress individual rules.
 - In-body `//nolint` — place the directive on the specific statement, not just the function declaration.
 - Go-style `//lint:ignore gohumanize` alternative syntax.
 - Consistent behavior across CLI, plugin, and verification paths.
 
 **Detection improvements:**
+
 - H001 size-bucket false-positive filter (switch + slice lookups without div1024 excluded).
 - H004 false-positive filter (requires string return type + string in branch).
 - H009/H002 overlap disambiguation (H002 suppressed when H009 fires).
@@ -45,6 +50,7 @@ rules, confidence filtering, and suppression verification.
 - gogenfilter-driven generated-file detection (sqlc, templ, protobuf, wire, moq, etc.).
 
 **Quality:**
+
 - 9 rules, 9 ADRs, 83.9% overall test coverage.
 - CI with test+vet, lint, govulncheck, coverage reporting, and self-scan.
 - GitHub Action with all flags exposed.

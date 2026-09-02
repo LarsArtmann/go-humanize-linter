@@ -535,9 +535,8 @@ func TestCLI_ExplainFlagUnknownRule(t *testing.T) {
 		t.Fatal("expected non-zero exit for unknown rule, got success")
 	}
 
-	var exitErr *exec.ExitError
-
-	if !errors.As(err, &exitErr) {
+	exitErr, ok := errors.AsType[*exec.ExitError](err)
+	if !ok {
 		t.Fatalf("expected *exec.ExitError, got %T: %v", err, err)
 	}
 
@@ -657,8 +656,8 @@ func TestCLI_OutputToFile(t *testing.T) {
 		t.Fatal("expected non-zero exit (findings present), got success")
 	}
 
-	var exitErr *exec.ExitError
-	if !errors.As(err, &exitErr) {
+	exitErr, ok := errors.AsType[*exec.ExitError](err)
+	if !ok {
 		t.Fatalf("expected *exec.ExitError, got %T: %v", err, err)
 	}
 

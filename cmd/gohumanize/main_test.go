@@ -59,13 +59,13 @@ func TestSinglechecker_PositiveFinding(t *testing.T) {
 
 	// singlechecker uses exit 3 for "diagnostics reported" — extract via
 	// errors.As to handle wrapped errors cleanly.
-	var exitErr *exec.ExitError
 
 	if runErr == nil {
 		t.Fatalf("expected non-zero exit on positive finding, got success\n%s", out)
 	}
 
-	if !errors.As(runErr, &exitErr) {
+	exitErr, ok := errors.AsType[*exec.ExitError](runErr)
+	if !ok {
 		t.Fatalf("expected *exec.ExitError, got %T: %v", runErr, runErr)
 	}
 

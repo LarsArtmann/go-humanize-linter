@@ -1,8 +1,8 @@
 # Status Report: go-humanize-linter
 
-**Date:** 2026-07-30 17:32  
-**Session:** Initial build + self-review iteration  
-**Repo:** [LarsArtmann/go-humanize-linter](https://github.com/LarsArtmann/go-humanize-linter)  
+**Date:** 2026-07-30 17:32\
+**Session:** Initial build + self-review iteration\
+**Repo:** [LarsArtmann/go-humanize-linter](https://github.com/LarsArtmann/go-humanize-linter)\
 **HEAD:** `946ae83` — Add CLI integration tests
 
 ---

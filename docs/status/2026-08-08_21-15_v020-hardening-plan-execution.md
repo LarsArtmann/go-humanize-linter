@@ -11,6 +11,7 @@ _Execution of the v0.2.0 hardening plan (L1.1-L1.14) from `docs/planning/2026-08
 **Problem:** The CLI path (`checkFuncDecls` in `walker.go`) used `hasNoLintDirective`, a binary all-or-nothing check (`isSuppressedAll`). The plugin path used `funcSuppressions` + `isSuppressedRule` (per-rule scoping). `//nolint:gohumanize:H002` suppressed ALL rules in CLI but NOTHING in plugin.
 
 **Fix applied:**
+
 - Refactored `checkFuncDecls` to accept a `ruleID` parameter and use `funcSuppressions` + `isSuppressedRule` (the same path as the plugin).
 - Updated all 9 rule files (`rule_bytes.go`, `rule_comma.go`, `rule_reltime.go`, `rule_plural.go`, `rule_si.go`, `rule_ftoa.go`, `rule_parsebytes.go`, `rule_ordinal.go`, `rule_commaf.go`) to pass their rule ID.
 - Removed the dead `hasNoLintDirective` function from `pattern_helpers.go`.
@@ -18,6 +19,7 @@ _Execution of the v0.2.0 hardening plan (L1.1-L1.14) from `docs/planning/2026-08
 **Bug discovered and fixed during L1.1:** `isSuppressedRule` treated any non-`gohumanize`/non-`all` token as a scoped sub-rule. This meant `//nolint:gohumanize,other` suppressed NOTHING (because "other" was treated as a scoped sub-rule, and the code checked `scopedRules[ruleID]` instead of returning true for bare `gohumanize`). Fixed by adding `looksLikeRuleID(s)` which checks the `H\d+` pattern. Non-rule-ID tokens are now ignored, so `//nolint:gohumanize,other` correctly suppresses all H-rules.
 
 **Tests added:**
+
 - `TestCLI_ScopedSuppression_H001Only` — `//nolint:gohumanize:H001` suppresses H001
 - `TestCLI_ScopedSuppression_DoesNotSuppressOtherRule` — `//nolint:gohumanize:H002` does NOT suppress H001
 - `TestFuncSuppressionsAssociation` (replaces `TestHasNoLintDirective`) — 14 subtests covering all association paths + scoped directives
@@ -28,6 +30,7 @@ _Execution of the v0.2.0 hardening plan (L1.1-L1.14) from `docs/planning/2026-08
 ### L1.2 — Verify-suppressions in-body directive tests
 
 **Tests added:**
+
 - `TestVerifySuppressions_InBodyStale` — in-body `//nolint:gohumanize` on a clean function IS reported as stale (H0SUP)
 - `TestVerifySuppressions_InBodyUsed` — in-body `//nolint:gohumanize:H001` on an H001-triggering function is NOT reported as stale
 
@@ -39,6 +42,7 @@ _Execution of the v0.2.0 hardening plan (L1.1-L1.14) from `docs/planning/2026-08
 ### L1.4 — Extend integration test
 
 Refactored `TestCustomGCLIntegration` from monolithic to `t.Run` subtests:
+
 - `basic_detection` — default settings, H001 fires
 - `min_confidence_full` — `minConfidence: "full"`, H001 (ConfidenceFull) survives
 - `verify_suppressions` — stale `//nolint` directive produces H0SUP
@@ -62,6 +66,7 @@ Extracted `runCustomGCL` helper to reduce duplication.
 ### L1.7 — ADR 0006
 
 Created `docs/adr/0006-per-statement-suppression.md` documenting:
+
 - Approach B (line-range matching) vs Approach A (per-statement token.Pos)
 - Why B was chosen (minimal code change, correct for current single-finding-per-function model)
 - When to upgrade to A (if detectors emit per-statement findings)
@@ -70,6 +75,7 @@ Created `docs/adr/0006-per-statement-suppression.md` documenting:
 ### L1.8 — README update
 
 Replaced the suppression section with:
+
 - In-body `//nolint` example (both declaration and statement placement)
 - Full directive table (bare, all, gohumanize, scoped, comma-separated)
 - Trailing reason comment note
@@ -77,6 +83,7 @@ Replaced the suppression section with:
 ### L1.9 — CONTRIBUTING.md update
 
 Added "Suppression Behavior" section documenting:
+
 - How `//nolint` works (4 placement locations)
 - Scoped suppression
 - Three suppression paths that must stay consistent
@@ -124,12 +131,12 @@ Nothing is partially done. Every task was completed to verification.
 
 ## C. NOT STARTED (blocked / external)
 
-| Task | Blocker |
-|------|---------|
-| T1: Tag v0.2.0 | Needs explicit user approval |
-| T2: 327-project corpus sweep | Needs corpus on disk |
-| T18: golangci-lint plugin index submission | Blocked on T1 |
-| T21: Upstream PR to go-linter-sdk | External repo, needs user direction |
+| Task                                       | Blocker                             |
+| ------------------------------------------ | ----------------------------------- |
+| T1: Tag v0.2.0                             | Needs explicit user approval        |
+| T2: 327-project corpus sweep               | Needs corpus on disk                |
+| T18: golangci-lint plugin index submission | Blocked on T1                       |
+| T21: Upstream PR to go-linter-sdk          | External repo, needs user direction |
 
 ---
 

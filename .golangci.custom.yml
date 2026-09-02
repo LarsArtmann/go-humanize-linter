@@ -29,11 +29,11 @@ linters:
         description: "Detect hand-rolled reimplementations of github.com/dustin/go-humanize"
         original-url: github.com/LarsArtmann/go-humanize-linter
         settings:
-          # Optional: only run specific rules (comma-separated)
-          # enable: "H001,H003"
-          # Optional: skip specific rules (comma-separated)
-          # disable: "H004"
-          # Optional: minimum confidence to report (low, medium, high, full)
-          # minConfidence: "medium"
-          # Optional: report //nolint:gohumanize directives that suppress zero findings
-          # verifySuppressions: true
+# Optional: only run specific rules (comma-separated)
+# enable: "H001,H003"
+# Optional: skip specific rules (comma-separated)
+# disable: "H004"
+# Optional: minimum confidence to report (low, medium, high, full)
+# minConfidence: "medium"
+# Optional: report //nolint:gohumanize directives that suppress zero findings
+# verifySuppressions: true

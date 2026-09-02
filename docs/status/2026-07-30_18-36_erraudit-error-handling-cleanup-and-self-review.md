@@ -45,12 +45,12 @@ flawed metric, despite genuinely better code).
 
 ### 1. What did you forget?
 
-| #   | Gap                                                                                                                                                                                                                                                                                                                                                        | Severity       |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| 1   | **No test for the new error path** — I made `output()` return errors but only added `if err != nil { t.Fatalf(...) }` guards on the _success_ path. There is no test that feeds a broken report / writer to confirm the error actually propagates. The new code is half-tested.                                                                            | **HIGH**       |
-| 2   | **No in-code documentation of erraudit false positives** — I left 11 erraudit "violations" in the codebase with no `//nolint` or comment explaining why they're spurious. The next person who runs erraudit will "fix" them and likely _regress_ the code by stuffing `fset`/`detect`/`files` into error messages where they add no value.                 | **MEDIUM**     |
-| 3   | **Didn't measure the metric I claimed to improve** — I said "violation reduction" in my todos but the count went 10 → 13. I hand-waved this as "tool is flawed" (true) but never proposed a concrete resolution (e.g., a `//nolint:errortype` suppression file, or accepting the tool isn't worth running).                                                | **MEDIUM**     |
-| 4   | **`go.mod` go version vs `json.Unmarshal` warnings** — 3 pre-existing gopls warnings that `encoding/json/v2.Unmarshal` requires go1.27 but the module is go1.26. I saw these in diagnostics and ignored them because they predate my session. But "fix on sight" is the rule, and these may indicate a real version mismatch that will bite at build time. | **LOW–MEDIUM** |
+| # | Gap                                                                                                                                                                                                                                                                                                                                                        | Severity       |
+| - | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| 1 | **No test for the new error path** — I made `output()` return errors but only added `if err != nil { t.Fatalf(...) }` guards on the _success_ path. There is no test that feeds a broken report / writer to confirm the error actually propagates. The new code is half-tested.                                                                            | **HIGH**       |
+| 2 | **No in-code documentation of erraudit false positives** — I left 11 erraudit "violations" in the codebase with no `//nolint` or comment explaining why they're spurious. The next person who runs erraudit will "fix" them and likely _regress_ the code by stuffing `fset`/`detect`/`files` into error messages where they add no value.                 | **MEDIUM**     |
+| 3 | **Didn't measure the metric I claimed to improve** — I said "violation reduction" in my todos but the count went 10 → 13. I hand-waved this as "tool is flawed" (true) but never proposed a concrete resolution (e.g., a `//nolint:errortype` suppression file, or accepting the tool isn't worth running).                                                | **MEDIUM**     |
+| 4 | **`go.mod` go version vs `json.Unmarshal` warnings** — 3 pre-existing gopls warnings that `encoding/json/v2.Unmarshal` requires go1.27 but the module is go1.26. I saw these in diagnostics and ignored them because they predate my session. But "fix on sight" is the rule, and these may indicate a real version mismatch that will bite at build time. | **LOW–MEDIUM** |
 
 ### 2. What is something that's stupid that we do anyway?
 
@@ -165,58 +165,58 @@ flawed metric, despite genuinely better code).
 
 > Sorted by `Impact × Value ÷ Effort` (desc). `XS` ≤15 min · `S` ≤30 min · `M` ≤2h · `L` ≥½ day.
 
-| #   | Task                                                                                                                                         | Effort | Impact |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ |
-| 1   | **Add `output()` failure-path test** — failing `io.Writer`, assert `err` non-nil                                                             | XS     | 5      |
-| 2   | **Fix `json.Unmarshal` go1.27/go1.26 mismatch** — bump `go.mod` or confirm v2 path                                                           | XS     | 5      |
-| 3   | **Document erraudit known false positives in AGENTS.md** — list the 11 spurious violations with rationale                                    | S      | 4      |
-| 4   | **Add `//nolint:errortype` to `WalkGoDir` and `output`** — silence `generic_return` with one-line rationale                                  | XS     | 3      |
-| 5   | **P7: analysistest integration test for plugin** — biggest coverage win (6.2% → 60%+)                                                        | M      | 5      |
-| 6   | **Self-scan regression test** — `TestLintsItself_Clean` runs linter on own source, asserts 0 findings                                        | S      | 4      |
-| 7   | **Plugin-path suppression test** — `//nolint:gohumanize` honored via `DetectFuncDecl`                                                        | S      | 4      |
-| 8   | **`cmd/gohumanize` smoke test** — build + `--help` + exit code                                                                               | XS     | 3      |
-| 9   | **Clean-code SARIF output test** — assert valid SARIF when 0 findings                                                                        | XS     | 3      |
-| 10  | **Fix `bench_test.go` `b.Loop()` modernization** — gopls warning, trivial                                                                    | XS     | 2      |
-| 11  | **Fix `rule_bytes.go:41` inaccurate `//nolint` comment** — says "detector itself", real reason is suggestion text contains byte-unit strings | XS     | 2      |
-| 12  | **P12: Configurable rules in plugin mode** — flags for `--enable`/`--disable` in the singlechecker/plugin                                    | M      | 3      |
-| 13  | **P13: GitHub Action for CI** — run linter + tests on push                                                                                   | S      | 3      |
-| 14  | **P14: H008 — `humanize.Ordinal` rule** — detect manual ordinal formatting                                                                   | M      | 3      |
-| 15  | **P15: H009 — `humanize.Commaf` rule variant** — detect manual comma-float formatting                                                        | M      | 3      |
-| 16  | **P16: Package-level `var` detection for H007** — multiplier maps at package scope                                                           | M      | 2      |
-| 17  | **P17: go/types type-aware detection** — semantic vs syntactic pattern matching                                                              | L      | 5      |
-| 18  | **P18: `--config` flag for YAML/TOML rule configuration**                                                                                    | M      | 2      |
-| 19  | **P19: Publish to golangci-lint plugin index**                                                                                               | S      | 2      |
-| 20  | **Add `testdata/h006_negative`** — ensure non-ftoa code isn't flagged                                                                        | XS     | 2      |
-| 21  | **Add `testdata/h007_negative`** — ensure non-parsebytes code isn't flagged                                                                  | XS     | 2      |
-| 22  | **Coverage: CLI 44.7% → 70%+** — test `printRules`, `flag.Usage`, error exit paths                                                           | S      | 3      |
-| 23  | **Fuzz test for `WalkGoDir`** — malformed paths, permission errors                                                                           | S      | 3      |
-| 24  | **Fuzz test for `checkFuncDecls`** — synthetic AST inputs                                                                                    | M      | 3      |
-| 25  | **Integration test: `--enable` + `--disable` combined**                                                                                      | XS     | 2      |
-| 26  | **Integration test: `--format json` CLI subprocess** — assert valid JSON on stdout                                                           | XS     | 2      |
-| 27  | **Integration test: `--format sarif` CLI subprocess** — already have one, add clean-code variant                                             | XS     | 2      |
-| 28  | **Integration test: invalid `--format` value** — assert exit 2 + error message                                                               | XS     | 2      |
-| 29  | **Integration test: nonexistent path** — assert error handling                                                                               | XS     | 2      |
-| 30  | **Benchmark: `checkFuncDecls` on large repo** — measure detector overhead                                                                    | S      | 2      |
-| 31  | **Profile: which detector is slowest?** — pprof on a real codebase                                                                           | M      | 3      |
-| 32  | **Document detection philosophy in `docs/DETECTION.md`** — corroborating-signal approach per rule                                            | S      | 3      |
-| 33  | **Add `docs/DOMAIN_LANGUAGE.md`** — ubiquitous language for the linter domain                                                                | S      | 2      |
-| 34  | **Update `README.md` with suppression directive docs** — `//nolint:gohumanize` usage                                                         | XS     | 3      |
-| 35  | **Add `CHANGELOG.md`** — track releases (v0.1.0 shipped)                                                                                     | S      | 2      |
-| 36  | **Tag `v0.1.0` if not already tagged**                                                                                                       | XS     | 2      |
-| 37  | **Add `--timeout` flag** — bail on very large repos                                                                                          | S      | 2      |
-| 38  | **Add `--exclude` flag** — path patterns to skip                                                                                             | S      | 3      |
-| 39  | **Concurrency in `checkFuncDecls`** — parallelize per-file detection                                                                         | M      | 4      |
-| 40  | **Streaming output** — emit findings as detected, not buffered                                                                               | M      | 3      |
-| 41  | **Exit code documentation** — document 0/1/2 semantics in `--help`                                                                           | XS     | 2      |
-| 42  | **Add `--severity` filter** — only report ≥ warning                                                                                          | S      | 2      |
-| 43  | **SARIF: include `partialFingerprints`** — for better dedup in SARIF viewers                                                                 | S      | 2      |
-| 44  | **JSON output: include `version` field** — schema versioning                                                                                 | XS     | 2      |
-| 45  | **Add `golangci-lint` integration test** — run linter _via_ golangci-lint on testdata                                                        | M      | 4      |
-| 46  | **Erraudit suppression config** — if the tool supports one, curate it                                                                        | S      | 3      |
-| 47  | **Audit all `//nolint` directives** — ensure each has a rationale comment                                                                    | S      | 2      |
-| 48  | **Add `gosec` to the lint pipeline** — security baseline                                                                                     | S      | 3      |
-| 49  | **Add `govet -shadow` to lint pipeline** — catch shadowed vars                                                                               | XS     | 2      |
-| 50  | **Write a "how to add a new rule" guide** — `docs/CONTRIBUTING.md` for rule authors                                                          | M      | 4      |
+| #  | Task                                                                                                                                         | Effort | Impact |
+| -- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ |
+| 1  | **Add `output()` failure-path test** — failing `io.Writer`, assert `err` non-nil                                                             | XS     | 5      |
+| 2  | **Fix `json.Unmarshal` go1.27/go1.26 mismatch** — bump `go.mod` or confirm v2 path                                                           | XS     | 5      |
+| 3  | **Document erraudit known false positives in AGENTS.md** — list the 11 spurious violations with rationale                                    | S      | 4      |
+| 4  | **Add `//nolint:errortype` to `WalkGoDir` and `output`** — silence `generic_return` with one-line rationale                                  | XS     | 3      |
+| 5  | **P7: analysistest integration test for plugin** — biggest coverage win (6.2% → 60%+)                                                        | M      | 5      |
+| 6  | **Self-scan regression test** — `TestLintsItself_Clean` runs linter on own source, asserts 0 findings                                        | S      | 4      |
+| 7  | **Plugin-path suppression test** — `//nolint:gohumanize` honored via `DetectFuncDecl`                                                        | S      | 4      |
+| 8  | **`cmd/gohumanize` smoke test** — build + `--help` + exit code                                                                               | XS     | 3      |
+| 9  | **Clean-code SARIF output test** — assert valid SARIF when 0 findings                                                                        | XS     | 3      |
+| 10 | **Fix `bench_test.go` `b.Loop()` modernization** — gopls warning, trivial                                                                    | XS     | 2      |
+| 11 | **Fix `rule_bytes.go:41` inaccurate `//nolint` comment** — says "detector itself", real reason is suggestion text contains byte-unit strings | XS     | 2      |
+| 12 | **P12: Configurable rules in plugin mode** — flags for `--enable`/`--disable` in the singlechecker/plugin                                    | M      | 3      |
+| 13 | **P13: GitHub Action for CI** — run linter + tests on push                                                                                   | S      | 3      |
+| 14 | **P14: H008 — `humanize.Ordinal` rule** — detect manual ordinal formatting                                                                   | M      | 3      |
+| 15 | **P15: H009 — `humanize.Commaf` rule variant** — detect manual comma-float formatting                                                        | M      | 3      |
+| 16 | **P16: Package-level `var` detection for H007** — multiplier maps at package scope                                                           | M      | 2      |
+| 17 | **P17: go/types type-aware detection** — semantic vs syntactic pattern matching                                                              | L      | 5      |
+| 18 | **P18: `--config` flag for YAML/TOML rule configuration**                                                                                    | M      | 2      |
+| 19 | **P19: Publish to golangci-lint plugin index**                                                                                               | S      | 2      |
+| 20 | **Add `testdata/h006_negative`** — ensure non-ftoa code isn't flagged                                                                        | XS     | 2      |
+| 21 | **Add `testdata/h007_negative`** — ensure non-parsebytes code isn't flagged                                                                  | XS     | 2      |
+| 22 | **Coverage: CLI 44.7% → 70%+** — test `printRules`, `flag.Usage`, error exit paths                                                           | S      | 3      |
+| 23 | **Fuzz test for `WalkGoDir`** — malformed paths, permission errors                                                                           | S      | 3      |
+| 24 | **Fuzz test for `checkFuncDecls`** — synthetic AST inputs                                                                                    | M      | 3      |
+| 25 | **Integration test: `--enable` + `--disable` combined**                                                                                      | XS     | 2      |
+| 26 | **Integration test: `--format json` CLI subprocess** — assert valid JSON on stdout                                                           | XS     | 2      |
+| 27 | **Integration test: `--format sarif` CLI subprocess** — already have one, add clean-code variant                                             | XS     | 2      |
+| 28 | **Integration test: invalid `--format` value** — assert exit 2 + error message                                                               | XS     | 2      |
+| 29 | **Integration test: nonexistent path** — assert error handling                                                                               | XS     | 2      |
+| 30 | **Benchmark: `checkFuncDecls` on large repo** — measure detector overhead                                                                    | S      | 2      |
+| 31 | **Profile: which detector is slowest?** — pprof on a real codebase                                                                           | M      | 3      |
+| 32 | **Document detection philosophy in `docs/DETECTION.md`** — corroborating-signal approach per rule                                            | S      | 3      |
+| 33 | **Add `docs/DOMAIN_LANGUAGE.md`** — ubiquitous language for the linter domain                                                                | S      | 2      |
+| 34 | **Update `README.md` with suppression directive docs** — `//nolint:gohumanize` usage                                                         | XS     | 3      |
+| 35 | **Add `CHANGELOG.md`** — track releases (v0.1.0 shipped)                                                                                     | S      | 2      |
+| 36 | **Tag `v0.1.0` if not already tagged**                                                                                                       | XS     | 2      |
+| 37 | **Add `--timeout` flag** — bail on very large repos                                                                                          | S      | 2      |
+| 38 | **Add `--exclude` flag** — path patterns to skip                                                                                             | S      | 3      |
+| 39 | **Concurrency in `checkFuncDecls`** — parallelize per-file detection                                                                         | M      | 4      |
+| 40 | **Streaming output** — emit findings as detected, not buffered                                                                               | M      | 3      |
+| 41 | **Exit code documentation** — document 0/1/2 semantics in `--help`                                                                           | XS     | 2      |
+| 42 | **Add `--severity` filter** — only report ≥ warning                                                                                          | S      | 2      |
+| 43 | **SARIF: include `partialFingerprints`** — for better dedup in SARIF viewers                                                                 | S      | 2      |
+| 44 | **JSON output: include `version` field** — schema versioning                                                                                 | XS     | 2      |
+| 45 | **Add `golangci-lint` integration test** — run linter _via_ golangci-lint on testdata                                                        | M      | 4      |
+| 46 | **Erraudit suppression config** — if the tool supports one, curate it                                                                        | S      | 3      |
+| 47 | **Audit all `//nolint` directives** — ensure each has a rationale comment                                                                    | S      | 2      |
+| 48 | **Add `gosec` to the lint pipeline** — security baseline                                                                                     | S      | 3      |
+| 49 | **Add `govet -shadow` to lint pipeline** — catch shadowed vars                                                                               | XS     | 2      |
+| 50 | **Write a "how to add a new rule" guide** — `docs/CONTRIBUTING.md` for rule authors                                                          | M      | 4      |
 
 ---
 

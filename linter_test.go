@@ -2,6 +2,7 @@ package humanizelint_test
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -29,6 +30,26 @@ func runRule(t *testing.T, rule linter.RuleFunc, dir string) []finding.Finding {
 	return findings
 }
 
+// assertFindings runs rule on the named testdata fixture and fails the test
+// unless it reports exactly want findings. context explains the expectation
+// ("when //nolint present") and is included in the failure message. The
+// findings are returned for follow-up assertions (rule ID, confidence).
+func assertFindings(t *testing.T, rule linter.RuleFunc, fixture string, want int, context string) []finding.Finding {
+	t.Helper()
+
+	findings := runRule(t, rule, testdataDir(t, fixture))
+	if len(findings) != want {
+		message := fmt.Sprintf("expected %d findings", want)
+		if context != "" {
+			message += " " + context
+		}
+
+		t.Fatalf("%s, got %d: %+v", message, len(findings), findings)
+	}
+
+	return findings
+}
+
 func ruleIDs(findings []finding.Finding) []string {
 	ids := make([]string, 0, len(findings))
 	for _, f := range findings {
@@ -45,11 +66,7 @@ func ruleIDs(findings []finding.Finding) []string {
 func TestRuleBytes_KMGTPETrick(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_bytes_kmgtptrick"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
-
+	findings := assertFindings(t, humanizelint.RuleBytes(), "h001_bytes_kmgtptrick", 1, "")
 	if findings[0].Rule != "H001" {
 		t.Errorf("expected rule H001, got %s", findings[0].Rule)
 	}
@@ -58,46 +75,31 @@ func TestRuleBytes_KMGTPETrick(t *testing.T) {
 func TestRuleBytes_SwitchConstants(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_bytes_switch"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_bytes_switch", 1, "")
 }
 
 func TestRuleBytes_UnitSlice(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_bytes_unitslice"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_bytes_unitslice", 1, "")
 }
 
 func TestRuleBytes_Negative(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_negative"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings on clean code, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_negative", 0, "on clean code")
 }
 
 func TestRuleBytes_SizeBucket_NoFalsePositive(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_sizebucket"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings on size-bucket lookup code, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_sizebucket", 0, "on size-bucket lookup code")
 }
 
 func TestCLI_SuppressedByDirective(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings when //nolint:gohumanize present, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_suppressed", 0, "when //nolint:gohumanize present")
 }
 
 func TestCLI_SuppressedByDirectiveCommaList(t *testing.T) {
@@ -106,10 +108,7 @@ func TestCLI_SuppressedByDirectiveCommaList(t *testing.T) {
 	// Verifies that a comma-list directive like
 	// "//nolint:gohumanize,unused" still suppresses gohumanize findings
 	// when other linter names are listed alongside it.
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed_comma"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings with comma-list //nolint, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_suppressed_comma", 0, "with comma-list //nolint")
 }
 
 func TestCLI_SuppressedByInBodyDirective(t *testing.T) {
@@ -117,50 +116,43 @@ func TestCLI_SuppressedByInBodyDirective(t *testing.T) {
 
 	// Verifies that a //nolint:gohumanize directive placed INSIDE the function
 	// body (on a specific statement line) is honoured as a suppression.
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed_inbody"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings with in-body //nolint, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_suppressed_inbody", 0, "with in-body //nolint")
 }
 
 func TestCLI_ScopedSuppression_H001Only(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_scoped_h001"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings with //nolint:gohumanize:H001, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_scoped_h001", 0, "with //nolint:gohumanize:H001")
 }
 
 func TestCLI_ScopedSuppression_DoesNotSuppressOtherRule(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_scoped_h002_only"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding (H002 scope must NOT suppress H001), got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleBytes(), "h001_scoped_h002_only", 1, "H002 scope must NOT suppress H001")
 }
 
 func TestCLI_InBodyDirectiveIsolation(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_inbody_isolation"))
-	if len(findings) != 1 {
-		t.Fatalf(
-			"expected 1 finding (func B only; func A suppressed by in-body //nolint), got %d: %+v",
-			len(findings),
-			findings,
-		)
-	}
+	assertFindings(
+		t,
+		humanizelint.RuleBytes(),
+		"h001_inbody_isolation",
+		1,
+		"func B only; func A suppressed by in-body //nolint",
+	)
 }
 
 func TestCLI_InBodyDirectiveStandalone(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleBytes(), testdataDir(t, "h001_suppressed_inbody_standalone"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings with standalone in-body //nolint, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(
+		t,
+		humanizelint.RuleBytes(),
+		"h001_suppressed_inbody_standalone",
+		0,
+		"with standalone in-body //nolint",
+	)
 }
 
 // ---------------------------------------------------------------------------
@@ -170,28 +162,19 @@ func TestCLI_InBodyDirectiveStandalone(t *testing.T) {
 func TestRuleComma_Modulo3(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleComma(), testdataDir(t, "h002_comma_mod3"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleComma(), "h002_comma_mod3", 1, "")
 }
 
 func TestRuleComma_StepBy3(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleComma(), testdataDir(t, "h002_comma_step3"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleComma(), "h002_comma_step3", 1, "")
 }
 
 func TestRuleComma_FallbackNamedConstant(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleComma(), testdataDir(t, "h002_comma_fallback"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	findings := assertFindings(t, humanizelint.RuleComma(), "h002_comma_fallback", 1, "")
 	// Fallback path should have medium confidence.
 	if findings[0].Confidence > finding.ConfidenceMedium {
 		t.Errorf("expected medium confidence, got %v", findings[0].Confidence)
@@ -205,28 +188,19 @@ func TestRuleComma_FallbackNamedConstant(t *testing.T) {
 func TestRuleRelTime_Positive(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleRelTime(), testdataDir(t, "h003_reltime"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleRelTime(), "h003_reltime", 1, "")
 }
 
 func TestRuleRelTime_Negative(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleRelTime(), testdataDir(t, "h003_negative"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleRelTime(), "h003_negative", 0, "")
 }
 
 func TestRuleRelTime_DotImport(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleRelTime(), testdataDir(t, "h003_dot_import"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	findings := assertFindings(t, humanizelint.RuleRelTime(), "h003_dot_import", 1, "")
 	// Dot-imported time constants should still produce full confidence.
 	if findings[0].Confidence != finding.ConfidenceFull {
 		t.Errorf("expected full confidence for dot-imported time threshold, got %v", findings[0].Confidence)
@@ -240,10 +214,7 @@ func TestRuleRelTime_DotImport(t *testing.T) {
 func TestRulePlural_NamedParams(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RulePlural(), testdataDir(t, "h004_plural_params"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RulePlural(), "h004_plural_params", 1, "")
 }
 
 func TestRuleComma_Negative(t *testing.T) {
@@ -251,28 +222,19 @@ func TestRuleComma_Negative(t *testing.T) {
 
 	// formatSSN writes separators but lacks mod-3 / step-by-3 / for-loop +
 	// digit-conversion patterns. H002 must not fire.
-	findings := runRule(t, humanizelint.RuleComma(), testdataDir(t, "h002_negative"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings on H002 negative fixture, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleComma(), "h002_negative", 0, "on H002 negative fixture")
 }
 
 func TestRulePlural_IfOne(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RulePlural(), testdataDir(t, "h004_plural_if"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RulePlural(), "h004_plural_if", 1, "")
 }
 
 func TestRulePlural_Negative(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RulePlural(), testdataDir(t, "h004_negative"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings for non-string-returning if==1, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RulePlural(), "h004_negative", 0, "for non-string-returning if==1")
 }
 
 // ---------------------------------------------------------------------------
@@ -282,19 +244,13 @@ func TestRulePlural_Negative(t *testing.T) {
 func TestRuleSI_Positive(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleSI(), testdataDir(t, "h005_si"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleSI(), "h005_si", 1, "")
 }
 
 func TestRuleSI_Negative(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleSI(), testdataDir(t, "h005_negative"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleSI(), "h005_negative", 0, "")
 }
 
 // ---------------------------------------------------------------------------
@@ -304,10 +260,7 @@ func TestRuleSI_Negative(t *testing.T) {
 func TestRuleFtoa_Positive(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleFtoa(), testdataDir(t, "h006_ftoa"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleFtoa(), "h006_ftoa", 1, "")
 }
 
 // ---------------------------------------------------------------------------
@@ -317,11 +270,7 @@ func TestRuleFtoa_Positive(t *testing.T) {
 func TestRuleCommaf_Positive(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleCommaf(), testdataDir(t, "h009_commaf"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
-
+	findings := assertFindings(t, humanizelint.RuleCommaf(), "h009_commaf", 1, "")
 	if findings[0].Rule != "H009" {
 		t.Errorf("expected rule H009, got %s", findings[0].Rule)
 	}
@@ -330,10 +279,7 @@ func TestRuleCommaf_Positive(t *testing.T) {
 func TestRuleCommaf_Negative(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleCommaf(), testdataDir(t, "h009_negative"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings on H009 negative fixture, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleCommaf(), "h009_negative", 0, "on H009 negative fixture")
 }
 
 // TestRuleComma_StringsJoinSpace_NoFalsePositive is a regression test for the
@@ -345,23 +291,19 @@ func TestRuleCommaf_Negative(t *testing.T) {
 func TestRuleComma_StringsJoinSpace_NoFalsePositive(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleComma(), testdataDir(t, "h002_strings_join_space"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings on strings.Join(args, \" \") fixture, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleComma(), "h002_strings_join_space", 0, `on strings.Join(args, " ") fixture`)
 }
 
 func TestRuleCommaf_StringsJoinSpace_NoFalsePositive(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleCommaf(), testdataDir(t, "h002_strings_join_space"))
-	if len(findings) != 0 {
-		t.Fatalf(
-			"expected 0 findings on strings.Join(args, \" \") fixture for H009, got %d: %+v",
-			len(findings),
-			findings,
-		)
-	}
+	assertFindings(
+		t,
+		humanizelint.RuleCommaf(),
+		"h002_strings_join_space",
+		0,
+		`on strings.Join(args, " ") fixture for H009`,
+	)
 }
 
 // ---------------------------------------------------------------------------
@@ -371,11 +313,7 @@ func TestRuleCommaf_StringsJoinSpace_NoFalsePositive(t *testing.T) {
 func TestRuleOrdinal_Positive(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleOrdinal(), testdataDir(t, "h008_ordinal"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
-
+	findings := assertFindings(t, humanizelint.RuleOrdinal(), "h008_ordinal", 1, "")
 	if findings[0].Rule != "H008" {
 		t.Errorf("expected rule H008, got %s", findings[0].Rule)
 	}
@@ -384,10 +322,7 @@ func TestRuleOrdinal_Positive(t *testing.T) {
 func TestRuleOrdinal_Negative(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleOrdinal(), testdataDir(t, "h008_negative"))
-	if len(findings) != 0 {
-		t.Fatalf("expected 0 findings on H008 negative fixture, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleOrdinal(), "h008_negative", 0, "on H008 negative fixture")
 }
 
 // ---------------------------------------------------------------------------
@@ -397,19 +332,13 @@ func TestRuleOrdinal_Negative(t *testing.T) {
 func TestRuleParseBytes_SuffixChecks(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_parsebytes_suffix"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleParseBytes(), "h007_parsebytes_suffix", 1, "")
 }
 
 func TestRuleParseBytes_MultiplierMap(t *testing.T) {
 	t.Parallel()
 
-	findings := runRule(t, humanizelint.RuleParseBytes(), testdataDir(t, "h007_parsebytes_map"))
-	if len(findings) != 1 {
-		t.Fatalf("expected 1 finding, got %d: %+v", len(findings), findings)
-	}
+	assertFindings(t, humanizelint.RuleParseBytes(), "h007_parsebytes_map", 1, "")
 }
 
 func TestRuleParseBytes_PackageVarMultiplierMap(t *testing.T) {
