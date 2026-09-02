@@ -14,6 +14,7 @@
 | T1  | Tag `v0.2.0` (code shipped; tag missing)                  | High | XS     | blocked |
 | T2  | Real-world validation sweep with new detection + features | High | M      | planned |
 | T18 | Publish to golangci-lint plugin index                     | Low  | S      | blocked |
+| T19 | Release `go-linter-sdk` with `RuleMeta.ToolName` (unblocks plugin tests) | High | XS | blocked |
 
 ---
 
@@ -44,6 +45,18 @@ Full validation sweep completed 2026-08-10. Results in
 ## Distribution
 
 ### T18 — Publish to golangci-lint plugin index · Low · _blocked_
+
+### T19 — Release `go-linter-sdk` with `RuleMeta.ToolName` · High · _blocked_
+
+The `plugin/` integration tests build a custom golangci-lint binary that
+resolves the PUBLISHED `go-linter-sdk` (v0.1.0), which lacks the `ToolName`
+field that `rule_*.go` now set. The workspace sibling has it locally, so the
+main package builds — only the plugin tests fail. Publishing an SDK version
+with `RuleMeta.ToolName` (then `go get` here) unblocks them.
+
+- [ ] Tag + push a `go-linter-sdk` release containing `RuleMeta.ToolName` (requires explicit user approval)
+- [ ] `go get github.com/larsartmann/go-linter-sdk@<new>` + `go mod tidy`
+- [ ] Re-run `go test ./plugin/...` and the custom-gcl build
 
 - [ ] Blocked on a tagged, `go install`-able version (v0.2.0 not tagged yet — see T1)
 - [ ] Submit to the plugin index once installable
