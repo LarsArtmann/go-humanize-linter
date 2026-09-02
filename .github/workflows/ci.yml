@@ -48,8 +48,6 @@ jobs:
               echo ""
             } | sudo tee -a /etc/ssh/ssh_config > /dev/null
           done
-          sudo tail -n 15 /etc/ssh/ssh_config || true
-          ssh -G gh-gogenfilter 2>&1 | grep -E "hostname|user |identityfile" || true
           git config --global url."gh_gohumanize:larsartmann/go-humanize-linter".insteadOf "https://github.com/larsartmann/go-humanize-linter"
           git config --global url."gh_lintersdk:larsartmann/go-linter-sdk".insteadOf "https://github.com/larsartmann/go-linter-sdk"
           git config --global url."gh_finding:larsartmann/go-finding".insteadOf "https://github.com/larsartmann/go-finding"
@@ -132,8 +130,6 @@ jobs:
               echo ""
             } | sudo tee -a /etc/ssh/ssh_config > /dev/null
           done
-          sudo tail -n 15 /etc/ssh/ssh_config || true
-          ssh -G gh-gogenfilter 2>&1 | grep -E "hostname|user |identityfile" || true
           git config --global url."gh_gohumanize:larsartmann/go-humanize-linter".insteadOf "https://github.com/larsartmann/go-humanize-linter"
           git config --global url."gh_lintersdk:larsartmann/go-linter-sdk".insteadOf "https://github.com/larsartmann/go-linter-sdk"
           git config --global url."gh_finding:larsartmann/go-finding".insteadOf "https://github.com/larsartmann/go-finding"
