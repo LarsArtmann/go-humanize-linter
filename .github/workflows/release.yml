@@ -18,13 +18,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Setup SSH for private repos
-        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Route private module fetches over SSH
-        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
+      - name: Setup per-repo deploy keys
+        env:
+          K_GHL: ${{ secrets.DEPLOY_KEY_GHL }}
+          K_SDK: ${{ secrets.DEPLOY_KEY_SDK }}
+          K_FINDING: ${{ secrets.DEPLOY_KEY_FINDING }}
+          K_GOGF: ${{ secrets.DEPLOY_KEY_GOGF }}
+          K_ERRFAM: ${{ secrets.DEPLOY_KEY_ERRFAM }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$K_GHL" > ~/.ssh/gh_gohumanize
+          printf '%s\n' "$K_SDK" > ~/.ssh/gh_lintersdk
+          printf '%s\n' "$K_FINDING" > ~/.ssh/gh_finding
+          printf '%s\n' "$K_GOGF" > ~/.ssh/gh_gogenfilter
+          printf '%s\n' "$K_ERRFAM" > ~/.ssh/gh_errorfamily
+          chmod 600 ~/.ssh/gh_*
+          for alias in gh_gohumanize gh_lintersdk gh_finding gh_gogenfilter gh_errorfamily; do
+            {
+              printf 'Host %s\n' "$alias"
+              printf '  HostName github.com\n'
+              printf '  User git\n'
+              printf '  IdentityFile ~/.ssh/%s\n' "$alias"
+              printf '  IdentitiesOnly yes\n'
+              printf '  StrictHostKeyChecking accept-new\n\n'
+            } >> ~/.ssh/config
+          done
+          git config --global url."gh-gohumanize:larsartmann/go-humanize-linter".insteadOf "https://github.com/larsartmann/go-humanize-linter"
+          git config --global url."gh-lintersdk:larsartmann/go-linter-sdk".insteadOf "https://github.com/larsartmann/go-linter-sdk"
+          git config --global url."gh-finding:larsartmann/go-finding".insteadOf "https://github.com/larsartmann/go-finding"
+          git config --global url."gh-gogenfilter:LarsArtmann/gogenfilter".insteadOf "https://github.com/LarsArtmann/gogenfilter"
+          git config --global url."gh-errorfamily:larsartmann/go-error-family".insteadOf "https://github.com/larsartmann/go-error-family"
 
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
