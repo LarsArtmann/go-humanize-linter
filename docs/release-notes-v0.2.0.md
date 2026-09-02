@@ -1,8 +1,6 @@
-# v0.2.0 Release Notes Draft
+# v0.2.0 Release Notes
 
-_Draft for GitHub release. Tag pending user approval._
-
----
+_Published 2026-09-02. See the full [CHANGELOG](../CHANGELOG.md) for details._
 
 ## go-humanize-linter v0.2.0
 
@@ -51,9 +49,15 @@ rules, confidence filtering, and suppression verification.
 
 **Quality:**
 
-- 9 rules, 9 ADRs, 83.9% overall test coverage.
+- 9 rules, 6 ADRs, 83.9% overall test coverage (core 90.9%, CLI 54.9%, plugin 94.5%).
 - CI with test+vet, lint, govulncheck, coverage reporting, and self-scan.
 - GitHub Action with all flags exposed.
+
+### Fixed Late in the Cycle
+
+- **Plugin-path H0SUP diagnostics were silently dropped by golangci-lint's nolint filter** — stale-directive findings were anchored at the `//nolint:gohumanize` directive itself, which golangci suppresses (self-referential). The plugin path now re-anchors them to the file position with the directive coordinates in the message. The CLI path keeps precise positions.
+- **`go-linter-sdk` bumped to v0.2.0** — provides `RuleMeta.ToolName`, unblocking the custom-gcl plugin build and its end-to-end test.
+- **Local absolute-path `replace` directives removed from `go.mod`** — they only worked on the dev machine; local development now resolves siblings exclusively via `go.work`.
 
 ### Breaking Changes
 
