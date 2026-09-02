@@ -9,37 +9,22 @@
 
 ## Summary
 
-| #   | Task                                                     | Tier   | Effort | Status  |
-| --- | -------------------------------------------------------- | ------ | ------ | ------- |
-| T1  | Tag `v0.2.0` (code shipped; tag missing)                 | High   | XS     | ready   |
-| T18 | Publish to golangci-lint plugin index                    | Low    | S      | blocked |
-| T20 | Release gogenfilter (workspace sibling 30 commits ahead) | Medium | S      | planned |
-
----
-
-## Release & validation
-
-### T1 — Tag `v0.2.0` (code shipped; tag missing) · High · _ready_
-
-All v0.2.0 features are merged to `main` and documented in `CHANGELOG.md` under
-`[0.2.0] - Unreleased`. The only git tag is `v0.1.0`. The release workflow
-(`/.github/workflows/release.yml`) fires on tags.
-
-- [ ] Tag `v0.2.0` on `main` (requires explicit user approval — never tag without it)
-- [ ] Verify the release workflow fires and publishes GitHub release notes
-
-Note: CI (`ci.yml`) currently fails at checkout — the `DEPLOY_KEY` secret is
-missing or invalid (`git@github.com: Permission denied (publickey)`). Fix the
-secret so the release run can go green.
+| #   | Task                                                        | Tier   | Effort | Status  |
+| --- | ----------------------------------------------------------- | ------ | ------ | ------- |
+| T18 | Publish to golangci-lint plugin index                       | Low    | S      | ready   |
+| T20 | Release gogenfilter (workspace sibling 30 commits ahead)    | Medium | S      | planned |
 
 ---
 
 ## Distribution
 
-### T18 — Publish to golangci-lint plugin index · Low · _blocked_
+### T18 — Publish to golangci-lint plugin index · Low · _ready_
 
-- [ ] Blocked on a tagged, `go install`-able version (v0.2.0 not tagged yet — see T1)
-- [ ] Submit to the plugin index once installable
+v0.2.0 is tagged, the GitHub Release is published (with linux-amd64 binaries),
+and `go get github.com/larsartmann/go-humanize-linter@v0.2.0` was verified in a
+clean module (the `plugin` package compiles from the published version).
+
+- [ ] Submit to the golangci-lint plugin index
 
 ---
 
