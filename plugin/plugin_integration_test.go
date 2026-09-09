@@ -136,8 +136,6 @@ func TestCustomGCLIntegration(t *testing.T) {
 
 	buildCmd.Env = append(os.Environ(),
 		"GOEXPERIMENT=jsonv2",
-		"GOPRIVATE=github.com/larsartmann/*,github.com/LarsArtmann/*",
-		"GONOSUMDB=github.com/larsartmann/*,github.com/LarsArtmann/*",
 	)
 
 	if output, err := buildCmd.CombinedOutput(); err != nil {
@@ -277,8 +275,6 @@ linters:
 
 	runCmd.Env = append(os.Environ(),
 		"GOEXPERIMENT=jsonv2",
-		"GOPRIVATE=github.com/larsartmann/*,github.com/LarsArtmann/*",
-		"GONOSUMDB=github.com/larsartmann/*,github.com/LarsArtmann/*",
 	)
 
 	output, _ := runCmd.CombinedOutput()

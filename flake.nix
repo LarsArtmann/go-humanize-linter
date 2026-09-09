@@ -90,7 +90,6 @@
         extraBuildAttrs.preBuild = "export GOEXPERIMENT=jsonv2";
 
         shellExtraEnv = {
-          GOPRIVATE = "github.com/larsartmann/*,github.com/LarsArtmann/*";
           GOEXPERIMENT = "jsonv2";
         };
 
@@ -129,7 +128,6 @@
 
           goEnv = ''
             export GOEXPERIMENT=jsonv2
-            export GOPRIVATE='github.com/larsartmann/*,github.com/LarsArtmann/*'
           '';
         in
         {
@@ -186,7 +184,6 @@
 
             custom-lint = mkApp "custom-lint" ''
               ${goEnv}
-              export GONOSUMDB='github.com/larsartmann/*,github.com/LarsArtmann/*'
               golangci-lint custom
               ./custom-gcl run -c .golangci.custom.yml ./... "$@"
             '';

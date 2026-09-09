@@ -189,6 +189,6 @@ nix run .#lint       # run golangci-lint
 nix run .#build      # build all packages
 ```
 
-Direct Go commands require `GOEXPERIMENT=jsonv2` and `GOPRIVATE=github.com/larsartmann/*`.
+Direct Go commands require `GOEXPERIMENT=jsonv2` (a dependency uses `encoding/json/v2`).
 
 ## Requirements

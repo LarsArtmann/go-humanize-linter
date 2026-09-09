@@ -13,46 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOEXPERIMENT: jsonv2
-      GOPRIVATE: github.com/larsartmann/*,github.com/LarsArtmann/*
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Setup per-repo deploy keys
-        env:
-          K_GHL: ${{ secrets.DEPLOY_KEY_GHL }}
-          K_SDK: ${{ secrets.DEPLOY_KEY_SDK }}
-          K_FINDING: ${{ secrets.DEPLOY_KEY_FINDING }}
-          K_GOGF: ${{ secrets.DEPLOY_KEY_GOGF }}
-          K_ERRFAM: ${{ secrets.DEPLOY_KEY_ERRFAM }}
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s\n' "$K_GHL" > ~/.ssh/gh_gohumanize
-          printf '%s\n' "$K_SDK" > ~/.ssh/gh_lintersdk
-          printf '%s\n' "$K_FINDING" > ~/.ssh/gh_finding
-          printf '%s\n' "$K_GOGF" > ~/.ssh/gh_gogenfilter
-          printf '%s\n' "$K_ERRFAM" > ~/.ssh/gh_errorfamily
-          chmod 600 ~/.ssh/gh_*
-          # The go command sanitizes the environment of the git subprocesses
-          # it spawns for module downloads, so ssh there does not read the
-          # user ssh config. Register the Host aliases system-wide instead.
-          for alias in gh_gohumanize gh_lintersdk gh_finding gh_gogenfilter gh_errorfamily; do
-            {
-              echo "Host $alias"
-              echo "  HostName github.com"
-              echo "  User git"
-              echo "  IdentityFile $HOME/.ssh/$alias"
-              echo "  IdentitiesOnly yes"
-              echo "  StrictHostKeyChecking accept-new"
-              echo ""
-            } | sudo tee -a /etc/ssh/ssh_config > /dev/null
-          done
-          git config --global url."gh_gohumanize:larsartmann/go-humanize-linter".insteadOf "https://github.com/larsartmann/go-humanize-linter"
-          git config --global url."gh_lintersdk:larsartmann/go-linter-sdk".insteadOf "https://github.com/larsartmann/go-linter-sdk"
-          git config --global url."gh_finding:larsartmann/go-finding".insteadOf "https://github.com/larsartmann/go-finding"
-          git config --global url."gh_gogenfilter:LarsArtmann/gogenfilter".insteadOf "https://github.com/LarsArtmann/gogenfilter"
-          git config --global url."gh_errorfamily:larsartmann/go-error-family".insteadOf "https://github.com/larsartmann/go-error-family"
 
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
@@ -95,46 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOEXPERIMENT: jsonv2
-      GOPRIVATE: github.com/larsartmann/*,github.com/LarsArtmann/*
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Setup per-repo deploy keys
-        env:
-          K_GHL: ${{ secrets.DEPLOY_KEY_GHL }}
-          K_SDK: ${{ secrets.DEPLOY_KEY_SDK }}
-          K_FINDING: ${{ secrets.DEPLOY_KEY_FINDING }}
-          K_GOGF: ${{ secrets.DEPLOY_KEY_GOGF }}
-          K_ERRFAM: ${{ secrets.DEPLOY_KEY_ERRFAM }}
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s\n' "$K_GHL" > ~/.ssh/gh_gohumanize
-          printf '%s\n' "$K_SDK" > ~/.ssh/gh_lintersdk
-          printf '%s\n' "$K_FINDING" > ~/.ssh/gh_finding
-          printf '%s\n' "$K_GOGF" > ~/.ssh/gh_gogenfilter
-          printf '%s\n' "$K_ERRFAM" > ~/.ssh/gh_errorfamily
-          chmod 600 ~/.ssh/gh_*
-          # The go command sanitizes the environment of the git subprocesses
-          # it spawns for module downloads, so ssh there does not read the
-          # user ssh config. Register the Host aliases system-wide instead.
-          for alias in gh_gohumanize gh_lintersdk gh_finding gh_gogenfilter gh_errorfamily; do
-            {
-              echo "Host $alias"
-              echo "  HostName github.com"
-              echo "  User git"
-              echo "  IdentityFile $HOME/.ssh/$alias"
-              echo "  IdentitiesOnly yes"
-              echo "  StrictHostKeyChecking accept-new"
-              echo ""
-            } | sudo tee -a /etc/ssh/ssh_config > /dev/null
-          done
-          git config --global url."gh_gohumanize:larsartmann/go-humanize-linter".insteadOf "https://github.com/larsartmann/go-humanize-linter"
-          git config --global url."gh_lintersdk:larsartmann/go-linter-sdk".insteadOf "https://github.com/larsartmann/go-linter-sdk"
-          git config --global url."gh_finding:larsartmann/go-finding".insteadOf "https://github.com/larsartmann/go-finding"
-          git config --global url."gh_gogenfilter:LarsArtmann/gogenfilter".insteadOf "https://github.com/LarsArtmann/gogenfilter"
-          git config --global url."gh_errorfamily:larsartmann/go-error-family".insteadOf "https://github.com/larsartmann/go-error-family"
 
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5

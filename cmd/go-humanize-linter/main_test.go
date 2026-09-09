@@ -42,7 +42,6 @@ func buildCLI(t *testing.T) string {
 		cmd.Env = append(
 			os.Environ(),
 			"GOEXPERIMENT=jsonv2",
-			"GOPRIVATE=github.com/larsartmann/*",
 			"CGO_ENABLED=0",
 		)
 
