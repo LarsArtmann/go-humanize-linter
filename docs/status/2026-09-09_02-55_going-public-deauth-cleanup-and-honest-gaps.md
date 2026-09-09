@@ -19,32 +19,32 @@ Two important discoveries during execution:
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-|---|------|----------|
-| A1 | Dependency visibility verified via GitHub API — all 4 deps (`go-linter-sdk`, `go-finding`, `gogenfilter`, `go-error-family`) `private=false` | `gh api repos/*` |
-| A2 | Public module-proxy resolution verified in clean env (no `GOPRIVATE`, no workspace, no auth) — all 4 pinned dep versions | `go get` in `/tmp/pub-dep-check` |
-| A3 | Repo flipped to **public**; anonymous API access confirmed | `gh repo edit --visibility public`; unauthenticated `api.github.com` 200 |
-| A4 | Repo metadata set: description + topics (`go`, `linter`, `golangci-lint`, `humanize`, `static-analysis`) | `gh repo edit` |
-| A5 | Anonymous `go get github.com/larsartmann/go-humanize-linter@v0.2.0` works — the module is publicly consumable | temp module `go get` |
-| A6 | Deploy-key machinery removed from **both** CI jobs in `ci.yml` and from `release.yml`; `GOPRIVATE` env dropped (`GOEXPERIMENT=jsonv2` kept) | diff; YAML validated via `yaml.v3` |
-| A7 | `GOPRIVATE`/`GONOSUMDB` removed from `flake.nix` (3 places), `README.md`, `CONTRIBUTING.md` (2 places), `action.yml`, `cmd/go-humanize-linter/main_test.go`, `plugin/plugin_integration_test.go` (2 places) | repo-wide grep now only hits historical docs, CHANGELOG history, and explanatory AGENTS.md notes |
-| A8 | Pre-existing `vendorHash` drift diagnosed (A/B vs `HEAD:flake.nix` → identical mismatch) and fixed | `nix flake check` → "all checks passed!" |
-| A9 | Full local verification: `nix run .#test-race` (4/4 packages ok), `nix run .#vet` clean, `nix run .#lint` → 0 issues | CI-equivalent commands |
-| A10 | Fresh-user simulation: `GOWORK=off` + no `GOPRIVATE` + public-proxy-only → build + full test suite green | explicit env-stripped run |
-| A11 | `gofmt` clean on all edited Go files; `.direnv` confirmed untracked (stale profile self-heals on next direnv eval) | `gofmt -l`, `git ls-files` |
-| A12 | AGENTS.md corrected twice: stale "GOPRIVATE REQUIRED" claims replaced with verified reality; CI gotcha updated to "machinery REMOVED (2026-09-09)" with gated follow-ups documented | `AGENTS.md:122-131`, `AGENTS.md:205-206` |
-| A13 | Gated secret deletion designed deliberately: deleting `DEPLOY_KEY_*` before cleaned workflows land would break CI on any pre-cleanup push — documented exact commands instead | final report + AGENTS.md |
+| #   | Item                                                                                                                                                                                                        | Evidence                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| A1  | Dependency visibility verified via GitHub API — all 4 deps (`go-linter-sdk`, `go-finding`, `gogenfilter`, `go-error-family`) `private=false`                                                                | `gh api repos/*`                                                                                 |
+| A2  | Public module-proxy resolution verified in clean env (no `GOPRIVATE`, no workspace, no auth) — all 4 pinned dep versions                                                                                    | `go get` in `/tmp/pub-dep-check`                                                                 |
+| A3  | Repo flipped to **public**; anonymous API access confirmed                                                                                                                                                  | `gh repo edit --visibility public`; unauthenticated `api.github.com` 200                         |
+| A4  | Repo metadata set: description + topics (`go`, `linter`, `golangci-lint`, `humanize`, `static-analysis`)                                                                                                    | `gh repo edit`                                                                                   |
+| A5  | Anonymous `go get github.com/larsartmann/go-humanize-linter@v0.2.0` works — the module is publicly consumable                                                                                               | temp module `go get`                                                                             |
+| A6  | Deploy-key machinery removed from **both** CI jobs in `ci.yml` and from `release.yml`; `GOPRIVATE` env dropped (`GOEXPERIMENT=jsonv2` kept)                                                                 | diff; YAML validated via `yaml.v3`                                                               |
+| A7  | `GOPRIVATE`/`GONOSUMDB` removed from `flake.nix` (3 places), `README.md`, `CONTRIBUTING.md` (2 places), `action.yml`, `cmd/go-humanize-linter/main_test.go`, `plugin/plugin_integration_test.go` (2 places) | repo-wide grep now only hits historical docs, CHANGELOG history, and explanatory AGENTS.md notes |
+| A8  | Pre-existing `vendorHash` drift diagnosed (A/B vs `HEAD:flake.nix` → identical mismatch) and fixed                                                                                                          | `nix flake check` → "all checks passed!"                                                         |
+| A9  | Full local verification: `nix run .#test-race` (4/4 packages ok), `nix run .#vet` clean, `nix run .#lint` → 0 issues                                                                                        | CI-equivalent commands                                                                           |
+| A10 | Fresh-user simulation: `GOWORK=off` + no `GOPRIVATE` + public-proxy-only → build + full test suite green                                                                                                    | explicit env-stripped run                                                                        |
+| A11 | `gofmt` clean on all edited Go files; `.direnv` confirmed untracked (stale profile self-heals on next direnv eval)                                                                                          | `gofmt -l`, `git ls-files`                                                                       |
+| A12 | AGENTS.md corrected twice: stale "GOPRIVATE REQUIRED" claims replaced with verified reality; CI gotcha updated to "machinery REMOVED (2026-09-09)" with gated follow-ups documented                         | `AGENTS.md:122-131`, `AGENTS.md:205-206`                                                         |
+| A13 | Gated secret deletion designed deliberately: deleting `DEPLOY_KEY_*` before cleaned workflows land would break CI on any pre-cleanup push — documented exact commands instead                               | final report + AGENTS.md                                                                         |
 
 ## b) PARTIALLY DONE
 
-| # | Item | Done | Missing |
-|---|------|------|---------|
-| B1 | Legacy auth removal end-to-end | Workflows/flake/docs/tests cleaned and committed locally | **4 commits unpushed**; 5 `DEPLOY_KEY_*` secrets still exist; unused deploy keys still registered in the 4 dependency repos |
-| B2 | Public presence | Repo public, description + topics set | No README badges (CI/Codecov/pkg.go.dev/license), no social preview, pkg.go.dev not yet indexed (still 404 ~2.5h after trigger) |
-| B3 | CI health | Workflows simplified to zero-auth | CI cannot validate anything while Actions billing is broken; the cleaned workflows have **never run** |
-| B4 | pkg.go.dev readiness | Page request submitted (triggers indexing) | Still 404. Additional unverified risk: pkg.go.dev builds docs with a **stock toolchain** — if `go-finding`'s `encoding/json/v2` usage truly requires `GOEXPERIMENT=jsonv2`, server-side doc builds may fail even after indexing (would surface as "build failed / no docs"). Needs confirmation once indexed |
-| B5 | AGENTS.md accuracy | Active sections now truthful | Historical `docs/status/*` + `docs/planning/*` still contain "GOPRIVATE required" claims and **names of other private projects** (left as immutable point-in-time snapshots, per docs-health philosophy — but this is now a *public* surface) |
-| B6 | Flake hygiene | `vendorHash` fixed for current `go.sum` | No CI guard added, so the same silent-drift class can recur on the next dep bump |
+| #  | Item                           | Done                                                     | Missing                                                                                                                                                                                                                                                                                                      |
+| -- | ------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| B1 | Legacy auth removal end-to-end | Workflows/flake/docs/tests cleaned and committed locally | **4 commits unpushed**; 5 `DEPLOY_KEY_*` secrets still exist; unused deploy keys still registered in the 4 dependency repos                                                                                                                                                                                  |
+| B2 | Public presence                | Repo public, description + topics set                    | No README badges (CI/Codecov/pkg.go.dev/license), no social preview, pkg.go.dev not yet indexed (still 404 ~2.5h after trigger)                                                                                                                                                                              |
+| B3 | CI health                      | Workflows simplified to zero-auth                        | CI cannot validate anything while Actions billing is broken; the cleaned workflows have **never run**                                                                                                                                                                                                        |
+| B4 | pkg.go.dev readiness           | Page request submitted (triggers indexing)               | Still 404. Additional unverified risk: pkg.go.dev builds docs with a **stock toolchain** — if `go-finding`'s `encoding/json/v2` usage truly requires `GOEXPERIMENT=jsonv2`, server-side doc builds may fail even after indexing (would surface as "build failed / no docs"). Needs confirmation once indexed |
+| B5 | AGENTS.md accuracy             | Active sections now truthful                             | Historical `docs/status/*` + `docs/planning/*` still contain "GOPRIVATE required" claims and **names of other private projects** (left as immutable point-in-time snapshots, per docs-health philosophy — but this is now a _public_ surface)                                                                |
+| B6 | Flake hygiene                  | `vendorHash` fixed for current `go.sum`                  | No CI guard added, so the same silent-drift class can recur on the next dep bump                                                                                                                                                                                                                             |
 
 ## c) NOT STARTED
 
@@ -61,9 +61,9 @@ Two important discoveries during execution:
 
 ## d) TOTALLY FUCKED UP
 
-1. **The session's opening assessment was flat-out wrong.** I declared "4 private dependencies — a public repo nobody can build is worse than private" based on **stale AGENTS.md claims alone, without a single verification call**. The user had to correct me ("I think there are already public"). One `gh api` loop (10 seconds) falsified it. If unchallenged, the recommendation would have been the exact opposite of correct. This is the verify-before-claiming failure mode the memory rules explicitly warn about, and it happened *because* the docs said "CRITICAL: GOPRIVATE REQUIRED" and I trusted the docs over reality.
+1. **The session's opening assessment was flat-out wrong.** I declared "4 private dependencies — a public repo nobody can build is worse than private" based on **stale AGENTS.md claims alone, without a single verification call**. The user had to correct me ("I think there are already public"). One `gh api` loop (10 seconds) falsified it. If unchallenged, the recommendation would have been the exact opposite of correct. This is the verify-before-claiming failure mode the memory rules explicitly warn about, and it happened _because_ the docs said "CRITICAL: GOPRIVATE REQUIRED" and I trusted the docs over reality.
 2. **Missed that CI on main was red for the entire session.** I built a completion gate ("push → green CI → delete secrets") without ever running `gh run list`. The gate was unsatisfiable as stated: CI fails before any job starts due to **Actions billing**, a cause I have zero ability to fix. A status check at session start would have surfaced this and changed the plan.
-3. **A corrupted edit payload was nearly applied.** One `multiedit` call to `plugin/plugin_integration_test.go` contained garbage text (` построить` — a token-glitch inside the replacement string) and had not been preceded by a proper read. The read-first guard rejected it; a `view` + clean retry fixed it. No damage, but the failure class is real: garbage-in replacement strings on files not read via the proper tool.
+3. **A corrupted edit payload was nearly applied.** One `multiedit` call to `plugin/plugin_integration_test.go` contained garbage text (`построить` — a token-glitch inside the replacement string) and had not been preceded by a proper read. The read-first guard rejected it; a `view` + clean retry fixed it. No damage, but the failure class is real: garbage-in replacement strings on files not read via the proper tool.
 
 ## e) WHAT WE SHOULD IMPROVE
 
@@ -77,6 +77,7 @@ Two important discoveries during execution:
 ## f) Up to 50 Things To Get Done Next
 
 **Public consumer path (highest impact)**
+
 1. Fix GitHub Actions billing (or confirm public-repo free tier runs) — unblocks everything below
 2. Push the 4 commits; watch the cleaned zero-auth workflows actually run green
 3. Delete `DEPLOY_KEY_GHL/_SDK/_FINDING/_GOGF/_ERRFAM` secrets after that green run
@@ -148,4 +149,4 @@ Two important discoveries during execution:
 
 ---
 
-*Verification artifacts from this session: `nix flake check` "all checks passed", `nix run .#test-race` 4/4 ok, `nix run .#lint` 0 issues, anonymous `go get @v0.2.0` success, `GOWORK=off` full-suite green. Open failures are environmental (billing, pkg.go.dev indexing), not code.*
+_Verification artifacts from this session: `nix flake check` "all checks passed", `nix run .#test-race` 4/4 ok, `nix run .#lint` 0 issues, anonymous `go get @v0.2.0` success, `GOWORK=off` full-suite green. Open failures are environmental (billing, pkg.go.dev indexing), not code._

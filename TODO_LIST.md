@@ -9,10 +9,10 @@
 
 ## Summary
 
-| #   | Task                                                        | Tier   | Effort | Status  |
-| --- | ----------------------------------------------------------- | ------ | ------ | ------- |
-| T18 | Publish to golangci-lint plugin index                       | Low    | S      | ready   |
-| T20 | Release gogenfilter (workspace sibling 30 commits ahead)    | Medium | S      | planned |
+| #   | Task                                                     | Tier   | Effort | Status  |
+| --- | -------------------------------------------------------- | ------ | ------ | ------- |
+| T18 | Publish to golangci-lint plugin index                    | Low    | S      | ready   |
+| T20 | Release gogenfilter (workspace sibling 30 commits ahead) | Medium | S      | planned |
 
 ---
 
