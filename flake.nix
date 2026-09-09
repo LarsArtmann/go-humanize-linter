@@ -49,7 +49,7 @@
 
       go-standard = {
         pname = "go-humanize-linter";
-        vendorHash = "sha256-OrFJeyX9v1gTjFA+CuooJaK5HlfTptqf4JIpxx7LF/Q=";
+        vendorHash = "sha256-ao8iSe6YuJ1e5vfhVvu8BZyWvpppK+DmyiaKQfon0qg=";
         description = "AST linter that detects hand-rolled reimplementations of go-humanize";
         enableCheck = false;
         subPackages = [ "cmd/go-humanize-linter" ];
