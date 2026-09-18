@@ -322,7 +322,8 @@ func TestRuleParseComma_SplitJoin_MediumConfidence(t *testing.T) {
 
 // TestRuleParseComma_Negative guards the H010 false-positive filters: CSV
 // field splitting (no Join rebuild), non-comma stripping, comma stripping
-// without a number parse, and comma-rejecting validators (no string rebuild).
+// without a number parse, comma-rejecting validators (no string rebuild),
+// and the strings.NewReplacer strip form (documented gap).
 func TestRuleParseComma_Negative(t *testing.T) {
 	t.Parallel()
 
@@ -331,8 +332,44 @@ func TestRuleParseComma_Negative(t *testing.T) {
 		humanizelint.RuleParseComma(),
 		"h010_negative",
 		0,
-		"on CSV split, space strip, display cleanup, and validator fixtures",
+		"on CSV split, space strip, display cleanup, NewReplacer, and validator fixtures",
 	)
+}
+
+func TestRuleParseComma_AliasedImport(t *testing.T) {
+	t.Parallel()
+
+	findings := assertFindings(t, humanizelint.RuleParseComma(), "h010_aliased_import", 1, "")
+
+	if findings[0].Confidence != finding.ConfidenceHigh {
+		t.Errorf("expected high confidence for aliased strip + parse, got %v", findings[0].Confidence)
+	}
+}
+
+func TestRuleParseComma_DotImport(t *testing.T) {
+	t.Parallel()
+
+	findings := assertFindings(t, humanizelint.RuleParseComma(), "h010_dot_import", 1, "")
+
+	if findings[0].Confidence != finding.ConfidenceHigh {
+		t.Errorf("expected high confidence for dot-imported strip + parse, got %v", findings[0].Confidence)
+	}
+}
+
+func TestRuleParseComma_ScopedSuppression(t *testing.T) {
+	t.Parallel()
+
+	assertFindings(t, humanizelint.RuleParseComma(), "h010_scoped_h010", 0, "when scoped //nolint:gohumanize:H010 present")
+}
+
+func TestRuleParseComma_RuneFilterLoop(t *testing.T) {
+	t.Parallel()
+
+	findings := assertFindings(t, humanizelint.RuleParseComma(), "h010_rune_loop", 1, "")
+
+	if findings[0].Confidence != finding.ConfidenceMedium {
+		t.Errorf("expected medium confidence for rune-filter loop, got %v", findings[0].Confidence)
+	}
 }
 
 // TestRuleComma_StringsJoinSpace_NoFalsePositive is a regression test for the

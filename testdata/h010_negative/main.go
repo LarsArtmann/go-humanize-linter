@@ -27,6 +27,15 @@ func displayCleanup(s string) string {
 	return strings.ReplaceAll(s, ",", "")
 }
 
+// replacerStrip strips commas via strings.NewReplacer. Not one of the
+// detected strip forms (documented gap — see docs/rules/H010.md): stays
+// clean for now. Should NOT trigger H010.
+func replacerStrip(s string) (int64, error) {
+	replacer := strings.NewReplacer(",", "")
+
+	return strconv.ParseInt(replacer.Replace(s), 10, 64)
+}
+
 // rejectCommas validates that a string contains no commas, then parses it.
 // The ',' comparison has no string rebuild — a validator, not a parser.
 // Should NOT trigger H010.

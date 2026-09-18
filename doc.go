@@ -23,11 +23,14 @@
 // Usage as a library:
 //
 //	import (
+//	    "github.com/larsartmann/go-finding"
 //	    humanizelint "github.com/larsartmann/go-humanize-linter"
 //	    "github.com/larsartmann/go-linter-sdk"
 //	)
 //
 //	reg := humanizelint.DefaultRegistry()
 //	report, err := reg.Run(ctx, ".")
-//	fmt.Println(linter.ExitCodeFromReport(report))
+//	// Ternary exit code: 0 = clean, 1 = high-confidence findings (must fix),
+//	// 2 = only medium/low-confidence findings remain (triage).
+//	fmt.Println(linter.ExitCodeByConfidence(report, finding.ConfidenceHigh))
 package humanizelint

@@ -73,6 +73,7 @@ import (
     "fmt"
     "os"
 
+    "github.com/larsartmann/go-finding"
     humanizelint "github.com/larsartmann/go-humanize-linter"
     "github.com/larsartmann/go-linter-sdk"
 )
@@ -86,7 +87,9 @@ func main() {
         fmt.Printf("%s:%d [%s] %s\n", f.Position.File, f.Position.Line, f.Rule, f.Message)
     }
 
-    os.Exit(linter.ExitCodeFromReport(report))
+    os.Exit(linter.ExitCodeByConfidence(report, finding.ConfidenceHigh))
+    // Ternary exit code: 0 = clean, 1 = high-confidence findings (must fix),
+    // 2 = only medium/low-confidence findings remain (triage).
 }
 ```
 
