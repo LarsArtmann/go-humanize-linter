@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **H012 `manual-word-series` rule** (`pattern_word_series.go`, `rule_word_series.go`) — detects hand-rolled word-series joining ("a, b, and c") that should use `humanize.WordSeries` / `humanize.OxfordWordSeries`. Requires a comma `strings.Join` AND a conjunction literal; Full confidence needs the complete clone (prefix join of all but the last element + `x[len(x)-1]` access). Plain `strings.Join(x, ", ")` without a conjunction stays clean. Motivated by a real hand-roll found in corpus research; H011 remains reserved for a future manual-si-parse rule (zero corpus demand so far).
+- **H012 `manual-word-series` rule** (`pattern_word_series.go`, `rule_word_series.go`) — detects hand-rolled word-series joining ("a, b, and c") that should use `humanize.WordSeries` / `humanize.OxfordWordSeries`. Requires a comma `strings.Join` AND a conjunction in position (Join separator like `Join(x, " and ")` or a concatenation operand like `+ " and " +`); Full confidence needs the complete clone (prefix join of all but the last element + `x[len(x)-1]` access). Plain `strings.Join(x, ", ")` and prose-only conjunctions stay clean. Corpus-swept same day: 2 true positives, 0 false positives. H011 remains reserved for a future manual-si-parse rule (zero corpus demand so far).
+- **H010 fixture pack** — aliased-import, dot-import, scoped `//nolint:gohumanize:H010`, and rune-filter-loop fixtures close the coverage gap with H007's alias testing.
+
+### Changed
+
+- **H002 suggestion enrichment** — when the flagged function references math/big, the suggestion now points at `humanize.BigComma` for `*big.Int` values (new `h002_bigint` fixture).
+- **H009 suggestion enrichment** — mentions `humanize.CommafWithDigits(f, n)` for custom precision.
+- **Library examples** — `doc.go` and README now show the ternary `ExitCodeByConfidence` exit code (ADR 0003) instead of the legacy binary `ExitCodeFromReport`, and README documents that upgrading to a release with new rules (like v0.3.0's H010) requires regenerating `--behavior-delta` baselines.
+- **CI hygiene** — dependabot actions-group PR rebased and merged (main had been red since 2026-09-13 on a stale gogenfilter test; root cause documented in `docs/validation/2026-09-18_h010-sweep.md` era commits and fixed before v0.3.0). The five `DEPLOY_KEY_*` secrets were deleted after green CI.
 
 ### Fixed
 

@@ -220,3 +220,21 @@ flowchart TD
 
 - **F51/M17**: tagging the gogenfilter sibling repo = action in a foreign repo → explicit user approval required before executing.
 - **M05**: never tag while CI on `main` red (repo release rule).
+
+---
+
+## Completion Annotation (2026-09-18, ~1h after planning)
+
+Executed same session. Status: **1%, 4%, and 20% tiers complete; most of the 80% tier too.**
+
+- M01–M05 (publish → sweep → v0.3.0): DONE. Proxy serves v0.3.0, clean-module `go get` verified, release assets published.
+- M06–M13 (fixture pack, CI-miss investigation, dependabot PR merged #1, examples, enrichments, notes, bench): DONE. CI-miss root cause: **main had been red since 2026-09-13** on the stale gogenfilter test — CI never missed it; nobody looked (my earlier "CI green" read had mixed in green Dependabot workflow runs).
+- M19 (secrets): DONE — five `DEPLOY_KEY_*` secrets deleted post-green-CI. Foreign deploy keys left (T32).
+- M14 (H011 design): executed as corpus research → **deferred with data** (zero demand in 169 repos; H011 ID reserved).
+- M16 (H012 WordSeries): DONE — full rule lifecycle including a corpus sweep (2 TP, 0 FP) and a conjunction-position filter added after the sweep surfaced one prose-only FP.
+- M17 (gogenfilter release): NOT DONE — foreign-repo tag, needs approval (T20).
+- M18 (plugin index): READY (unblocked by v0.3.0) — foreign-repo PR, not started.
+- M20 (Full-tier signature): **deliberately skipped** — the sweep's single H010 hit has the exact `(float64, error)` signature yet is locale-aware; upgrading to Full would make the one known borderline finding more assertive.
+- M21 (LSP hygiene): partially — LSP diagnostics were stale all session; work proceeded on build/test/CI truth.
+- M22 (fuzz): deliberately skipped — no fuzz precedent in this repo; the AST walker only receives parser-valid input.
+- M23–M27 (example, upstream-watch note, ROADMAP prune, SARIF/JSON smoke, Action smoke): DONE (Action verified via the `go install @latest` path the action uses).
