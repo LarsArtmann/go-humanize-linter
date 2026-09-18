@@ -371,7 +371,13 @@ func TestRuleParseComma_DotImport(t *testing.T) {
 func TestRuleParseComma_ScopedSuppression(t *testing.T) {
 	t.Parallel()
 
-	assertFindings(t, humanizelint.RuleParseComma(), "h010_scoped_h010", 0, "when scoped //nolint:gohumanize:H010 present")
+	assertFindings(
+		t,
+		humanizelint.RuleParseComma(),
+		"h010_scoped_h010",
+		0,
+		"when scoped //nolint:gohumanize:H010 present",
+	)
 }
 
 func TestRuleParseComma_RuneFilterLoop(t *testing.T) {
