@@ -326,7 +326,13 @@ func TestRuleParseComma_SplitJoin_MediumConfidence(t *testing.T) {
 func TestRuleParseComma_Negative(t *testing.T) {
 	t.Parallel()
 
-	assertFindings(t, humanizelint.RuleParseComma(), "h010_negative", 0, "on CSV split, space strip, display cleanup, and validator fixtures")
+	assertFindings(
+		t,
+		humanizelint.RuleParseComma(),
+		"h010_negative",
+		0,
+		"on CSV split, space strip, display cleanup, and validator fixtures",
+	)
 }
 
 // TestRuleComma_StringsJoinSpace_NoFalsePositive is a regression test for the

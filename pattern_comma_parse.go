@@ -33,15 +33,22 @@ var strconvParseFuncs = []string{ //nolint:gochecknoglobals // package-level loo
 	"Atoi", "ParseInt", "ParseUint", "ParseFloat", "ParseComplex",
 }
 
+// arg counts of the strings.ReplaceAll / strings.Replace calls matched by
+// isCommaToEmptyReplace: (s, old, new) and (s, old, new, n).
+const (
+	replaceAllCommaArgs = 3
+	replaceCommaArgs    = 4
+)
+
 // isCommaToEmptyReplace reports whether call is
 // strings.ReplaceAll(x, ",", "") or strings.Replace(x, ",", "", n).
 func isCommaToEmptyReplace(call *ast.CallExpr, aliases map[string]string) bool {
 	if isPackageCall(call, "strings", "ReplaceAll", aliases) {
-		return isReplaceArgTriple(call, 3)
+		return isReplaceArgTriple(call, replaceAllCommaArgs)
 	}
 
 	if isPackageCall(call, "strings", "Replace", aliases) {
-		return isReplaceArgTriple(call, 4)
+		return isReplaceArgTriple(call, replaceCommaArgs)
 	}
 
 	return false

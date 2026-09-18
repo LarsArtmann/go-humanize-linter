@@ -54,6 +54,7 @@ func detectParseComma(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fil
 	}
 
 	var confidence finding.Confidence
+
 	var form string
 
 	switch {
