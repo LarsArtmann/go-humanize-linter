@@ -17,12 +17,15 @@ This linter finds those reimplementations automatically.
 | H001 | manual-bytes-format   | Byte-size formatting (1024 division + unit strings)        | `humanize.Bytes` / `humanize.IBytes`      |
 | H002 | manual-comma-format   | Comma/thousands separator insertion (digit grouping loops) | `humanize.Comma`                          |
 | H003 | manual-reltime-format | Relative time formatting ("3 hours ago")                   | `humanize.RelTime` / `humanize.Time`      |
-| H004 | manual-plural         | English pluralization (`if n == 1`)                        | `humanize.Plural` / `humanize.PluralWord` |
+| H004 | manual-plural         | English pluralization (`if n == 1`)                        | `english.Plural` / `english.PluralWord`   |
 | H005 | manual-si-format      | SI-prefix formatting ("1.2K", "3.4M")                      | `humanize.SI` / `humanize.SIWithDigits`   |
 | H006 | manual-ftoa           | Trailing-zero stripping (`strings.TrimRight` nesting)      | `humanize.Ftoa`                           |
 | H007 | manual-parse-bytes    | Byte-size string parsing (HasSuffix chains, mult maps)     | `humanize.ParseBytes`                     |
 | H008 | manual-ordinal        | Ordinal formatting (`switch n%10` with st/nd/rd/th)        | `humanize.Ordinal`                        |
 | H009 | manual-commaf         | Float-with-comma formatting (`%.Nf` + separator loop)      | `humanize.Commaf`                         |
+| H010 | manual-comma-parse    | Comma-grouped number parsing (strip + `strconv` parse)     | `humanize.ParseComma` / `ParseCommaf`     |
+
+`Bytes`/`IBytes` also ship `BytesN`/`IBytesN` min-digits variants (go-humanize v1.1.0+); `ParseComma`/`ParseCommaf` require go-humanize v1.1.0+.
 
 ## Detection Strategy
 
@@ -52,6 +55,11 @@ func relativeTime(t time.Time) string {
 func pluralize(n int, singular, plural string) string {
     if n == 1 { return fmt.Sprintf("%d %s", n, singular) }
     return fmt.Sprintf("%d %s", n, plural)
+}
+
+// H010: comma-grouped number parsing
+func parseCount(s string) (int64, error) {
+    return strconv.ParseInt(strings.ReplaceAll(s, ",", ""), 10, 64)
 }
 ```
 
