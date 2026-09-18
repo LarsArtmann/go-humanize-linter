@@ -44,11 +44,11 @@
     "go-error-family": {
       "flake": false,
       "locked": {
-        "lastModified": 1789758084,
-        "narHash": "sha256-X7/ZCXRv2Pn+hjkhEVztmy2LOaRqTa9kVozpulYM+OQ=",
+        "lastModified": 1789761695,
+        "narHash": "sha256-SUjaQ+CLJno9kmdjYrz4fupkPfmBUmnCgD9J15nIbPA=",
         "ref": "master",
-        "rev": "e802f02dca78f184e9601ee6ff0fcfb2d79f2b71",
-        "revCount": 317,
+        "rev": "8f64b0ceac18dfe5c03ed9db0665bbe68a7be404",
+        "revCount": 325,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/go-error-family"
       },
