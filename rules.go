@@ -22,6 +22,7 @@ const (
 	RuleIDH007 = "H007"
 	RuleIDH008 = "H008"
 	RuleIDH009 = "H009"
+	RuleIDH010 = "H010"
 )
 
 // RuleIDH0SUP is the pseudo-rule ID for suppression-verification diagnostics.
@@ -58,6 +59,7 @@ func AllRules() []linter.RuleFunc {
 		RuleParseBytes(),
 		RuleOrdinal(),
 		RuleCommaf(),
+		RuleParseComma(),
 	}
 }
 
@@ -69,7 +71,7 @@ func AllRules() []linter.RuleFunc {
 //
 // Construction:
 //
-//	detector := humanizelint.NewHumanizeDetector()    // all 9 rules enabled
+//	detector := humanizelint.NewHumanizeDetector()    // all 10 rules enabled
 //	detector := humanizelint.NewHumanizeDetector(     // opt-in subset
 //	    humanizelint.RuleBytes(),
 //	    humanizelint.RuleComma(),
@@ -83,7 +85,7 @@ type HumanizeDetector struct {
 }
 
 // NewHumanizeDetector constructs a HumanizeDetector running the given rules
-// in the given order. If no rules are passed, all 9 default rules are
+// in the given order. If no rules are passed, all 10 default rules are
 // registered.
 func NewHumanizeDetector(rules ...linter.RuleFunc) *HumanizeDetector {
 	if len(rules) == 0 {
@@ -172,6 +174,7 @@ func allRuleDetectors() []ruleDetectors {
 		{RuleIDH007, detectParseBytes},
 		{RuleIDH008, detectOrdinal},
 		{RuleIDH009, detectCommaf},
+		{RuleIDH010, detectParseComma},
 	}
 }
 
