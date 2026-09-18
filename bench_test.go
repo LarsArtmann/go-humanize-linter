@@ -31,3 +31,14 @@ func BenchmarkWalkGoDir(b *testing.B) {
 		}
 	}
 }
+
+// BenchmarkH010Detector measures the per-function cost of the H010
+// comma-parse detector on the positive fixture directory.
+func BenchmarkH010Detector(b *testing.B) {
+	for b.Loop() {
+		_, err := humanizelint.RuleParseComma().Run(context.Background(), "testdata/h010_comma_parse_var")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}

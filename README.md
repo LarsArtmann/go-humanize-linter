@@ -143,6 +143,9 @@ go-humanize-linter --verify-suppressions ./...
 go-humanize-linter --save-baseline baseline.json ./...
 # Then in CI, fail only when findings are added or removed:
 go-humanize-linter --behavior-delta baseline.json ./...
+# Note: upgrading the linter (e.g. to v0.3.0, which adds H010) adds findings
+# to the report — regenerate the baseline once after upgrading and review the
+# delta before committing it.
 ```
 
 ### As a GitHub Action

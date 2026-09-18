@@ -188,3 +188,22 @@ func hasDigitConversion(fn *ast.FuncDecl, aliases map[string]string) bool {
 
 	return hit
 }
+
+// mentionsBigInt reports whether fn references math/big integers — a
+// *big.Int parameter, big.NewInt/new(big.Int) call, or a big.* selector —
+// used to point H002's suggestion at humanize.BigComma.
+func mentionsBigInt(fn *ast.FuncDecl) bool {
+	hit := false
+
+	ast.Inspect(fn, func(n ast.Node) bool {
+		if sel, ok := n.(*ast.SelectorExpr); ok {
+			if ident, ok := sel.X.(*ast.Ident); ok && ident.Name == "big" {
+				hit = true
+			}
+		}
+
+		return true
+	})
+
+	return hit
+}

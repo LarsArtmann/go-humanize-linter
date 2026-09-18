@@ -75,11 +75,17 @@ func detectCommaFormat(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 
 	line, col := posOf(fset, fn.Pos())
 
+	suggestion := "Replace with humanize.Comma(int64(n)) for integers or humanize.Commaf(f) for floats."
+
+	if mentionsBigInt(fn) {
+		suggestion += " For *big.Int values use humanize.BigComma instead."
+	}
+
 	return []finding.Finding{
 		makeFindingWithConfidence(
 			RuleIDH002,
 			fmt.Sprintf("manual comma formatting (%s) — use humanize.Comma instead", signals),
-			"Replace with humanize.Comma(int64(n)) for integers or humanize.Commaf(f) for floats.",
+			suggestion,
 			line, col, filePath, confidence,
 		),
 	}

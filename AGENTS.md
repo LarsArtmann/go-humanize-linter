@@ -78,6 +78,10 @@ Together: 44 -> 24 findings, ~0% FP.
 
 When H009 (manual-commaf) fires on a function, H002 (manual-comma-format) is suppressed. H009 is the more specific diagnosis (float + comma), and H002's suggestion (`humanize.Comma`) is less precise than H009's (`humanize.Commaf`). Without this, a `%.2f` + comma-loop function gets two diagnostics.
 
+### H010/H002 non-overlap (inverse operations)
+
+H010 (manual-comma-parse) and H002 (manual-comma-format) cannot co-fire on the same function by construction: H002 requires separator **writing** (a grouping loop emitting `,` via Write*/Join), while H010 requires comma **removal** plus a strconv parse. They are inverse operations (format vs parse) and need no disambiguation layer like the H009/H002 pair. `docs/rules/H002.md` and `docs/rules/H010.md` cross-link each other for the same reason.
+
 ## Import-Alias Resolution
 
 `buildImportAliases(file *ast.File) map[string]string` resolves import aliases from `ast.File.Imports`. Returns a map of alias to canonical package path (e.g., `{"str": "strings"}`). For dot imports (`. "strings"`), the alias key is `"."` mapping to the package path. `isPackageCall` handles both `SelectorExpr` (normal/aliased) and bare `Ident` (dot-import) call forms. `hasTimeThresholdComparison` also resolves dot-imported and aliased time constants.

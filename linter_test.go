@@ -165,6 +165,18 @@ func TestRuleComma_Modulo3(t *testing.T) {
 	assertFindings(t, humanizelint.RuleComma(), "h002_comma_mod3", 1, "")
 }
 
+// TestRuleComma_BigIntSuggestion verifies the H002 suggestion points at
+// humanize.BigComma when the flagged function operates on *big.Int values.
+func TestRuleComma_BigIntSuggestion(t *testing.T) {
+	t.Parallel()
+
+	findings := assertFindings(t, humanizelint.RuleComma(), "h002_bigint", 1, "")
+
+	if !strings.Contains(findings[0].Suggestion, "BigComma") {
+		t.Errorf("expected BigComma hint in suggestion, got: %s", findings[0].Suggestion)
+	}
+}
+
 func TestRuleComma_StepBy3(t *testing.T) {
 	t.Parallel()
 
