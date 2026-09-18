@@ -413,7 +413,10 @@ func TestRuleWordSeries_FullClone(t *testing.T) {
 
 // TestRuleWordSeries_Negative guards the H012 false-positive filters: a
 // plain comma join without conjunction handling is a simple list, not a
-// word series; prose "and" without a Join; non-comma separators.
+// word series; prose "and" without a Join; non-comma separators. It also
+// regression-guards the conjunction-position filter: "and" in prose (a
+// Sprintf format string or a bare literal) next to a comma join must stay
+// clean, as must the prefix-join shape without any conjunction.
 func TestRuleWordSeries_Negative(t *testing.T) {
 	t.Parallel()
 
@@ -422,7 +425,7 @@ func TestRuleWordSeries_Negative(t *testing.T) {
 		humanizelint.RuleWordSeries(),
 		"h012_negative",
 		0,
-		"on plain join, prose and, and slash join fixtures",
+		"on plain join, prose and, slash join, prose-position, and prefix-join fixtures",
 	)
 }
 
