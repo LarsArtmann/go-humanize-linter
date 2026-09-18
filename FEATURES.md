@@ -13,7 +13,7 @@
 
 ## Rules
 
-All 9 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
+All 10 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
 (`rules.go`), and share a single per-function entry point `DetectFuncDecl()`.
 
 | Rule | Name                  | Status           | Detects                                                                                                                              | Suggests                                |
@@ -27,13 +27,14 @@ All 9 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
 | H007 | manual-parse-bytes    | FULLY_FUNCTIONAL | 2+ HasSuffix/CutSuffix on byte units, map multiplier (func + package scope), aliased imports                                         | `humanize.ParseBytes`                   |
 | H008 | manual-ordinal        | FULLY_FUNCTIONAL | `switch n%10`/`n%100` with st/nd/rd/th cases                                                                                         | `humanize.Ordinal`                      |
 | H009 | manual-commaf         | FULLY_FUNCTIONAL | `%.Nf` Sprintf + manual comma/separator grouping loop                                                                                | `humanize.Commaf`                       |
+| H010 | manual-comma-parse    | FULLY_FUNCTIONAL | Comma strip (ReplaceAll/Replace, Split+Join, rune-filter loop) + strconv parse; CSV splits/validators excluded. Real-world sweep pending. | `humanize.ParseComma` / `humanize.ParseCommaf` |
 
 ## Interfaces
 
 | Feature              | Status           | Notes                                                                                                                                                                                                                                                                          |
 | -------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | CLI binary           | FULLY_FUNCTIONAL | `--enable`, `--disable`, `--config`, `--format`, `--output`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain`, `--min-confidence`, `--verify-suppressions` (`cmd/go-humanize-linter/main.go`)                                                                    |
-| Go library           | FULLY_FUNCTIONAL | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run`, exported `RuleIDH001`–`H009` constants (`rules.go`)                                                                                                                               |
+| Go library           | FULLY_FUNCTIONAL | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run`, exported `RuleIDH001`–`H010` constants (`rules.go`)                                                                                                                               |
 | golangci-lint plugin | FULLY_FUNCTIONAL | `plugin/plugin.go` using `plugin-module-register` v2 module plugin pattern. Configurable enable/disable, `minConfidence`, and `verifySuppressions` via `.golangci.yml` `linters.settings.custom.gohumanize.settings`. Diagnostics at finding position via `findingToTokenPos`. |
 | GitHub Action        | FULLY_FUNCTIONAL | `action.yml` composite Action with inputs: path, enable, disable, format, version                                                                                                                                                                                              |
 | Nix flake            | FULLY_FUNCTIONAL | `test`, `test-race`, `bench`, `build`, `vet`, `lint`, `coverage` apps                                                                                                                                                                                                          |

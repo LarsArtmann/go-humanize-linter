@@ -12,10 +12,13 @@
 //	H001  manual-bytes-format     → humanize.Bytes / humanize.IBytes
 //	H002  manual-comma-format     → humanize.Comma / humanize.Commaf
 //	H003  manual-reltime-format   → humanize.RelTime / humanize.Time
-//	H004  manual-plural           → humanize.Plural / humanize.PluralWord
+//	H004  manual-plural           → english.Plural / english.PluralWord
 //	H005  manual-si-format        → humanize.SI / humanize.SIWithDigits
 //	H006  manual-ftoa             → humanize.Ftoa / humanize.FtoaWithDigits
 //	H007  manual-parse-bytes      → humanize.ParseBytes
+//	H008  manual-ordinal          → humanize.Ordinal
+//	H009  manual-commaf           → humanize.Commaf / humanize.CommafWithDigits
+//	H010  manual-comma-parse      → humanize.ParseComma / humanize.ParseCommaf
 //
 // Usage as a library:
 //
