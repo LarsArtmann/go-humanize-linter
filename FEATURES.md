@@ -27,7 +27,7 @@ All 10 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()
 | H007 | manual-parse-bytes    | FULLY_FUNCTIONAL | 2+ HasSuffix/CutSuffix on byte units, map multiplier (func + package scope), aliased imports                                         | `humanize.ParseBytes`                   |
 | H008 | manual-ordinal        | FULLY_FUNCTIONAL | `switch n%10`/`n%100` with st/nd/rd/th cases                                                                                         | `humanize.Ordinal`                      |
 | H009 | manual-commaf         | FULLY_FUNCTIONAL | `%.Nf` Sprintf + manual comma/separator grouping loop                                                                                | `humanize.Commaf`                       |
-| H010 | manual-comma-parse    | FULLY_FUNCTIONAL | Comma strip (ReplaceAll/Replace, Split+Join, rune-filter loop) + strconv parse; CSV splits/validators excluded. Real-world sweep pending. | `humanize.ParseComma` / `humanize.ParseCommaf` |
+| H010 | manual-comma-parse    | FULLY_FUNCTIONAL | Comma strip (ReplaceAll/Replace, Split+Join, rune-filter loop) + strconv parse; CSV splits/validators excluded. Swept 2026-09-18 (169 repos): 1 borderline, 0 FPs. | `humanize.ParseComma` / `humanize.ParseCommaf` |
 
 ## Interfaces
 
