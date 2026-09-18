@@ -13,8 +13,9 @@
 
 ## Rules
 
-All 10 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
+All 11 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()`
 (`rules.go`), and share a single per-function entry point `DetectFuncDecl()`.
+(H011 is reserved for a future manual-si-parse rule.)
 
 | Rule | Name                  | Status           | Detects                                                                                                                              | Suggests                                |
 | ---- | --------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
@@ -28,13 +29,14 @@ All 10 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()
 | H008 | manual-ordinal        | FULLY_FUNCTIONAL | `switch n%10`/`n%100` with st/nd/rd/th cases                                                                                         | `humanize.Ordinal`                      |
 | H009 | manual-commaf         | FULLY_FUNCTIONAL | `%.Nf` Sprintf + manual comma/separator grouping loop                                                                                | `humanize.Commaf`                       |
 | H010 | manual-comma-parse    | FULLY_FUNCTIONAL | Comma strip (ReplaceAll/Replace, Split+Join, rune-filter loop) + strconv parse; CSV splits/validators excluded. Swept 2026-09-18 (169 repos): 1 borderline, 0 FPs. | `humanize.ParseComma` / `humanize.ParseCommaf` |
+| H012 | manual-word-series    | FULLY_FUNCTIONAL | Comma join + conjunction literal (+ prefix join/last-element for Full). Plain `strings.Join(x, ", ")` without conjunction excluded. Motivated by a real corpus hit. | `humanize.WordSeries` / `humanize.OxfordWordSeries` |
 
 ## Interfaces
 
 | Feature              | Status           | Notes                                                                                                                                                                                                                                                                          |
 | -------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | CLI binary           | FULLY_FUNCTIONAL | `--enable`, `--disable`, `--config`, `--format`, `--output`, `--quiet`, `--rules`, `--version`, `--list-files`, `--explain`, `--min-confidence`, `--verify-suppressions` (`cmd/go-humanize-linter/main.go`)                                                                    |
-| Go library           | FULLY_FUNCTIONAL | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run`, exported `RuleIDH001`–`H010` constants (`rules.go`)                                                                                                                               |
+| Go library           | FULLY_FUNCTIONAL | `DefaultRegistry()`, `AllRules()`, `DetectFuncDecl()`, `HumanizeDetector` facade with `Run`, exported `RuleIDH001`–`H012` constants (`rules.go`)                                                                                                                              |
 | golangci-lint plugin | FULLY_FUNCTIONAL | `plugin/plugin.go` using `plugin-module-register` v2 module plugin pattern. Configurable enable/disable, `minConfidence`, and `verifySuppressions` via `.golangci.yml` `linters.settings.custom.gohumanize.settings`. Diagnostics at finding position via `findingToTokenPos`. |
 | GitHub Action        | FULLY_FUNCTIONAL | `action.yml` composite Action with inputs: path, enable, disable, format, version                                                                                                                                                                                              |
 | Nix flake            | FULLY_FUNCTIONAL | `test`, `test-race`, `bench`, `build`, `vet`, `lint`, `coverage` apps                                                                                                                                                                                                          |

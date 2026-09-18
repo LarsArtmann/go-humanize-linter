@@ -12,7 +12,7 @@ A hand-written function that duplicates functionality already provided by [`gith
 
 A named detection pattern that identifies a specific class of reimplementation. Each rule has:
 
-- **ID**: A stable identifier (H001-H010) used for suppression matching, filter configuration, and reporting.
+- **ID**: A stable identifier (H001-H012) used for suppression matching, filter configuration, and reporting.
 - **Detector function**: Walks the AST of a function declaration and returns findings when the pattern matches.
 - **Confidence level**: How certain the detector is that this is a true positive (not a false positive).
 
@@ -24,7 +24,7 @@ Each rule requires **multiple independent signals** in the same function before 
 
 A diagnostic produced by a rule detector. Contains:
 
-- **Rule ID**: Which rule fired (H001-H010, or H0SUP for suppression verification).
+- **Rule ID**: Which rule fired (H001-H012, or H0SUP for suppression verification).
 - **Message**: Human-readable description of the detected pattern.
 - **Suggestion**: The recommended `go-humanize` API replacement.
 - **Confidence**: How certain the detector is (None, Low, Medium, High, Full).
@@ -83,6 +83,7 @@ A rule that is registered in the registry but never fires on any test fixture. T
 | H008  | manual-ordinal           | Ordinal formatting (`switch n%10`, st/nd/rd/th cases)                | `humanize.Ordinal`                     |
 | H009  | manual-commaf            | Float-with-comma formatting (`%.Nf` + manual separator grouping)     | `humanize.Commaf`                      |
 | H010  | manual-comma-parse       | Comma-grouped number parsing (comma strip + strconv parse)           | `humanize.ParseComma`, `humanize.ParseCommaf` |
+| H012  | manual-word-series       | Word-series joining (comma join + conjunction literal)              | `humanize.WordSeries`, `humanize.OxfordWordSeries` |
 | H0SUP | suppression-verification | Stale or misspelled `//nolint:gohumanize` directives                 | Fix or remove the directive            |
 
 ## Detection Architecture

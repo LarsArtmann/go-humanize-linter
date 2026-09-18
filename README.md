@@ -24,6 +24,7 @@ This linter finds those reimplementations automatically.
 | H008 | manual-ordinal        | Ordinal formatting (`switch n%10` with st/nd/rd/th)        | `humanize.Ordinal`                        |
 | H009 | manual-commaf         | Float-with-comma formatting (`%.Nf` + separator loop)      | `humanize.Commaf`                         |
 | H010 | manual-comma-parse    | Comma-grouped number parsing (strip + `strconv` parse)     | `humanize.ParseComma` / `ParseCommaf`     |
+| H012 | manual-word-series    | Word-series joining ("a, b, and c" assembly)               | `humanize.WordSeries` / `OxfordWordSeries` |
 
 `Bytes`/`IBytes` also ship `BytesN`/`IBytesN` min-digits variants (go-humanize v1.1.0+); `ParseComma`/`ParseCommaf` require go-humanize v1.1.0+.
 

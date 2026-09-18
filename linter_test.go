@@ -390,6 +390,33 @@ func TestRuleParseComma_RuneFilterLoop(t *testing.T) {
 	}
 }
 
+// ---------------------------------------------------------------------------
+// H012 — manual-word-series
+// ---------------------------------------------------------------------------
+
+func TestRuleWordSeries_FullClone(t *testing.T) {
+	t.Parallel()
+
+	findings := assertFindings(t, humanizelint.RuleWordSeries(), "h012_word_series", 1, "")
+
+	if findings[0].Rule != "H012" {
+		t.Errorf("expected rule H012, got %s", findings[0].Rule)
+	}
+
+	if findings[0].Confidence != finding.ConfidenceFull {
+		t.Errorf("expected full confidence for prefix join + conjunction + last element, got %v", findings[0].Confidence)
+	}
+}
+
+// TestRuleWordSeries_Negative guards the H012 false-positive filters: a
+// plain comma join without conjunction handling is a simple list, not a
+// word series; prose "and" without a Join; non-comma separators.
+func TestRuleWordSeries_Negative(t *testing.T) {
+	t.Parallel()
+
+	assertFindings(t, humanizelint.RuleWordSeries(), "h012_negative", 0, "on plain join, prose and, and slash join fixtures")
+}
+
 // TestRuleComma_StringsJoinSpace_NoFalsePositive is a regression test for the
 // issue where H002/H009 fired on functions that joined CLI args with a single
 // space (" "). A space is not a thousands separator, so this pattern must
@@ -569,8 +596,8 @@ func TestDefaultRegistry_AllRules(t *testing.T) {
 	t.Parallel()
 
 	r := humanizelint.DefaultRegistry()
-	if len(r.All()) != 10 {
-		t.Fatalf("expected 10 rules, got %d", len(r.All()))
+	if len(r.All()) != 11 {
+		t.Fatalf("expected 11 rules, got %d", len(r.All()))
 	}
 }
 

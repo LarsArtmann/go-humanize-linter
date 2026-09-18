@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- **H012 `manual-word-series` rule** (`pattern_word_series.go`, `rule_word_series.go`) — detects hand-rolled word-series joining ("a, b, and c") that should use `humanize.WordSeries` / `humanize.OxfordWordSeries`. Requires a comma `strings.Join` AND a conjunction literal; Full confidence needs the complete clone (prefix join of all but the last element + `x[len(x)-1]` access). Plain `strings.Join(x, ", ")` without a conjunction stays clean. Motivated by a real hand-roll found in corpus research; H011 remains reserved for a future manual-si-parse rule (zero corpus demand so far).
 
 ### Fixed
 

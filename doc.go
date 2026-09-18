@@ -19,6 +19,7 @@
 //	H008  manual-ordinal          → humanize.Ordinal
 //	H009  manual-commaf           → humanize.Commaf / humanize.CommafWithDigits
 //	H010  manual-comma-parse      → humanize.ParseComma / humanize.ParseCommaf
+//	H012  manual-word-series      → humanize.WordSeries / humanize.OxfordWordSeries
 //
 // Usage as a library:
 //
