@@ -23,6 +23,10 @@ const (
 	RuleIDH008 = "H008"
 	RuleIDH009 = "H009"
 	RuleIDH010 = "H010"
+	// RuleIDH012 detects manual word-series joining. RuleIDH011 is reserved
+	// for manual-si-parse (deferred: zero corpus demand in the 2026-09-18
+	// research; see ROADMAP "H011+") — do not reuse it for another rule.
+	RuleIDH012 = "H012"
 )
 
 // RuleIDH0SUP is the pseudo-rule ID for suppression-verification diagnostics.
@@ -60,6 +64,7 @@ func AllRules() []linter.RuleFunc {
 		RuleOrdinal(),
 		RuleCommaf(),
 		RuleParseComma(),
+		RuleWordSeries(),
 	}
 }
 
@@ -71,7 +76,7 @@ func AllRules() []linter.RuleFunc {
 //
 // Construction:
 //
-//	detector := humanizelint.NewHumanizeDetector()    // all 10 rules enabled
+//	detector := humanizelint.NewHumanizeDetector()    // all 11 rules enabled
 //	detector := humanizelint.NewHumanizeDetector(     // opt-in subset
 //	    humanizelint.RuleBytes(),
 //	    humanizelint.RuleComma(),
@@ -85,7 +90,7 @@ type HumanizeDetector struct {
 }
 
 // NewHumanizeDetector constructs a HumanizeDetector running the given rules
-// in the given order. If no rules are passed, all 10 default rules are
+// in the given order. If no rules are passed, all 11 default rules are
 // registered.
 func NewHumanizeDetector(rules ...linter.RuleFunc) *HumanizeDetector {
 	if len(rules) == 0 {
@@ -175,6 +180,7 @@ func allRuleDetectors() []ruleDetectors {
 		{RuleIDH008, detectOrdinal},
 		{RuleIDH009, detectCommaf},
 		{RuleIDH010, detectParseComma},
+		{RuleIDH012, detectWordSeries},
 	}
 }
 

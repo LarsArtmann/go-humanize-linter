@@ -205,5 +205,5 @@ func parseCount(s string) (int64, error) {
 		}
 	}
 
-	// Output: H010 Full
+	// Output: H010 full
 }
