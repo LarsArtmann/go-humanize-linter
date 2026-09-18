@@ -44,7 +44,7 @@ func detectCommaf(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, filePat
 		makeFindingWithConfidence(
 			RuleIDH009,
 			"manual float-with-comma formatting (%.Nf + manual separator) — use humanize.Commaf instead",
-			"Replace with humanize.Commaf(f) — or humanize.CommafWithDigits(f, n) for custom " +
+			"Replace with humanize.Commaf(f) — or humanize.CommafWithDigits(f, n) for custom "+
 				"precision — which produces e.g. 1,234.56 directly.",
 			line, col, filePath, finding.ConfidenceMedium,
 		),
