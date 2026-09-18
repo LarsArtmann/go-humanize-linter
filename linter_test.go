@@ -404,7 +404,10 @@ func TestRuleWordSeries_FullClone(t *testing.T) {
 	}
 
 	if findings[0].Confidence != finding.ConfidenceFull {
-		t.Errorf("expected full confidence for prefix join + conjunction + last element, got %v", findings[0].Confidence)
+		t.Errorf(
+			"expected full confidence for prefix join + conjunction + last element, got %v",
+			findings[0].Confidence,
+		)
 	}
 }
 
@@ -414,7 +417,13 @@ func TestRuleWordSeries_FullClone(t *testing.T) {
 func TestRuleWordSeries_Negative(t *testing.T) {
 	t.Parallel()
 
-	assertFindings(t, humanizelint.RuleWordSeries(), "h012_negative", 0, "on plain join, prose and, and slash join fixtures")
+	assertFindings(
+		t,
+		humanizelint.RuleWordSeries(),
+		"h012_negative",
+		0,
+		"on plain join, prose and, and slash join fixtures",
+	)
 }
 
 // TestRuleComma_StringsJoinSpace_NoFalsePositive is a regression test for the

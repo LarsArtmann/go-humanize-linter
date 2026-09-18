@@ -52,8 +52,10 @@ func detectWordSeries(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fil
 		return nil
 	}
 
-	var confidence finding.Confidence
-	var form string
+	var (
+		confidence finding.Confidence
+		form       string
+	)
 
 	switch {
 	case evidence.prefixJoin && evidence.lastElementIndex:

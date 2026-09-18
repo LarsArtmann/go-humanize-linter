@@ -28,16 +28,16 @@ type wordSeriesEvidence struct {
 // conjunctionLiterals are the separator strings a hand-rolled word series
 // uses to introduce the final element.
 var conjunctionLiterals = map[string]bool{ //nolint:gochecknoglobals // package-level lookup table
-	" and ":     true,
-	", and ":    true,
-	" and":      true,
-	" or ":      true,
-	", or ":     true,
-	" or":       true,
-	"and":       true,
-	"or":        true,
-	", and":     true,
-	", or":      true,
+	" and ":  true,
+	", and ": true,
+	" and":   true,
+	" or ":   true,
+	", or ":  true,
+	" or":    true,
+	"and":    true,
+	"or":     true,
+	", and":  true,
+	", or":   true,
 }
 
 // isCommaJoin reports whether call is strings.Join with a ", " (or ",")
@@ -154,40 +154,78 @@ func isLenCallEqInt(a, b ast.Expr) bool {
 	return lit.Value == "1" || lit.Value == "2"
 }
 
-// collectWordSeriesEvidence walks fn and gathers every H012 signal.
-func collectWordSeriesEvidence(fn *ast.FuncDecl, aliases map[string]string) wordSeriesEvidence {
-	var evidence wordSeriesEvidence
+// wordSeriesCollector accumulates H012 signals while walking a function.
+type wordSeriesCollector struct {
+	aliases  map[string]string
+	evidence wordSeriesEvidence
+}
 
-	ast.Inspect(fn, func(n ast.Node) bool {
-		switch node := n.(type) {
-		case *ast.CallExpr:
-			if isCommaJoin(node, aliases) {
-				evidence.anyCommaJoin = true
+// visit is the ast.Inspect callback for collectWordSeriesEvidence.
+func (c *wordSeriesCollector) visit(n ast.Node) bool {
+	switch node := n.(type) {
+	case *ast.CallExpr:
+		c.noteCall(node)
+	case *ast.IndexExpr:
+		if isLastElementIndex(node) {
+			c.evidence.lastElementIndex = true
+		}
+	case *ast.BinaryExpr:
+		c.noteBinary(node)
+	}
 
-				if len(node.Args) >= 1 && isLenMinusOneSlice(node.Args[0]) {
-					evidence.prefixJoin = true
-				}
-			}
-		case *ast.BasicLit:
-			if val, ok := unquoteString(node); ok && conjunctionLiterals[val] {
-				evidence.conjunctionLiteral = true
-			}
-		case *ast.IndexExpr:
-			if isLastElementIndex(node) {
-				evidence.lastElementIndex = true
-			}
-		case *ast.BinaryExpr:
-			if node.Op == token.ADD {
-				if isLastElementIndex(node.X) || isLastElementIndex(node.Y) {
-					evidence.lastElementIndex = true
-				}
-			}
+	return true
+}
+
+// noteCall records strings.Join signals: a comma separator feeds
+// anyCommaJoin/prefixJoin, and a conjunction separator (" and ", ", or ", ...)
+// feeds conjunctionLiteral — strings.Join(x, " and ") IS a WordSeries
+// hand-roll.
+func (c *wordSeriesCollector) noteCall(call *ast.CallExpr) {
+	if isCommaJoin(call, c.aliases) {
+		c.evidence.anyCommaJoin = true
+
+		if len(call.Args) >= 1 && isLenMinusOneSlice(call.Args[0]) {
+			c.evidence.prefixJoin = true
 		}
 
-		return true
-	})
+		return
+	}
 
-	evidence.lengthBranches = hasLenBranch(fn)
+	if isPackageCall(call, "strings", "Join", c.aliases) && len(call.Args) >= 2 {
+		if sep, ok := unquoteString(getBasicLit(call.Args[1])); ok && conjunctionLiterals[sep] {
+			c.evidence.conjunctionLiteral = true
+		}
+	}
+}
 
-	return evidence
+// noteBinary records conjunction string literals used in concatenations
+// (+ " and " +) and last-element access inside concatenations. A bare
+// conjunction literal elsewhere (prose, map values) does NOT count.
+func (c *wordSeriesCollector) noteBinary(binary *ast.BinaryExpr) {
+	if binary.Op != token.ADD {
+		return
+	}
+
+	if val, ok := unquoteString(getBasicLit(binary.X)); ok && conjunctionLiterals[val] {
+		c.evidence.conjunctionLiteral = true
+	}
+
+	if val, ok := unquoteString(getBasicLit(binary.Y)); ok && conjunctionLiterals[val] {
+		c.evidence.conjunctionLiteral = true
+	}
+
+	if isLastElementIndex(binary.X) || isLastElementIndex(binary.Y) {
+		c.evidence.lastElementIndex = true
+	}
+}
+
+// collectWordSeriesEvidence walks fn and gathers every H012 signal.
+func collectWordSeriesEvidence(fn *ast.FuncDecl, aliases map[string]string) wordSeriesEvidence {
+	collector := &wordSeriesCollector{aliases: aliases}
+
+	ast.Inspect(fn, collector.visit)
+
+	collector.evidence.lengthBranches = hasLenBranch(fn)
+
+	return collector.evidence
 }
