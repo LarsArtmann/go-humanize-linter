@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.3.0] - 2026-09-18
+
+### Added
+
 - **H010 `manual-comma-parse` rule** (`pattern_comma_parse.go`, `rule_comma_parse.go`) — detects hand-rolled comma-grouped number parsing (`"1,234,567"` → number) that should use `humanize.ParseComma` / `humanize.ParseCommaf`, added in go-humanize v1.1.0. Fires only on corroborating signals: a comma-strip form (`strings.ReplaceAll/Replace(x, ",", "")`, `Split(",")+Join("")`, or a `','`-filter loop with string rebuild) AND a strconv number parse (`Atoi`/`ParseInt`/`ParseUint`/`ParseFloat`/`ParseComplex`). Confidence tiers: **Full** (strip inlined inside the strconv call), **High** (strip + parse in the same function), **Medium** (indirect strip + parse). Negative filters keep CSV field splitting, non-comma stripping, display-only cleanup, and comma-rejecting validators clean. Registered everywhere H001-H009 are (CLI, library, plugin, `--explain`, `--rules`).
 
 ### Changed
