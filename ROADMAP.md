@@ -20,14 +20,15 @@
 - **Per-statement suppression** — today `//nolint` directives are matched at the
   function level; per-statement or per-line suppression would let developers
   silence individual findings within a function (see TODO T19).
-- **Rule-overlap disambiguation** — H009 (manual-commaf) and H002 (manual-comma)
-  both fire on the same comma-loop pattern, producing double diagnostics for one
-  mistake. H009 should require a signal H002 cannot match (e.g. `strconv.FormatFloat`
-  or a dot-split on the formatted float) so the two rules partition the space.
+- ~~**Rule-overlap disambiguation**~~ — DONE (ADR 0005): H009 suppresses H002
+  on shared matches; H010/H002 are inverse operations and cannot co-fire.
 
 ### Detection breadth
 
-- **H010 and beyond** — more `go-humanize` coverage candidates:
+- **H011+ — more go-humanize coverage candidates**:
+  - `humanize.ParseSI` hand-rolls (suffix parsing → value + unit; upstream
+    v1.1.0 even added a µ/mu alias — parsing rules are timely)
+  - `humanize.WordSeries` / `OxfordWordSeries` ("a, b, and c" joining)
   - `humanize.LookupMenuItem` (Kubernetes-style suffix lookup)
   - `time.Round` detection for H003
   - `fmt.Sprintf("%.1f", x)` + `strings.TrimRight` combined detection for H006
@@ -38,8 +39,8 @@
 
 ### Ecosystem & distribution
 
-- **golangci-lint plugin index** — publish once a tagged version is `go install`-able
-  and `go.mod` `replace` directives are removed (depends on `go-linter-sdk` first tag).
+- **golangci-lint plugin index** — v0.3.0 is tagged and `go get`-verified
+  (clean-module check passed); submission is TODO T18.
 - **Stable rule IDs** — freeze H001–H0xx (no renames) after v1.0.
 - **Benchmark against large codebases** — k8s, cockroach; track scan-speed regressions
   across releases with `benchstat`.

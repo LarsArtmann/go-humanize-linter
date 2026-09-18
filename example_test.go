@@ -171,3 +171,39 @@ func formatBytes(b uint64) string {
 
 	// Output: findings: 1
 }
+
+// ExampleDetectFuncDecl_parseComma runs the detectors against a hand-rolled
+// comma-grouped number parser parsed from source and reports which rule fired.
+func ExampleDetectFuncDecl_parseComma() {
+	const src = `package main
+
+import (
+	"strconv"
+	"strings"
+)
+
+func parseCount(s string) (int64, error) {
+	return strconv.ParseInt(strings.ReplaceAll(s, ",", ""), 10, 64)
+}
+`
+
+	fset := token.NewFileSet()
+
+	file, err := parser.ParseFile(fset, "demo.go", src, parser.ParseComments)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok {
+			continue
+		}
+
+		for _, f := range humanizelint.DetectFuncDecl(fset, file, fn, "demo.go") {
+			fmt.Println(f.Rule, f.Confidence)
+		}
+	}
+
+	// Output: H010 Full
+}
