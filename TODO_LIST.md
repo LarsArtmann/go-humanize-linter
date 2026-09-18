@@ -11,14 +11,28 @@
 
 | #   | Task                                                     | Tier   | Effort | Status  |
 | --- | -------------------------------------------------------- | ------ | ------ | ------- |
-| T18 | Publish to golangci-lint plugin index                    | Low    | S      | ready   |
-| T20 | Release gogenfilter (workspace sibling 30 commits ahead) | Medium | S      | planned |
+| T21 | Push H010 session work + green CI on main                | High   | S      | ready   |
+| T22 | H010 real-world corpus sweep + validation doc            | High   | M      | ready   |
+| T23 | Release v0.3.0 (H010) after sweep                        | High   | S      | blocked by T22 |
+| T24 | H010 fixture pack (alias/dot/scoped-nolint/rune-loop/NewReplacer) | Medium | S | ready |
+| T25 | Investigate why stale gogenfilter test never failed CI   | High   | S      | ready   |
+| T26 | Fix dependabot actions-group PR (red since 2026-09-17)   | Medium | S      | ready   |
+| T27 | Align doc.go/README examples to ExitCodeByConfidence     | Medium | S      | ready   |
+| T28 | Suggestion enrichments (BytesN/BigComma/CommafWithDigits) | Medium | S     | ready   |
+| T29 | H011 rule: manual SI-string parsing (ParseSI)            | Medium | M      | planned |
+| T30 | H012 rule: WordSeries/Oxford hand-rolls                  | Low    | M      | planned |
+| T31 | Delete DEPLOY_KEY_* secrets + dep-repo keys (post-green-CI) | Low  | S      | blocked by T21 |
+| T18 | Publish to golangci-lint plugin index                    | High   | S      | blocked by T23 |
+| T20 | Release gogenfilter (sibling ahead of pinned v3.6.0)     | Medium | S      | planned |
+
+Full breakdown with 27 medium tasks and 70 fine-grained steps:
+`docs/planning/2026-09-18_21-09_SUPERB-pareto-ship-h010-and-beyond.md`.
 
 ---
 
 ## Distribution
 
-### T18 — Publish to golangci-lint plugin index · Low · _ready_
+### T18 — Publish to golangci-lint plugin index · High · _blocked by T23 (v0.3.0 release)_
 
 v0.2.0 is tagged, the GitHub Release is published (with linux-amd64 binaries),
 and `go get github.com/larsartmann/go-humanize-linter@v0.2.0` was verified in a
@@ -32,10 +46,10 @@ clean module (the `plugin` package compiles from the published version).
 
 ### T20 — Release gogenfilter with the new sqlc detection · Medium · _planned_
 
-The workspace sibling `../gogenfilter` is 30 commits ahead of the pinned v3.4.0,
-with significant sqlc detection changes. The `go.work` `use` entry serves the
-sibling locally, so local dev runs newer detection behavior than CI (pinned
-v3.4.0). Both currently agree on bare sqlc filename behavior, but the drift is
+The workspace sibling `../gogenfilter` is ahead of the pinned v3.6.0
+(2026-09-18: local sibling carries further commits; v3.6.0 already shipped the
+config-aware sqlc change this repo adopted). The `go.work` `use` entry serves
+the sibling locally, so local dev can run newer detection behavior than CI —
 a latent split-brain.
 
 - [ ] Tag + push a gogenfilter release (requires explicit user approval)
