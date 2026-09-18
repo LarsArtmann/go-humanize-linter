@@ -9,12 +9,12 @@
 
 ## Summary
 
-| #   | Task                                                     | Tier   | Effort | Status  |
-| --- | -------------------------------------------------------- | ------ | ------ | ------- |
-| T18 | Publish to golangci-lint plugin index                    | High   | S      | ready (v0.3.0 released) |
-| T20 | Release gogenfilter (sibling ahead of pinned v3.6.0)     | Medium | S      | planned, needs approval |
-| T29 | H011 rule: manual SI-string parsing (ParseSI)            | Medium | M      | deferred — zero corpus demand (2026-09-18 research) |
-| T32 | Remove read-only deploy keys from 4 dep repos (foreign repos) | Low | S   | ready |
+| #   | Task                                                          | Tier   | Effort | Status                                              |
+| --- | ------------------------------------------------------------- | ------ | ------ | --------------------------------------------------- |
+| T18 | Publish to golangci-lint plugin index                         | High   | S      | ready (v0.3.0 released)                             |
+| T20 | Release gogenfilter (sibling ahead of pinned v3.6.0)          | Medium | S      | planned, needs approval                             |
+| T29 | H011 rule: manual SI-string parsing (ParseSI)                 | Medium | M      | deferred — zero corpus demand (2026-09-18 research) |
+| T32 | Remove read-only deploy keys from 4 dep repos (foreign repos) | Low    | S      | ready                                               |
 
 Done 2026-09-18 (recorded in CHANGELOG): T21 push+CI, T22 H010 sweep,
 T23 v0.3.0 release, T24 H010 fixture pack, T25 CI-miss investigation

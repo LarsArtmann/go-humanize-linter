@@ -71,20 +71,20 @@ A rule that is registered in the registry but never fires on any test fixture. T
 
 ## Rule IDs
 
-| ID    | Name                     | Detects                                                              | Suggests                               |
-| ----- | ------------------------ | -------------------------------------------------------------------- | -------------------------------------- |
-| H001  | manual-bytes-format      | Byte-size formatting (KMGTPE trick, unit strings, 1024 division)     | `humanize.Bytes`, `humanize.IBytes`    |
-| H002  | manual-comma-format      | Thousands-separator insertion (mod-3 grouping, digit conversion)     | `humanize.Comma`                       |
-| H003  | manual-reltime           | Relative-time formatting (time.Since/Sub + "ago" + threshold)        | `humanize.RelTime`, `humanize.Time`    |
-| H004  | manual-plural            | English pluralization (`if n == 1` switches, singular/plural params) | `english.PluralWord`, `english.Plural` |
-| H005  | manual-si-format         | SI-prefix formatting (division by 1000, K/M/G suffix)                | `humanize.SI`                          |
-| H006  | manual-ftoa              | Trailing-zero stripping (nested `strings.TrimRight`)                 | `humanize.Ftoa`                        |
-| H007  | manual-parse-bytes       | Byte-size string parsing (HasSuffix/CutSuffix, multiplier maps)      | `humanize.ParseBytes`                  |
-| H008  | manual-ordinal           | Ordinal formatting (`switch n%10`, st/nd/rd/th cases)                | `humanize.Ordinal`                     |
-| H009  | manual-commaf            | Float-with-comma formatting (`%.Nf` + manual separator grouping)     | `humanize.Commaf`                      |
-| H010  | manual-comma-parse       | Comma-grouped number parsing (comma strip + strconv parse)           | `humanize.ParseComma`, `humanize.ParseCommaf` |
-| H012  | manual-word-series       | Word-series joining (comma join + conjunction literal)              | `humanize.WordSeries`, `humanize.OxfordWordSeries` |
-| H0SUP | suppression-verification | Stale or misspelled `//nolint:gohumanize` directives                 | Fix or remove the directive            |
+| ID    | Name                     | Detects                                                              | Suggests                                           |
+| ----- | ------------------------ | -------------------------------------------------------------------- | -------------------------------------------------- |
+| H001  | manual-bytes-format      | Byte-size formatting (KMGTPE trick, unit strings, 1024 division)     | `humanize.Bytes`, `humanize.IBytes`                |
+| H002  | manual-comma-format      | Thousands-separator insertion (mod-3 grouping, digit conversion)     | `humanize.Comma`                                   |
+| H003  | manual-reltime           | Relative-time formatting (time.Since/Sub + "ago" + threshold)        | `humanize.RelTime`, `humanize.Time`                |
+| H004  | manual-plural            | English pluralization (`if n == 1` switches, singular/plural params) | `english.PluralWord`, `english.Plural`             |
+| H005  | manual-si-format         | SI-prefix formatting (division by 1000, K/M/G suffix)                | `humanize.SI`                                      |
+| H006  | manual-ftoa              | Trailing-zero stripping (nested `strings.TrimRight`)                 | `humanize.Ftoa`                                    |
+| H007  | manual-parse-bytes       | Byte-size string parsing (HasSuffix/CutSuffix, multiplier maps)      | `humanize.ParseBytes`                              |
+| H008  | manual-ordinal           | Ordinal formatting (`switch n%10`, st/nd/rd/th cases)                | `humanize.Ordinal`                                 |
+| H009  | manual-commaf            | Float-with-comma formatting (`%.Nf` + manual separator grouping)     | `humanize.Commaf`                                  |
+| H010  | manual-comma-parse       | Comma-grouped number parsing (comma strip + strconv parse)           | `humanize.ParseComma`, `humanize.ParseCommaf`      |
+| H012  | manual-word-series       | Word-series joining (comma join + conjunction literal)               | `humanize.WordSeries`, `humanize.OxfordWordSeries` |
+| H0SUP | suppression-verification | Stale or misspelled `//nolint:gohumanize` directives                 | Fix or remove the directive                        |
 
 ## Detection Architecture
 

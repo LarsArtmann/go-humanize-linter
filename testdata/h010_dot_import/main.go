@@ -1,8 +1,8 @@
 package main
 
 import (
-	. "strings"
 	"strconv"
+	. "strings"
 )
 
 // parseDotImport strips commas via a dot-imported strings.ReplaceAll (bare
