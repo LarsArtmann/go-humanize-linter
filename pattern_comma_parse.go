@@ -29,7 +29,7 @@ type commaParseEvidence struct {
 
 // strconvParseFuncs are the strconv entry points whose hand-rolled
 // comma-stripping prefixes ParseComma/ParseCommaf replace.
-var strconvParseFuncs = []string{
+var strconvParseFuncs = []string{ //nolint:gochecknoglobals // package-level lookup table
 	"Atoi", "ParseInt", "ParseUint", "ParseFloat", "ParseComplex",
 }
 
