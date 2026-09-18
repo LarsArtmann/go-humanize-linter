@@ -16,7 +16,7 @@ func ExampleDefaultRegistry() {
 
 	fmt.Println("registered rules:", len(registry.All()))
 
-	// Output: registered rules: 9
+	// Output: registered rules: 10
 }
 
 // ExampleAllRules lists the stable rule IDs in registration order.
@@ -35,6 +35,7 @@ func ExampleAllRules() {
 	// H007
 	// H008
 	// H009
+	// H010
 }
 
 // ExampleRuleBytes inspects a single rule factory's metadata.
@@ -116,6 +117,15 @@ func ExampleRuleCommaf() {
 	fmt.Println(rule.Meta.ID, rule.Meta.Name)
 
 	// Output: H009 manual-commaf
+}
+
+// ExampleRuleParseComma shows the H010 manual-comma-parse rule.
+func ExampleRuleParseComma() {
+	rule := humanizelint.RuleParseComma()
+
+	fmt.Println(rule.Meta.ID, rule.Meta.Name)
+
+	// Output: H010 manual-comma-parse
 }
 
 // ExampleDetectFuncDecl runs the detectors against a hand-rolled byte formatter

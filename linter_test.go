@@ -282,6 +282,53 @@ func TestRuleCommaf_Negative(t *testing.T) {
 	assertFindings(t, humanizelint.RuleCommaf(), "h009_negative", 0, "on H009 negative fixture")
 }
 
+// ---------------------------------------------------------------------------
+// H010 — manual-comma-parse
+// ---------------------------------------------------------------------------
+
+func TestRuleParseComma_InlineStrip_FullConfidence(t *testing.T) {
+	t.Parallel()
+
+	findings := assertFindings(t, humanizelint.RuleParseComma(), "h010_comma_parse_direct", 1, "")
+
+	if findings[0].Rule != "H010" {
+		t.Errorf("expected rule H010, got %s", findings[0].Rule)
+	}
+
+	if findings[0].Confidence != finding.ConfidenceFull {
+		t.Errorf("expected full confidence for strip inlined in strconv call, got %v", findings[0].Confidence)
+	}
+}
+
+func TestRuleParseComma_VarStrip_HighConfidence(t *testing.T) {
+	t.Parallel()
+
+	findings := assertFindings(t, humanizelint.RuleParseComma(), "h010_comma_parse_var", 1, "")
+
+	if findings[0].Confidence != finding.ConfidenceHigh {
+		t.Errorf("expected high confidence for comma strip + strconv parse, got %v", findings[0].Confidence)
+	}
+}
+
+func TestRuleParseComma_SplitJoin_MediumConfidence(t *testing.T) {
+	t.Parallel()
+
+	findings := assertFindings(t, humanizelint.RuleParseComma(), "h010_comma_parse_splitjoin", 1, "")
+
+	if findings[0].Confidence != finding.ConfidenceMedium {
+		t.Errorf("expected medium confidence for indirect strip, got %v", findings[0].Confidence)
+	}
+}
+
+// TestRuleParseComma_Negative guards the H010 false-positive filters: CSV
+// field splitting (no Join rebuild), non-comma stripping, comma stripping
+// without a number parse, and comma-rejecting validators (no string rebuild).
+func TestRuleParseComma_Negative(t *testing.T) {
+	t.Parallel()
+
+	assertFindings(t, humanizelint.RuleParseComma(), "h010_negative", 0, "on CSV split, space strip, display cleanup, and validator fixtures")
+}
+
 // TestRuleComma_StringsJoinSpace_NoFalsePositive is a regression test for the
 // issue where H002/H009 fired on functions that joined CLI args with a single
 // space (" "). A space is not a thousands separator, so this pattern must
@@ -461,8 +508,8 @@ func TestDefaultRegistry_AllRules(t *testing.T) {
 	t.Parallel()
 
 	r := humanizelint.DefaultRegistry()
-	if len(r.All()) != 9 {
-		t.Fatalf("expected 9 rules, got %d", len(r.All()))
+	if len(r.All()) != 10 {
+		t.Fatalf("expected 10 rules, got %d", len(r.All()))
 	}
 }
 
