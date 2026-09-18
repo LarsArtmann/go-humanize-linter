@@ -149,7 +149,7 @@ func reanchorSuppressionFindings(findings []finding.Finding) {
 
 // Analyzer is the standalone entry point. Exported for use with
 // golang.org/x/tools/go/analysis/singlechecker (cmd/gohumanize).
-// All 9 rules are enabled — standalone mode does not support per-rule
+// All 10 rules are enabled — standalone mode does not support per-rule
 // configuration.
 var Analyzer = newAnalyzer() //nolint:gochecknoglobals // required by singlechecker
 

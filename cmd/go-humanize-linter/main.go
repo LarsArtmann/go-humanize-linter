@@ -398,6 +398,10 @@ var ruleExplanations = map[string]string{ //nolint:gochecknoglobals // CLI looku
 	humanizelint.RuleIDH009: "Manual float-with-thousands-separator formatting via '%.Nf' " +
 		"Sprintf combined with a manual comma-grouping loop. " +
 		"humanize.Commaf returns the same result in one call.",
+	humanizelint.RuleIDH010: "Manual comma-grouped number parsing: comma-stripping " +
+		"(strings.ReplaceAll/Replace/Split+Join or a ',' filter loop) followed by " +
+		"strconv.Atoi/ParseInt/ParseFloat. humanize.ParseComma / humanize.ParseCommaf " +
+		"(go-humanize v1.1.0+) strip thousands separators and parse in one call.",
 }
 
 // printExplanation prints the rationale for a given rule ID and returns. Used
