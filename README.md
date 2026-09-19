@@ -152,7 +152,7 @@ go-humanize-linter --behavior-delta baseline.json ./...
 ### As a GitHub Action
 
 ```yaml
-- uses: LarsArtmann/go-humanize-linter@v0.3.0
+- uses: LarsArtmann/go-humanize-linter@v0.4.0
   with:
     path: ./...
     # enable: H001,H003     # only run these rules

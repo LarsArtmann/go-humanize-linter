@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Nothing yet.
+
+### Changed
+
+- Nothing yet.
+
+### Fixed
+
+- Nothing yet.
+
+## [0.4.0] - 2026-09-19
+
+### Added
+
 - **H012 `manual-word-series` rule** (`pattern_word_series.go`, `rule_word_series.go`) — detects hand-rolled word-series joining ("a, b, and c") that should use `humanize.WordSeries` / `humanize.OxfordWordSeries`. Requires a comma `strings.Join` AND a conjunction in position (Join separator like `Join(x, " and ")` or a concatenation operand like `+ " and " +`); Full confidence needs the complete clone (prefix join of all but the last element + `x[len(x)-1]` access). Plain `strings.Join(x, ", ")` and prose-only conjunctions stay clean. Corpus-swept same day: 2 true positives, 0 false positives. H011 remains reserved for a future manual-si-parse rule (zero corpus demand so far).
 - **H010 fixture pack** — aliased-import, dot-import, scoped `//nolint:gohumanize:H010`, and rune-filter-loop fixtures close the coverage gap with H007's alias testing.
 - **H012 regression guards** — the conjunction-position filter (prose "and" does not count) is now protected twice over: expanded `h012_negative` fixtures (Sprintf-format prose, bare-variable prose, prefix join without conjunction) and a white-box unit test `TestCollectWordSeriesEvidence_ConjunctionPosition` that proves the discrimination in both directions (prose never counts, Join separator / concat operand always count).
