@@ -135,7 +135,7 @@ Depends on go-finding which uses `encoding/json/v2`. All `go` commands need:
 
 - `GOEXPERIMENT=jsonv2`
 
-**The repo is PUBLIC since 2026-09-09, and all 4 sibling deps are PUBLIC (verified via anonymous `go get` through proxy.golang.org).** `GOPRIVATE`/`GONOSUMDB` are no longer needed anywhere: they have been removed from the workflows, flake.nix, README, CONTRIBUTING, action.yml, and the integration tests. Only `GOEXPERIMENT=jsonv2` is required. Remaining cleanup (pending): the 5 `DEPLOY_KEY_*` GitHub secrets can be deleted AFTER a green CI run on the cleaned workflows (delete the old workflow's secrets too soon and any pre-cleanup push fails CI).
+**The repo is PUBLIC since 2026-09-09, and all 4 sibling deps are PUBLIC (verified via anonymous `go get` through proxy.golang.org).** `GOPRIVATE`/`GONOSUMDB` are no longer needed anywhere: they have been removed from the workflows, flake.nix, README, CONTRIBUTING, action.yml, and the integration tests. Only `GOEXPERIMENT=jsonv2` is required. Auth cleanup is COMPLETE: the 5 `DEPLOY_KEY_*` GitHub secrets were deleted 2026-09-18 (after multiple green CI runs on the cleaned workflows) and the four dep-repo read-only deploy keys were deleted 2026-09-19 — zero deploy keys remain anywhere.
 
 Use `nix run .#test` / `nix run .#lint` (sets env automatically).
 
