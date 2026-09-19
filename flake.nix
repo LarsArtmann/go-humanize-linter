@@ -49,10 +49,14 @@
 
       go-standard = {
         pname = "go-humanize-linter";
-        vendorHash = "sha256-z0Iz4sFSkJtkg91N2hmtc4uXA9foRqlYXlB3U/gVcoU=";
+        vendorHash = "sha256-Efx4XtBAB85n1ywamt5j6ebKZmzTUbV5Z76SJe2LApI=";
         description = "AST linter that detects hand-rolled reimplementations of go-humanize";
         enableCheck = false;
         subPackages = [ "cmd/go-humanize-linter" ];
+        # 2026-09-19: the go-linter-sdk input's go.mod floor is >= 1.27.1,
+        # which nixpkgs go_1_26 (the module default, 1.26.7) cannot satisfy
+        # under GOTOOLCHAIN=local.
+        goPkgAttr = "go_1_27";
 
         deps = {
           "github.com/larsartmann/go-finding" = inputs.go-finding;
