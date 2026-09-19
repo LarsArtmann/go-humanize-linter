@@ -12,7 +12,6 @@
 | #   | Task                                                          | Tier   | Effort | Status                                              |
 | --- | ------------------------------------------------------------- | ------ | ------ | --------------------------------------------------- |
 | T29 | H011 rule: manual SI-string parsing (ParseSI)                 | Medium | M      | deferred — zero corpus demand (2026-09-18 research) |
-| T32 | Remove read-only deploy keys from 4 dep repos (foreign repos) | Low    | S      | ready                                               |
 
 Declined 2026-09-19 (user decision): T18 plugin-index PR and T20
 gogenfilter release — no foreign-repo actions for now. Consumer repos
@@ -29,18 +28,5 @@ T31 DEPLOY_KEY_* secrets deleted.
 Done 2026-09-19: H012 conjunction-position regression guards (negative
 fixtures + unit discrimination test), go-directive incident root-caused
 and documented (AGENTS.md Gotchas), lint parity confirmed (local nix
-0 issues, CI green), pkg.go.dev v0.3.0 verified.
-
----
-
-## Infrastructure
-
-### T32 — Remove read-only deploy keys from 4 dep repos · Low · _ready_
-
-The `DEPLOY_KEY_*` GitHub secrets were deleted 2026-09-18 after the four
-sibling dependencies went public and CI verified anonymous proxy fetches. The
-now-unused read-only deploy keys remain in each dependency repo's settings
-(foreign repos — GitHub settings, not code).
-
-- [ ] Remove the read-only deploy key from go-linter-sdk, go-finding,
-      gogenfilter, and go-error-family settings pages
+0 issues, CI green), pkg.go.dev v0.3.0 verified, T32 read-only deploy
+keys removed from all 4 dep repos (zero keys remain).

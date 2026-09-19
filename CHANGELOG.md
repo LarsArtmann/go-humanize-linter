@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **H009 suggestion enrichment** — mentions `humanize.CommafWithDigits(f, n)` for custom precision.
 - **Library examples** — `doc.go` and README now show the ternary `ExitCodeByConfidence` exit code (ADR 0003) instead of the legacy binary `ExitCodeFromReport`, and README documents that upgrading to a release with new rules (like v0.3.0's H010) requires regenerating `--behavior-delta` baselines.
 - **CI hygiene** — dependabot actions-group PR rebased and merged (main had been red since 2026-09-13 on a stale gogenfilter test; root cause documented in `docs/validation/2026-09-18_h010-sweep.md` era commits and fixed before v0.3.0). The five `DEPLOY_KEY_*` secrets were deleted after green CI.
+- **Security hygiene** — the four now-unused read-only CI deploy keys were removed from the dependency repos' settings (go-linter-sdk, go-finding, gogenfilter, go-error-family), completing the going-public auth cleanup; all four repos verified at zero deploy keys.
 
 ### Fixed
 
