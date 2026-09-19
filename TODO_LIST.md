@@ -30,3 +30,12 @@ fixtures + unit discrimination test), go-directive incident root-caused
 and documented (AGENTS.md Gotchas), lint parity confirmed (local nix
 0 issues, CI green), pkg.go.dev v0.3.0 verified, T32 read-only deploy
 keys removed from all 4 dep repos (zero keys remain).
+
+Done 2026-09-19: v0.4.0 released (H012 rule, H010 fixture pack, H012
+guards, H002/H009 suggestion enrichments, CI/security hygiene). A second
+background toolchain bump (go 1.27 + go-finding v1.12.0 sweep) was
+reverted per the revert-on-sight decision before tagging; unbreak
+verified with GOWORK=off GOTOOLCHAIN=go1.26.8 build/vet/test, then full
+nix battery (build/vet/test-race/lint). Release verified: proxy indexed,
+clean-dir go get + go run works, binary reports v0.4.0, curated release
+notes written (auto-generated notes only listed the dependabot PR).
