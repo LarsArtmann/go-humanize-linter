@@ -63,7 +63,7 @@
 1. **Commit-before-verify, not commit-after-verify.** Daemon latency is seconds; test batteries are minutes. New rule for this repo: after any deliberate file change, `git add + commit` IMMEDIATELY, then run the battery. (Second occurrence across consecutive sessions — if it happens a third time, this becomes a hard-coded habit check in every handoff.)
 2. **Kill `--generate-notes` or make curation mandatory in the flow.** Every release from this repo will publish a feature-free notes body until manually edited. Concrete options: (a) release.yml switches to `--notes-file` from a repo file, (b) a release-runbook checklist makes `gh release edit` a named, non-skippable step. AGENTS gotcha currently documents the gap; the workflow itself is unchanged.
 3. **Script the post-release external checks.** `scripts/post-release-check.sh` doing bounded polls (proxy version list, clean-dir go get, `go list @latest`, pkg.go.dev) with allowed tooling would have saved ~30 minutes of hand-rolled polling this session and standardizes the NEXT#2-style follow-ups.
-4. **Structural bumper defense beats vigilance.** Incident #3 happened *hours* after the revert-on-sight decision. A CI guard step (`go.mod` `go` directive must be 1.26.x, else fail with an explanatory message) converts silent toolchain drift into a loud, self-documenting failure — and encodes the policy in code instead of in TODO_LIST prose.
+4. **Structural bumper defense beats vigilance.** Incident #3 happened _hours_ after the revert-on-sight decision. A CI guard step (`go.mod` `go` directive must be 1.26.x, else fail with an explanatory message) converts silent toolchain drift into a loud, self-documenting failure — and encodes the policy in code instead of in TODO_LIST prose.
 5. **Inspect the previous instance before reusing any mechanism** (release notes, workflows, scripts). Prior output is the cheapest code review.
 6. **View-before-edit is not optional** — the two rejected edits were pure process debt.
 7. **What worked, keep doing:** trust-order CLI > LSP (zero LSP time burned this session); verify-at-CI-parity (`GOWORK=off GOTOOLCHAIN=go1.26.8`) before pushing any go.mod-touching change; investigate foreign commits before building on them (ce52545 checked line-by-line).
@@ -72,47 +72,47 @@
 
 **Release verification (close out v0.4.0)**
 
-| #  | Task                                                                                                                         | Impact | Effort | Category      |
-| -- | ---------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 1  | Verify pkg.go.dev indexes v0.4.0: H012 docs render, "Go to latest" flips, README shows @v0.4.0 (closes the v0.3.1 question)   | High   | S      | Documentation |
-| 2  | Verify raw proxy `@latest` JSON flipped to v0.4.0                                                                             | Low    | S      | Quality       |
-| 3  | Run the Action's literal install path (`go install ...@latest`) in a clean env to close the b3 caveat                        | Medium | S      | Quality       |
-| 4  | Write `scripts/post-release-check.sh` (bounded proxy/go-get/pkg.go.dev checks)                                                | Medium | M      | Quality       |
-| 5  | Sweep the consumer demo repos with the released v0.4.0 binary — confirm H012's 2 corpus TPs fire from the published artifact   | Medium | S      | Quality       |
-| 6  | Run `nix run .#coverage` post-release; confirm no coverage drop from H012 additions                                           | Low    | S      | Quality       |
+| # | Task                                                                                                                         | Impact | Effort | Category      |
+| - | ---------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
+| 1 | Verify pkg.go.dev indexes v0.4.0: H012 docs render, "Go to latest" flips, README shows @v0.4.0 (closes the v0.3.1 question)  | High   | S      | Documentation |
+| 2 | Verify raw proxy `@latest` JSON flipped to v0.4.0                                                                            | Low    | S      | Quality       |
+| 3 | Run the Action's literal install path (`go install ...@latest`) in a clean env to close the b3 caveat                        | Medium | S      | Quality       |
+| 4 | Write `scripts/post-release-check.sh` (bounded proxy/go-get/pkg.go.dev checks)                                               | Medium | M      | Quality       |
+| 5 | Sweep the consumer demo repos with the released v0.4.0 binary — confirm H012's 2 corpus TPs fire from the published artifact | Medium | S      | Quality       |
+| 6 | Run `nix run .#coverage` post-release; confirm no coverage drop from H012 additions                                          | Low    | S      | Quality       |
 
 **Bumper defense (incident #3 happened today)**
 
-| #  | Task                                                                                                                         | Impact | Effort | Category      |
-| -- | ---------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 7  | Add CI guard step: fail loud if go.mod `go` directive != 1.26.x (policy in code, not prose)                                   | High   | S      | Quality       |
-| 8  | Decide bumper investigation (journal/systemd peek at project-discovery-daemon) — recurrence continues, now bundling dep bumps  | Medium | S      | Cleanup       |
-| 9  | Decide whether go-finding v1.12.0 + go-error-family v0.10.1 get re-applied deliberately (with CHANGELOG entry) or stay reverted | Medium | S      | Cleanup       |
-| 10 | Watch the next daemon window; a 4th bump within a week promotes #7 from "should" to "must"                                    | High   | S      | Process       |
+| #  | Task                                                                                                                            | Impact | Effort | Category |
+| -- | ------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | -------- |
+| 7  | Add CI guard step: fail loud if go.mod `go` directive != 1.26.x (policy in code, not prose)                                     | High   | S      | Quality  |
+| 8  | Decide bumper investigation (journal/systemd peek at project-discovery-daemon) — recurrence continues, now bundling dep bumps   | Medium | S      | Cleanup  |
+| 9  | Decide whether go-finding v1.12.0 + go-error-family v0.10.1 get re-applied deliberately (with CHANGELOG entry) or stay reverted | Medium | S      | Cleanup  |
+| 10 | Watch the next daemon window; a 4th bump within a week promotes #7 from "should" to "must"                                      | High   | S      | Process  |
 
 **Release process**
 
-| #  | Task                                                                                                                         | Impact | Effort | Category      |
-| -- | ---------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 11 | Switch release.yml to curated notes (repo notes file) OR codify `gh release edit` as a named release-runbook step             | Medium | S      | Cleanup       |
-| 12 | Decide sibling re-pin cadence (gogenfilter sibling ahead of v3.6.1; go-finding sibling at go 1.27 vs published 1.26.7)         | Medium | S      | Cleanup       |
-| 13 | Document the intentional go.mod(1.26.7)/go.work-sibling(1.27+) floor divergence in AGENTS when siblings next release           | Low    | S      | Documentation |
-| 14 | Add the weekly self-scan + corpus-sweep ritual (CI schedule or checklist)                                                     | Medium | S      | Quality       |
+| #  | Task                                                                                                                   | Impact | Effort | Category      |
+| -- | ---------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
+| 11 | Switch release.yml to curated notes (repo notes file) OR codify `gh release edit` as a named release-runbook step      | Medium | S      | Cleanup       |
+| 12 | Decide sibling re-pin cadence (gogenfilter sibling ahead of v3.6.1; go-finding sibling at go 1.27 vs published 1.26.7) | Medium | S      | Cleanup       |
+| 13 | Document the intentional go.mod(1.26.7)/go.work-sibling(1.27+) floor divergence in AGENTS when siblings next release   | Low    | S      | Documentation |
+| 14 | Add the weekly self-scan + corpus-sweep ritual (CI schedule or checklist)                                              | Medium | S      | Quality       |
 
 **Detection/rules (inherited from morning report, untouched)**
 
-| #  | Task                                                                                                                         | Impact | Effort | Category      |
-| -- | ---------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 15 | `BenchmarkH012Detector` mirroring the H010 benchmark shape                                                                    | Medium | M      | Quality       |
-| 16 | Corpus re-sweep across ~/projects under gogenfilter v3.6.1 (pinned today; table may have moved)                               | High   | M      | Quality       |
-| 17 | Depth-2 nested-repo sweep support (games/*-style layouts)                                                                     | Medium | M      | Feature       |
-| 18 | H011 manual-si-parse — re-evaluate only on new upstream go-humanize tags or corpus demand                                     | Low    | L      | Feature       |
-| 19 | H010 NewReplacer strip detection — implement only on corpus demand (negative fixture already exists)                          | Low    | M      | Feature       |
+| #  | Task                                                                                                 | Impact | Effort | Category |
+| -- | ---------------------------------------------------------------------------------------------------- | ------ | ------ | -------- |
+| 15 | `BenchmarkH012Detector` mirroring the H010 benchmark shape                                           | Medium | M      | Quality  |
+| 16 | Corpus re-sweep across ~/projects under gogenfilter v3.6.1 (pinned today; table may have moved)      | High   | M      | Quality  |
+| 17 | Depth-2 nested-repo sweep support (games/*-style layouts)                                            | Medium | M      | Feature  |
+| 18 | H011 manual-si-parse — re-evaluate only on new upstream go-humanize tags or corpus demand            | Low    | L      | Feature  |
+| 19 | H010 NewReplacer strip detection — implement only on corpus demand (negative fixture already exists) | Low    | M      | Feature  |
 
 **Docs**
 
-| #  | Task                                                                                                                         | Impact | Effort | Category      |
-| -- | ---------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
+| #  | Task                                                                                                                          | Impact | Effort | Category      |
+| -- | ----------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
 | 20 | HARVEST this report's (f) into TODO_LIST.md / ROADMAP.md (else these die in this timestamped file)                            | High   | S      | Documentation |
 | 21 | `docs/rules/H012.md`: document the four negative shapes explicitly (Sprintf prose, bare variable, slash join, prefix-no-conj) | Low    | S      | Documentation |
 | 22 | Record the consumer-corpus leave-as-is decision in docs/validation so future sweeps don't "fix" them                          | Low    | S      | Documentation |
@@ -129,4 +129,4 @@
 
 ---
 
-*Report format note: written as Markdown per explicit user instruction (`docs/status/*.md`), overriding the status-report skill's HTML default.*
+_Report format note: written as Markdown per explicit user instruction (`docs/status/*.md`), overriding the status-report skill's HTML default._

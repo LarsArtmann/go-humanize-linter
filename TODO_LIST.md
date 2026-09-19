@@ -9,9 +9,9 @@
 
 ## Summary
 
-| #   | Task                                                          | Tier   | Effort | Status                                              |
-| --- | ------------------------------------------------------------- | ------ | ------ | --------------------------------------------------- |
-| T29 | H011 rule: manual SI-string parsing (ParseSI)                 | Medium | M      | deferred — zero corpus demand (2026-09-18 research) |
+| #   | Task                                          | Tier   | Effort | Status                                              |
+| --- | --------------------------------------------- | ------ | ------ | --------------------------------------------------- |
+| T29 | H011 rule: manual SI-string parsing (ParseSI) | Medium | M      | deferred — zero corpus demand (2026-09-18 research) |
 
 Declined 2026-09-19 (user decision): T18 plugin-index PR and T20
 gogenfilter release — no foreign-repo actions for now. Consumer repos

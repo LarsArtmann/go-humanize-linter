@@ -45,14 +45,14 @@ reported as observation, not investigated.
 
 ## a) FULLY DONE
 
-| # | Item | Evidence |
-|---|------|----------|
-| 1 | T32: all 4 dep-repo read-only deploy keys removed | API re-list = `0` keys × 4 repos |
-| 2 | T32 doc trail: TODO_LIST (Done), AGENTS.md gotcha, CHANGELOG entry | commit `ce52545` (3 files) |
-| 3 | AGENTS.md split-brain fixed ("pending" claim removed) | commit `2bb893e`; `grep pending` = 0 matches |
-| 4 | T31 external re-verification: zero `DEPLOY_KEY_*` secrets | `gh secret list` = empty |
-| 5 | Local-machine impact check: no insteadOf/ssh references to deleted keys | `git config --global --get-regexp` + `ls ~/.ssh` |
-| 6 | Going-public auth cleanup arc now COMPLETE (workflows 09-09 → secrets 09-18 → dep keys 09-19) | all three legs verified |
+| # | Item                                                                                          | Evidence                                         |
+| - | --------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| 1 | T32: all 4 dep-repo read-only deploy keys removed                                             | API re-list = `0` keys × 4 repos                 |
+| 2 | T32 doc trail: TODO_LIST (Done), AGENTS.md gotcha, CHANGELOG entry                            | commit `ce52545` (3 files)                       |
+| 3 | AGENTS.md split-brain fixed ("pending" claim removed)                                         | commit `2bb893e`; `grep pending` = 0 matches     |
+| 4 | T31 external re-verification: zero `DEPLOY_KEY_*` secrets                                     | `gh secret list` = empty                         |
+| 5 | Local-machine impact check: no insteadOf/ssh references to deleted keys                       | `git config --global --get-regexp` + `ls ~/.ssh` |
+| 6 | Going-public auth cleanup arc now COMPLETE (workflows 09-09 → secrets 09-18 → dep keys 09-19) | all three legs verified                          |
 
 ## b) PARTIALLY DONE
 
