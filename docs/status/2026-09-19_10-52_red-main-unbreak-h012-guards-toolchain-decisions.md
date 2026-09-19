@@ -57,25 +57,26 @@ Nothing is left broken. Permanent blemishes, honestly filed:
 ## f) NEXT — ranked, realistic (24 items; the prior 50-item backlog lives in `docs/status/2026-09-18_22-01_*.md` and was not re-verified this session)
 
 **Release track**
+
 1. Decide v0.4.0 timing; when cutting: CHANGELOG `Unreleased → 0.4.0`, full go-release phases (tag → release.yml → proxy verify → clean-module `go get` → action.yml bump).
 2. After 0.4.0: verify pkg.go.dev renders H012 + guards and flips "Go to latest".
 3. Decide on a doc-only v0.3.1 for the frozen tag's README `@v0.2.0` Action example — or let 0.4.0 supersede.
-**Detection/rules track**
+   **Detection/rules track**
 4. `BenchmarkH012Detector` (mirror the H010 benchmark shape).
 5. Corpus re-sweep under gogenfilter v3.6.1 (detection table may have moved; 169-repo loop script exists).
 6. Nested-repo (depth-2) sweep support; re-run sweep including `games/*`.
 7. H011 manual-si-parse — keep deferred; re-evaluate only on new upstream go-humanize tags or corpus demand.
 8. H010 documented gap: NewReplacer strip form stays undetected (negative fixture exists) — implement only if corpus shows demand.
-**Verification track**
+   **Verification track**
 9. Run `nix run .#vet` and `nix run .#test-race` to close this session's battery gaps.
 10. Add a periodic (weekly?) self-scan + corpus sweep ritual so red-main-drift and detection regressions surface faster than 5 days.
-**Hygiene/infra track**
+    **Hygiene/infra track**
 11. T32: remove read-only deploy keys from go-linter-sdk, go-finding, gogenfilter, go-error-family.
 12. Watch for go.mod re-bumps; if frequency grows, revisit bumper investigation with the user.
 13. Decide re-pin cadence for gogenfilter (sibling drifts ahead of pins; v3.6.1 pinned today, sibling carries more).
 14. Consider documenting the auto-commit daemon + question-block pause protocol in AGENTS so future sessions re-verify by default (partially done via the gotcha).
 15. LSP stale-diagnostic note: if the 5 warnings persist across sessions, an LSP restart or cache clear is warranted (not a code problem — nix lint is the source of truth).
-**Docs track**
+    **Docs track**
 16. After 0.4.0: refresh README rules table example outputs if example tests changed.
 17. Keep `docs/rules/H012.md` in sync if the position filter ever gains forms (it documents the current four subtest cases only implicitly).
 18. Record the consumer-repo corpus decision (leave-as-is) in the sweep doc so future sweeps don't "fix" them by accident.
