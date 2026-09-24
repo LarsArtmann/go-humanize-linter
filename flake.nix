@@ -53,10 +53,6 @@
         description = "AST linter that detects hand-rolled reimplementations of go-humanize";
         enableCheck = false;
         subPackages = [ "cmd/go-humanize-linter" ];
-        # 2026-09-19: the go-linter-sdk input's go.mod floor is >= 1.27.1,
-        # which nixpkgs go_1_26 (the module default, 1.26.7) cannot satisfy
-        # under GOTOOLCHAIN=local.
-        goPkgAttr = "go_1_27";
 
         deps = {
           "github.com/larsartmann/go-finding" = inputs.go-finding;
