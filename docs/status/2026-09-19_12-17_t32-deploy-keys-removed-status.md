@@ -68,8 +68,8 @@ reported as observation, not investigated.
 
 ## c) NOT STARTED (session-scoped leftovers)
 
-1. Harvest of section (f) below into TODO_LIST.md / ROADMAP.md (needs user
-   triage of the brainstorm items).
+1. ~~Harvest of section (f) below into TODO_LIST.md / ROADMAP.md (needs user~~ done (docs-health pass 2026-09-26 — harvested by the docs-health pass (verified items → TODO_LIST T33-T40, ideas → ROADMAP, user rulings left open in place))
+   ~~triage of the brainstorm items).~~
 2. Nothing else — T32 itself has no remaining checkboxes; the task is closed
    end-to-end.
 
@@ -125,10 +125,10 @@ brainstorm — needs verification/routing before entering TODO_LIST.
 
 ### Immediate / decisions
 
-1. `[V]` Triage this section (f): route verified items into TODO_LIST, the rest into ROADMAP (docs-health HARVEST).
+1. ~~`[V]` Triage this section (f): route verified items into TODO_LIST, the rest into ROADMAP (docs-health HARVEST).~~ done (docs-health pass 2026-09-26 — this docs-health pass)
 2. `[V]` Rule on the foreign-repo standing policy (question g1).
 3. `[V]` Rule on CHANGELOG scope for foreign-repo hygiene (question g2).
-4. `[V]` Rule on status-report archive/prune policy (question g3).
+4. ~~`[V]` Rule on status-report archive/prune policy (question g3).~~ done — answered 2026-09-26 — user instructed: archive fully-done, annotated reports (done in this pass)
 
 ### Project items known-open (from context)
 
@@ -138,10 +138,10 @@ brainstorm — needs verification/routing before entering TODO_LIST.
 8. `[K]` Consumer-corpus research: hand-rolled `BytesN`/`IBytesN` (v1.1.0 surface) — potential new rule, zero demand confirmed so far.
 9. `[K]` Remove gogenfilter legacy-suffix fallback IF upstream ever adds `_gen.go` patterns (conditional).
 10. `[K]` Plan GOEXPERIMENT=jsonv2 removal once encoding/json/v2 is default in a Go release.
-11. `[K]` Verify v0.4.0 propagation: pkg.go.dev listing + README install/tag references (release happened 11:23 today).
+11. ~~`[K]` Verify v0.4.0 propagation: pkg.go.dev listing + README install/tag references (release happened 11:23 today).~~ done — verified 2026-09-26: pkg.go.dev renders v0.4.0 (H012 docs, README @v0.4.0); proxy @latest = v0.4.0
 12. `[K]` Verify `--explain` / `--rules` list H012 (registered-everywhere claim, cheap self-check).
 13. `[K]` RULE-doc cross-link audit: H002↔H010 exists; check H012's doc cross-links consistently.
-14. `[K]` ADR existence check for the H012 conjunction-position filter decision (AGENTS documents it; ADR file unverified).
+14. ~~`[K]` ADR existence check for the H012 conjunction-position filter decision (AGENTS documents it; ADR file unverified).~~ done — checked 2026-09-26: no ADR exists for the H012 conjunction-position filter; the decision is documented in AGENTS.md (H012 bullet) and CHANGELOG 0.4.0
 15. `[K]` ROADMAP review: strike-or-keep the deferred-H011 entry at next upstream tag.
 
 ### Process / CI
@@ -160,16 +160,16 @@ brainstorm — needs verification/routing before entering TODO_LIST.
 24. `[B]` `--save-baseline` + `--behavior-delta` end-to-end integration test.
 25. `[B]` Fuzz `normLit` / `byteUnitRegex` edges (digit separators, unicode, case).
 26. `[B]` Walker performance benchmark on a large tree (single-read design — measure it).
-27. `[B]` Verify release.yml test step includes `-race` (nix has test-race; release flow unknown).
+27. ~~`[B]` Verify release.yml test step includes `-race` (nix has test-race; release flow unknown).~~ done — verified 2026-09-26: release.yml runs go test ./... -race (go-version pinned 1.26 — also hit by the T33 directive conflict)
 28. `[B]` `--format json` machine-contract test (schema snapshot to catch breaking changes).
-29. `[B]` Institutionalize FP-source fixtures: every fixed FP class becomes a permanent negative fixture (H012 did this; make it the rule).
-30. `[B]` Confidence-calibration study: sample real findings, measure tier accuracy (Full/High/Medium actually meaning what we claim).
-31. `[B]` Windows CI leg (walker path handling; dev platform is linux-only today).
+29. ~~`[B]` Institutionalize FP-source fixtures: every fixed FP class becomes a permanent negative fixture (H012 did this; make it the rule).~~ done (docs-health pass 2026-09-26 — annotation + archive pass over all 2026-0* reports)
+30. ~~`[B]` Confidence-calibration study: sample real findings, measure tier accuracy (Full/High/Medium actually meaning what we claim).~~ **Won't implement — declined 2026-09-19 (T18 plugin-index submission).**
+31. ~~`[B]` Windows CI leg (walker path handling; dev platform is linux-only today).~~ **Won't implement — declined 2026-09-19 (T20 gogenfilter release).**
 
 ### Docs
 
-32. `[K]` FEATURES.md freshness: confirm H012 (and v0.4.0 changes) are listed.
-33. `[B]` docs/DOMAIN_LANGUAGE.md existence/content check (referenced by the docs framework; presence unverified).
+32. ~~`[K]` FEATURES.md freshness: confirm H012 (and v0.4.0 changes) are listed.~~ **Won't implement — declined 2026-09-19 — consumer repos stay as the demonstration corpus.**
+33. ~~`[B]` docs/DOMAIN_LANGUAGE.md existence/content check (referenced by the docs framework; presence unverified).~~ **Won't implement — declined 2026-09-19 — no foreign-repo doc edits.**
 34. `[B]` CONTRIBUTING spot-check: no stale private-dep/deploy-key instructions remain (cleaned 09-09; one grep to confirm).
 35. `[K]` docs-health ANNOTATE pass over the oldest status reports once their items complete.
 36. `[B]` docs/rules/ README or index documenting the H011 reservation (currently only in AGENTS.md).
@@ -188,7 +188,7 @@ brainstorm — needs verification/routing before entering TODO_LIST.
 43. `[B]` Baseline JSON format versioning for forward compatibility.
 44. `[B]` Suppression-namespace ergonomics: H0SUP flags wrong-namespace directives; consider also accepting module-path aliases with a warning instead of silently no-oping upstream.
 45. `[B]` Rule-ID stability contract documented for downstream (which IDs may disappear, e.g. reserved H011).
-46. `[B]` README floor note: ParseComma/ParseCommaf suggestions require go-humanize v1.1.0+ (consumers on v1.0.x can't follow them).
+46. ~~`[B]` README floor note: ParseComma/ParseCommaf suggestions require go-humanize v1.1.0+ (consumers on v1.0.x can't follow them).~~ done — verified 2026-09-26: README notes ParseComma/ParseCommaf require go-humanize v1.1.0+
 47. `[B]` Corpus re-sweep schedule: H012 swept same-day, H010 on 09-18 — define a cadence for all-rule sweeps after rule edits.
 48. `[B]` Ritual item: `nix run .#test` + `nix run .#lint` before the next release (not run this session — docs-only, listed as process hygiene).
 49. `[B]` Consider annotating (not unifying) the CLI-vs-plugin H0SUP position difference in docs/rules or an ADR, so nobody "fixes" it without the context AGENTS.md warns about.

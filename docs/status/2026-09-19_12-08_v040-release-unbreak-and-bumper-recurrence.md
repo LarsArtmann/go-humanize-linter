@@ -25,10 +25,10 @@
 
 ## b) PARTIALLY DONE
 
-1. **Post-release external verification** — proxy, go get, go run, @latest resolution, binary version: all verified (see a11). Remaining: pkg.go.dev had NOT indexed v0.4.0 by session end (~25 min of 404s; `/fetch` requested repeatedly = indexing queued). Blocker: external propagation lag, nothing on our side. Effort to finish: S (one fetch next session). Already tracked as prior report NEXT#2.
-2. **Raw proxy `@latest` JSON** (`proxy.golang.org/.../@latest`) still served v0.3.0 at session end while the go toolchain resolved v0.4.0 correctly. Cosmetic cache lag; expected to flip on its own. Verify next session. Effort: S.
+1. ~~**Post-release external verification** — proxy, go get, go run, @latest resolution, binary version: all verified (see a11). Remaining: pkg.go.dev had NOT indexed v0.4.0 by session end (~25 min of 404s; `/fetch` requested repeatedly = indexing queued). Blocker: external propagation lag, nothing on our side. Effort to finish: S (one fetch next session). Already tracked as prior report NEXT#2.~~ done — verified 2026-09-26: pkg.go.dev renders v0.4.0 with H012 docs and README @v0.4.0
+2. ~~**Raw proxy `@latest` JSON** (`proxy.golang.org/.../@latest`) still served v0.3.0 at session end while the go toolchain resolved v0.4.0 correctly. Cosmetic cache lag; expected to flip on its own. Verify next session. Effort: S.~~ done — verified 2026-09-26: raw proxy @latest = v0.4.0
 3. **Action install path verified only indirectly.** The Action's exact command is `go install .../cmd/go-humanize-linter@${{ inputs.version }}` (default latest) into GOBIN. I verified module resolution (`go list -m @latest` → v0.4.0) and the binary behavior (`go run @v0.4.0`), but the literal `go install @latest` invocation was blocked by the harness security filter and remains unexecuted end-to-end. Effort: S.
-4. **v0.3.1 doc-patch question (frozen README `@v0.2.0` on pkg.go.dev)** — superseded by v0.4.0 by design (README bumped pre-tag). Formally closable once v0.4.0 renders and shows `@v0.4.0`.
+4. ~~**v0.3.1 doc-patch question (frozen README `@v0.2.0` on pkg.go.dev)** — superseded by v0.4.0 by design (README bumped pre-tag). Formally closable once v0.4.0 renders and shows `@v0.4.0`.~~ done — moot — v0.4.0 renders with README @v0.4.0 (verified 2026-09-26)
 5. **Consumer propagation** — user decision (2026-09-19): demo-corpus repos stay untouched; Action `@latest` users get v0.4.0 automatically (verified via go list). Nothing further unless you want consumer repos bumped (declined).
 6. **This report** — written strictly from this session's evidence; pre-11:00 state only spot-checked where it gated the release; wider backlog NOT re-verified (per instruction).
 
@@ -36,17 +36,17 @@
 
 (Planned/inherited, untouched this session — why: out of scope per instruction, or blocked, or awaiting decision.)
 
-1. pkg.go.dev v0.4.0 render check (H012 docs visible, "Go to latest" flips, README shows @v0.4.0) — blocked on indexing. Still wanted: yes (prior NEXT#2).
+1. ~~pkg.go.dev v0.4.0 render check (H012 docs visible, "Go to latest" flips, README shows @v0.4.0) — blocked on indexing. Still wanted: yes (prior NEXT#2).~~ done — verified 2026-09-26 (pkg.go.dev renders v0.4.0 + H012)
 2. `BenchmarkH012Detector` (H010 has one; H012 shipped without) — deprioritized vs release. Wanted: yes.
 3. Corpus re-sweep under gogenfilter v3.6.1 (pinned this morning, `9c76bd4`; detection table may have moved) — waiting for a sweep session. Wanted: yes (High).
 4. Depth-2 nested-repo sweep support — deferred since 09-19 morning report. Wanted: yes.
-5. H011 manual-si-parse — deferred (zero corpus demand). Re-evaluate on upstream tags only.
+5. ~~H011 manual-si-parse — deferred (zero corpus demand). Re-evaluate on upstream tags only.~~ **Won't implement — deferred — tracked as T29 in TODO_LIST.**
 6. H010 NewReplacer-strip gap — documented negative; implement only on corpus demand.
 7. Bumper investigation (journal/systemd peek at `project-discovery-daemon`) — user-gated; recurrence CONTINUED this session (incident #3, and its first dep-bundling appearance).
 8. Periodic (weekly) self-scan + corpus sweep ritual — proposed twice, never started.
-9. `docs/rules/H012.md` explicit negative-shape documentation — wanted (Low).
-10. Record consumer-corpus leave-as-is decision in the sweep doc — wanted (Low).
-11. Sibling re-pin cadence decision (gogenfilter sibling ahead of v3.6.1; go-finding sibling go.mod at `go 1.27` vs published v1.12.0 at `go 1.26.7` — drift observed today) — wanted (Medium).
+9. ~~`docs/rules/H012.md` explicit negative-shape documentation — wanted (Low).~~ done — docs/rules/H012.md documents the negative shapes
+10. ~~Record consumer-corpus leave-as-is decision in the sweep doc — wanted (Low).~~ done — recorded 2026-09-26 in FEATURES.md Validation + TODO_LIST standing decisions
+11. ~~Sibling re-pin cadence decision (gogenfilter sibling ahead of v3.6.1; go-finding sibling go.mod at `go 1.27` vs published v1.12.0 at `go 1.26.7` — drift observed today) — wanted (Medium).~~ **Won't implement — superseded — go.mod moved to 1.27.1 (b7f00c2); see AGENTS go-directive gotcha.**
 12. `nix run .#coverage` post-release confirmation — not in the battery I ran; coverage unmeasured this session.
 
 ## d) TOTALLY FUCKED UP
@@ -74,11 +74,11 @@
 
 | # | Task                                                                                                                         | Impact | Effort | Category      |
 | - | ---------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 1 | Verify pkg.go.dev indexes v0.4.0: H012 docs render, "Go to latest" flips, README shows @v0.4.0 (closes the v0.3.1 question)  | High   | S      | Documentation |
-| 2 | Verify raw proxy `@latest` JSON flipped to v0.4.0                                                                            | Low    | S      | Quality       |
+| ~~1~~ | ~~Verify pkg.go.dev indexes v0.4.0: H012 docs render, "Go to latest" flips, README shows @v0.4.0 (closes the v0.3.1 question)~~ done — verified 2026-09-26: pkg.go.dev renders v0.4.0 with H012 docs, README shows @v0.4.0 | ~~High~~ | ~~S~~ | ~~Documentation~~ |
+| ~~2~~ | ~~Verify raw proxy `@latest` JSON flipped to v0.4.0~~ done — verified 2026-09-26: proxy @latest serves v0.4.0 | ~~Low~~ | ~~S~~ | ~~Quality~~ |
 | 3 | Run the Action's literal install path (`go install ...@latest`) in a clean env to close the b3 caveat                        | Medium | S      | Quality       |
 | 4 | Write `scripts/post-release-check.sh` (bounded proxy/go-get/pkg.go.dev checks)                                               | Medium | M      | Quality       |
-| 5 | Sweep the consumer demo repos with the released v0.4.0 binary — confirm H012's 2 corpus TPs fire from the published artifact | Medium | S      | Quality       |
+| ~~5~~ | ~~Sweep the consumer demo repos with the released v0.4.0 binary — confirm H012's 2 corpus TPs fire from the published artifact~~ **Won't implement — consumer repos are frozen as the demonstration corpus (2026-09-19 decision); H012 corpus TPs verified pre-release.** | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
 | 6 | Run `nix run .#coverage` post-release; confirm no coverage drop from H012 additions                                          | Low    | S      | Quality       |
 
 **Bumper defense (incident #3 happened today)**
@@ -87,8 +87,8 @@
 | -- | ------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | -------- |
 | 7  | Add CI guard step: fail loud if go.mod `go` directive != 1.26.x (policy in code, not prose)                                     | High   | S      | Quality  |
 | 8  | Decide bumper investigation (journal/systemd peek at project-discovery-daemon) — recurrence continues, now bundling dep bumps   | Medium | S      | Cleanup  |
-| 9  | Decide whether go-finding v1.12.0 + go-error-family v0.10.1 get re-applied deliberately (with CHANGELOG entry) or stay reverted | Medium | S      | Cleanup  |
-| 10 | Watch the next daemon window; a 4th bump within a week promotes #7 from "should" to "must"                                      | High   | S      | Process  |
+| ~~9~~  | ~~Decide whether go-finding v1.12.0 + go-error-family v0.10.1 get re-applied deliberately (with CHANGELOG entry) or stay reverted~~ done — overtaken by events — b7f00c2 re-applied go-finding v1.12.0 + go-error-family v0.10.1 (bundled with go 1.27.1) the same day; final posture = TODO_LIST T33 | ~~Medium~~ | ~~S~~ | ~~Cleanup~~ |
+| ~~10~~ | ~~Watch the next daemon window; a 4th bump within a week promotes #7 from "should" to "must"~~ done — happened: incident #4 = b7f00c2 (2026-09-19 13:42); CI red since — tracked as T33/T34 | ~~High~~ | ~~S~~ | ~~Process~~ |
 
 **Release process**
 
@@ -96,28 +96,28 @@
 | -- | ---------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
 | 11 | Switch release.yml to curated notes (repo notes file) OR codify `gh release edit` as a named release-runbook step      | Medium | S      | Cleanup       |
 | 12 | Decide sibling re-pin cadence (gogenfilter sibling ahead of v3.6.1; go-finding sibling at go 1.27 vs published 1.26.7) | Medium | S      | Cleanup       |
-| 13 | Document the intentional go.mod(1.26.7)/go.work-sibling(1.27+) floor divergence in AGENTS when siblings next release   | Low    | S      | Documentation |
-| 14 | Add the weekly self-scan + corpus-sweep ritual (CI schedule or checklist)                                              | Medium | S      | Quality       |
+| ~~13~~ | ~~Document the intentional go.mod(1.26.7)/go.work-sibling(1.27+) floor divergence in AGENTS when siblings next release~~ **Won't implement — superseded — go.mod itself moved to 1.27.1 (b7f00c2); divergence folded into the AGENTS.md go-directive gotcha (2026-09-26).** | ~~Low~~ | ~~S~~ | ~~Documentation~~ |
+| ~~14~~ | ~~Add the weekly self-scan + corpus-sweep ritual (CI schedule or checklist)~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T40) | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
 
 **Detection/rules (inherited from morning report, untouched)**
 
 | #  | Task                                                                                                 | Impact | Effort | Category |
 | -- | ---------------------------------------------------------------------------------------------------- | ------ | ------ | -------- |
-| 15 | `BenchmarkH012Detector` mirroring the H010 benchmark shape                                           | Medium | M      | Quality  |
-| 16 | Corpus re-sweep across ~/projects under gogenfilter v3.6.1 (pinned today; table may have moved)      | High   | M      | Quality  |
-| 17 | Depth-2 nested-repo sweep support (games/*-style layouts)                                            | Medium | M      | Feature  |
-| 18 | H011 manual-si-parse — re-evaluate only on new upstream go-humanize tags or corpus demand            | Low    | L      | Feature  |
-| 19 | H010 NewReplacer strip detection — implement only on corpus demand (negative fixture already exists) | Low    | M      | Feature  |
+| ~~15~~ | ~~`BenchmarkH012Detector` mirroring the H010 benchmark shape~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T35) | ~~Medium~~ | ~~M~~ | ~~Quality~~ |
+| ~~16~~ | ~~Corpus re-sweep across ~/projects under gogenfilter v3.6.1 (pinned today; table may have moved)~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T36) | ~~High~~ | ~~M~~ | ~~Quality~~ |
+| ~~17~~ | ~~Depth-2 nested-repo sweep support (games/*-style layouts)~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T38) | ~~Medium~~ | ~~M~~ | ~~Feature~~ |
+| ~~18~~ | ~~H011 manual-si-parse — re-evaluate only on new upstream go-humanize tags or corpus demand~~ done — deferred with data — tracked as T29 in TODO_LIST (zero corpus demand) | ~~Low~~ | ~~L~~ | ~~Feature~~ |
+| ~~19~~ | ~~H010 NewReplacer strip detection — implement only on corpus demand (negative fixture already exists)~~ **Won't implement — demand-gated; negative fixture documents the gap (ROADMAP Detection breadth).** | ~~Low~~ | ~~M~~ | ~~Feature~~ |
 
 **Docs**
 
 | #  | Task                                                                                                                          | Impact | Effort | Category      |
 | -- | ----------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 20 | HARVEST this report's (f) into TODO_LIST.md / ROADMAP.md (else these die in this timestamped file)                            | High   | S      | Documentation |
-| 21 | `docs/rules/H012.md`: document the four negative shapes explicitly (Sprintf prose, bare variable, slash join, prefix-no-conj) | Low    | S      | Documentation |
-| 22 | Record the consumer-corpus leave-as-is decision in docs/validation so future sweeps don't "fix" them                          | Low    | S      | Documentation |
-| 23 | Re-verify the 2026-09-18 50-item backlog before acting on any of it (stale by a day; never re-checked)                        | Medium | M      | Documentation |
-| 24 | Update FEATURES.md if H012/guards rows need status flips post-0.4.0                                                           | Low    | S      | Documentation |
+| ~~20~~ | ~~HARVEST this report's (f) into TODO_LIST.md / ROADMAP.md (else these die in this timestamped file)~~ done (docs-health pass 2026-09-26 — verified-done items routed to TODO_LIST T33-T40, ideas to ROADMAP) | ~~High~~ | ~~S~~ | ~~Documentation~~ |
+| ~~21~~ | ~~`docs/rules/H012.md`: document the four negative shapes explicitly (Sprintf prose, bare variable, slash join, prefix-no-conj)~~ done — docs/rules/H012.md documents the position filter and the negative shapes | ~~Low~~ | ~~S~~ | ~~Documentation~~ |
+| ~~22~~ | ~~Record the consumer-corpus leave-as-is decision in docs/validation so future sweeps don't "fix" them~~ done — recorded 2026-09-26 in FEATURES.md Validation + TODO_LIST standing decisions | ~~Low~~ | ~~S~~ | ~~Documentation~~ |
+| ~~23~~ | ~~Re-verify the 2026-09-18 50-item backlog before acting on any of it (stale by a day; never re-checked)~~ done (docs-health pass 2026-09-26 — docs/status/2026-09-18_21-05 annotated item-by-item in the docs-health pass) | ~~Medium~~ | ~~M~~ | ~~Documentation~~ |
+| ~~24~~ | ~~Update FEATURES.md if H012/guards rows need status flips post-0.4.0~~ done (docs-health pass 2026-09-26) | ~~Low~~ | ~~S~~ | ~~Documentation~~ |
 
 (Inherited, not re-verified: the full prior backlog lives in `docs/status/2026-09-18_22-01_*.md` and the morning report `2026-09-19_10-52_*` NEXT list.)
 
