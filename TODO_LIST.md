@@ -7,35 +7,28 @@
 >
 > Legend — Effort: `XS` ≤15 min · `S` ≤1 h · `M` ≤4 h · `L` ≥½ day.
 
-## Summary
+## Open tasks
 
-| #   | Task                                          | Tier   | Effort | Status                                              |
-| --- | --------------------------------------------- | ------ | ------ | --------------------------------------------------- |
-| T29 | H011 rule: manual SI-string parsing (ParseSI) | Medium | M      | deferred — zero corpus demand (2026-09-18 research) |
+| #   | Task                                                                                     | Tier        | Effort | Status                                                      | Evidence                                              |
+| --- | ---------------------------------------------------------------------------------------- | ----------- | ------ | ----------------------------------------------------------- | ----------------------------------------------------- |
+| T33 | Unblock main: resolve `go 1.27.1` vs CI `go-version: "1.26"` conflict (decide + fix)     | Critical    | S      | **main CI RED since 2026-09-19**; local nix battery broken  | `go.mod:3`, `.github/workflows/ci.yml`, commit `b7f00c2` |
+| T34 | CI guard: fail loud when go.mod `go` directive leaves the allowed range (policy in code) | High        | XS     | open — bumper struck 4×; incident #4 was never reverted     | `ci.yml` (no guard step); AGENTS.md gotcha            |
+| T35 | `BenchmarkH012Detector` mirroring the H010 benchmark shape                               | Medium      | S      | open — H010 has one, H012 shipped without                   | `bench_test.go:37` (H010 precedent)                   |
+| T36 | Corpus re-sweep under gogenfilter v3.6.1 (detection table may have moved)                | High        | M      | open — pin landed 2026-09-19, not re-validated              | commit `9c76bd4`; sweep loop in docs/validation       |
+| T37 | `scripts/post-release-check.sh` — bounded proxy/go-get/pkg.go.dev checks                 | Medium      | M      | open — hand-polled every release so far                     | `docs/status/2026-09-19_12-08` NEXT#4                 |
+| T38 | Depth-2 nested-repo sweep support (`games/KeyCountdown`-style layouts)                   | Medium      | M      | open — corpus sweeps miss nested modules                    | `docs/validation/2026-09-18_h010-sweep.md` (scope note) |
+| T39 | Multi-platform release artifacts (darwin/windows/arm64; today: linux-amd64 only)         | Medium      | M      | open — carried since v0.2.0 planning                        | `.github/workflows/release.yml`; 09-02/09-09 reports  |
+| T40 | Weekly self-scan + corpus-sweep ritual (CI schedule or checklist)                        | Medium      | S      | open — proposed 3×, never started; red-main drifted 5 days once | `docs/status/2026-09-18_22-01` NEXT#29           |
+| T29 | H011 rule: manual SI-string parsing (ParseSI)                                            | Medium      | M      | deferred — zero corpus demand (2026-09-18 research); revisit on next upstream go-humanize tag | `rules.go` (H011 reserved); ROADMAP H011+ |
 
-Declined 2026-09-19 (user decision): T18 plugin-index PR and T20
-gogenfilter release — no foreign-repo actions for now. Consumer repos
-(KeyCountdown, Kernovia, CreditReformBilanzampel) stay unfixed as the
-demonstration corpus; main stays unprotected; Go directive stays 1.26.x
-(revert-on-sight for background bumps).
+## Standing decisions (not tasks — do not re-litigate without the user)
 
-Done 2026-09-18 (recorded in CHANGELOG): T21 push+CI, T22 H010 sweep,
-T23 v0.3.0 release, T24 H010 fixture pack, T25 CI-miss investigation
-(main was red since 09-13, unnoticed), T26 dependabot PR (merged #1),
-T27 exit-code examples, T28 suggestion enrichments, T30 H012 rule,
-T31 DEPLOY_KEY_* secrets deleted.
-
-Done 2026-09-19: H012 conjunction-position regression guards (negative
-fixtures + unit discrimination test), go-directive incident root-caused
-and documented (AGENTS.md Gotchas), lint parity confirmed (local nix
-0 issues, CI green), pkg.go.dev v0.3.0 verified, T32 read-only deploy
-keys removed from all 4 dep repos (zero keys remain).
-
-Done 2026-09-19: v0.4.0 released (H012 rule, H010 fixture pack, H012
-guards, H002/H009 suggestion enrichments, CI/security hygiene). A second
-background toolchain bump (go 1.27 + go-finding v1.12.0 sweep) was
-reverted per the revert-on-sight decision before tagging; unbreak
-verified with GOWORK=off GOTOOLCHAIN=go1.26.8 build/vet/test, then full
-nix battery (build/vet/test-race/lint). Release verified: proxy indexed,
-clean-dir go get + go run works, binary reports v0.4.0, curated release
-notes written (auto-generated notes only listed the dependabot PR).
+- Declined 2026-09-19: T18 plugin-index PR, T20 gogenfilter release, branch
+  protection on main, and any foreign-repo actions. Consumer repos
+  (KeyCountdown, Kernovia, CreditReformBilanzampel) stay unfixed as the
+  demonstration corpus.
+- Go directive policy (2026-09-19): revert-on-sight for background bumps —
+  see T33: incident #4 (`b7f00c2`) violated it and is the live exception.
+- Baseline flags: upgrading to a release that adds rules (e.g. H010 in
+  v0.3.0) adds findings — regenerate `--behavior-delta` baselines once after
+  upgrading (documented in README).
