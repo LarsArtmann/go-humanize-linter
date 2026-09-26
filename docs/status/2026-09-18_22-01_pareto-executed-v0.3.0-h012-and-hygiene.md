@@ -116,56 +116,56 @@
 
 ## f) NEXT UP TO 50
 
-1. H012 negative fixture: comma join + prose-only conjunction (guards the position filter)
-2. Decide/revert-or-keep the go.mod `go 1.27.1` bump; align CI setup-go version if kept
-3. Verify post-merge CI golangci-lint version vs local nix (lint parity)
-4. Root-cause the silent nix-lint wrapper failure (exit 1, empty output)
-5. T18: golangci-lint plugin-index PR (verify-before-filing + github-voice)
-6. T20: gogenfilter release + pin bump + GOWORK=off sweep [needs approval]
-7. T32: remove read-only deploy keys from the 4 dep repos
-8. pkg.go.dev check for v0.3.0 (docs render, 11 rules listed)
-9. Nested-repo corpus sweep (depth-2 go.mod discovery) for H010/H012
-10. Apply the linter's own advice to consumer repos (KeyCountdown joinWords → humanize.WordSeries; Kernovia Join(x," and ") → WordSeries; CreditReformBilanzampel → scoped nolint)
-11. gopls restart; confirm diagnostics freshness
-12. H012 micro-benchmark (match BenchmarkH010Detector pattern)
+1. ~~H012 negative fixture: comma join + prose-only conjunction (guards the position filter)~~ done at `bd3dd03`
+2. ~~Decide/revert-or-keep the go.mod `go 1.27.1` bump; align CI setup-go version if kept~~ done — decided 2026-09-19 morning: revert-on-sight (ebc9df5, 642a426) — then the 1.27.1 bump RETURNED as incident #4 (b7f00c2, 13:42) and sits on main with CI red; final call open as TODO_LIST T33
+3. ~~Verify post-merge CI golangci-lint version vs local nix (lint parity)~~ done — confirmed 2026-09-19: local nix 2.13.2 and CI at parity, 0 issues both
+4. ~~Root-cause the silent nix-lint wrapper failure (exit 1, empty output)~~ **Won't implement — transient — exit-1-with-empty-output never reproduced after 2026-09-18.**
+5. ~~T18: golangci-lint plugin-index PR (verify-before-filing + github-voice)~~ **Won't implement — declined 2026-09-19 (T18).**
+6. ~~T20: gogenfilter release + pin bump + GOWORK=off sweep [needs approval]~~ **Won't implement — declined 2026-09-19 (T20).**
+7. ~~T32: remove read-only deploy keys from the 4 dep repos~~ done at `ce52545`, ` 2bb893e`
+8. ~~pkg.go.dev check for v0.3.0 (docs render, 11 rules listed)~~ done — pkg.go.dev verified in the 2026-09-19 session; v0.4.0 rendering re-verified 2026-09-26
+9. ~~Nested-repo corpus sweep (depth-2 go.mod discovery) for H010/H012~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T38)
+10. ~~Apply the linter's own advice to consumer repos (KeyCountdown joinWords → humanize.WordSeries; Kernovia Join(x," and ") → WordSeries; CreditReformBilanzampel → scoped nolint)~~ **Won't implement — declined 2026-09-19 — consumer repos are the demonstration corpus.**
+11. ~~gopls restart; confirm diagnostics freshness~~ **Won't implement — ephemeral — build/test/CI truth used instead of gopls diagnostics.**
+12. ~~H012 micro-benchmark (match BenchmarkH010Detector pattern)~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T35)
 13. H010/H012 analysistest scoped-nolint variants
-14. CHANGELOG: Unreleased section will need a 0.4.0 cut when H012 ships
+14. ~~CHANGELOG: Unreleased section will need a 0.4.0 cut when H012 ships~~ done at `6a3267f`
 15. Plan next release cadence (0.4.0 after H012 soak?)
-16. ROADMAP: revisit SI-parse (H011) after upstream go-humanize activity
-17. Consider NewReplacer strip form for H010 (F13, still open)
-18. Consider Full-tier for H010 strip+parse when function is exactly the library signature AND no separator config (refine the skipped M20 with the locale caveat encoded)
-19. docs/rules/H012.md: mention depth-2 corpus caveat in Validation
-20. Sweep report addendum: nested-repo numbers when implemented
-21. golangci-lint custom binary rebuild + integration test with 11 rules
-22. Self-scan CI step: re-run with H012 fixtures in tree (was exit 0 pre-H012)
-23. Verify `--rules` CLI output includes H012 (covered by test — confirm SARIF too)
-24. Update `.golangci.custom.yml` example if it enumerates rules (it does not — verify)
-25. README badges/actions example version bump rotation policy
-26. Consider dependabot config for golangci-lint-action version pin alerts
-27. Feedback doc: "CI red for 5 days unnoticed" — process fix proposal (branch protection on main?)
-28. Branch protection / required status checks decision (repo settings)
-29. Scheduled weekly self-sweep CI job (corpus drift detector)
-30. H003 reltime: `time.Round` signal (ROADMAP item)
-31. H006: Sprintf+TrimRight combined detection (ROADMAP item)
-32. H003: inline `.String() + " ago"` (ROADMAP item)
-33. LookupMenuItem rule candidate research (corpus-first, like H012)
-34. Project-level SI/IEC consistency check (ROADMAP)
-35. benchstat tracking across releases (ROADMAP)
-36. pkg.go.dev doc examples for WordSeries suggestion links
-37. Consider `//nolint` reason-required lint for this repo's own code
-38. Sweep Consumer repos' CI with the Action (dogfood action.yml)
-39. Version the validation docs (front-matter with linter version)
-40. Add H012 to the linter's own self-scan allowlist check (fixtures dir growth)
-41. Review daemon heuristic-commit messages for archeology notes (doc pointer)
-42. go.work: document sibling-drift check command in AGENTS (GOWORK=off test)
-43. Check gogenfilter v3.7 release notes when published (sqlc semantics watch)
-44. Consider H012 conjunction param detection (function with `conjunction string` param → WordSeries(words, conjunction) suggestion variant)
-45. H010: detect strip into named constant maps (locale mult) — skip/decide
-46. Docs: DOMAIN_LANGUAGE "ghost rule" entry mentions TestRuleCountConsistency — verify test name exists post-H012
-47. Terminal UX: `--rules` table output alignment with 11 rules
-48. Cleanup: remove /tmp artifacts (ghl, sweep files) — ephemeral, note only
-49. status report harvest into TODO_LIST on next docs-health pass
-50. This report → mark items done as executed; next report harvests it
+16. ~~ROADMAP: revisit SI-parse (H011) after upstream go-humanize activity~~ done — standing trigger — T29 deferral notes revisit on next upstream go-humanize tag
+17. ~~Consider NewReplacer strip form for H010 (F13, still open)~~ **Won't implement — demand-gated — ROADMAP Detection breadth (negative fixture exists).**
+18. ~~Consider Full-tier for H010 strip+parse when function is exactly the library signature AND no separator config (refine the skipped M20 with the locale caveat encoded)~~ **Won't implement — deliberately skipped (M20): the one corpus hit is locale-aware; upgrading would make the borderline more assertive.**
+19. ~~docs/rules/H012.md: mention depth-2 corpus caveat in Validation~~ done — docs/rules/H012.md now carries the depth-2 corpus caveat (added 2026-09-26)
+20. ~~Sweep report addendum: nested-repo numbers when implemented~~ done (docs-health pass 2026-09-26 — folded into TODO_LIST T38 routing)
+21. ~~golangci-lint custom binary rebuild + integration test with 11 rules~~ done — TestCustomGCLIntegration builds the current custom-gcl (11 rules) on demand; subtests verified end-to-end in v0.2.0
+22. ~~Self-scan CI step: re-run with H012 fixtures in tree (was exit 0 pre-H012)~~ done — self-scan CI green with H012 in tree (CI on 8f0577e)
+23. ~~Verify `--rules` CLI output includes H012 (covered by test — confirm SARIF too)~~ done — H012 registered everywhere incl. --rules; TestRuleCountConsistency guards the count (11)
+24. ~~Update `.golangci.custom.yml` example if it enumerates rules (it does not — verify)~~ done — confirmed in this report: .golangci.custom.yml enumerates no rules
+25. ~~README badges/actions example version bump rotation policy~~ **Won't implement — no README badges shipped — moot.**
+26. ~~Consider dependabot config for golangci-lint-action version pin alerts~~ done — dependabot actions-group covers golangci-lint-action (PR #1 merged, 82f93e1)
+27. ~~Feedback doc: "CI red for 5 days unnoticed" — process fix proposal (branch protection on main?)~~ **Won't implement — branch protection declined 2026-09-19; the CI-miss root cause is documented instead (CHANGELOG 0.4.0, T25).**
+28. ~~Branch protection / required status checks decision (repo settings)~~ **Won't implement — declined 2026-09-19 (recorded 642a426).**
+29. ~~Scheduled weekly self-sweep CI job (corpus drift detector)~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T40)
+30. ~~H003 reltime: `time.Round` signal (ROADMAP item)~~ done — in ROADMAP Detection breadth (time.Round for H003)
+31. ~~H006: Sprintf+TrimRight combined detection (ROADMAP item)~~ done — in ROADMAP Detection breadth (Sprintf+TrimRight for H006)
+32. ~~H003: inline `.String() + " ago"` (ROADMAP item)~~ done — in ROADMAP Detection breadth (inline .String() + " ago")
+33. ~~LookupMenuItem rule candidate research (corpus-first, like H012)~~ done — in ROADMAP H011+ (LookupMenuItem, demand-gated)
+34. ~~Project-level SI/IEC consistency check (ROADMAP)~~ done — in ROADMAP Detection breadth (SI/IEC consistency check)
+35. ~~benchstat tracking across releases (ROADMAP)~~ done — in ROADMAP Ecosystem (benchstat tracking)
+36. ~~pkg.go.dev doc examples for WordSeries suggestion links~~ **Won't implement — no demand — suggestion links already render from godoc.**
+37. ~~Consider `//nolint` reason-required lint for this repo's own code~~ **Won't implement — not adopted.**
+38. ~~Sweep Consumer repos' CI with the Action (dogfood action.yml)~~ **Won't implement — declined 2026-09-19 — consumer corpus frozen.**
+39. ~~Version the validation docs (front-matter with linter version)~~ **Won't implement — not adopted.**
+40. ~~Add H012 to the linter's own self-scan allowlist check (fixtures dir growth)~~ done — self-scan green; H012 fixtures live under testdata/ which the walker skips
+41. ~~Review daemon heuristic-commit messages for archeology notes (doc pointer)~~ **Won't implement — daemon accepted as-is (plan decision D2: no history rewrite).**
+42. ~~go.work: document sibling-drift check command in AGENTS (GOWORK=off test)~~ done — AGENTS.md "Local dep resolution is go.work-only" gotcha documents the GOWORK=off check
+43. ~~Check gogenfilter v3.7 release notes when published (sqlc semantics watch)~~ done — standing watch — documented in AGENTS.md Upstream-tag watch (process)
+44. ~~Consider H012 conjunction param detection (function with `conjunction string` param → WordSeries(words, conjunction) suggestion variant)~~ done — in ROADMAP H011+ (conjunction-param variant, added 2026-09-26)
+45. ~~H010: detect strip into named constant maps (locale mult) — skip/decide~~ **Won't implement — demand-gated — triage guidance lives in docs/validation/2026-09-18_h010-sweep.md.**
+46. ~~Docs: DOMAIN_LANGUAGE "ghost rule" entry mentions TestRuleCountConsistency — verify test name exists post-H012~~ done — TestRuleCountConsistency exists and guards AllRules/allRuleDetectors sync
+47. ~~Terminal UX: `--rules` table output alignment with 11 rules~~ **Won't implement — cosmetic.**
+48. ~~Cleanup: remove /tmp artifacts (ghl, sweep files) — ephemeral, note only~~ **Won't implement — ephemeral /tmp artifacts.**
+49. ~~status report harvest into TODO_LIST on next docs-health pass~~ done (docs-health pass 2026-09-26 — this docs-health pass)
+50. ~~This report → mark items done as executed; next report harvests it~~ done (docs-health pass 2026-09-26)
 
 ## g) QUESTIONS (cannot figure out myself)
 

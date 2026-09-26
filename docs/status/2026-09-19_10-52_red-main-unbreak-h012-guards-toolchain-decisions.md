@@ -3,7 +3,7 @@
 **Date:** 2026-09-19 10:52 CEST
 **Session span:** 2026-09-18 ~22:00 → 2026-09-19 10:50 CEST (overnight blocked on user decisions)
 **Scope:** This session only — handoff state verification, red-main fix, H012 regression guards, verification battery, user decisions. Not a project-wide audit.
-**State at writing:** HEAD `642a426`, main CI green, working tree clean, `go` directive 1.26.7, v0.3.0 is the released version (H012 + guards sit in `Unreleased`).
+**State at writing:** HEAD `642a426`, main CI green, working tree clean, `go` directive 1.26.7, ~~v0.3.0 is the released version (H012 + guards sit in `Unreleased`)~~ v0.4.0 (H012 + guards + fixture pack) was tagged later the same day at 11:23 CEST (`6a3267f`).
 
 ---
 
@@ -32,8 +32,8 @@
 
 1. H012 micro-benchmark (H010 has `BenchmarkH010Detector`; H012 has none).
 2. Nested/depth-2 repo sweep support — corpus method scans `~/projects/*` top-level only; `games/KeyCountdown`-style layouts need targeting by hand.
-3. v0.4.0 release — H012 + H010 fixture pack + guards + enrichments all sit in `Unreleased`; nothing ships to users until a tag is cut.
-4. T32 — remove read-only deploy keys from the 4 dependency repos (foreign GitHub settings; ready, untouched).
+3. ~~v0.4.0 release — H012 + H010 fixture pack + guards + enrichments all sit in `Unreleased`; nothing ships to users until a tag is cut.~~ done at `6a3267f`, ` e56c535`
+4. ~~T32 — remove read-only deploy keys from the 4 dependency repos (foreign GitHub settings; ready, untouched).~~ done at `ce52545`
 5. Corpus re-sweep after this morning's gogenfilter v3.6.1 pin (`9c76bd4`) — detection behavior could shift; not re-validated beyond the test suite.
 6. Bumper investigation — declined, offer stands.
 
@@ -58,28 +58,28 @@ Nothing is left broken. Permanent blemishes, honestly filed:
 
 **Release track**
 
-1. Decide v0.4.0 timing; when cutting: CHANGELOG `Unreleased → 0.4.0`, full go-release phases (tag → release.yml → proxy verify → clean-module `go get` → action.yml bump).
-2. After 0.4.0: verify pkg.go.dev renders H012 + guards and flips "Go to latest".
-3. Decide on a doc-only v0.3.1 for the frozen tag's README `@v0.2.0` Action example — or let 0.4.0 supersede.
-   **Detection/rules track**
+1. ~~Decide v0.4.0 timing; when cutting: CHANGELOG `Unreleased → 0.4.0`, full go-release phases (tag → release.yml → proxy verify → clean-module `go get` → action.yml bump).~~ done at `6a3267f`, ` e56c535`
+2. ~~After 0.4.0: verify pkg.go.dev renders H012 + guards and flips "Go to latest".~~ done — verified 2026-09-26: pkg.go.dev renders v0.4.0 (H012 docs, README @v0.4.0)
+3. ~~Decide on a doc-only v0.3.1 for the frozen tag's README `@v0.2.0` Action example — or let 0.4.0 supersede.~~ **Won't implement — superseded by v0.4.0 — verified 2026-09-26 that pkg.go.dev renders the @v0.4.0 README.**
+   ~~**Detection/rules track**~~
 4. `BenchmarkH012Detector` (mirror the H010 benchmark shape).
 5. Corpus re-sweep under gogenfilter v3.6.1 (detection table may have moved; 169-repo loop script exists).
 6. Nested-repo (depth-2) sweep support; re-run sweep including `games/*`.
-7. H011 manual-si-parse — keep deferred; re-evaluate only on new upstream go-humanize tags or corpus demand.
-8. H010 documented gap: NewReplacer strip form stays undetected (negative fixture exists) — implement only if corpus shows demand.
-   **Verification track**
-9. Run `nix run .#vet` and `nix run .#test-race` to close this session's battery gaps.
+7. ~~H011 manual-si-parse — keep deferred; re-evaluate only on new upstream go-humanize tags or corpus demand.~~ **Won't implement — deferred — tracked as T29 in TODO_LIST (zero corpus demand).**
+8. ~~H010 documented gap: NewReplacer strip form stays undetected (negative fixture exists) — implement only if corpus shows demand.~~ **Won't implement — demand-gated — ROADMAP Detection breadth (negative fixture documents the gap).**
+   ~~**Verification track**~~
+9. ~~Run `nix run .#vet` and `nix run .#test-race` to close this session's battery gaps.~~ done at `e56c535`
 10. Add a periodic (weekly?) self-scan + corpus sweep ritual so red-main-drift and detection regressions surface faster than 5 days.
     **Hygiene/infra track**
-11. T32: remove read-only deploy keys from go-linter-sdk, go-finding, gogenfilter, go-error-family.
-12. Watch for go.mod re-bumps; if frequency grows, revisit bumper investigation with the user.
+11. ~~T32: remove read-only deploy keys from go-linter-sdk, go-finding, gogenfilter, go-error-family.~~ done at `ce52545`
+12. ~~Watch for go.mod re-bumps; if frequency grows, revisit bumper investigation with the user.~~ done — happened: incident #4 = b7f00c2 (2026-09-19 13:42, go 1.27.1 + go-finding v1.12.0) — never reverted; CI red since; tracked as T33/T34
 13. Decide re-pin cadence for gogenfilter (sibling drifts ahead of pins; v3.6.1 pinned today, sibling carries more).
-14. Consider documenting the auto-commit daemon + question-block pause protocol in AGENTS so future sessions re-verify by default (partially done via the gotcha).
-15. LSP stale-diagnostic note: if the 5 warnings persist across sessions, an LSP restart or cache clear is warranted (not a code problem — nix lint is the source of truth).
-    **Docs track**
-16. After 0.4.0: refresh README rules table example outputs if example tests changed.
-17. Keep `docs/rules/H012.md` in sync if the position filter ever gains forms (it documents the current four subtest cases only implicitly).
-18. Record the consumer-repo corpus decision (leave-as-is) in the sweep doc so future sweeps don't "fix" them by accident.
+14. ~~Consider documenting the auto-commit daemon + question-block pause protocol in AGENTS so future sessions re-verify by default (partially done via the gotcha).~~ done — AGENTS.md go-directive gotcha documents the daemon/incident protocol (b404990, updated 2026-09-26)
+15. ~~LSP stale-diagnostic note: if the 5 warnings persist across sessions, an LSP restart or cache clear is warranted (not a code problem — nix lint is the source of truth).~~ **Won't implement — stale diagnostics self-resolved; nix lint is the source of truth (per this report's own lesson).**
+    ~~**Docs track**~~
+16. ~~After 0.4.0: refresh README rules table example outputs if example tests changed.~~ done — checked 2026-09-26: README rules table is current through H012
+17. ~~Keep `docs/rules/H012.md` in sync if the position filter ever gains forms (it documents the current four subtest cases only implicitly).~~ done — checked 2026-09-26: docs/rules/H012.md documents the position filter
+18. ~~Record the consumer-repo corpus decision (leave-as-is) in the sweep doc so future sweeps don't "fix" them by accident.~~ done — recorded 2026-09-26 in FEATURES.md Validation + TODO_LIST standing decisions
 
 ## g) QUESTIONS (cannot be figured out from the repo)
 
