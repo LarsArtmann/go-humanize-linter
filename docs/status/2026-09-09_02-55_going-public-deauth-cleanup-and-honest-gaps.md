@@ -39,12 +39,12 @@ Two important discoveries during execution:
 
 | #  | Item                           | Done                                                     | Missing                                                                                                                                                                                                                                                                                                      |
 | -- | ------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| B1 | Legacy auth removal end-to-end | Workflows/flake/docs/tests cleaned and committed locally | **4 commits unpushed**; 5 `DEPLOY_KEY_*` secrets still exist; unused deploy keys still registered in the 4 dependency repos                                                                                                                                                                                  |
-| B2 | Public presence                | Repo public, description + topics set                    | No README badges (CI/Codecov/pkg.go.dev/license), no social preview, pkg.go.dev not yet indexed (still 404 ~2.5h after trigger)                                                                                                                                                                              |
-| B3 | CI health                      | Workflows simplified to zero-auth                        | CI cannot validate anything while Actions billing is broken; the cleaned workflows have **never run**                                                                                                                                                                                                        |
-| B4 | pkg.go.dev readiness           | Page request submitted (triggers indexing)               | Still 404. Additional unverified risk: pkg.go.dev builds docs with a **stock toolchain** — if `go-finding`'s `encoding/json/v2` usage truly requires `GOEXPERIMENT=jsonv2`, server-side doc builds may fail even after indexing (would surface as "build failed / no docs"). Needs confirmation once indexed |
-| B5 | AGENTS.md accuracy             | Active sections now truthful                             | Historical `docs/status/*` + `docs/planning/*` still contain "GOPRIVATE required" claims and **names of other private projects** (left as immutable point-in-time snapshots, per docs-health philosophy — but this is now a _public_ surface)                                                                |
-| B6 | Flake hygiene                  | `vendorHash` fixed for current `go.sum`                  | No CI guard added, so the same silent-drift class can recur on the next dep bump                                                                                                                                                                                                                             |
+| ~~B1~~ | ~~Legacy auth removal end-to-end~~ done — closed — commits pushed; secrets deleted (T31); dep keys removed (T32) | ~~Workflows/flake/docs/tests cleaned and committed locally~~ | ~~**4 commits unpushed**; 5 `DEPLOY_KEY_*` secrets still exist; unused deploy keys still registered in the 4 dependency repos~~ |
+| ~~B2~~ | ~~Public presence~~ done — closed — pkg.go.dev indexes v0.2.0-v0.4.0 with full docs (verified 2026-09-26); badges/social preview still absent | ~~Repo public, description + topics set~~ | ~~No README badges (CI/Codecov/pkg.go.dev/license), no social preview, pkg.go.dev not yet indexed (still 404 ~2.5h after trigger)~~ |
+| ~~B3~~ | ~~CI health~~ done — closed — CI ran green through the v0.3.0/v0.4.0 releases | ~~Workflows simplified to zero-auth~~ | ~~CI cannot validate anything while Actions billing is broken; the cleaned workflows have **never run**~~ |
+| ~~B4~~ | ~~pkg.go.dev readiness~~ done — closed — docs render fine; GOEXPERIMENT=jsonv2 poses no pkg.go.dev problem | ~~Page request submitted (triggers indexing)~~ | ~~Still 404. Additional unverified risk: pkg.go.dev builds docs with a **stock toolchain** — if `go-finding`'s `encoding/json/v2` usage truly requires `GOEXPERIMENT=jsonv2`, server-side doc builds may fail even after indexing (would surface as "build failed / no docs"). Needs confirmation once indexed~~ |
+| ~~B5~~ | ~~AGENTS.md accuracy~~ done — policy settled — historical docs annotated in place, never rewritten (docs-health ANNOTATE); 2026-09-26 pass re-annotated everything | ~~Active sections now truthful~~ | ~~Historical `docs/status/*` + `docs/planning/*` still contain "GOPRIVATE required" claims and **names of other private projects** (left as immutable point-in-time snapshots, per docs-health philosophy — but this is now a _public_ surface)~~ |
+| ~~B6~~ | ~~Flake hygiene~~ done — recurred — vendorHash drift struck again 2026-09-22 (71c3c6e); flake-check CI guard still an open idea | ~~`vendorHash` fixed for current `go.sum`~~ | ~~No CI guard added, so the same silent-drift class can recur on the next dep bump~~ |
 
 ## c) NOT STARTED
 
@@ -78,74 +78,74 @@ Two important discoveries during execution:
 
 **Public consumer path (highest impact)**
 
-1. Fix GitHub Actions billing (or confirm public-repo free tier runs) — unblocks everything below
-2. Push the 4 commits; watch the cleaned zero-auth workflows actually run green
-3. Delete `DEPLOY_KEY_GHL/_SDK/_FINDING/_GOGF/_ERRFAM` secrets after that green run
-4. Remove the unused deploy keys from the 4 dependency repos' settings
-5. Confirm pkg.go.dev indexing completes; if docs fail to build, investigate the `GOEXPERIMENT=jsonv2` server-side build limitation
-6. Verify `go install github.com/larsartmann/go-humanize-linter/cmd/go-humanize-linter@latest` end-to-end anonymously; document the `GOEXPERIMENT=jsonv2` requirement in the README install section (or provide prebuilt-binary install path)
-7. Test `action.yml` in a scratch public repo (the true consumer path)
-8. Test the `golangci-lint custom` + module plugin flow from a stranger's machine perspective; copy-paste-ify the README section
+1. ~~Fix GitHub Actions billing (or confirm public-repo free tier runs) — unblocks everything below~~ done — resolved — CI runs again (green runs on 2026-09-18/19 after the billing issue cleared)
+2. ~~Push the 4 commits; watch the cleaned zero-auth workflows actually run green~~ done at `e56c535`
+3. ~~Delete `DEPLOY_KEY_GHL/_SDK/_FINDING/_GOGF/_ERRFAM` secrets after that green run~~ done at `ce52545`
+4. ~~Remove the unused deploy keys from the 4 dependency repos' settings~~ done at `ce52545`
+5. ~~Confirm pkg.go.dev indexing completes; if docs fail to build, investigate the `GOEXPERIMENT=jsonv2` server-side build limitation~~ done — verified 2026-09-26: pkg.go.dev renders v0.2.0/v0.3.0/v0.4.0 with full docs
+6. ~~Verify `go install github.com/larsartmann/go-humanize-linter/cmd/go-humanize-linter@latest` end-to-end anonymously; document the `GOEXPERIMENT=jsonv2` requirement in the README install section (or provide prebuilt-binary install path)~~ done — README documents GOEXPERIMENT=jsonv2; go run/install verified in the v0.4.0 release session
+7. ~~Test `action.yml` in a scratch public repo (the true consumer path)~~ **Won't implement — accepted-risk — Action verified via its real go install path (2026-09-18 session) instead of a scratch repo.**
+8. ~~Test the `golangci-lint custom` + module plugin flow from a stranger's machine perspective; copy-paste-ify the README section~~ done — .golangci.custom.yml + plugin.go integration guide + CONTRIBUTING cover the module-plugin flow
 
 **CI / infra hardening**
-9. Add `nix flake check` step to CI (vendorHash drift guard — this exact bug sat unnoticed on main)
-10. Add anonymous-consumer CI step: fresh temp module, `GOWORK=off`, `go get` + build against `@v0.2.0`
-11. Add `go install @latest` smoke test to CI
-12. Consider adding `nix run .#custom-lint` to CI (currently only local)
-13. Dependabot for GitHub Actions versions + Go modules; make dep-bump PRs update `vendorHash` in the same change (add a CI hint/comment near `vendorHash` saying "update when go.sum changes")
-14. Confirm Codecov actually receives uploads on the public repo; add badge only after verified
-15. Re-check `permissions: contents: read` posture post-cleanup; workflows are now minimal — good
-16. Evaluate whether the `Graph Update: go_modules` dynamic workflow should stay enabled
+9. ~~Add `nix flake check` step to CI (vendorHash drift guard — this exact bug sat unnoticed on main)~~ **Won't implement — not adopted — vendorHash drift recurred (71c3c6e, 2026-09-22); a flake check step is still a live idea (see TODO_LIST).**
+10. ~~Add anonymous-consumer CI step: fresh temp module, `GOWORK=off`, `go get` + build against `@v0.2.0`~~ **Won't implement — not adopted.**
+11. ~~Add `go install @latest` smoke test to CI~~ **Won't implement — not adopted — verified manually per release instead (v0.3.0/v0.4.0 sessions).**
+12. ~~Consider adding `nix run .#custom-lint` to CI (currently only local)~~ **Won't implement — not adopted.**
+13. ~~Dependabot for GitHub Actions versions + Go modules; make dep-bump PRs update `vendorHash` in the same change (add a CI hint/comment near `vendorHash` saying "update when go.sum changes")~~ done — dependabot covers actions + go modules; the vendorHash-sync hint was never added (drift recurred 2026-09-22)
+14. ~~Confirm Codecov actually receives uploads on the public repo; add badge only after verified~~ done — Codecov uploads verified (codecov step in ci.yml); badge never added
+15. ~~Re-check `permissions: contents: read` posture post-cleanup; workflows are now minimal — good~~ done — confirmed 2026-09-09 session — workflows are minimal, permissions: contents: read
+16. ~~Evaluate whether the `Graph Update: go_modules` dynamic workflow should stay enabled~~ **Won't implement — left enabled deliberately.**
 
 **Repo hygiene**
-17. Check whether `reports/coverage.out` and `result/` are git-tracked; gitignore if so (public-repo bloat)
-18. Force direnv re-eval so `.direnv/flake-profile-*.rc` (stale GOPRIVATE inside) regenerates
-19. GitHub social preview image
-20. Decide on `.crush/` session DB — ensure it's gitignored (grep showed it contains matching strings)
-21. Sweep for any other stale env-var docs in `docs/validation/*`, `docs/adr/*` (grep was clean, but double-check ADRs referencing CI auth)
-22. Verify the two GitHub Releases (v0.1.0, v0.2.0) have their binary assets attached post-flip
-23. Add SHA256SUMS to future releases; consider multi-arch (darwin-arm64 at minimum — `go install` covers it, release assets don't)
-24. Add a next-release CHANGELOG entry: "repo made public; CI no longer requires deploy keys; GOPRIVATE no longer needed"
+17. ~~Check whether `reports/coverage.out` and `result/` are git-tracked; gitignore if so (public-repo bloat)~~ done — reports/ and result/ are gitignored (verified 2026-09-26)
+18. ~~Force direnv re-eval so `.direnv/flake-profile-*.rc` (stale GOPRIVATE inside) regenerates~~ **Won't implement — ephemeral — self-heals on next direnv eval.**
+19. ~~GitHub social preview image~~ **Won't implement — not done — social preview never uploaded.**
+20. ~~Decide on `.crush/` session DB — ensure it's gitignored (grep showed it contains matching strings)~~ done — crush/ is untracked local session state (not in git)
+21. ~~Sweep for any other stale env-var docs in `docs/validation/*`, `docs/adr/*` (grep was clean, but double-check ADRs referencing CI auth)~~ done — grep clean; ADRs contain no CI-auth instructions (checked in later audits)
+22. ~~Verify the two GitHub Releases (v0.1.0, v0.2.0) have their binary assets attached post-flip~~ done — releases carry binaries (verified again for v0.4.0 on 2026-09-19)
+23. ~~Add SHA256SUMS to future releases; consider multi-arch (darwin-arm64 at minimum — `go install` covers it, release assets don't)~~ **Won't implement — still open — linux-amd64 only; tracked as TODO_LIST T39.**
+24. ~~Add a next-release CHANGELOG entry: "repo made public; CI no longer requires deploy keys; GOPRIVATE no longer needed"~~ **Won't implement — superseded — going-public is recorded in AGENTS.md instead; CHANGELOG-scope ruling still open (see 12-17 g2).**
 
 **Docs for strangers**
-25. README quick start rewrite for public audience: `go install` one-liner, `golangci-lint custom` snippet, action.yml usage
-26. README badges (CI, pkg.go.dev, license, Go Report Card) — after CI is green
-27. Add `docs/adr/000X-go-public-and-deauth.md` recording this decision + the stale-REQUIRED lesson
-28. Decide policy for `docs/status` + `docs/planning` historical content now that the repo is public (private project names, candid language, "GOPRIVATE required" claims) — scrub, annotate as historical, or leave
-29. Document the suppression namespace story (`gohumanize` vs module path) prominently — AIs write the wrong one (already in AGENTS; surface in README troubleshooting)
-30. Document `GOEXPERIMENT=jsonv2` as a known adoption friction; track go-finding upstream for when json/v2 ships default
-31. Expand `example_test.go` into godoc-visible examples (pkg.go.dev front page)
-32. CONTRIBUTING: add "good first issue" pointers now that external PRs are possible
+25. ~~README quick start rewrite for public audience: `go install` one-liner, `golangci-lint custom` snippet, action.yml usage~~ done — README carries install/CLI/Action/suppression docs for the public audience
+26. ~~README badges (CI, pkg.go.dev, license, Go Report Card) — after CI is green~~ **Won't implement — not done — no badges shipped.**
+27. ~~Add `docs/adr/000X-go-public-and-deauth.md` recording this decision + the stale-REQUIRED lesson~~ **Won't implement — not written — the decision is recorded in AGENTS.md (going-public + auth-cleanup entries).**
+28. ~~Decide policy for `docs/status` + `docs/planning` historical content now that the repo is public (private project names, candid language, "GOPRIVATE required" claims) — scrub, annotate as historical, or leave~~ done — answered by practice: historical docs annotated, never rewritten (docs-health ANNOTATE); private project names remain only where load-bearing
+29. ~~Document the suppression namespace story (`gohumanize` vs module path) prominently — AIs write the wrong one (already in AGENTS; surface in README troubleshooting)~~ done — documented in AGENTS.md (suppression namespace) and README (recognised-directives table)
+30. ~~Document `GOEXPERIMENT=jsonv2` as a known adoption friction; track go-finding upstream for when json/v2 ships default~~ done — documented in README (Build & Test) and AGENTS.md (GOEXPERIMENT requirement)
+31. ~~Expand `example_test.go` into godoc-visible examples (pkg.go.dev front page)~~ done — example_test.go carries godoc examples (ExampleRuleWordSeries etc. render on pkg.go.dev v0.4.0)
+32. ~~CONTRIBUTING: add "good first issue" pointers now that external PRs are possible~~ **Won't implement — not done.**
 
 **Release / distribution**
-33. Cut the next release (v0.2.1) from the de-authed main so `@latest` consumers get clean metadata
-34. Verify release workflow's `gh release create` path works post-flip (tag freezes the workflow file — do not tag while red, see F1)
-35. Consider GoReleaser vs current hand-rolled build steps
-36. Consider nixpkgs/homebrew tap packaging once stable
+33. ~~Cut the next release (v0.2.1) from the de-authed main so `@latest` consumers get clean metadata~~ **Won't implement — superseded — v0.3.0/v0.4.0 shipped from clean main instead.**
+34. ~~Verify release workflow's `gh release create` path works post-flip (tag freezes the workflow file — do not tag while red, see F1)~~ done — verified — release.yml fired for v0.2.0/v0.3.0/v0.4.0
+35. ~~Consider GoReleaser vs current hand-rolled build steps~~ **Won't implement — not adopted — hand-rolled build kept.**
+36. ~~Consider nixpkgs/homebrew tap packaging once stable~~ **Won't implement — not adopted.**
 
 **Community / growth**
-37. Issue templates + PR template
-38. SECURITY.md (private vulnerability reporting)
-39. Enable GitHub Discussions (optional)
-40. Submit to golangci-lint's module-plugin docs listing (upstream PR)
-41. awesome-go / static-analysis list submissions
-42. Demo GIF/asciinema in README (hyperframes/website-launch territory if wanted)
-43. Announcement post (blog/Twitter/Reddit r/golang)
-44. Set repo homepage URL when a website exists
+37. ~~Issue templates + PR template~~ **Won't implement — not done — no issue/PR templates.**
+38. ~~SECURITY.md (private vulnerability reporting)~~ **Won't implement — not done — no SECURITY.md (tracked via TODO_LIST T39-adjacent public-presence work).**
+39. ~~Enable GitHub Discussions (optional)~~ **Won't implement — not done.**
+40. ~~Submit to golangci-lint's module-plugin docs listing (upstream PR)~~ **Won't implement — declined 2026-09-19 (T18).**
+41. ~~awesome-go / static-analysis list submissions~~ **Won't implement — not done.**
+42. ~~Demo GIF/asciinema in README (hyperframes/website-launch territory if wanted)~~ **Won't implement — not requested.**
+43. ~~Announcement post (blog/Twitter/Reddit r/golang)~~ **Won't implement — not done.**
+44. ~~Set repo homepage URL when a website exists~~ **Won't implement — not done — no website.**
 
 **Strategic / sibling-ecosystem**
-45. Audit the OTHER private repos that are still private — this session proved doc-rot goes unnoticed; a public-readiness sweep of siblings would catch the next `GOPRIVATE`-style staleness
-46. Same billing fix applies to all sibling repos' CI — verify their workflows aren't silently dead too
-47. Consider consolidating the `GOEXPERIMENT=jsonv2` requirement: it now burdens every consumer (CI env, action.yml, docs, pkg.go.dev) — weigh pinning go-finding versions that don't need it vs waiting for Go default
-48. Add a `make`-free, nix-optional path check: `GOEXPERIMENT=jsonv2 go test ./...` must be the documented minimum (already true — keep it true)
-49. Re-verify AGENTS.md "Critical" claims quarterly (this session is the case study for why)
-50. Celebrate: the linter is installable by every Go developer on the planet as of tonight — ship the announcement when docs catch up
+45. ~~Audit the OTHER private repos that are still private — this session proved doc-rot goes unnoticed; a public-readiness sweep of siblings would catch the next `GOPRIVATE`-style staleness~~ **Won't implement — never executed.**
+46. ~~Same billing fix applies to all sibling repos' CI — verify their workflows aren't silently dead too~~ done — resolved — sibling CI verified alive during the 2026-09-18/19 sessions
+47. ~~Consider consolidating the `GOEXPERIMENT=jsonv2` requirement: it now burdens every consumer (CI env, action.yml, docs, pkg.go.dev) — weigh pinning go-finding versions that don't need it vs waiting for Go default~~ done — standing — GOEXPERIMENT=jsonv2 still required; tracked in AGENTS.md
+48. ~~Add a `make`-free, nix-optional path check: `GOEXPERIMENT=jsonv2 go test ./...` must be the documented minimum (already true — keep it true)~~ done — still true — README documents the minimum command
+49. ~~Re-verify AGENTS.md "Critical" claims quarterly (this session is the case study for why)~~ done — applied — the 2026-09-26 docs-health pass re-verified every CRITICAL claim in AGENTS.md
+50. ~~Celebrate: the linter is installable by every Go developer on the planet as of tonight — ship the announcement when docs catch up~~ **Won't implement — no announcement made.**
 
 ## g) Questions I Cannot Figure Out Myself
 
-1. **GitHub Actions billing:** The account shows "recent payments have failed or spending limit needs to be increased" — every CI run account-wide dies before starting. Can you fix/confirm billing, and is relying on the free public-repo Actions tier acceptable for this repo going forward? I cannot see billing state or change spending limits.
-2. **Push authorization:** 4 commits (workflow de-auth, vendorHash fix, docs/tests cleanup, AGENTS.md) sit local. Do you want me to push to `main` now (activating the cleaned CI once billing is fixed), or do you push yourself?
-3. **Historical docs policy:** `docs/status/*` and `docs/planning/*` (now public) contain "GOPRIVATE required" claims, candid self-review language, and **names of your other private projects**. Scrub/redact them, annotate as immutable historical snapshots, or leave as-is?
+1. ~~**GitHub Actions billing:** The account shows "recent payments have failed or spending limit needs to be increased" — every CI run account-wide dies before starting. Can you fix/confirm billing, and is relying on the free public-repo Actions tier acceptable for this repo going forward? I cannot see billing state or change spending limits.~~ done — resolved — billing cleared; CI runs on the public-repo tier
+2. ~~**Push authorization:** 4 commits (workflow de-auth, vendorHash fix, docs/tests cleanup, AGENTS.md) sit local. Do you want me to push to `main` now (activating the cleaned CI once billing is fixed), or do you push yourself?~~ done — resolved — all commits pushed; later sessions pushed continuously
+3. ~~**Historical docs policy:** `docs/status/*` and `docs/planning/*` (now public) contain "GOPRIVATE required" claims, candid self-review language, and **names of your other private projects**. Scrub/redact them, annotate as immutable historical snapshots, or leave as-is?~~ done — answered by practice: annotate in place, never rewrite (docs-health ANNOTATE); applied repo-wide 2026-09-26
 
 ---
 

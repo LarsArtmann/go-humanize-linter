@@ -123,9 +123,9 @@
 
 ## g) QUESTIONS (decisions only you can make; what I tried is noted)
 
-1. **Dependency posture after the revert:** go-finding v1.12.0 and go-error-family v0.10.1 were swept into the bumper commits and reverted with them. I verified both publish against `go 1.26.7`, so re-applying is safe — but I cannot know whether you wanted those bumps at all. Deliberate re-apply with a CHANGELOG entry, or stay pinned at v1.10.0/v0.10.0 until something needs them?
-2. **Bumper countermeasure:** incident #3 struck hours after your revert-on-sight decision. Do you want the CI guard step (fail loud on `go` directive != 1.26.x) — and/or is now the time for the previously user-gated journal/systemd investigation into `project-discovery-daemon`?
-3. **Release-notes mechanism:** keep `--generate-notes` + a mandatory manual `gh release edit` per release (now documented in AGENTS), or switch release.yml to a committed notes file so the GitHub body is correct from the moment of creation?
+1. ~~**Dependency posture after the revert:** go-finding v1.12.0 and go-error-family v0.10.1 were swept into the bumper commits and reverted with them. I verified both publish against `go 1.26.7`, so re-applying is safe — but I cannot know whether you wanted those bumps at all. Deliberate re-apply with a CHANGELOG entry, or stay pinned at v1.10.0/v0.10.0 until something needs them?~~ done — answered by events — b7f00c2 re-applied go-finding v1.12.0 + go-error-family v0.10.1 (plus go 1.27.1); posture folded into TODO_LIST T33
+2. ~~**Bumper countermeasure:** incident #3 struck hours after your revert-on-sight decision. Do you want the CI guard step (fail loud on `go` directive != 1.26.x) — and/or is now the time for the previously user-gated journal/systemd investigation into `project-discovery-daemon`?~~ done — CI guard proposed as TODO_LIST T34; the journal/systemd bumper investigation stays user-gated
+3. ~~**Release-notes mechanism:** keep `--generate-notes` + a mandatory manual `gh release edit` per release (now documented in AGENTS), or switch release.yml to a committed notes file so the GitHub body is correct from the moment of creation?~~ **Won't implement — still open — user decision; interim practice: --generate-notes + mandatory curated gh release edit (documented in AGENTS).**
 
 ---
 
