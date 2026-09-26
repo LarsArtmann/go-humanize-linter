@@ -122,14 +122,14 @@ flawed metric, despite genuinely better code).
 
 ## c) NOT STARTED ⬜
 
-1. Failure-path unit test for `output()` (e.g., failing writer → assert error propagates).
-2. `//nolint:errortype` suppression (or AGENTS.md documentation) for `generic_return` false positives on `WalkGoDir` / `output`.
-3. Decision: is erraudit a CI gate or an advisory tool? If advisory, document known false positives.
-4. `json.Unmarshal` go1.27 vs go1.26 version resolution (3 gopls warnings).
-5. `cmd/gohumanize` singlechecker test coverage (carried over from previous session, still 0%).
-6. Plugin-path suppression test (carried over, still missing).
-7. Self-scan regression test (carried over, still missing).
-8. P7: analysistest integration test for plugin (carried over, still planned).
+1. ~~Failure-path unit test for `output()` (e.g., failing writer → assert error propagates).~~ done at `49d30ee`
+2. ~~`//nolint:errortype` suppression (or AGENTS.md documentation) for `generic_return` false positives on `WalkGoDir` / `output`.~~ done — documented — erraudit referenced in prose comments (nolint:erraudit removed as ineffective)
+3. ~~Decision: is erraudit a CI gate or an advisory tool? If advisory, document known false positives.~~ done — decided — advisory; known FPs documented in comments
+4. ~~`json.Unmarshal` go1.27 vs go1.26 version resolution (3 gopls warnings).~~ **Won't implement — superseded — go.mod moved to 1.27.1 on 2026-09-19 (b7f00c2), unrelated to gopls noise.**
+5. ~~`cmd/gohumanize` singlechecker test coverage (carried over from previous session, still 0%).~~ done at `0afc4c2`
+6. ~~Plugin-path suppression test (carried over, still missing).~~ done at `06c1c76`
+7. ~~Self-scan regression test (carried over, still missing).~~ done at `9005b0d`
+8. ~~P7: analysistest integration test for plugin (carried over, still planned).~~ done at `78440b0`
 
 ## d) TOTALLY FUCKED UP 💥
 

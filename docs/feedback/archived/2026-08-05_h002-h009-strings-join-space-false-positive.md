@@ -202,13 +202,13 @@ I added `.go-humanize-linter.yml` to disable H002 and H009 in `AI-Speed-Test`. *
 
 ## Suggested follow-ups (out of scope for this report but worth considering)
 
-1. **Tighten the fallback heuristic.** The `for-loop + comma + digit-conversion` fallback fires on _any_ function with these traits. Consider requiring the loop body to actually consume the formatted digits (e.g. `WriteString(",")` inside the loop, or `s = s + ","`), not just any for-loop in the function. Otherwise any function that joins CLI args with a space gets flagged.
+1. ~~**Tighten the fallback heuristic.** The `for-loop + comma + digit-conversion` fallback fires on _any_ function with these traits. Consider requiring the loop body to actually consume the formatted digits (e.g. `WriteString(",")` inside the loop, or `s = s + ","`), not just any for-loop in the function. Otherwise any function that joins CLI args with a space gets flagged.~~ **Won't implement — fallback retained as designed — the space FP was root-caused and fixed instead (f0d94bc); fallback behavior documented in AGENTS.**
 
-2. **Investigate other rules for the same class of bug.** H001/H005/H006/H008 may have similar over-broadened heuristics. Worth a sweep.
+2. ~~**Investigate other rules for the same class of bug.** H001/H005/H006/H008 may have similar over-broadened heuristics. Worth a sweep.~~ done — full sweeps ran 2026-07-31, 2026-08-10, 2026-09-18 with ~0% FP
 
-3. **Improve the reporting location.** Column 1, function-level reporting makes it hard to find the actual pattern. If the fallback fires, point at the `strings.Join` call site (or the loop, or the strconv call) instead of the function declaration.
+3. ~~**Improve the reporting location.** Column 1, function-level reporting makes it hard to find the actual pattern. If the fallback fires, point at the `strings.Join` call site (or the loop, or the strconv call) instead of the function declaration.~~ done — partially — diagnostics report at the finding position (85457dd); full per-line reporting remains a ROADMAP item
 
-4. **Confidence floor for exit code.** `exit=1` on `confidence: 0.5` findings is harsh. Consider `exit=2` (warning) for medium-confidence findings and `exit=1` only for high+ confidence. CI users currently can't distinguish "real bug" from "linter noise."
+4. ~~**Confidence floor for exit code.** `exit=1` on `confidence: 0.5` findings is harsh. Consider `exit=2` (warning) for medium-confidence findings and `exit=1` only for high+ confidence. CI users currently can't distinguish "real bug" from "linter noise."~~ done at `f588e38`
 
 ---
 

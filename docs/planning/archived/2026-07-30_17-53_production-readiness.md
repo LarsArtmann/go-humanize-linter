@@ -1,6 +1,7 @@
 # go-humanize-linter — Production Readiness Plan
 
 > **Date:** 2026-07-30 17:53
+> ~~Goal: shippable v0.1.0~~ ACHIEVED — v0.1.0 tagged 2026-07-30; plan archived with a Resolution appendix.
 > **Goal:** Take go-humanize-linter from "works on my machine" to a shippable v0.1.0 that external users can install, run as a golangci-lint plugin, and trust.
 
 ---

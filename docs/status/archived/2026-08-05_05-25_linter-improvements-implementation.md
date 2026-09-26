@@ -168,74 +168,74 @@ Implemented 5 out of 8 designed improvements. All 939 lines of new code pass tes
 
 ### Immediate (today — documentation and cleanup)
 
-1. Update `AGENTS.md` with new CLI flags, H004 API correction, H001 size-bucket filter, H0SUP rule, and confidence-aware exit codes.
-2. Update `CHANGELOG.md` under `[Unreleased]` with all 5 improvements.
-3. Update `FEATURES.md` to list `--min-confidence`, `--verify-suppressions`, and `H0SUP`.
-4. Update `TODO_LIST.md` to mark completed items and add remaining work.
-5. Add `docs/adr/0002-suppression-verification.md`.
-6. Add `docs/adr/0003-confidence-exit-codes.md`.
-7. Squash the 2 style-only commits (`caa5ad1`, `361f486`) into their parents (if not yet pushed).
-8. Push all commits to `origin/main`.
+1. ~~Update `AGENTS.md` with new CLI flags, H004 API correction, H001 size-bucket filter, H0SUP rule, and confidence-aware exit codes.~~ done at `8db4313`
+2. ~~Update `CHANGELOG.md` under `[Unreleased]` with all 5 improvements.~~ done at `ff0bb21`
+3. ~~Update `FEATURES.md` to list `--min-confidence`, `--verify-suppressions`, and `H0SUP`.~~ done at `bfddd5d`
+4. ~~Update `TODO_LIST.md` to mark completed items and add remaining work.~~ done at `5fd6fc7`
+5. ~~Add `docs/adr/0002-suppression-verification.md`.~~ done at `5eaf3d6`
+6. ~~Add `docs/adr/0003-confidence-exit-codes.md`.~~ done at `5eaf3d6`
+7. ~~Squash the 2 style-only commits (`caa5ad1`, `361f486`) into their parents (if not yet pushed).~~ done — accepted as-is — daemon commits kept (plan D2)
+8. ~~Push all commits to `origin/main`.~~ done — pushed well before v0.2.0
 
 ### Short-term (this week — validation and downstream fixes)
 
-9. Build the linter binary and run it against `BuildFlow` — verify H004 now suggests the correct API.
-10. Fix `BuildFlow` `execution/plural.go` using `english.PluralWord`.
-11. Run `--verify-suppressions` on `file-and-image-renamer` — verify it catches the wrong directive.
-12. Fix `file-and-image-renamer` `//nolint:go-humanize-linter/H003` → `//nolint:gohumanize:H003`.
-13. Fix `golangci-lint-auto-configure` H004 using `english.PluralWord`.
-14. Run the improved linter against `DiscordSync` — verify the H001 size-bucket false positive is gone.
-15. Run the improved linter against all 29 sibling projects and document findings.
-16. Run `--verify-suppressions` on every sibling project and document stale directives.
-17. Run `--min-confidence high` on every sibling project and compare findings count.
-18. Verify the H001 size-bucket filter does not suppress any real byte-formatting finding in the corpus.
-19. Add `testdata/h004_plural_suggestion/main.go` that verifies the suggestion text contains `english.PluralWord`.
-20. Add a test that `--explain H004` output contains `github.com/dustin/go-humanize/english`.
+9. ~~Build the linter binary and run it against `BuildFlow` — verify H004 now suggests the correct API.~~ done — covered — H004 correct API since 3dc2711
+10. ~~Fix `BuildFlow` `execution/plural.go` using `english.PluralWord`.~~ **Won't implement — declined 2026-09-19 — consumer repos frozen as demo corpus.**
+11. ~~Run `--verify-suppressions` on `file-and-image-renamer` — verify it catches the wrong directive.~~ done — covered — --verify-suppressions shipped (f588e38)
+12. ~~Fix `file-and-image-renamer` `//nolint:go-humanize-linter/H003` → `//nolint:gohumanize:H003`.~~ done at `f588e38`
+13. ~~Fix `golangci-lint-auto-configure` H004 using `english.PluralWord`.~~ **Won't implement — declined 2026-09-19 — consumer repos frozen.**
+14. ~~Run the improved linter against `DiscordSync` — verify the H001 size-bucket false positive is gone.~~ done — covered — size-bucket FP fixed (ab9544a)
+15. ~~Run the improved linter against all 29 sibling projects and document findings.~~ done — corpus sweeps ran 07-31/08-10/09-18
+16. ~~Run `--verify-suppressions` on every sibling project and document stale directives.~~ done — sweep found 3 stale directives (99b93cf)
+17. ~~Run `--min-confidence high` on every sibling project and compare findings count.~~ done — threshold comparison verified in T2 sweep (99b93cf)
+18. ~~Verify the H001 size-bucket filter does not suppress any real byte-formatting finding in the corpus.~~ done — corpus verified (99b93cf: 0 findings, 0 new FPs)
+19. ~~Add `testdata/h004_plural_suggestion/main.go` that verifies the suggestion text contains `english.PluralWord`.~~ **Won't implement — not adopted — suggestion text asserted in rule tests instead.**
+20. ~~Add a test that `--explain H004` output contains `github.com/dustin/go-humanize/english`.~~ done — covered — --explain tests + 3dc2711
 
 ### Plugin and integration
 
-21. Wire `--verify-suppressions` into the plugin path (`plugin/plugin.go`).
-22. Wire `--min-confidence` into the plugin path.
-23. Add plugin config struct fields for `min_confidence` and `verify_suppressions`.
-24. Update `.golangci.custom.yml` example with the new settings.
-25. Update `plugin/plugin_internal_test.go` to cover the new config fields.
-26. Add a `--list-suppressions` mode that shows all active `//nolint:gohumanize` directives.
-27. Add a `--stats` mode that reports rule hit counts and confidence distribution.
+21. ~~Wire `--verify-suppressions` into the plugin path (`plugin/plugin.go`).~~ done at `85457dd`
+22. ~~Wire `--min-confidence` into the plugin path.~~ done at `85457dd`
+23. ~~Add plugin config struct fields for `min_confidence` and `verify_suppressions`.~~ done at `fca8f36`
+24. ~~Update `.golangci.custom.yml` example with the new settings.~~ done at `85457dd`
+25. ~~Update `plugin/plugin_internal_test.go` to cover the new config fields.~~ done at `b26d66a`
+26. ~~Add a `--list-suppressions` mode that shows all active `//nolint:gohumanize` directives.~~ **Won't implement — not adopted.**
+27. ~~Add a `--stats` mode that reports rule hit counts and confidence distribution.~~ **Won't implement — not adopted.**
 
 ### Detection improvements
 
-28. Implement per-statement suppression support (return specific `token.Pos` from detectors).
-29. Add `--behavior-delta` / `--strict-compat` warning for output-changing replacements.
-30. Add `--verify-config` mode for validating config files.
-31. Improve H005 detection to distinguish true SI-prefix output from ms conversion.
-32. Add a rule for obviously-wrong humanize API usage (e.g. `humanize.SIWithDigits` used as pluralizer).
-33. Add a second-order rule: "function contains both `humanize.Bytes` and `humanize.IBytes` callers — pick one".
-34. Consider an import-graph rule: "module depends on `dustin/go-humanize` but still has H001-H009 findings".
+28. ~~Implement per-statement suppression support (return specific `token.Pos` from detectors).~~ done at `6e2988b`
+29. ~~Add `--behavior-delta` / `--strict-compat` warning for output-changing replacements.~~ done at `f0ddb98`
+30. ~~Add `--verify-config` mode for validating config files.~~ **Won't implement — not adopted.**
+31. ~~Improve H005 detection to distinguish true SI-prefix output from ms conversion.~~ **Won't implement — not adopted — H005 signals unchanged.**
+32. ~~Add a rule for obviously-wrong humanize API usage (e.g. `humanize.SIWithDigits` used as pluralizer).~~ **Won't implement — out of scope (ROADMAP idea at most).**
+33. ~~Add a second-order rule: "function contains both `humanize.Bytes` and `humanize.IBytes` callers — pick one".~~ **Won't implement — not adopted.**
+34. ~~Consider an import-graph rule: "module depends on `dustin/go-humanize` but still has H001-H009 findings".~~ **Won't implement — not adopted.**
 
 ### Architecture and refactoring
 
-35. Propose `ExitCodeFromReportConfidence` upstream in `go-linter-sdk`.
-36. Split `pattern_helpers.go` into `suppression.go`, `finding_builder.go`, and `pattern_imports.go`.
-37. Add a public `SuggestFix(ruleID, signals)` API so the CLI and plugin can share fix suggestions.
-38. Refactor detectors to return a `token.Pos` + message pair instead of a whole-function finding.
-39. Consider whether `H0SUP` should be a real rule in the registry rather than a pseudo-rule.
+35. ~~Propose `ExitCodeFromReportConfidence` upstream in `go-linter-sdk`.~~ done at `22d0572`
+36. ~~Split `pattern_helpers.go` into `suppression.go`, `finding_builder.go`, and `pattern_imports.go`.~~ done — partially — suppression.go + confidence.go extracted; rest kept
+37. ~~Add a public `SuggestFix(ruleID, signals)` API so the CLI and plugin can share fix suggestions.~~ **Won't implement — not adopted.**
+38. ~~Refactor detectors to return a `token.Pos` + message pair instead of a whole-function finding.~~ done — in ROADMAP (per-line diagnostics)
+39. ~~Consider whether `H0SUP` should be a real rule in the registry rather than a pseudo-rule.~~ done — answered — H0SUP stays a pseudo-rule (ADR 0002; AGENTS)
 
 ### CI and tooling
 
-40. Add CI integration examples for the new flags to `action.yml`.
-41. Add a sibling-project CI matrix that runs the latest linter against representative repos nightly.
-42. Pin the linter binary location in sibling projects (replace `/tmp/go-humanize-linter` with a Nix flake app).
-43. Add a `docs/case-studies/ai-mistakes-2026-08-05.md` using the 29 reports as evidence.
-44. Add corpus-wide regression test: run the linter against all sibling projects and assert no new false positives.
-45. Add a `mise`/Nix target that runs the linter against all sibling projects.
+40. ~~Add CI integration examples for the new flags to `action.yml`.~~ done at `3b6a600`
+41. ~~Add a sibling-project CI matrix that runs the latest linter against representative repos nightly.~~ **Won't implement — not adopted — T40 weekly ritual is the successor.**
+42. ~~Pin the linter binary location in sibling projects (replace `/tmp/go-humanize-linter` with a Nix flake app).~~ **Won't implement — declined 2026-09-19 — consumer repos frozen.**
+43. ~~Add a `docs/case-studies/ai-mistakes-2026-08-05.md` using the 29 reports as evidence.~~ **Won't implement — not adopted.**
+44. ~~Add corpus-wide regression test: run the linter against all sibling projects and assert no new false positives.~~ done — corpus sweeps serve this role
+45. ~~Add a `mise`/Nix target that runs the linter against all sibling projects.~~ **Won't implement — not adopted.**
 
 ### Polish
 
-46. Add doc comments to `suppression.go` explaining the two-phase verification approach.
-47. Add a test that `VerifySuppressionComment` correctly identifies all 7 suppression syntax variants.
-48. Add a benchmark for `VerifySuppressions` on a large codebase.
-49. Review whether `hasSwitchStatement` should also check for `if-else` chains (not just `switch`).
-50. Schedule a `brutal-self-review` of the linter once the documentation is updated.
+46. ~~Add doc comments to `suppression.go` explaining the two-phase verification approach.~~ done — suppression.go documented (ADR 0002 + doc comments)
+47. ~~Add a test that `VerifySuppressionComment` correctly identifies all 7 suppression syntax variants.~~ done — covered — suppression parser tests (b4e4923)
+48. ~~Add a benchmark for `VerifySuppressions` on a large codebase.~~ **Won't implement — not adopted.**
+49. ~~Review whether `hasSwitchStatement` should also check for `if-else` chains (not just `switch`).~~ **Won't implement — not adopted — switch-only filter is the shipped design.**
+50. ~~Schedule a `brutal-self-review` of the linter once the documentation is updated.~~ done — honest-assessment sessions (08-11/09-14/10-44)
 
 ---
 

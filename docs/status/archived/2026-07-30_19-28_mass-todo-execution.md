@@ -147,28 +147,28 @@ items are forward-looking:
 
 ### Quick Wins (XS, < 15 min each)
 
-1. Add H008 and H009 to `ruleExplanations` map (so `--explain` covers them)
-2. Add `h008_negative` and `h009_negative` testdata fixtures
-3. Add per-rule `--explain` for H008 and H009
-4. Add `benchstat` workflow to track performance regressions
-5. Add `.golangci.yml` excludes for the new pattern files (whole-file skip)
-6. Add `lint:ignore` test cases covering all 9 rules
-7. Improve `printRules()` to be a proper table (column widths based on longest ID/name)
-8. Add `--output <file>` to redirect findings to a file
-9. Add `gofumpt` and `golines` directly to a `Makefile` (oh wait, no Makefile)
-10. Add `gci`-compatible import grouping for the new files
+1. ~~Add H008 and H009 to `ruleExplanations` map (so `--explain` covers them)~~ done at `2ac66b6`
+2. ~~Add `h008_negative` and `h009_negative` testdata fixtures~~ done at `23bf769`
+3. ~~Add per-rule `--explain` for H008 and H009~~ done at `2ac66b6`
+4. ~~Add `benchstat` workflow to track performance regressions~~ **Won't implement — not adopted.**
+5. ~~Add `.golangci.yml` excludes for the new pattern files (whole-file skip)~~ **Won't implement — not adopted.**
+6. ~~Add `lint:ignore` test cases covering all 9 rules~~ done at `fcb0fdc`
+7. ~~Improve `printRules()` to be a proper table (column widths based on longest ID/name)~~ **Won't implement — not adopted.**
+8. ~~Add `--output <file>` to redirect findings to a file~~ done at `0afc4c2`
+9. ~~Add `gofumpt` and `golines` directly to a `Makefile` (oh wait, no Makefile)~~ **Won't implement — BANNED — no Makefiles; flake.nix owns automation.**
+10. ~~Add `gci`-compatible import grouping for the new files~~ done at `1b3e355`
 
 ### Medium (S, 15-60 min)
 
-11. Replace `isLiteralInt` with a typed `*ast.BasicLit` parameter
-12. Add P12 (configurable rules) to the plugin via `Flags`
-13. Add a `--severity` filter (only show warning/error findings)
-14. Add a `--format golangci` alias for `--format json`
-15. Add a `--confidence` filter (only show high/full confidence)
-16. Add `gocritic` to the linter chain
-17. Add `govulncheck` to CI
-18. Add `gosec` to CI
-19. Add `prealloc` + `nilness` to `.golangci.yml`
+11. ~~Replace `isLiteralInt` with a typed `*ast.BasicLit` parameter~~ **Won't implement — not adopted.**
+12. ~~Add P12 (configurable rules) to the plugin via `Flags`~~ done at `fca8f36`
+13. ~~Add a `--severity` filter (only show warning/error findings)~~ **Won't implement — not adopted.**
+14. ~~Add a `--format golangci` alias for `--format json`~~ **Won't implement — not adopted.**
+15. ~~Add a `--confidence` filter (only show high/full confidence)~~ done at `f588e38`
+16. ~~Add `gocritic` to the linter chain~~ **Won't implement — not adopted.**
+17. ~~Add `govulncheck` to CI~~ done at `3e83134`
+18. ~~Add `gosec` to CI~~ done — covered — gosec runs via golangci-lint
+19. ~~Add `prealloc` + `nilness` to `.golangci.yml`~~ **Won't implement — not adopted.**
 20. Add a `default: {Enabled: true}` map for per-rule enable/disable
 
 ### Larger (M, 1-4 hours)

@@ -61,30 +61,30 @@ Reconciled test fixtures against the recently merged H008 (manual-ordinal) rule.
 
 ### Architecture & Process
 
-1. **Single source of truth for rule count.** The number "7" appears in test code, example comments, AGENTS.md, FEATURES.md, README, and CHANGELOG independently. There should be a `Rules()` accessor that returns the slice and a derived `len()` everywhere else. A test that asserts `len(AllRules()) == N` is anti-fragile — it duplicates the count.
-2. **Example-based tests are gold, but they break on every rule addition.** `ExampleDefaultRegistry` and `ExampleAllRules` will need to be updated every time a new rule lands. Consider deriving these examples from `AllRules()` at test time, or replacing the hard-coded `// Output:` blocks with a sub-test that compares against the live registry.
-3. **Hidden-feature landmines.** H009 is fully implemented and tested but not registered. A CI check that asserts `len(Diff(AllRules(), testCount)) == 0` or that all rule files matching `rule_*.go` are registered would catch this. Even cheaper: a `go test` that lists `rule_*.go` and asserts each one has a `Rule*()` factory and an entry in `AllRules()`.
-4. **AGENTS.md not updated in the H008 commit.** The merge added `rule_ordinal.go`, `pattern_ordinal.go`, and a new rule — but the architecture table and rule-id list weren't bumped. Whoever landed H008 didn't update the docs.
+1. ~~**Single source of truth for rule count.** The number "7" appears in test code, example comments, AGENTS.md, FEATURES.md, README, and CHANGELOG independently. There should be a `Rules()` accessor that returns the slice and a derived `len()` everywhere else. A test that asserts `len(AllRules()) == N` is anti-fragile — it duplicates the count.~~ done — superseded — TestRuleCountConsistency guards registry/detector sync instead
+2. ~~**Example-based tests are gold, but they break on every rule addition.** `ExampleDefaultRegistry` and `ExampleAllRules` will need to be updated every time a new rule lands. Consider deriving these examples from `AllRules()` at test time, or replacing the hard-coded `// Output:` blocks with a sub-test that compares against the live registry.~~ **Won't implement — accepted — examples updated per rule addition.**
+3. ~~**Hidden-feature landmines.** H009 is fully implemented and tested but not registered. A CI check that asserts `len(Diff(AllRules(), testCount)) == 0` or that all rule files matching `rule_*.go` are registered would catch this. Even cheaper: a `go test` that lists `rule_*.go` and asserts each one has a `Rule*()` factory and an entry in `AllRules()`.~~ done at `2ac66b6`
+4. ~~**AGENTS.md not updated in the H008 commit.** The merge added `rule_ordinal.go`, `pattern_ordinal.go`, and a new rule — but the architecture table and rule-id list weren't bumped. Whoever landed H008 didn't update the docs.~~ done at `2ac66b6`
 
 ### Code Quality
 
-5. **H008's `ordinalSuffixes` map is package-level mutable state.** `var ordinalSuffixes = map[string]bool{...}` is a `//nolint:gochecknoglobals` candidate. For a 4-entry lookup, a `switch` or `contains([]string, ...)` would be safer and avoid the mutex question in case of future writes.
-6. **Magic numbers in `pattern_ordinal.go`** (`10`, `100`, `3`) deserve named constants — `ordinalModTen`, `ordinalModHundred`, `minOrdinalSuffixesForFlag`.
-7. **`goconst` on `"H001"`** in `rules.go` — the rule IDs are repeated across detector lists, factory meta blocks, and tests. A `const ruleIdH001 = "H001"` shared across packages would centralize the constant.
-8. **`lintIgnorePrefix` unused** in `pattern_helpers.go:196` — either delete it or wire it up. Dead code violates the "no paper cuts" rule.
+5. ~~**H008's `ordinalSuffixes` map is package-level mutable state.** `var ordinalSuffixes = map[string]bool{...}` is a `//nolint:gochecknoglobals` candidate. For a 4-entry lookup, a `switch` or `contains([]string, ...)` would be safer and avoid the mutex question in case of future writes.~~ **Won't implement — kept — small lookup, globals accepted.**
+6. ~~**Magic numbers in `pattern_ordinal.go`** (`10`, `100`, `3`) deserve named constants — `ordinalModTen`, `ordinalModHundred`, `minOrdinalSuffixesForFlag`.~~ done at `2ac66b6`
+7. ~~**`goconst` on `"H001"`** in `rules.go` — the rule IDs are repeated across detector lists, factory meta blocks, and tests. A `const ruleIdH001 = "H001"` shared across packages would centralize the constant.~~ done at `2ac66b6`
+8. ~~**`lintIgnorePrefix` unused** in `pattern_helpers.go:196` — either delete it or wire it up. Dead code violates the "no paper cuts" rule.~~ done — removed — lintIgnorePrefix gone from pattern_helpers (verified 2026-09-26)
 
 ### Test Coverage
 
-9. **H008 and H009 have no negative testdata.** A clean function that uses `n%10` with non-ordinal branches must NOT flag. This is the only way to validate the "3 of 4 suffixes" heuristic.
-10. **H008's `hasOrdinalSwitch` has no sub-test.** The other rules have `TestHas*` table-driven tests; H008 needs `TestHasOrdinalSwitch` with the same structure.
-11. **Plugin-mode tests for H008** — `testdata/analysistest/h008positive/` exists; verify the analyser runs it. The `TestAnalyzerAnalysistest` test passes, but I should confirm both H008 and H009 fixtures are exercised.
-12. **No real-world validation of H008.** Pre-merge, all 7 rules were swept against 190+ projects. H008 needs the same sweep to validate the "3 of 4 suffix" heuristic before claiming a "~0% FP" rate.
+9. ~~**H008 and H009 have no negative testdata.** A clean function that uses `n%10` with non-ordinal branches must NOT flag. This is the only way to validate the "3 of 4 suffixes" heuristic.~~ done at `23bf769`
+10. ~~**H008's `hasOrdinalSwitch` has no sub-test.** The other rules have `TestHas*` table-driven tests; H008 needs `TestHasOrdinalSwitch` with the same structure.~~ done at `2ac66b6`
+11. ~~**Plugin-mode tests for H008** — `testdata/analysistest/h008positive/` exists; verify the analyser runs it. The `TestAnalyzerAnalysistest` test passes, but I should confirm both H008 and H009 fixtures are exercised.~~ done at `78440b0`
+12. ~~**No real-world validation of H008.** Pre-merge, all 7 rules were swept against 190+ projects. H008 needs the same sweep to validate the "3 of 4 suffix" heuristic before claiming a "~0% FP" rate.~~ done at `d3bf6f0`
 
 ### Documentation
 
-13. **CHANGELOG.md missing H008 entry.** A rule addition that's already merged should be in the Unreleased section.
-14. **FEATURES.md rule inventory** should list H008 under DONE.
-15. **README.md rule table** (if it exists) needs H008.
+13. ~~**CHANGELOG.md missing H008 entry.** A rule addition that's already merged should be in the Unreleased section.~~ done at `2ac66b6`
+14. ~~**FEATURES.md rule inventory** should list H008 under DONE.~~ done at `2ac66b6`
+15. ~~**README.md rule table** (if it exists) needs H008.~~ done at `1b3e355`
 
 ## f) UP TO 50 THINGS TO GET DONE NEXT
 
@@ -145,11 +145,11 @@ Sorted by Pareto impact (high-value, low-effort first):
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
-1. **H009: ship now or defer?** The detector, factory, and test all exist; the only work is wiring it into `AllRules()` and `allRuleDetectors()`. But shipping both H008 and H009 in the same release doubles the maintenance surface and we haven't validated H009 against the real-world corpus. Do you want H009 in v0.2.0 alongside H008, or should H009 live in a feature branch until we can sweep it?
+1. ~~**H009: ship now or defer?** The detector, factory, and test all exist; the only work is wiring it into `AllRules()` and `allRuleDetectors()`. But shipping both H008 and H009 in the same release doubles the maintenance surface and we haven't validated H009 against the real-world corpus. Do you want H009 in v0.2.0 alongside H008, or should H009 live in a feature branch until we can sweep it?~~ done at `2ac66b6`
 
-2. **Versioning — v0.1.1 or v0.2.0?** H008 is a new rule with a new heuristic. Is that a patch (additive, backward-compatible) or a minor (new feature surface)? SemVer says minor, but our release cadence is undocumented. What's the project's intended policy?
+2. ~~**Versioning — v0.1.1 or v0.2.0?** H008 is a new rule with a new heuristic. Is that a patch (additive, backward-compatible) or a minor (new feature surface)? SemVer says minor, but our release cadence is undocumented. What's the project's intended policy?~~ done — answered — shipped as minor v0.2.0 (SemVer minor for new rules)
 
-3. **CI rule-count gate — add to `flake.nix` as a pre-commit hook or as a test?** A test (`TestRuleCountConsistency`) is simpler and runs in CI; a pre-commit hook is faster feedback but more setup. Which is the truth in this project — are hooks favored via `treefmt`/`nix`/`lefthook`, or is the convention "tests only"?
+3. ~~**CI rule-count gate — add to `flake.nix` as a pre-commit hook or as a test?** A test (`TestRuleCountConsistency`) is simpler and runs in CI; a pre-commit hook is faster feedback but more setup. Which is the truth in this project — are hooks favored via `treefmt`/`nix`/`lefthook`, or is the convention "tests only"?~~ done — answered — a test (TestRuleCountConsistency); hooks not used in this repo
 
 ---
 

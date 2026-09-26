@@ -204,25 +204,25 @@ The `--output` flag is tested for text and JSON formats but not SARIF. The SARIF
 
 ## E. WHAT WE SHOULD IMPROVE
 
-1. **Update living docs IMMEDIATELY after doing the work, not in a separate "documentation phase."** I did G6 (benchmarks) and G7 (integration test) but forgot to go back and remove T14/T15 from the TODO_LIST I had just written. The docs-first workflow would have caught this.
+1. ~~**Update living docs IMMEDIATELY after doing the work, not in a separate "documentation phase."** I did G6 (benchmarks) and G7 (integration test) but forgot to go back and remove T14/T15 from the TODO_LIST I had just written. The docs-first workflow would have caught this.~~ done — practice adopted in later sessions
 
-2. **Re-verify coverage numbers before writing them into docs.** I wrote 91.3% into the CHANGELOG based on the previous session's data, but adding the integration test raised it to 93.5%. Always run `go test ./... -cover` right before writing coverage numbers.
+2. ~~**Re-verify coverage numbers before writing them into docs.** I wrote 91.3% into the CHANGELOG based on the previous session's data, but adding the integration test raised it to 93.5%. Always run `go test ./... -cover` right before writing coverage numbers.~~ done — practice adopted — coverage re-run before doc writes
 
-3. **Annotate old status reports and plans when they're superseded.** The previous status report and gap-closure plan are now historical fiction. They should have a resolution note at the top pointing to this report.
+3. ~~**Annotate old status reports and plans when they're superseded.** The previous status report and gap-closure plan are now historical fiction. They should have a resolution note at the top pointing to this report.~~ done (docs-health pass 2026-09-26 — both annotated in this pass)
 
-4. **Save benchmark baselines.** Benchmark results in terminal output are ephemeral. Save them to a file for future `benchstat` comparisons.
+4. ~~**Save benchmark baselines.** Benchmark results in terminal output are ephemeral. Save them to a file for future `benchstat` comparisons.~~ **Won't implement — not adopted.**
 
-5. **Validate infrastructure files.** `action.yml` should be validated with `actionlint`. `.golangci.custom.yml` should be validated with `golangci-lint config verify`.
+5. ~~**Validate infrastructure files.** `action.yml` should be validated with `actionlint`. `.golangci.custom.yml` should be validated with `golangci-lint config verify`.~~ **Won't implement — not adopted.**
 
-6. **Test the full CLI subprocess path for new flags.** Unit tests for `loadConfig` are necessary but not sufficient — `go-humanize-linter --config x.yaml ./...` should be tested end-to-end.
+6. ~~**Test the full CLI subprocess path for new flags.** Unit tests for `loadConfig` are necessary but not sufficient — `go-humanize-linter --config x.yaml ./...` should be tested end-to-end.~~ done — covered — CLI integration suite
 
-7. **Clean up LSP warnings even when `nix run .#lint` passes.** Stale LSP diagnostics create noise for the next developer who opens the file.
+7. ~~**Clean up LSP warnings even when `nix run .#lint` passes.** Stale LSP diagnostics create noise for the next developer who opens the file.~~ **Won't implement — ephemeral.**
 
-8. **The CHANGELOG needs consolidation.** Splitting entries into "(previous v0.2.0 work)" sections is confusing. Merge all entries into single Added/Changed/Fixed sections per release.
+8. ~~**The CHANGELOG needs consolidation.** Splitting entries into "(previous v0.2.0 work)" sections is confusing. Merge all entries into single Added/Changed/Fixed sections per release.~~ done at `0afc4c2`
 
-9. **Manually inspect a sample of validation sweep findings.** "0% FP" is asserted based on output format, not code review. A proper validation would inspect 10-20 random findings to verify they're true positives.
+9. ~~**Manually inspect a sample of validation sweep findings.** "0% FP" is asserted based on output format, not code review. A proper validation would inspect 10-20 random findings to verify they're true positives.~~ done — manual triage in later sweeps
 
-10. **The `flake.nix` lint script `grep -v` is still there.** It can't be removed because stock golangci-lint can't load module plugins. But the comment explaining why is buried in the script. This should be more prominent.
+10. ~~**The `flake.nix` lint script `grep -v` is still there.** It can't be removed because stock golangci-lint can't load module plugins. But the comment explaining why is buried in the script. This should be more prominent.~~ done — deliberate — documented in the flake lint script
 
 ---
 
@@ -230,56 +230,56 @@ The `--output` flag is tested for text and JSON formats but not SARIF. The SARIF
 
 ### Critical (fix self-inflicted damage from this session)
 
-1. **Fix CHANGELOG coverage numbers** — plugin is 93.5%, not 91.3%
-2. **Fix FEATURES.md coverage numbers** — same stale 91.3%
-3. **Remove T14 and T15 from TODO_LIST** — both done this session
-4. **Consolidate CHANGELOG `[0.2.0]` section** — merge "(previous v0.2.0 work)" into main sections
-5. **Annotate `docs/status/2026-07-31_03-48_*` as superseded** by this report
-6. **Annotate `docs/planning/2026-07-31_03-48_gap-closure-plan.md` as complete**
-7. **Clean up `bench_internal_test.go` LSP warnings** (restart LSP or refactor)
-8. **Save benchmark baseline** to `docs/benchmarks/2026-07-31_baseline.txt`
+1. ~~**Fix CHANGELOG coverage numbers** — plugin is 93.5%, not 91.3%~~ done at `1b3e355`
+2. ~~**Fix FEATURES.md coverage numbers** — same stale 91.3%~~ done at `1b3e355`
+3. ~~**Remove T14 and T15 from TODO_LIST** — both done this session~~ done at `1382e6d`
+4. ~~**Consolidate CHANGELOG `[0.2.0]` section** — merge "(previous v0.2.0 work)" into main sections~~ done at `0afc4c2`
+5. ~~**Annotate `docs/status/2026-07-31_03-48_*` as superseded** by this report~~ done (docs-health pass 2026-09-26 — annotated in this pass)
+6. ~~**Annotate `docs/planning/2026-07-31_03-48_gap-closure-plan.md` as complete**~~ done (docs-health pass 2026-09-26 — annotated in this pass)
+7. ~~**Clean up `bench_internal_test.go` LSP warnings** (restart LSP or refactor)~~ **Won't implement — ephemeral LSP noise.**
+8. ~~**Save benchmark baseline** to `docs/benchmarks/2026-07-31_baseline.txt`~~ **Won't implement — not adopted.**
 
 ### High Priority (release readiness)
 
-9. **Tag v0.2.0** (requires user approval)
-10. **Validate `action.yml` with `actionlint`**
-11. **Add `--config` CLI subprocess test** — verify end-to-end flag parsing
-12. **Add SARIF `--output` integration test**
-13. **Add negative testdata for package-level var detection** (`map[string]bool` fixture)
-14. **Add dot-import testdata** (`. "strings"` — known limitation, document with test)
-15. **Fix H009/H002 overlap** (TODO T17 — suppress H002 when H009 fires)
-16. **Run `golangci-lint config verify` on `.golangci.custom.yml`**
-17. **Verify `nix run .#custom-lint` works end-to-end** (I added it but didn't run it)
+9. ~~**Tag v0.2.0** (requires user approval)~~ done at `19bdd44`
+10. ~~**Validate `action.yml` with `actionlint`**~~ **Won't implement — not adopted.**
+11. ~~**Add `--config` CLI subprocess test** — verify end-to-end flag parsing~~ done at `27252e1`
+12. ~~**Add SARIF `--output` integration test**~~ done at `27252e1`
+13. ~~**Add negative testdata for package-level var detection** (`map[string]bool` fixture)~~ done at `ab9544a`
+14. ~~**Add dot-import testdata** (`. "strings"` — known limitation, document with test)~~ done at `f8c08c3`
+15. ~~**Fix H009/H002 overlap** (TODO T17 — suppress H002 when H009 fires)~~ done at `fdc9360`
+16. ~~**Run `golangci-lint config verify` on `.golangci.custom.yml`**~~ done at `78440b0`
+17. ~~**Verify `nix run .#custom-lint` works end-to-end** (I added it but didn't run it)~~ done at `2532263`
 
 ### Medium Priority (adoption + ergonomics)
 
-18. **Publish to golangci-lint plugin index** (after v0.2.0 tag)
-19. **Add `--config` JSON format support** (currently YAML-only)
-20. **Add exit code documentation** to README (0=clean, 1=findings, 2=error)
-21. **Add `examples/` directory** with `.gohumanize.yaml` sample file
-22. **Add `--config` precedence test** (CLI flags override config file — currently untested via subprocess)
-23. **Add CI step to validate `action.yml` syntax**
-24. **Add CI step to run `nix run .#custom-lint` on testdata**
-25. **Manually inspect 10-20 validation sweep findings** to verify ~0% FP
-26. **Add `docs/rules/H007.md` update** mentioning package-level var detection
-27. **Update `docs/rules/` for all rules** to mention import-alias awareness
-28. **Add `docs/adr/0002-config-file-format.md`** documenting YAML choice
-29. **Add `--severity` flag** to filter by severity level
-30. **Add `--confidence` flag** to filter by confidence level
-31. **Add shell completion generation** (`--completion bash/zsh/fish`)
-32. **Add `--diff` flag** to show suggested replacement as a diff
+18. ~~**Publish to golangci-lint plugin index** (after v0.2.0 tag)~~ **Won't implement — declined 2026-09-19 (T18).**
+19. ~~**Add `--config` JSON format support** (currently YAML-only)~~ **Won't implement — not adopted — YAML only.**
+20. ~~**Add exit code documentation** to README (0=clean, 1=findings, 2=error)~~ done at `f09aaea`
+21. ~~**Add `examples/` directory** with `.gohumanize.yaml` sample file~~ **Won't implement — README embeds the format instead.**
+22. ~~**Add `--config` precedence test** (CLI flags override config file — currently untested via subprocess)~~ done at `27252e1`
+23. ~~**Add CI step to validate `action.yml` syntax**~~ **Won't implement — not adopted.**
+24. ~~**Add CI step to run `nix run .#custom-lint` on testdata**~~ **Won't implement — not adopted.**
+25. ~~**Manually inspect 10-20 validation sweep findings** to verify ~0% FP~~ done — sweep findings triaged manually (07-31, 09-18 sweeps)
+26. ~~**Add `docs/rules/H007.md` update** mentioning package-level var detection~~ done at `8db4313`
+27. ~~**Update `docs/rules/` for all rules** to mention import-alias awareness~~ done at `8db4313`
+28. ~~**Add `docs/adr/0002-config-file-format.md`** documenting YAML choice~~ **Won't implement — not written — YAML choice documented in README/help.**
+29. ~~**Add `--severity` flag** to filter by severity level~~ **Won't implement — not adopted.**
+30. ~~**Add `--confidence` flag** to filter by confidence level~~ done at `f588e38`
+31. ~~**Add shell completion generation** (`--completion bash/zsh/fish`)~~ **Won't implement — not adopted.**
+32. ~~**Add `--diff` flag** to show suggested replacement as a diff~~ **Won't implement — not adopted.**
 
 ### Low Priority (polish + future-proofing)
 
-33. **Research full `go/types` integration** for CLI path (type-checking walker)
-34. **Add per-line diagnostics** (ROADMAP — requires every detector to return specific `token.Pos`)
-35. **Add auto-fix capability** via `go-finding` `FixEngine` (ROADMAP)
-36. **Add LSP server mode** (ROADMAP)
-37. **Research H010+ new rules** (ROADMAP)
-38. **Add benchmark suite** for full registry run over testdata (not just isPackageCall)
-39. **Add fuzz tests** for pattern detectors
-40. **Add CI matrix testing** across Go versions (1.26, tip)
-41. **Add release notes generation** from CHANGELOG
+33. ~~**Research full `go/types` integration** for CLI path (type-checking walker)~~ done — in ROADMAP (type-aware detection)
+34. ~~**Add per-line diagnostics** (ROADMAP — requires every detector to return specific `token.Pos`)~~ done — in ROADMAP (per-line diagnostics)
+35. ~~**Add auto-fix capability** via `go-finding` `FixEngine` (ROADMAP)~~ done — in ROADMAP (auto-fix)
+36. ~~**Add LSP server mode** (ROADMAP)~~ done — in ROADMAP (editor integration)
+37. ~~**Research H010+ new rules** (ROADMAP)~~ done at `478282e`
+38. ~~**Add benchmark suite** for full registry run over testdata (not just isPackageCall)~~ done at `2eb48cc`
+39. ~~**Add fuzz tests** for pattern detectors~~ **Won't implement — deliberately skipped (no fuzz precedent).**
+40. ~~**Add CI matrix testing** across Go versions (1.26, tip)~~ **Won't implement — not adopted.**
+41. ~~**Add release notes generation** from CHANGELOG~~ done at `b1d633a`
 42. **Add `--rules --format json`** for machine-readable rule listing
 43. **Add contributor docs for the plugin registration system** (expand CONTRIBUTING.md)
 44. **Add `gohumanize` to `.golangci.yml` enable list** once custom-gcl is the default lint tool

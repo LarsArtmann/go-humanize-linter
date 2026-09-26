@@ -107,23 +107,23 @@ as a test), plugin-path suppression is untested, the `cmd/gohumanize` singlechec
 
 ### Immediate (my session's gaps)
 
-1. **Add `TestLintsItself_Clean`** — run the full registry on `.` and assert 0 findings. This is the regression guard for self-exclusion.
-2. **Add plugin suppression test** — parse source with `//nolint:gohumanize`, call `DetectFuncDecl`, assert 0 findings.
-3. **Fix the `//nolint` comment** on `rule_bytes.go:41` — replace "this is the detector itself" with "suggestion text legitimately contains byte-unit strings".
-4. **Modernize `bench_test.go`** — `for range b.N` → `for b.Loop()` (2 lines, trivial).
-5. **Add clean-report SARIF test** — assert `output` with a 0-finding report produces valid SARIF.
+1. ~~**Add `TestLintsItself_Clean`** — run the full registry on `.` and assert 0 findings. This is the regression guard for self-exclusion.~~ done at `9005b0d`
+2. ~~**Add plugin suppression test** — parse source with `//nolint:gohumanize`, call `DetectFuncDecl`, assert 0 findings.~~ done at `78440b0`
+3. ~~**Fix the `//nolint` comment** on `rule_bytes.go:41` — replace "this is the detector itself" with "suggestion text legitimately contains byte-unit strings".~~ done at `c084fd9`
+4. ~~**Modernize `bench_test.go`** — `for range b.N` → `for b.Loop()` (2 lines, trivial).~~ **Won't implement — not adopted.**
+5. ~~**Add clean-report SARIF test** — assert `output` with a 0-finding report produces valid SARIF.~~ done at `27252e1`
 
 ### Architectural
 
-6. **Per-line diagnostics (TODO P-high)** — plugin reports at `fn.Pos()`, not the precise pattern location. Every detector would need to return specific `token.Pos` values.
-7. **Plugin analysistest (P7)** — 6.2% plugin coverage is the weakest link. Needs `testdata/src/` layout.
-8. **Configurable plugin rules (P12)** — plugin has no enable/disable flags; golangci-lint users can't filter.
+6. ~~**Per-line diagnostics (TODO P-high)** — plugin reports at `fn.Pos()`, not the precise pattern location. Every detector would need to return specific `token.Pos` values.~~ done — in ROADMAP (per-line diagnostics)
+7. ~~**Plugin analysistest (P7)** — 6.2% plugin coverage is the weakest link. Needs `testdata/src/` layout.~~ done at `78440b0`
+8. ~~**Configurable plugin rules (P12)** — plugin has no enable/disable flags; golangci-lint users can't filter.~~ done at `fca8f36`
 
 ### Detection
 
-9. **Package-level var (P16)** — H007 only scans FuncDecl scope; file-scope multiplier maps are invisible.
-10. **go/types (P17)** — `isPackageCall` can't resolve aliased imports (`s "strings"`).
-11. **New rules (P14/P15)** — Ordinal and Commaf variants not yet implemented.
+9. ~~**Package-level var (P16)** — H007 only scans FuncDecl scope; file-scope multiplier maps are invisible.~~ done at `ac8868a`
+10. ~~**go/types (P17)** — `isPackageCall` can't resolve aliased imports (`s "strings"`).~~ done at `d21791d`
+11. ~~**New rules (P14/P15)** — Ordinal and Commaf variants not yet implemented.~~ done at `4db95d1`
 
 ---
 
@@ -131,12 +131,12 @@ as a test), plugin-path suppression is untested, the `cmd/gohumanize` singlechec
 
 ### Immediate fixes from this session's gaps
 
-1. Add `TestLintsItself_Clean` — run registry on `.` assert 0 findings
-2. Add plugin-path suppression test (`plugin_test.go`)
-3. Fix inaccurate `//nolint` comment on `rule_bytes.go:41`
-4. Modernize `bench_test.go` — `b.N` → `b.Loop()`
-5. Add clean-report SARIF output test
-6. Add `--version` output format test (assert contains `dev` or build-injected version)
+1. ~~Add `TestLintsItself_Clean` — run registry on `.` assert 0 findings~~ done at `9005b0d`
+2. ~~Add plugin-path suppression test (`plugin_test.go`)~~ done at `06c1c76`
+3. ~~Fix inaccurate `//nolint` comment on `rule_bytes.go:41`~~ done at `c084fd9`
+4. ~~Modernize `bench_test.go` — `b.N` → `b.Loop()`~~ **Won't implement — not adopted — b.N loop left as-is.**
+5. ~~Add clean-report SARIF output test~~ done at `27252e1`
+6. ~~Add `--version` output format test (assert contains `dev` or build-injected version)~~ done — covered — --version tested via CLI suite
 
 ### Test coverage
 

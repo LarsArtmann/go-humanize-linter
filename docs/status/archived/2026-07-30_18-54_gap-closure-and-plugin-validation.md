@@ -75,31 +75,31 @@ Nothing structurally broken. Minor fuckups:
 
 ### Architecture
 
-1. **Plugin and CLI detection paths are DRY but separately wired for suppression** — `walker.checkFuncDecls` checks `hasNoLintDirective` and `rules.DetectFuncDecl` checks it again. If we ever add a third path (auto-fix, playground, gopls integration), we'd need to remember to check suppression in three places. Extract a single `HumanizeDetector` facade that wraps `detect` + suppression.
+1. ~~**Plugin and CLI detection paths are DRY but separately wired for suppression** — `walker.checkFuncDecls` checks `hasNoLintDirective` and `rules.DetectFuncDecl` checks it again. If we ever add a third path (auto-fix, playground, gopls integration), we'd need to remember to check suppression in three places. Extract a single `HumanizeDetector` facade that wraps `detect` + suppression.~~ done at `180e4e8`
 
-2. **Singlechecker (`cmd/gohumanize`) has no direct test** — the analysistest exercises the same `plugin.Analyzer` but the singlechecker binary is a separate entry point. A trivial test that runs the binary on `testdata/clean` and asserts exit 0 would close that 0% coverage gap.
+2. ~~**Singlechecker (`cmd/gohumanize`) has no direct test** — the analysistest exercises the same `plugin.Analyzer` but the singlechecker binary is a separate entry point. A trivial test that runs the binary on `testdata/clean` and asserts exit 0 would close that 0% coverage gap.~~ done at `0afc4c2`
 
-3. **`//nolint` test coverage gap in CLI path** — `TestDetectFuncDeclSuppressedByDirective` tests plugin path. The CLI path (`walker.checkFuncDecls` → `hasNoLintDirective`) has the suppression check tested only in `TestRuleBytes_SuppressedByDirective` via the registry path. Not a gap in functionality, but the test naming is misleading — it should be `TestCLIPath_SuppressedByDirective` or similar.
+3. ~~**`//nolint` test coverage gap in CLI path** — `TestDetectFuncDeclSuppressedByDirective` tests plugin path. The CLI path (`walker.checkFuncDecls` → `hasNoLintDirective`) has the suppression check tested only in `TestRuleBytes_SuppressedByDirective` via the registry path. Not a gap in functionality, but the test naming is misleading — it should be `TestCLIPath_SuppressedByDirective` or similar.~~ done — covered — suppression tests in CLI + plugin paths
 
 ### Naming & Clarity
 
-4. **`run` is the generic name for the plugin entry point** — `plugin/plugin.go:50` has `func run(pass *analysis.Pass) (any, error)`. Many files have a `run` function. Rename to `analyzeHumanize` or `runAnalyzer` for grep-ability.
+4. ~~**`run` is the generic name for the plugin entry point** — `plugin/plugin.go:50` has `func run(pass *analysis.Pass) (any, error)`. Many files have a `run` function. Rename to `analyzeHumanize` or `runAnalyzer` for grep-ability.~~ done (shipped in the v0.2.0 docs pass — CHANGELOG [0.2.0] records both renames)
 
-5. **`detectBytesFormat` self-`//nolint` comment is now accurate but the detector name still says "Format"** — the detector actually emits findings for byte-unit slices, KMGTPE index tricks, AND format strings. The name suggests just the latter. Consider `detectManualBytes` (broad) or split into 3 detectors with separate findings.
+5. ~~**`detectBytesFormat` self-`//nolint` comment is now accurate but the detector name still says "Format"** — the detector actually emits findings for byte-unit slices, KMGTPE index tricks, AND format strings. The name suggests just the latter. Consider `detectManualBytes` (broad) or split into 3 detectors with separate findings.~~ **Won't implement — not adopted — detectBytesFormat name kept.**
 
 ### Testing
 
-6. **No analysistest coverage for H002-H007** — only H001 has analysistest fixtures. Each rule has a `testdata/<rule>_*/main.go` fixture for the unit tests, but the analysistest path is only tested for H001. For consistency, add `testdata/analysistest/h002positive/`, etc.
+6. ~~**No analysistest coverage for H002-H007** — only H001 has analysistest fixtures. Each rule has a `testdata/<rule>_*/main.go` fixture for the unit tests, but the analysistest path is only tested for H001. For consistency, add `testdata/analysistest/h002positive/`, etc.~~ done at `78440b0`
 
-7. **No benchmark regression baseline** — `BenchmarkFullRegistry` and `BenchmarkWalkGoDir` exist but nothing tracks performance over time. Add a benchstat workflow or store a `bench.txt` baseline.
+7. ~~**No benchmark regression baseline** — `BenchmarkFullRegistry` and `BenchmarkWalkGoDir` exist but nothing tracks performance over time. Add a benchstat workflow or store a `bench.txt` baseline.~~ **Won't implement — not adopted.**
 
 ### DX
 
-8. **`//nolint` error message doesn't tell you which linter it applies to** — if a user writes `//nolint:gofmt` on a function with H001, the linter silently skips it with no feedback. Consider logging suppressed findings at `--verbose` level.
+8. ~~**`//nolint` error message doesn't tell you which linter it applies to** — if a user writes `//nolint:gofmt` on a function with H001, the linter silently skips it with no feedback. Consider logging suppressed findings at `--verbose` level.~~ **Won't implement — not adopted.**
 
-9. **`--rules` flag output goes to stderr** — `printRules()` uses `fmt.Fprintf(os.Stderr, ...)`. Convention is that `--help` / `--version` / `--rules` info-flag output goes to stdout so it can be piped. Move to stdout.
+9. ~~**`--rules` flag output goes to stderr** — `printRules()` uses `fmt.Fprintf(os.Stderr, ...)`. Convention is that `--help` / `--version` / `--rules` info-flag output goes to stdout so it can be piped. Move to stdout.~~ done at `0afc4c2`
 
-10. **`--version` default is `dev`** — `version = "dev"` is the default. Users running the binary without ldflags see `go-humanize-linter dev`. Acceptable for dev builds but should warn that version is unset.
+10. ~~**`--version` default is `dev`** — `version = "dev"` is the default. Users running the binary without ldflags see `go-humanize-linter dev`. Acceptable for dev builds but should warn that version is unset.~~ done at `0afc4c2`
 
 ---
 
@@ -107,10 +107,10 @@ Nothing structurally broken. Minor fuckups:
 
 ### Quick Wins (XS, < 15 min each)
 
-1. Move `printRules()` output from stderr to stdout
-2. Rename `plugin.run` → `plugin.analyzeHumanize`
-3. Rename `TestRuleBytes_SuppressedByDirective` → `TestCLI_SuppressedByDirective` (clarity)
-4. Add unit test for `cmd/gohumanize` singlechecker (1 subprocess test, ~10 lines)
+1. ~~Move `printRules()` output from stderr to stdout~~ done at `0afc4c2`
+2. ~~Rename `plugin.run` → `plugin.analyzeHumanize`~~ done (shipped in the v0.2.0 docs pass — CHANGELOG [0.2.0] records both renames)
+3. ~~Rename `TestRuleBytes_SuppressedByDirective` → `TestCLI_SuppressedByDirective` (clarity)~~ done at `0afc4c2`
+4. ~~Add unit test for `cmd/gohumanize` singlechecker (1 subprocess test, ~10 lines)~~ done at `0afc4c2`
 5. Add analysistest fixtures for H002, H003, H004, H005, H006, H007 (6 small files + 6 test patterns)
 6. Replace `dev` with warning when no ldflags version set
 7. Add `--verbose` flag to log suppressed findings

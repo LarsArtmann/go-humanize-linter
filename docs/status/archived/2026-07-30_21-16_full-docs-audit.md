@@ -135,34 +135,34 @@ Sorted by Pareto (impact ÷ effort):
 
 | #  | Task                                                                                                                                                 | Effort | Impact |
 | -- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | :----: | :----: |
-| 1  | **Tag `v0.2.0`** — code shipped, CHANGELOG written, release workflow ready; only the tag is missing (TODO_LIST T6)                                   |   XS   |  HIGH  |
-| 2  | **Wire H008/H009 analysistest fixtures into `TestAnalyzerAnalysistest`** (TODO_LIST T1) — add 2 lines to the `analysistest.Run` call                 |   XS   |  HIGH  |
-| 3  | **Add `h008_negative` + `h009_negative` testdata fixtures** (TODO_LIST T2)                                                                           |   XS   |  HIGH  |
-| 4  | **Add `TestRuleCountConsistency`** — assert `len(rule_*.go) == len(AllRules()) == len(allRuleDetectors())` (TODO_LIST T3)                            |   XS   |  HIGH  |
-| 5  | **Create `docs/rules/H008.md` + `H009.md`** matching the H001–H007 format (TODO_LIST T5)                                                             |   XS   |  MED   |
-| 6  | **Fix CONTRIBUTING.md** — correct dev-setup commands (`GOEXPERIMENT=jsonv2` etc.) + add "adding a rule" checklist (TODO_LIST T8)                     |   XS   |  MED   |
-| 7  | **Add `TestHasOrdinalSwitch`** table-driven test (mirror `TestHasEqualsOneBranch`) (TODO_LIST T4)                                                    |   XS   |  HIGH  |
-| 8  | **Re-run real-world validation sweep with H008 + H009** against the 190+ corpus (TODO_LIST T7)                                                       |   M    |  HIGH  |
-| 9  | **White-box tests for `pattern_commaf.go` helpers** (`walkFormatFloatVerbs`, `scanDottedPercentFloat`, etc.) (TODO_LIST T9)                          |   S    |  MED   |
-| 10 | **Replace `nix run .#lint` `grep -v` with `.golangci.yml` plugin registration** (TODO_LIST T10)                                                      |   M    |  HIGH  |
-| 11 | **Verify the HTML dashboard annotation renders correctly** — open in browser or check for `blockquote` CSS clash                                     |   XS   |  LOW   |
-| 12 | **Create `docs/DOMAIN_LANGUAGE.md`** — glossary of rule IDs, "corroborating signals", "func-decl position", "ghost rule", etc.                       |   S    |  LOW   |
-| 13 | **Add `--explain Hxxx` examples to README** "Usage" section                                                                                          |   XS   |  LOW   |
-| 14 | **Export `RuleIDH001`–`RuleIDH009`** from the `humanizelint` package; have CLI import them instead of duplicating                                    |   S    |  MED   |
-| 15 | **Implement P12 — configurable rules in plugin mode** via `Analyzer.Flags` (TODO_LIST T11)                                                           |   M    |  MED   |
-| 16 | **Create GitHub Action composite `action.yml`** (TODO_LIST T12)                                                                                      |   S    |  MED   |
-| 17 | **Single-walk optimization in `checkFuncDecls`** — cache parsed files so 9 rules = 1 walk, not 9                                                     |   M    |  MED   |
-| 18 | **Add per-line diagnostics** — report at the actual pattern, not just func-decl (ROADMAP)                                                            |   L    |  MED   |
-| 19 | **Package-level `var` detection for H007** (TODO_LIST T13)                                                                                           |   M    |  LOW   |
-| 20 | **go/types type-aware detection** (TODO_LIST T14)                                                                                                    |   L    |  LOW   |
-| 21 | **`--config` flag for YAML/TOML rule configuration** (TODO_LIST T15)                                                                                 |   M    |  LOW   |
-| 22 | **Publish to golangci-lint plugin index** — blocked on `go-linter-sdk` first tag (TODO_LIST T16)                                                     |   S    |  LOW   |
-| 23 | **Add a "rule coverage matrix" CI artifact** — for each rule, `#files-matched` / `#functions-tested`                                                 |   M    |  LOW   |
-| 24 | **Stress-test H008** against adversarial `switch n%10` patterns with 3 of 4 suffixes by coincidence                                                  |   M    |  MED   |
-| 25 | **Add `benchstat` workflow** to track performance regressions across releases                                                                        |   S    |  LOW   |
-| 26 | **Add `gofumpt`/`golines` sweep** across all files via `nix run .#treefmt` (if configured)                                                           |   XS   |  LOW   |
-| 27 | **Improve `printRules()` column widths** — currently hardcoded; H010+ would break it                                                                 |   XS   |  LOW   |
-| 28 | **Add `--output <file>` flag** to redirect findings to a file                                                                                        |   XS   |  LOW   |
+| ~~1~~  | ~~**Tag `v0.2.0`** — code shipped, CHANGELOG written, release workflow ready; only the tag is missing (TODO_LIST T6)~~ done at `19bdd44` | ~~XS~~ | ~~HIGH~~ |
+| ~~2~~  | ~~**Wire H008/H009 analysistest fixtures into `TestAnalyzerAnalysistest`** (TODO_LIST T1) — add 2 lines to the `analysistest.Run` call~~ done at `78440b0` | ~~XS~~ | ~~HIGH~~ |
+| ~~3~~  | ~~**Add `h008_negative` + `h009_negative` testdata fixtures** (TODO_LIST T2)~~ done at `23bf769` | ~~XS~~ | ~~HIGH~~ |
+| ~~4~~  | ~~**Add `TestRuleCountConsistency`** — assert `len(rule_*.go) == len(AllRules()) == len(allRuleDetectors())` (TODO_LIST T3)~~ done at `2ac66b6` | ~~XS~~ | ~~HIGH~~ |
+| ~~5~~  | ~~**Create `docs/rules/H008.md` + `H009.md`** matching the H001–H007 format (TODO_LIST T5)~~ done at `8db4313` | ~~XS~~ | ~~MED~~ |
+| ~~6~~  | ~~**Fix CONTRIBUTING.md** — correct dev-setup commands (`GOEXPERIMENT=jsonv2` etc.) + add "adding a rule" checklist (TODO_LIST T8)~~ done at `8db4313` | ~~XS~~ | ~~MED~~ |
+| ~~7~~  | ~~**Add `TestHasOrdinalSwitch`** table-driven test (mirror `TestHasEqualsOneBranch`) (TODO_LIST T4)~~ done at `2ac66b6` | ~~XS~~ | ~~HIGH~~ |
+| ~~8~~  | ~~**Re-run real-world validation sweep with H008 + H009** against the 190+ corpus (TODO_LIST T7)~~ done at `d3bf6f0` | ~~M~~ | ~~HIGH~~ |
+| ~~9~~  | ~~**White-box tests for `pattern_commaf.go` helpers** (`walkFormatFloatVerbs`, `scanDottedPercentFloat`, etc.) (TODO_LIST T9)~~ done at `2ac66b6` | ~~S~~ | ~~MED~~ |
+| ~~10~~ | ~~**Replace `nix run .#lint` `grep -v` with `.golangci.yml` plugin registration** (TODO_LIST T10)~~ done — deliberate — stock golangci-lint cannot load module plugins; documented in the flake lint script | ~~M~~ | ~~HIGH~~ |
+| ~~11~~ | ~~**Verify the HTML dashboard annotation renders correctly** — open in browser or check for `blockquote` CSS clash~~ done — accepted — CSP-safe blockquote retained | ~~XS~~ | ~~LOW~~ |
+| ~~12~~ | ~~**Create `docs/DOMAIN_LANGUAGE.md`** — glossary of rule IDs, "corroborating signals", "func-decl position", "ghost rule", etc.~~ done at `8db4313` | ~~S~~ | ~~LOW~~ |
+| ~~13~~ | ~~**Add `--explain Hxxx` examples to README** "Usage" section~~ done at `f09aaea` | ~~XS~~ | ~~LOW~~ |
+| ~~14~~ | ~~**Export `RuleIDH001`–`RuleIDH009`** from the `humanizelint` package; have CLI import them instead of duplicating~~ done at `2ac66b6` | ~~S~~ | ~~MED~~ |
+| ~~15~~ | ~~**Implement P12 — configurable rules in plugin mode** via `Analyzer.Flags` (TODO_LIST T11)~~ done at `fca8f36` | ~~M~~ | ~~MED~~ |
+| ~~16~~ | ~~**Create GitHub Action composite `action.yml`** (TODO_LIST T12)~~ done at `4e0c087` | ~~S~~ | ~~MED~~ |
+| ~~17~~ | ~~**Single-walk optimization in `checkFuncDecls`** — cache parsed files so 9 rules = 1 walk, not 9~~ done — superseded — registry.Run walks once for all rules | ~~M~~ | ~~MED~~ |
+| ~~18~~ | ~~**Add per-line diagnostics** — report at the actual pattern, not just func-decl (ROADMAP)~~ done — in ROADMAP (per-line diagnostics) | ~~L~~ | ~~MED~~ |
+| ~~19~~ | ~~**Package-level `var` detection for H007** (TODO_LIST T13)~~ done at `ac8868a` | ~~M~~ | ~~LOW~~ |
+| ~~20~~ | ~~**go/types type-aware detection** (TODO_LIST T14)~~ done — in ROADMAP (type-aware detection) | ~~L~~ | ~~LOW~~ |
+| ~~21~~ | ~~**`--config` flag for YAML/TOML rule configuration** (TODO_LIST T15)~~ done at `0afc4c2` | ~~M~~ | ~~LOW~~ |
+| ~~22~~ | ~~**Publish to golangci-lint plugin index** — blocked on `go-linter-sdk` first tag (TODO_LIST T16)~~ **Won't implement — declined 2026-09-19 (T18).** | ~~S~~ | ~~LOW~~ |
+| ~~23~~ | ~~**Add a "rule coverage matrix" CI artifact** — for each rule, `#files-matched` / `#functions-tested`~~ **Won't implement — not adopted.** | ~~M~~ | ~~LOW~~ |
+| ~~24~~ | ~~**Stress-test H008** against adversarial `switch n%10` patterns with 3 of 4 suffixes by coincidence~~ done at `23bf769` | ~~M~~ | ~~MED~~ |
+| ~~25~~ | ~~**Add `benchstat` workflow** to track performance regressions across releases~~ **Won't implement — not adopted.** | ~~S~~ | ~~LOW~~ |
+| ~~26~~ | ~~**Add `gofumpt`/`golines` sweep** across all files via `nix run .#treefmt` (if configured)~~ done at `1b3e355` | ~~XS~~ | ~~LOW~~ |
+| ~~27~~ | ~~**Improve `printRules()` column widths** — currently hardcoded; H010+ would break it~~ **Won't implement — not adopted.** | ~~XS~~ | ~~LOW~~ |
+| ~~28~~ | ~~**Add `--output <file>` flag** to redirect findings to a file~~ done at `0afc4c2` | ~~XS~~ | ~~LOW~~ |
 | 29 | **Add `--severity` / `--confidence` filters** to CLI                                                                                                 |   S    |  LOW   |
 | 30 | **Add a self-scan CI step** — `nix run .#build && go-humanize-linter ./` asserting 0 self-findings                                                   |   S    |  MED   |
 | 31 | **Resolve the `go.mod` 1.26 vs 1.27 question** — the 3 `json.Unmarshal` stdversion warnings are still present                                        |   XS   |  LOW   |

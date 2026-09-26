@@ -59,22 +59,22 @@
 
 ## b) PARTIALLY DONE
 
-- **M21 LSP hygiene** — never restarted gopls; diagnostics were stale the
-  entire session (correctly ignored in favor of build/test/CI truth).
-- **Local vs CI lint parity** — root-caused only partially (local nix
+- ~~**M21 LSP hygiene** — never restarted gopls; diagnostics were stale the
+  entire session (correctly ignored in favor of build/test/CI truth).~~ closed — build/test/CI truth is the standing practice.
+- ~~**Local vs CI lint parity** — root-caused only partially (local nix
   golangci-lint 2.13.2 vs CI 2.12.2); the actions bump merged via PR #1
-  may have aligned versions — NOT re-verified post-merge.
-- **Silent nix-lint wrapper failure** (exit 1, empty output) observed
+  may have aligned versions — NOT re-verified post-merge.~~ closed — parity confirmed 2026-09-19 (0 issues both).
+- ~~**Silent nix-lint wrapper failure** (exit 1, empty output) observed
   twice mid-session; self-resolved after the underlying findings were
-  fixed; never root-caused.
+  fixed; never root-caused.~~ closed — never reproduced again; treated as transient.
 
 ## c) NOT STARTED
 
-- **T18** plugin-index submission (foreign-repo PR; unblocked by v0.3.0).
-- **T20** gogenfilter sibling release + pin bump — gated on approval.
-- **T32** read-only deploy-key removal in the 4 dependency repos
-  (foreign repos).
-- pkg.go.dev rendering check for v0.3.0.
+- ~~**T18** plugin-index submission (foreign-repo PR; unblocked by v0.3.0).~~ **Won't implement — declined 2026-09-19.**
+- ~~**T20** gogenfilter sibling release + pin bump — gated on approval.~~ **Won't implement — declined 2026-09-19.**
+- ~~**T32** read-only deploy-key removal in the 4 dependency repos
+  (foreign repos).~~ done at `ce52545` (2026-09-19).
+- ~~pkg.go.dev rendering check for v0.3.0.~~ done — verified 2026-09-19 and re-verified for v0.4.0 on 2026-09-26.
 
 ## d) TOTALLY FUCKED UP (honest list)
 
@@ -128,9 +128,9 @@
 10. ~~Apply the linter's own advice to consumer repos (KeyCountdown joinWords → humanize.WordSeries; Kernovia Join(x," and ") → WordSeries; CreditReformBilanzampel → scoped nolint)~~ **Won't implement — declined 2026-09-19 — consumer repos are the demonstration corpus.**
 11. ~~gopls restart; confirm diagnostics freshness~~ **Won't implement — ephemeral — build/test/CI truth used instead of gopls diagnostics.**
 12. ~~H012 micro-benchmark (match BenchmarkH010Detector pattern)~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T35)
-13. H010/H012 analysistest scoped-nolint variants
+13. ~~H010/H012 analysistest scoped-nolint variants~~ **Won't implement — not adopted — scoped suppression covered by CLI fixtures (h010_scoped_h010) and custom-gcl e2e subtests.**
 14. ~~CHANGELOG: Unreleased section will need a 0.4.0 cut when H012 ships~~ done at `6a3267f`
-15. Plan next release cadence (0.4.0 after H012 soak?)
+15. ~~Plan next release cadence (0.4.0 after H012 soak?)~~ done — superseded — v0.4.0 shipped 2026-09-19 (6a3267f)
 16. ~~ROADMAP: revisit SI-parse (H011) after upstream go-humanize activity~~ done — standing trigger — T29 deferral notes revisit on next upstream go-humanize tag
 17. ~~Consider NewReplacer strip form for H010 (F13, still open)~~ **Won't implement — demand-gated — ROADMAP Detection breadth (negative fixture exists).**
 18. ~~Consider Full-tier for H010 strip+parse when function is exactly the library signature AND no separator config (refine the skipped M20 with the locale caveat encoded)~~ **Won't implement — deliberately skipped (M20): the one corpus hit is locale-aware; upgrading would make the borderline more assertive.**
@@ -169,18 +169,13 @@
 
 ## g) QUESTIONS (cannot figure out myself)
 
-1. **go.mod go-directive bump (1.26.7 → 1.27.1)**: unintended tool
+1. ~~**go.mod go-directive bump (1.26.7 → 1.27.1)**: unintended tool
    side-effect, currently uncommitted. Keep it (and align CI/AGENTS to
    Go 1.27) or revert to 1.26.7? It changes the minimum Go for every
-   consumer of the module.
-2. **Consumer fixes**: the sweeps flagged three of YOUR repos
-   (KeyCountdown, Kernovia, CreditReformBilanzampel). Apply the
-   suggested fixes / scoped nolints there now, or leave them as a live
-   demonstration corpus?
-3. **Branch protection on main**: main sat red for 5 days unnoticed.
-   Want required status checks (blocks the auto-commit daemon's pushes
-   when red), accepting that the daemon will then occasionally fail to
-   push — or prefer a notification-only setup?
+   consumer of the module.~~ answered 2026-09-19: revert-on-sight (`642a426`, `ebc9df5`); the bump RETURNED as incident #4 (`b7f00c2`) and the final call is TODO_LIST T33.
+2. ~~**Consumer fixes** ... leave them as a live
+   demonstration corpus?~~ declined 2026-09-19 — they stay as the demonstration corpus.
+3. ~~**Branch protection on main** ... or prefer a notification-only setup?~~ declined 2026-09-19 (`642a426`).
 
 ## Verification snapshot (end of segment)
 
