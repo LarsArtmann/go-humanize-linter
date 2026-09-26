@@ -7,17 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- Nothing yet.
-
 ### Changed
 
-- Nothing yet.
+- ** go.mod sits at `go 1.27.1` with go-finding v1.12.0 and go-error-family v0.10.1** (landed in `b7f00c2` on 2026-09-19, two hours after v0.4.0). This raises the minimum Go for every consumer and conflicts with CI's `go-version: "1.26"` pin — main CI is red since 2026-09-19 and the local nix battery fails identically. The change arrived via the background "bumper" sweep (incident #4, see AGENTS.md) against the recorded revert-on-sight decision; the final call (revert vs adopt-and-repin CI) is open as TODO_LIST T33. **Not yet released — consumers on v0.4.0 are unaffected.**
 
 ### Fixed
 
-- Nothing yet.
+- Documentation health pass (2026-09-26): rebuilt TODO_LIST (open work only), refreshed ROADMAP (H012 shipped, plugin-index decline, per-statement ADR 0006 status, renamed the colliding output-warnings idea), refreshed FEATURES validation/coverage/interface rows, corrected the go-directive incident trail in AGENTS.md, and annotated + archived the point-in-time reports under `docs/status/` and `docs/planning/` (fully-resolved reports moved to `archived/`).
 
 ## [0.4.0] - 2026-09-19
 
