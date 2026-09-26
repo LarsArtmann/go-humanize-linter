@@ -173,9 +173,14 @@
    side-effect, currently uncommitted. Keep it (and align CI/AGENTS to
    Go 1.27) or revert to 1.26.7? It changes the minimum Go for every
    consumer of the module.~~ answered 2026-09-19: revert-on-sight (`642a426`, `ebc9df5`); the bump RETURNED as incident #4 (`b7f00c2`) and the final call is TODO_LIST T33.
-2. ~~**Consumer fixes** ... leave them as a live
+2. ~~**Consumer fixes**: the sweeps flagged three of YOUR repos
+   (KeyCountdown, Kernovia, CreditReformBilanzampel). Apply the
+   suggested fixes / scoped nolints there now, or leave them as a live
    demonstration corpus?~~ declined 2026-09-19 — they stay as the demonstration corpus.
-3. ~~**Branch protection on main** ... or prefer a notification-only setup?~~ declined 2026-09-19 (`642a426`).
+3. ~~**Branch protection on main**: main sat red for 5 days unnoticed.
+   Want required status checks (blocks the auto-commit daemon's pushes
+   when red), accepting that the daemon will then occasionally fail to
+   push — or prefer a notification-only setup?~~ declined 2026-09-19 (`642a426`).
 
 ## Verification snapshot (end of segment)
 
