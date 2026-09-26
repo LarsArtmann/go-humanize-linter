@@ -55,10 +55,10 @@ Nothing this session.
 
 ## c) NOT STARTED
 
-1. **Fix `TestCustomGCLIntegration`** — pre-existing failure: `golangci-lint custom` build fails because published SDK version lacks `ToolName` field in `RuleMeta`. Needs a new `go-linter-sdk` tag published and `vendorHash` updated in flake.nix.
-2. **T1 — Tag v0.2.0** — all code shipped to main but no git tag exists
-3. **T2 — Real-world validation sweep** — not started
-4. **T18 — Publish to golangci-lint plugin index** — blocked on T1
+1. ~~**Fix `TestCustomGCLIntegration`** — pre-existing failure: `golangci-lint custom` build fails because published SDK version lacks `ToolName` field in `RuleMeta`. Needs a new `go-linter-sdk` tag published and `vendorHash` updated in flake.nix.~~ done — SDK v0.2.0 ToolName bump unblocked it (verified end-to-end)
+2. ~~**T1 — Tag v0.2.0** — all code shipped to main but no git tag exists~~ done at `19bdd44`
+3. ~~**T2 — Real-world validation sweep** — not started~~ done at `99b93cf`
+4. ~~**T18 — Publish to golangci-lint plugin index** — blocked on T1~~ **Won't implement — declined 2026-09-19 (T18).**
 
 ---
 
@@ -92,52 +92,52 @@ Nothing this session. The work was clean — documentation-only changes, verifie
 
 ### Release (Critical Path)
 
-1. **Tag v0.2.0** (T1) — code is on main, just needs `git tag v0.2.0 && git push --tags`
-2. **Publish new go-linter-sdk version** — the local `replace` has `ToolName` in `RuleMeta` that published version lacks
-3. **Update vendorHash in flake.nix** after new SDK tag
-4. **Fix TestCustomGCLIntegration** — blocked on #2
-5. **Verify `golangci-lint custom` works end-to-end** after SDK publish
+1. ~~**Tag v0.2.0** (T1) — code is on main, just needs `git tag v0.2.0 && git push --tags`~~ done at `19bdd44`
+2. ~~**Publish new go-linter-sdk version** — the local `replace` has `ToolName` in `RuleMeta` that published version lacks~~ done — SDK published (v0.2.0+; repo pins v0.3.1)
+3. ~~**Update vendorHash in flake.nix** after new SDK tag~~ done — vendorHash maintained through dep bumps
+4. ~~**Fix TestCustomGCLIntegration** — blocked on #2~~ done at `c084fd9`
+5. ~~**Verify `golangci-lint custom` works end-to-end** after SDK publish~~ done — TestCustomGCLIntegration verified end-to-end in v0.2.0
 
 ### SDK Upstream (go-linter-sdk repo)
 
-6. **Verify go-linter-sdk has a tag** matching the version go-humanize-linter depends on
-7. **Check if `ToolName` field in `RuleMeta` is published** or still local-only
-8. **Review go-linter-sdk CHANGELOG** for any other shipped features not yet consumed
-9. **Consider adding `ExitCode` typed constants** (0/1/2) to the SDK instead of bare `int` returns
-10. **SDK example for `ExitCodeByConfidence`** — verify the example_test.go ExampleExitCodeByConfidence is up to date
+6. ~~**Verify go-linter-sdk has a tag** matching the version go-humanize-linter depends on~~ done — go-linter-sdk tags verified (v0.2.0 → v0.3.1 pinned)
+7. ~~**Check if `ToolName` field in `RuleMeta` is published** or still local-only~~ done — ToolName shipped in SDK v0.2.0
+8. ~~**Review go-linter-sdk CHANGELOG** for any other shipped features not yet consumed~~ done — SDK v0.2.0/v0.3.1 features consumed
+9. ~~**Consider adding `ExitCode` typed constants** (0/1/2) to the SDK instead of bare `int` returns~~ **Won't implement — not adopted — SDK API frozen.**
+10. ~~**SDK example for `ExitCodeByConfidence`** — verify the example_test.go ExampleExitCodeByConfidence is up to date~~ done — example_test.go examples render on pkg.go.dev (verified 2026-09-26)
 
 ### Testing
 
-11. **Add CI guard for doc drift** — grep non-historical docs for removed symbols
-12. **Add integration test for CLI ternary exit codes** (exit 0/1/2 via subprocess)
-13. **Verify `--min-confidence` flag actually affects exit code correctly** (filtering + exit code interaction)
-14. **Add test for `ExitCodeByConfidence` with `ConfidenceFull`** threshold (currently tests use `ConfidenceHigh`)
-15. **Plugin-path confidence exit code test** — verify plugin doesn't break with confidence filtering
+11. ~~**Add CI guard for doc drift** — grep non-historical docs for removed symbols~~ **Won't implement — not adopted — audits serve this role.**
+12. ~~**Add integration test for CLI ternary exit codes** (exit 0/1/2 via subprocess)~~ done — covered — CLI smoke + TestCLI_MinConfidence
+13. ~~**Verify `--min-confidence` flag actually affects exit code correctly** (filtering + exit code interaction)~~ done — TestCLI_MinConfidence covers the interaction
+14. ~~**Add test for `ExitCodeByConfidence` with `ConfidenceFull`** threshold (currently tests use `ConfidenceHigh`)~~ done — covered — plugin min_confidence_full subtest
+15. ~~**Plugin-path confidence exit code test** — verify plugin doesn't break with confidence filtering~~ **Won't implement — n/a — plugin reports diagnostics, not exit codes.**
 
 ### Documentation
 
-16. **Add historical-doc banner** to all `docs/status/` and `docs/planning/` files
-17. **Audit all CHANGELOG entries** for accuracy against current code
-18. **Review ADR 0001** — is it still accurate?
-19. **Review ADR 0002** — is it still accurate?
-20. **Review ADR 0004** (behavior-delta) — is it still accurate?
-21. **Review ADR 0005** (H009/H002 overlap) — is it still accurate?
-22. **Review ADR 0006** (per-statement suppression) — is it still accurate?
-23. **README.md audit** — does it reference the SDK's `ExitCodeByConfidence` or the old local function?
-24. **FEATURES.md audit** — is the exit-code feature accurately described?
-25. **Verify doc.go example** uses current API (`ExitCodeFromReport` is fine, but check context)
+16. ~~**Add historical-doc banner** to all `docs/status/` and `docs/planning/` files~~ **Won't implement — rejected — banners are an anti-pattern; annotation-in-place used instead.**
+17. ~~**Audit all CHANGELOG entries** for accuracy against current code~~ done — multiple CHANGELOG audits (08-05 06-26, 2026-09-26)
+18. ~~**Review ADR 0001** — is it still accurate?~~ done — ADR 0001 verified accurate in audits
+19. ~~**Review ADR 0002** — is it still accurate?~~ done — ADR 0002 verified accurate
+20. ~~**Review ADR 0004** (behavior-delta) — is it still accurate?~~ done — ADR 0004 verified accurate
+21. ~~**Review ADR 0005** (H009/H002 overlap) — is it still accurate?~~ done — ADR 0005 verified accurate
+22. ~~**Review ADR 0006** (per-statement suppression) — is it still accurate?~~ done — ADR 0006 verified accurate
+23. ~~**README.md audit** — does it reference the SDK's `ExitCodeByConfidence` or the old local function?~~ done — README uses ExitCodeByConfidence
+24. ~~**FEATURES.md audit** — is the exit-code feature accurately described?~~ done — FEATURES describes the confidence/exit system
+25. ~~**Verify doc.go example** uses current API (`ExitCodeFromReport` is fine, but check context)~~ done — doc.go example updated (6a3267f)
 
 ### Code Quality
 
-26. **`filterReportByConfidence` uses `finding.ByConfidenceAtLeast`** — verify this filter and `ExitCodeByConfidence` threshold are semantically aligned (both use `Compare >= 0`)
-27. **Exit code threshold is hardcoded to `ConfidenceHigh`** in main.go:232 — should this be configurable via a flag separate from `--min-confidence`?
-28. **Review whether `--min-confidence full` + all-full findings produces exit 1** correctly (filtering removes nothing, all at threshold)
-29. **Review whether `--min-confidence full` + only-medium findings produces exit 0** correctly (all filtered out, empty report)
-30. **Doc the exit-code/filtering interaction** more prominently in `--help` output
+26. ~~**`filterReportByConfidence` uses `finding.ByConfidenceAtLeast`** — verify this filter and `ExitCodeByConfidence` threshold are semantically aligned (both use `Compare >= 0`)~~ done — verified — both use Compare >= threshold semantics
+27. ~~**Exit code threshold is hardcoded to `ConfidenceHigh`** in main.go:232 — should this be configurable via a flag separate from `--min-confidence`?~~ **Won't implement — deliberate — fixed ConfidenceHigh threshold per ADR 0003.**
+28. ~~**Review whether `--min-confidence full` + all-full findings produces exit 1** correctly (filtering removes nothing, all at threshold)~~ done — verified in audits (full+full → exit 1)
+29. ~~**Review whether `--min-confidence full` + only-medium findings produces exit 0** correctly (all filtered out, empty report)~~ done — verified in audits (filtered-empty → exit 0)
+30. ~~**Doc the exit-code/filtering interaction** more prominently in `--help` output~~ done — README documents the scheme
 
 ### Validation (T2)
 
-31. **Run linter against dustin/go-humanize itself** — should find zero findings
+31. ~~**Run linter against dustin/go-humanize itself** — should find zero findings~~ **Won't implement — fun idea, never adopted.**
 32. **Run linter against 5+ real Go projects** from GitHub
 33. **Collect false positive rate** per rule
 34. **Document projects tested and results**

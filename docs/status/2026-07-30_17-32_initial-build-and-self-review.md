@@ -88,31 +88,31 @@ Built a 7-rule AST linter (H001–H007) on go-linter-sdk that detects hand-rolle
 
 ### Architecture
 
-1. **Package-level analysis** — Currently function-scope only. Package-level `var` maps (like `clean-wizard/golangcilint.go:113` with `golangciLintSizeMultiplier`) are invisible. Need a file-level or package-level scan pass for H007.
+1. ~~**Package-level analysis** — Currently function-scope only. Package-level `var` maps (like `clean-wizard/golangcilint.go:113` with `golangciLintSizeMultiplier`) are invisible. Need a file-level or package-level scan pass for H007.~~ done at `ac8868a`
 
-2. **go/analysis integration** — The linter uses raw `go/parser` + `ast.Inspect`. The go-finding `analysis` module provides `AnalyzerDetector` for wrapping `go/analysis.Analyzer`. A reverse adapter (linter rules → `analysis.Analyzer`) would enable integration with `go vet`, `golangci-lint` plugins, and LSP. This is the single highest-impact architectural improvement.
+2. ~~**go/analysis integration** — The linter uses raw `go/parser` + `ast.Inspect`. The go-finding `analysis` module provides `AnalyzerDetector` for wrapping `go/analysis.Analyzer`. A reverse adapter (linter rules → `analysis.Analyzer`) would enable integration with `go vet`, `golangci-lint` plugins, and LSP. This is the single highest-impact architectural improvement.~~ done at `78440b0`
 
-3. **Type information** — No `go/types` checking. All detection is syntactic. This means `strings.TrimRight` vs `myPkg.TrimRight` can't be distinguished (both match `isPackageCall("strings", "TrimRight")` if the import alias differs).
+3. ~~**Type information** — No `go/types` checking. All detection is syntactic. This means `strings.TrimRight` vs `myPkg.TrimRight` can't be distinguished (both match `isPackageCall("strings", "TrimRight")` if the import alias differs).~~ done at `d21791d`
 
-4. **Configurable thresholds** — All confidence thresholds (e.g., "2+ byte units = medium", "3+ = high") are hardcoded. Should be configurable via rule options.
+4. ~~**Configurable thresholds** — All confidence thresholds (e.g., "2+ byte units = medium", "3+ = high") are hardcoded. Should be configurable via rule options.~~ **Won't implement — not adopted — confidence thresholds stayed internal.**
 
-5. **Suppression comments** — No `//humanize-lint:ignore H001` support. The go-finding/SDK pipeline supports suppression, but standalone CLI doesn't parse source comments.
+5. ~~**Suppression comments** — No `//humanize-lint:ignore H001` support. The go-finding/SDK pipeline supports suppression, but standalone CLI doesn't parse source comments.~~ done at `06c1c76`
 
 ### Code Quality
 
-6. **`patterns.go` is 780 lines** — It's the single largest file and contains 26 functions. Should be split by concern: `patterns_bytes.go`, `patterns_comma.go`, `patterns_time.go`, etc.
+6. ~~**`patterns.go` is 780 lines** — It's the single largest file and contains 26 functions. Should be split by concern: `patterns_bytes.go`, `patterns_comma.go`, `patterns_time.go`, etc.~~ done at `46cbd13`
 
-7. **No error wrapping in walker** — `WalkGoDir` silently skips parse errors. Should at minimum log them.
+7. ~~**No error wrapping in walker** — `WalkGoDir` silently skips parse errors. Should at minimum log them.~~ done — documented — silent skip is deliberate (nilerr)
 
-8. **Magic numbers** — The confidence thresholds (`unitCount >= 3 → ConfidenceHigh`) are undocumented domain knowledge.
+8. ~~**Magic numbers** — The confidence thresholds (`unitCount >= 3 → ConfidenceHigh`) are undocumented domain knowledge.~~ done — named constants extracted (2ac66b6 era)
 
 ### Testing
 
-9. **No table-driven test for detection helpers** — Each `has*` function in `patterns.go` is tested indirectly via rule tests. Direct table-driven tests for each helper would catch edge cases faster.
+9. ~~**No table-driven test for detection helpers** — Each `has*` function in `patterns.go` is tested indirectly via rule tests. Direct table-driven tests for each helper would catch edge cases faster.~~ done at `caa5ad1`
 
-10. **No property-based testing** — The word-boundary regex in `countByteUnits` could be property-tested against random strings to verify no false positives.
+10. ~~**No property-based testing** — The word-boundary regex in `countByteUnits` could be property-tested against random strings to verify no false positives.~~ **Won't implement — not adopted.**
 
-11. **No negative testdata for H004** — There's `h003_negative` and `h005_negative` but no `h004_negative`. The `len(x) == 1` fix is tested indirectly but not with a dedicated fixture.
+11. ~~**No negative testdata for H004** — There's `h003_negative` and `h005_negative` but no `h004_negative`. The `len(x) == 1` fix is tested indirectly but not with a dedicated fixture.~~ done at `23bf769`
 
 ---
 
@@ -120,29 +120,29 @@ Built a 7-rule AST linter (H001–H007) on go-linter-sdk that detects hand-rolle
 
 ### Critical (blocks adoption)
 
-1. Add **LICENSE** file (MIT, matching sibling projects)
-2. **Remove go.mod replace directives** once go-linter-sdk gets its first tag; until then, document the workaround clearly
-3. Fix **golines formatting** in `rule_bytes.go:68`
-4. Add **CHANGELOG.md** with initial release entry
-5. Tag **v0.1.0** once go-linter-sdk is tagged
-6. Fix H001 **diagnostic message** ("0 unit strings" when triggered by div1024 alone)
+1. ~~Add **LICENSE** file (MIT, matching sibling projects)~~ done — LICENSE present
+2. ~~**Remove go.mod replace directives** once go-linter-sdk gets its first tag; until then, document the workaround clearly~~ done at `d3bf6f0`
+3. ~~Fix **golines formatting** in `rule_bytes.go:68`~~ done at `2ac66b6`
+4. ~~Add **CHANGELOG.md** with initial release entry~~ done at `396d53d`
+5. ~~Tag **v0.1.0** once go-linter-sdk is tagged~~ done at `d3bf6f0`
+6. ~~Fix H001 **diagnostic message** ("0 unit strings" when triggered by div1024 alone)~~ done at `1093595`
 
 ### High Impact
 
-7. Add **golangci-lint plugin mode** (`analysis.Analyzer` wrapper) — enables integration with the entire Go linting ecosystem
-8. Add **package-level `var` detection** for H007 (file-scope scan, not just function-scope)
-9. Add **import alias awareness** to `isPackageCall` (resolve `s "strings"` then check `s.TrimRight`)
-10. Add **example_test.go** with runnable `Example*` functions for godoc
-11. Split **`patterns.go`** into focused files (`patterns_bytes.go`, `patterns_comma.go`, etc.)
-12. Add **FEATURES.md**, **TODO_LIST.md**, **ROADMAP.md**
-13. Add **negative testdata** for H004 (`h004_negative`)
-14. Add **.editorconfig** matching sibling projects
-15. Add **CONTRIBUTING.md** and **CODE_OF_CONDUCT.md**
+7. ~~Add **golangci-lint plugin mode** (`analysis.Analyzer` wrapper) — enables integration with the entire Go linting ecosystem~~ done at `78440b0`
+8. ~~Add **package-level `var` detection** for H007 (file-scope scan, not just function-scope)~~ done at `ac8868a`
+9. ~~Add **import alias awareness** to `isPackageCall` (resolve `s "strings"` then check `s.TrimRight`)~~ done at `d21791d`
+10. ~~Add **example_test.go** with runnable `Example*` functions for godoc~~ done at `bc216fe`
+11. ~~Split **`patterns.go`** into focused files (`patterns_bytes.go`, `patterns_comma.go`, etc.)~~ done at `46cbd13`
+12. ~~Add **FEATURES.md**, **TODO_LIST.md**, **ROADMAP.md**~~ done at `235ecc6`
+13. ~~Add **negative testdata** for H004 (`h004_negative`)~~ done at `23bf769`
+14. ~~Add **.editorconfig** matching sibling projects~~ **Won't implement — not adopted.**
+15. ~~Add **CONTRIBUTING.md** and **CODE_OF_CONDUCT.md**~~ done at `e5062b0`
 
 ### Coverage Gaps
 
-16. Add unit tests for `output()` function in CLI (table-driven: text/json/sarif formats)
-17. Add unit tests for `buildRegistry()` (enable/disable combinations)
+16. ~~Add unit tests for `output()` function in CLI (table-driven: text/json/sarif formats)~~ done at `27252e1`
+17. ~~Add unit tests for `buildRegistry()` (enable/disable combinations)~~ done at `27252e1`
 18. Add unit tests for `stringList` flag type
 19. Add table-driven tests for `hasConst1024` (currently 68% — missing file-level const cases)
 20. Add table-driven tests for `hasStepBy3` (currently 79% — missing AssignStmt branches)

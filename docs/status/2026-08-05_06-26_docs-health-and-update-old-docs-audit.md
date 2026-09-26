@@ -182,86 +182,86 @@ The "(previous v0.2.0 work)" section merge required 4 edit attempts (2 failed `m
 
 ### Immediate (fix what this session left inconsistent)
 
-1. **Remove T24 from TODO_LIST entirely** — code shipped, belongs in CHANGELOG not TODO_LIST.
-2. **Update AGENTS.md** — remove RunOverPackage from architecture table, add findingToTokenPos panic guard to gotchas, update coverage numbers if referenced.
-3. **Commit the uncommitted TODO_LIST.md** — working tree has 1 modified file.
-4. **Run `nix run .#lint`** — verify lint passes after all changes (daemon + mine).
+1. ~~**Remove T24 from TODO_LIST entirely** — code shipped, belongs in CHANGELOG not TODO_LIST.~~ done at `1382e6d`
+2. ~~**Update AGENTS.md** — remove RunOverPackage from architecture table, add findingToTokenPos panic guard to gotchas, update coverage numbers if referenced.~~ done at `1382e6d`
+3. ~~**Commit the uncommitted TODO_LIST.md** — working tree has 1 modified file.~~ done at `0afc4c2`
+4. ~~**Run `nix run .#lint`** — verify lint passes after all changes (daemon + mine).~~ done — lint 0 issues from the 08-05 sessions onward
 
 ### T23 (still open — the daemon skipped it)
 
-5. **Exclude H0SUP findings from confidence filtering in `runDetector`** — `plugin/plugin.go:193-196` filters ALL findings including H0SUP.
-6. **Add `TestRunDetector_H0SUPBypassesConfidenceFilter`** — verify H0SUP survives `minConfidence: full`.
+5. ~~**Exclude H0SUP findings from confidence filtering in `runDetector`** — `plugin/plugin.go:193-196` filters ALL findings including H0SUP.~~ done at `da59184`
+6. ~~**Add `TestRunDetector_H0SUPBypassesConfidenceFilter`** — verify H0SUP survives `minConfidence: full`.~~ done at `da59184`
 
 ### Release & validation
 
-7. **Tag `v0.2.0`** — requires explicit user approval (TODO T1).
-8. **Corpus sweep with new features** — `--verify-suppressions`, `--min-confidence`, gogenfilter (TODO T2).
-9. **Fix 7 broken downstream projects** — BuildFlow, file-and-image-renamer, etc.
-10. **Push to origin/main** — many commits unpushed.
+7. ~~**Tag `v0.2.0`** — requires explicit user approval (TODO T1).~~ done at `19bdd44`
+8. ~~**Corpus sweep with new features** — `--verify-suppressions`, `--min-confidence`, gogenfilter (TODO T2).~~ done at `99b93cf`
+9. ~~**Fix 7 broken downstream projects** — BuildFlow, file-and-image-renamer, etc.~~ **Won't implement — declined 2026-09-19 — consumer repos frozen as demo corpus.**
+10. ~~**Push to origin/main** — many commits unpushed.~~ done — pushed; all later work on origin/main
 
 ### Testing gaps (from status reports, still open)
 
-11. **`TestRunDetector_FiltersByConfidence`** — integration test for plugin confidence filtering.
-12. **`TestRunDetector_VerifySuppressions`** — integration test for plugin suppression verification.
-13. **End-to-end `custom-gcl` binary test** — build custom-gcl, run with settings, verify diagnostics (TODO T15).
-14. **`TestAnalyzerAnalysistest` update** — cover confidence filtering + suppression verification.
-15. **`cmd/gohumanize` coverage** — still 0% (singlechecker wrapper, not coverable in-process).
+11. ~~**`TestRunDetector_FiltersByConfidence`** — integration test for plugin confidence filtering.~~ done at `27252e1`
+12. ~~**`TestRunDetector_VerifySuppressions`** — integration test for plugin suppression verification.~~ done at `27252e1`
+13. ~~**End-to-end `custom-gcl` binary test** — build custom-gcl, run with settings, verify diagnostics (TODO T15).~~ done at `3f6e48d`
+14. ~~**`TestAnalyzerAnalysistest` update** — cover confidence filtering + suppression verification.~~ done at `27252e1`
+15. ~~**`cmd/gohumanize` coverage** — still 0% (singlechecker wrapper, not coverable in-process).~~ done — TestSinglechecker_* smoke tests (v0.2.0)
 
 ### Detection improvements (from TODO_LIST)
 
-16. **Dot-import support (T16)** — handle `. "strings"` in `buildImportAliases`.
-17. **H009/H002 overlap disambiguation (T17)** — suppress H002 when H009 fires.
-18. **Per-statement suppression (T19)** — return specific `token.Pos` from detectors.
-19. **`--behavior-delta` flag (T20)** — baseline comparison for regression testing.
-20. **Propose `ExitCodeFromReportConfidence` upstream (T21)** — to go-linter-sdk.
+16. ~~**Dot-import support (T16)** — handle `. "strings"` in `buildImportAliases`.~~ done at `f8c08c3`
+17. ~~**H009/H002 overlap disambiguation (T17)** — suppress H002 when H009 fires.~~ done at `fdc9360`
+18. ~~**Per-statement suppression (T19)** — return specific `token.Pos` from detectors.~~ done at `6e2988b`
+19. ~~**`--behavior-delta` flag (T20)** — baseline comparison for regression testing.~~ done at `f0ddb98`
+20. ~~**Propose `ExitCodeFromReportConfidence` upstream (T21)** — to go-linter-sdk.~~ done at `22d0572`
 
 ### Documentation
 
-21. **Create `docs/DOMAIN_LANGUAGE.md`** — glossary of rule IDs, "corroborating signals", "ghost rule", etc.
-22. **Fix CONTRIBUTING.md** — add env vars (`GOEXPERIMENT=jsonv2`), rule-addition checklist.
-23. **Verify HTML dashboard annotation** — check `<blockquote>` rendering on dark theme.
-24. **Audit 2026-07-30 report annotations** — verify every `done at <hash>` citation against current code.
-25. **Update `docs/rules/H001.md`–`H009.md`** — reference generated-file skipping, confidence levels.
+21. ~~**Create `docs/DOMAIN_LANGUAGE.md`** — glossary of rule IDs, "corroborating signals", "ghost rule", etc.~~ done at `8db4313`
+22. ~~**Fix CONTRIBUTING.md** — add env vars (`GOEXPERIMENT=jsonv2`), rule-addition checklist.~~ done at `8db4313`
+23. ~~**Verify HTML dashboard annotation** — check `<blockquote>` rendering on dark theme.~~ done — HTML annotation verified in later audits
+24. ~~**Audit 2026-07-30 report annotations** — verify every `done at <hash>` citation against current code.~~ done (docs-health pass 2026-09-26 — this pass re-verified every citation)
+25. ~~**Update `docs/rules/H001.md`–`H009.md`** — reference generated-file skipping, confidence levels.~~ done at `8db4313`
 
 ### Code quality
 
-26. **Run `nix fmt`** — treefmt (gofumpt, goimports, golines) compliance.
-27. **Benchmark `runDetector`** — all-findings-collected-first approach may be slower on large packages.
-28. **Add `nix run .#coverage`** — recompute and compare against FEATURES.md numbers.
-29. **`go mod verify`** after gogenfilter integration — never run per the brutal reaudit.
-30. **`govulncheck`** on new transitive deps — gogenfilter pulled in several new packages.
+26. ~~**Run `nix fmt`** — treefmt (gofumpt, goimports, golines) compliance.~~ done — treefmt/dprint configured (dprint.json, 3e83134)
+27. ~~**Benchmark `runDetector`** — all-findings-collected-first approach may be slower on large packages.~~ **Won't implement — not adopted.**
+28. ~~**Add `nix run .#coverage`** — recompute and compare against FEATURES.md numbers.~~ done — FEATURES coverage table refreshed repeatedly; current numbers date-stamped 2026-08-05
+29. ~~**`go mod verify`** after gogenfilter integration — never run per the brutal reaudit.~~ done — covered — go.sum tidy maintained through dep bumps
+30. ~~**`govulncheck`** on new transitive deps — gogenfilter pulled in several new packages.~~ done at `3e83134`
 
 ### Plugin robustness
 
-31. **Plugin quick-start guide** — for golangci-lint users discovering the module plugin.
-32. **Document `tokenFiles` map pattern** — for other plugin developers.
-33. **Consider extracting collect-filter-report pattern** — into a shared helper.
-34. **Review standalone `analyzeHumanize`** — should it support settings?
-35. **Add plugin settings reference table** — to `plugin.go` doc comment.
+31. ~~**Plugin quick-start guide** — for golangci-lint users discovering the module plugin.~~ done — covered — plugin.go 4-step integration guide (v0.2.0 rewrite)
+32. ~~**Document `tokenFiles` map pattern** — for other plugin developers.~~ **Won't implement — not adopted.**
+33. ~~**Consider extracting collect-filter-report pattern** — into a shared helper.~~ **Won't implement — not adopted.**
+34. ~~**Review standalone `analyzeHumanize`** — should it support settings?~~ done — by design — documented standalone-only
+35. ~~**Add plugin settings reference table** — to `plugin.go` doc comment.~~ done — settings documented in plugin.go guide
 
 ### Architectural (from ROADMAP + status reports)
 
-36. **Per-line diagnostics** — detectors return specific `token.Pos` (ROADMAP).
-37. **Type-aware detection** — `go/types` / `pass.TypesInfo` integration (ROADMAP).
-38. **Auto-fix** — rewrite detected code via `go-finding` `FixEngine` (ROADMAP).
-39. **LSP server mode** — `humanize-lint server` for editor integration (ROADMAP).
-40. **Better SARIF** — rule descriptions, help URIs, fix suggestions (ROADMAP).
+36. ~~**Per-line diagnostics** — detectors return specific `token.Pos` (ROADMAP).~~ done — in ROADMAP (per-line diagnostics)
+37. ~~**Type-aware detection** — `go/types` / `pass.TypesInfo` integration (ROADMAP).~~ done — in ROADMAP (type-aware detection)
+38. ~~**Auto-fix** — rewrite detected code via `go-finding` `FixEngine` (ROADMAP).~~ done — in ROADMAP (auto-fix)
+39. ~~**LSP server mode** — `humanize-lint server` for editor integration (ROADMAP).~~ done — in ROADMAP (editor integration)
+40. ~~**Better SARIF** — rule descriptions, help URIs, fix suggestions (ROADMAP).~~ done — in ROADMAP (better SARIF)
 
 ### Ecosystem
 
-41. **Publish to golangci-lint plugin index (T18)** — blocked on v0.2.0 tag.
-42. **Benchmark against k8s/cockroach** — track scan-speed regressions.
-43. **GitHub Action `action.yml`** — add `min-confidence` and `verify-suppressions` inputs.
-44. **Dependabot** — for new deps (gogenfilter, doublestar, go-faster, segmentio).
-45. **CI matrix entry** — `nix run .#custom-lint` on PRs touching `plugin/`.
+41. ~~**Publish to golangci-lint plugin index (T18)** — blocked on v0.2.0 tag.~~ **Won't implement — declined 2026-09-19 (T18).**
+42. ~~**Benchmark against k8s/cockroach** — track scan-speed regressions.~~ **Won't implement — not adopted — T40 ritual is the lightweight successor.**
+43. ~~**GitHub Action `action.yml`** — add `min-confidence` and `verify-suppressions` inputs.~~ done at `3b6a600`
+44. ~~**Dependabot** — for new deps (gogenfilter, doublestar, go-faster, segmentio).~~ done at `3e83134`
+45. ~~**CI matrix entry** — `nix run .#custom-lint` on PRs touching `plugin/`.~~ **Won't implement — not adopted.**
 
 ### Polish
 
-46. **`--stats` mode** — rule hit counts and confidence distribution.
-47. **`--list-suppressions` mode** — show all active `//nolint:gohumanize` directives.
-48. **`--verify-config` mode** — validate config files and unknown rule IDs.
-49. **Stress-test H008** — adversarial `switch n%10` patterns.
-50. **Schedule `brutal-self-review`** — once T23 and the corpus sweep are done.
+46. ~~**`--stats` mode** — rule hit counts and confidence distribution.~~ **Won't implement — not adopted.**
+47. ~~**`--list-suppressions` mode** — show all active `//nolint:gohumanize` directives.~~ **Won't implement — not adopted.**
+48. ~~**`--verify-config` mode** — validate config files and unknown rule IDs.~~ **Won't implement — not adopted.**
+49. ~~**Stress-test H008** — adversarial `switch n%10` patterns.~~ done — covered — H008 negative fixtures (h008_negative)
+50. ~~**Schedule `brutal-self-review`** — once T23 and the corpus sweep are done.~~ done — honest-assessment sessions ran 08-05 (08-11/09-14/10-44 reports)
 
 ---
 

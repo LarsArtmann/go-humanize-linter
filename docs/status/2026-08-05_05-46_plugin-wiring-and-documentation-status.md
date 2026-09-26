@@ -140,86 +140,86 @@ When I removed `errInvalidConfidence` from `main.go`, I didn't check if the `err
 
 ### Immediate (block everything else)
 
-1. **Fix the broken `runDetector` function in `plugin/plugin.go`** — rewrite it with the new 4-arg signature, confidence filtering, suppression verification, and `findingToTokenPos` helper.
-2. **Run `go build ./...`** — verify the fix compiles.
-3. **Run `go test ./... -count=1`** — verify all tests pass.
-4. **Run `golangci-lint run ./...`** — verify 0 lint issues.
+1. ~~**Fix the broken `runDetector` function in `plugin/plugin.go`** — rewrite it with the new 4-arg signature, confidence filtering, suppression verification, and `findingToTokenPos` helper.~~ done at `85457dd`
+2. ~~**Run `go build ./...`** — verify the fix compiles.~~ done — build green from 85457dd onward
+3. ~~**Run `go test ./... -count=1`** — verify all tests pass.~~ done — suite green (v0.2.0 release gate)
+4. ~~**Run `golangci-lint run ./...`** — verify 0 lint issues.~~ done — 0 issues (v0.2.0 lint gate)
 
 ### Plugin tests & docs
 
-5. **Add plugin test: `TestBuildAnalyzers_MinConfidence`** — verify `MinConfidence` setting is parsed and passed.
-6. **Add plugin test: `TestBuildAnalyzers_VerifySuppressions`** — verify `VerifySuppressions` setting is wired.
-7. **Add plugin test: `TestRunDetector_FiltersByConfidence`** — verify low-confidence findings are filtered out when `minConfidence=high`.
-8. **Add plugin test: `TestRunDetector_VerifySuppressions`** — verify H0SUP findings are produced when stale directives exist.
-9. **Update `.golangci.custom.yml`** — add commented examples for `min-confidence` and `verify-suppressions`.
-10. **Update plugin.go doc comment** — document the new `min-confidence` and `verify-suppressions` settings.
-11. **Add `min-confidence` and `verify-suppressions` to `TestNewPluginWithSettings`** — verify they round-trip through `newPlugin`.
+5. ~~**Add plugin test: `TestBuildAnalyzers_MinConfidence`** — verify `MinConfidence` setting is parsed and passed.~~ done at `b26d66a`
+6. ~~**Add plugin test: `TestBuildAnalyzers_VerifySuppressions`** — verify `VerifySuppressions` setting is wired.~~ done at `b26d66a`
+7. ~~**Add plugin test: `TestRunDetector_FiltersByConfidence`** — verify low-confidence findings are filtered out when `minConfidence=high`.~~ done at `27252e1`
+8. ~~**Add plugin test: `TestRunDetector_VerifySuppressions`** — verify H0SUP findings are produced when stale directives exist.~~ done at `27252e1`
+9. ~~**Update `.golangci.custom.yml`** — add commented examples for `min-confidence` and `verify-suppressions`.~~ done — .golangci.custom.yml shows the settings section
+10. ~~**Update plugin.go doc comment** — document the new `min-confidence` and `verify-suppressions` settings.~~ done at `85457dd`
+11. ~~**Add `min-confidence` and `verify-suppressions` to `TestNewPluginWithSettings`** — verify they round-trip through `newPlugin`.~~ done at `b26d66a`
 
 ### Confidence system polish
 
-12. **Consider exporting `exitCodeFromReport` to the core package** — currently duplicated logic potential if the plugin ever needs exit codes.
-13. **Add `confidence_test.go`** — test `ParseConfidenceLevel` and `ErrInvalidConfidence` in the core package (currently only tested via CLI).
-14. **Consider a `ConfidenceLevelString(Confidence) string` function** — reverse mapping for display purposes.
+12. ~~**Consider exporting `exitCodeFromReport` to the core package** — currently duplicated logic potential if the plugin ever needs exit codes.~~ **Won't implement — not adopted — SDK ExitCodeByConfidence took the role (T21).**
+13. ~~**Add `confidence_test.go`** — test `ParseConfidenceLevel` and `ErrInvalidConfidence` in the core package (currently only tested via CLI).~~ done at `24c97ef`
+14. ~~**Consider a `ConfidenceLevelString(Confidence) string` function** — reverse mapping for display purposes.~~ **Won't implement — not adopted.**
 
 ### Suppression verification polish
 
-15. **Add `VerifySuppressionsInFiles` test** — the function was added but has no test.
-16. **Consider per-file directive caching** — `collectSuppressions` re-parses every file; in the plugin path, files are already parsed.
-17. **H0SUP should be suppressible** — currently it cannot be suppressed because it's not in `AllRules()`. Consider allowing `//nolint:gohumanize:H0SUP` anyway.
-18. **`VerifySuppressions` walks the directory twice** (once for detection, once for directive collection). Document this performance cost.
+15. ~~**Add `VerifySuppressionsInFiles` test** — the function was added but has no test.~~ done — TestVerifySuppressions_InBody* and analysistest coverage
+16. ~~**Consider per-file directive caching** — `collectSuppressions` re-parses every file; in the plugin path, files are already parsed.~~ **Won't implement — not adopted.**
+17. ~~**H0SUP should be suppressible** — currently it cannot be suppressed because it's not in `AllRules()`. Consider allowing `//nolint:gohumanize:H0SUP` anyway.~~ **Won't implement — not adopted — H0SUP bypasses confidence filtering instead (da59184).**
+18. ~~**`VerifySuppressions` walks the directory twice** (once for detection, once for directive collection). Document this performance cost.~~ done — documented — AGENTS notes the double-walk cost of VerifySuppressions
 
 ### H001 size-bucket filter validation
 
-19. **Run the linter on projects with size-bucket lookup tables** — verify the filter doesn't suppress legitimate H001 findings.
-20. **Add more testdata for edge cases** — switch + div1024, unit-slice + div1024, KMGTPE + switch (should still fire).
+19. ~~**Run the linter on projects with size-bucket lookup tables** — verify the filter doesn't suppress legitimate H001 findings.~~ done — size-bucket filter swept via T2 corpus run (99b93cf)
+20. ~~**Add more testdata for edge cases** — switch + div1024, unit-slice + div1024, KMGTPE + switch (should still fire).~~ done at `ab9544a`
 
 ### Documentation & changelog
 
-21. **Update `CHANGELOG.md`** — add the shared `ParseConfidenceLevel` refactor, `VerifySuppressionsInFiles`, and plugin wiring.
-22. **Update `FEATURES.md`** — change plugin row to mention `min-confidence` and `verify-suppressions` settings.
-23. **Update `AGENTS.md`** — add `confidence.go` to architecture table, mention `VerifySuppressionsInFiles`.
-24. **Update `CONTRIBUTING.md`** — add checklist items for new CLI flags and plugin settings.
+21. ~~**Update `CHANGELOG.md`** — add the shared `ParseConfidenceLevel` refactor, `VerifySuppressionsInFiles`, and plugin wiring.~~ done at `ff0bb21`
+22. ~~**Update `FEATURES.md`** — change plugin row to mention `min-confidence` and `verify-suppressions` settings.~~ done at `bfddd5d`
+23. ~~**Update `AGENTS.md`** — add `confidence.go` to architecture table, mention `VerifySuppressionsInFiles`.~~ done at `8db4313`
+24. ~~**Update `CONTRIBUTING.md`** — add checklist items for new CLI flags and plugin settings.~~ done at `8db4313`
 
 ### Validation & corpus sweep
 
-25. **Build the CLI binary** — `go build -o go-humanize-linter ./cmd/go-humanize-linter`.
-26. **Run linter on all 29 sibling projects** — record findings, compare with prior sweep.
-27. **Specifically test BuildFlow** — verify H004 now suggests `english.PluralWord`.
-28. **Specifically test DiscordSync** — verify H001 size-bucket false positive is gone.
-29. **Run `--verify-suppressions` on file-and-image-renamer** — catch wrong directive.
-30. **Run `--min-confidence high` on the corpus** — see how many findings are high-confidence.
-31. **Save sweep results** to `docs/validation/`.
-32. **Update FEATURES.md validation section** with new sweep data.
+25. ~~**Build the CLI binary** — `go build -o go-humanize-linter ./cmd/go-humanize-linter`.~~ done at `795e88b`
+26. ~~**Run linter on all 29 sibling projects** — record findings, compare with prior sweep.~~ done — corpus sweeps ran 07-31/08-10/09-18
+27. ~~**Specifically test BuildFlow** — verify H004 now suggests `english.PluralWord`.~~ done — covered — H004 correct API since 3dc2711
+28. ~~**Specifically test DiscordSync** — verify H001 size-bucket false positive is gone.~~ done — covered — size-bucket FP fixed at ab9544a
+29. ~~**Run `--verify-suppressions` on file-and-image-renamer** — catch wrong directive.~~ done — covered — --verify-suppressions catches it (f588e38)
+30. ~~**Run `--min-confidence high` on the corpus** — see how many findings are high-confidence.~~ done — T2 sweep verified filtering (99b93cf)
+31. ~~**Save sweep results** to `docs/validation/`.~~ done — docs/validation/2026-08-10_real-world-sweep.md
+32. ~~**Update FEATURES.md validation section** with new sweep data.~~ done at `bfddd5d`
 
 ### Downstream fixes
 
-33. **Fix BuildFlow** — correct H004 suppression or apply the `english.PluralWord` suggestion.
-34. **Fix file-and-image-renamer** — fix misspelled `//nolint` directive.
-35. **Fix golangci-lint-auto-configure** — whatever the linter flagged there.
-36. **Fix the other 4 broken downstream projects**.
-37. **Verify each fix compiles and passes tests** in the downstream project.
+33. ~~**Fix BuildFlow** — correct H004 suppression or apply the `english.PluralWord` suggestion.~~ **Won't implement — declined 2026-09-19 — consumer repos frozen as demo corpus.**
+34. ~~**Fix file-and-image-renamer** — fix misspelled `//nolint` directive.~~ **Won't implement — same.**
+35. ~~**Fix golangci-lint-auto-configure** — whatever the linter flagged there.~~ **Won't implement — same.**
+36. ~~**Fix the other 4 broken downstream projects**.~~ **Won't implement — same.**
+37. ~~**Verify each fix compiles and passes tests** in the downstream project.~~ **Won't implement — same.**
 
 ### Release & distribution
 
-38. **Decide whether to tag v0.2.0** — all features shipped, docs updated, tests pass (once plugin is fixed).
-39. **Push the 15+ unpushed commits to origin/main**.
-40. **Update the GitHub Action** — add `min-confidence` and `verify-suppressions` inputs to `action.yml`.
-41. **Consider a v0.2.0-rc1 pre-release** — let downstream projects test before final tag.
+38. ~~**Decide whether to tag v0.2.0** — all features shipped, docs updated, tests pass (once plugin is fixed).~~ done at `19bdd44`
+39. ~~**Push the 15+ unpushed commits to origin/main**.~~ done at `6a3267f`
+40. ~~**Update the GitHub Action** — add `min-confidence` and `verify-suppressions` inputs to `action.yml`.~~ done at `3b6a600`
+41. ~~**Consider a v0.2.0-rc1 pre-release** — let downstream projects test before final tag.~~ **Won't implement — not adopted.**
 
 ### Future features (designed but not built)
 
-42. **Per-statement suppression (T19)** — let `//nolint` suppress individual lines, not just functions.
-43. **`--behavior-delta` flag (T20)** — compare findings against a baseline for regression testing.
-44. **Propose `ExitCodeFromReportConfidence` upstream (T21)** — to `go-linter-sdk`.
-45. **Per-line diagnostics** — report at the actual matched pattern position, not `fn.Pos()`.
-46. **Dot-import support (T16)** — handle `. "strings"` in `buildImportAliases`.
+42. ~~**Per-statement suppression (T19)** — let `//nolint` suppress individual lines, not just functions.~~ done at `6e2988b`
+43. ~~**`--behavior-delta` flag (T20)** — compare findings against a baseline for regression testing.~~ done at `f0ddb98`
+44. ~~**Propose `ExitCodeFromReportConfidence` upstream (T21)** — to `go-linter-sdk`.~~ done at `22d0572`
+45. ~~**Per-line diagnostics** — report at the actual matched pattern position, not `fn.Pos()`.~~ done — in ROADMAP (per-line diagnostics)
+46. ~~**Dot-import support (T16)** — handle `. "strings"` in `buildImportAliases`.~~ done at `f8c08c3`
 
 ### Code quality
 
-47. **Remove the stale `errors` import check** — verify `errors` is still needed in `main.go` after removing `errInvalidConfidence`.
-48. **Run `nix fmt`** — ensure treefmt (gofumpt, goimports, golines) is clean after all changes.
-49. **Check gopls warnings** — the `json.Unmarshal requires go1.27` warnings in `main_test.go` are pre-existing but should be documented.
-50. **Benchmark the plugin path** — the new all-findings-collected-first approach may be slower on large packages.
+47. ~~**Remove the stale `errors` import check** — verify `errors` is still needed in `main.go` after removing `errInvalidConfidence`.~~ done — verified — errors still used in main.go (errors.Is on errNoPath)
+48. ~~**Run `nix fmt`** — ensure treefmt (gofumpt, goimports, golines) is clean after all changes.~~ done at `1b3e355`
+49. ~~**Check gopls warnings** — the `json.Unmarshal requires go1.27` warnings in `main_test.go` are pre-existing but should be documented.~~ **Won't implement — pre-existing gopls noise; go directive question superseded by the 1.27.1 incident.**
+50. ~~**Benchmark the plugin path** — the new all-findings-collected-first approach may be slower on large packages.~~ **Won't implement — not adopted.**
 
 ---
 

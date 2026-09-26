@@ -164,60 +164,60 @@
 
 ### Critical (blocks release or correctness)
 
-1. Get explicit user approval and tag `v0.2.0`.
-2. Run corpus validation sweep (M9 / T2) — 30+ min but validates the "~0% FP" claim.
-3. Run `govulncheck ./...` and `go mod verify` before release.
-4. Add aliased-import H003 testdata to close `isTimeDurationSelector` coverage gap (56.2%→100%).
+1. ~~Get explicit user approval and tag `v0.2.0`.~~ done at `19bdd44`
+2. ~~Run corpus validation sweep (M9 / T2) — 30+ min but validates the "~0% FP" claim.~~ done at `99b93cf`
+3. ~~Run `govulncheck ./...` and `go mod verify` before release.~~ done at `3e83134`
+4. ~~Add aliased-import H003 testdata to close `isTimeDurationSelector` coverage gap (56.2%→100%).~~ done at `e2e1d0b`
 
 ### High value
 
-5. Build `custom-gcl` and add plugin integration test (M14 / T15).
-6. Verify the 7 downstream projects compile/lint cleanly (M10–M13).
-7. Run `nix run .#custom-lint` to verify the full plugin path works end-to-end.
-8. Update `TODO_LIST.md` — mark completed items, add new ones from this session.
-9. Update `ROADMAP.md` with current positioning.
-10. Annotate prior status report (`2026-08-05_09-14_...`) with completed items.
-11. Per-statement suppression (M16 / T19) — highest-risk remaining feature.
+5. ~~Build `custom-gcl` and add plugin integration test (M14 / T15).~~ done at `2532263`
+6. ~~Verify the 7 downstream projects compile/lint cleanly (M10–M13).~~ **Won't implement — declined 2026-09-19 — consumer repos frozen.**
+7. ~~Run `nix run .#custom-lint` to verify the full plugin path works end-to-end.~~ done at `2532263`
+8. ~~Update `TODO_LIST.md` — mark completed items, add new ones from this session.~~ done at `1b3e355`
+9. ~~Update `ROADMAP.md` with current positioning.~~ done at `1b3e355`
+10. ~~Annotate prior status report (`2026-08-05_09-14_...`) with completed items.~~ done (docs-health pass 2026-09-26 — annotated in this pass)
+11. ~~Per-statement suppression (M16 / T19) — highest-risk remaining feature.~~ done at `6e2988b`
 
 ### Code quality
 
-12. Rename `behaviorDelta` type to avoid stutter with package name (item 36).
-13. Unify `printDelta` header wording with other CLI output (item 38).
-14. Validate baseline JSON schema on load — reject unknown fields (item 23).
-15. Improve `loadBaseline` error messages with file path (item 24).
-16. Add baseline merge support (union of multiple baselines) (item 25).
-17. Make `printDelta` output machine-readable with `--format` for delta (item 21).
-18. Add `--baseline` shorthand alias for `--behavior-delta` (item 22).
-19. Cover `saveBaseline` error paths (MarshalIndent + WriteFile failures).
-20. Cover `appendSuppressionFindings` error path (VerifySuppressions failure).
-21. Cover `sortEntries` both comparator branches.
+12. ~~Rename `behaviorDelta` type to avoid stutter with package name (item 36).~~ **Won't implement — not adopted — naming churn.**
+13. ~~Unify `printDelta` header wording with other CLI output (item 38).~~ **Won't implement — not adopted.**
+14. ~~Validate baseline JSON schema on load — reject unknown fields (item 23).~~ **Won't implement — not adopted.**
+15. ~~Improve `loadBaseline` error messages with file path (item 24).~~ done — TestLoadBaseline_MalformedJSON
+16. ~~Add baseline merge support (union of multiple baselines) (item 25).~~ **Won't implement — not adopted.**
+17. ~~Make `printDelta` output machine-readable with `--format` for delta (item 21).~~ **Won't implement — not adopted.**
+18. ~~Add `--baseline` shorthand alias for `--behavior-delta` (item 22).~~ **Won't implement — not adopted.**
+19. ~~Cover `saveBaseline` error paths (MarshalIndent + WriteFile failures).~~ done — covered — baseline tests (641f63f)
+20. ~~Cover `appendSuppressionFindings` error path (VerifySuppressions failure).~~ done — covered — TestAppendSuppressionFindings
+21. ~~Cover `sortEntries` both comparator branches.~~ done — covered — baseline suite (641f63f)
 
 ### Detection improvements
 
-22. `--stats` mode (rule count + confidence distribution) (M23 / T20).
-23. `--list-suppressions` mode (M23 / T20).
-24. `--verify-config` mode (M23 / T20).
-25. Consider configurable confidence for H0SUP instead of always `ConfidenceHigh`.
+22. ~~`--stats` mode (rule count + confidence distribution) (M23 / T20).~~ **Won't implement — not adopted.**
+23. ~~`--list-suppressions` mode (M23 / T20).~~ **Won't implement — not adopted.**
+24. ~~`--verify-config` mode (M23 / T20).~~ **Won't implement — not adopted.**
+25. ~~Consider configurable confidence for H0SUP instead of always `ConfidenceHigh`.~~ done at `da59184`
 
 ### Architecture / upstream
 
-26. Propose `ExitCodeFromReportConfidence(report, minConfidence)` upstream (M21 / T21).
-27. Submit to golangci-lint plugin index after `v0.2.0` tag (M22 / T18).
-28. Contribute `_gen.go`/`.gen.go` patterns to gogenfilter upstream (M25).
+26. ~~Propose `ExitCodeFromReportConfidence(report, minConfidence)` upstream (M21 / T21).~~ done at `22d0572`
+27. ~~Submit to golangci-lint plugin index after `v0.2.0` tag (M22 / T18).~~ **Won't implement — declined 2026-09-19 (T18).**
+28. ~~Contribute `_gen.go`/`.gen.go` patterns to gogenfilter upstream (M25).~~ **Won't implement — not filed — v3.5.0 resolved the sqlc class upstream.**
 
 ### Documentation
 
-29. Add `--save-baseline` usage example in README CI section (dedicated subsection).
-30. Document exit-code semantics for `--behavior-delta` in `--help` output.
-31. Verify all ADR cross-references resolve (DOMAIN_LANGUAGE → ADR 0004/0005, etc.).
-32. Add `docs/rules/` per-rule page for H0SUP (currently undocumented).
+29. ~~Add `--save-baseline` usage example in README CI section (dedicated subsection).~~ done at `f0ddb98`
+30. ~~Document exit-code semantics for `--behavior-delta` in `--help` output.~~ done at `795e88b`
+31. ~~Verify all ADR cross-references resolve (DOMAIN_LANGUAGE → ADR 0004/0005, etc.).~~ done — ADR cross-references resolve (verified in audits)
+32. ~~Add `docs/rules/` per-rule page for H0SUP (currently undocumented).~~ **Won't implement — not adopted — H0SUP documented in AGENTS/CHANGELOG/ADR 0002+0007.**
 
 ### Testing
 
-33. Add unit test for `runBehaviorDelta` delta-exists path (currently only integration-tested).
-34. Add test for baseline file with empty findings array.
-35. Add test for baseline file with extra unknown JSON fields (schema validation).
-36. Add test for `saveBaselineAndNotify` when `saveBaseline` fails (mock or bad path).
+33. ~~Add unit test for `runBehaviorDelta` delta-exists path (currently only integration-tested).~~ done at `641f63f`
+34. ~~Add test for baseline file with empty findings array.~~ done — covered — baseline tests (641f63f)
+35. ~~Add test for baseline file with extra unknown JSON fields (schema validation).~~ **Won't implement — not adopted.**
+36. ~~Add test for `saveBaselineAndNotify` when `saveBaseline` fails (mock or bad path).~~ done — covered — TestSaveBaselineAndNotify with injected writer (1fac9fb)
 37. Add race-detector test for concurrent `loadBaseline` + `saveBaseline` calls.
 
 ### Release / distribution

@@ -79,21 +79,21 @@ Nothing this session.
 
 ## f) Recommended next tasks (from TODO_LIST, prioritized)
 
-1. **T23** — Exclude H0SUP findings from confidence filtering (XS, Medium tier). Quick win.
-2. **T16** — Dot-import support for alias resolution (S, Low tier). Closes a known detection gap.
-3. **T1** — Tag `v0.2.0` (XS, blocked on user approval). Unblocks T18.
-4. **T2** — Real-world validation sweep (M, High tier). Validate new features against corpus.
-5. **T15** — Plugin integration test through `custom-gcl` binary (S, Medium tier).
-6. **T17** — H009/H002 overlap disambiguation (M, Low tier).
-7. **T19** — Per-statement `//nolint` suppression support (M, Medium tier).
-8. **T20** — `--behavior-delta` flag for regression testing (M, Low tier).
-9. **T21** — Propose `ExitCodeFromReportConfidence` upstream (S, Low tier).
-10. **T18** — Publish to golangci-lint plugin index (S, blocked on T1).
+1. ~~**T23** — Exclude H0SUP findings from confidence filtering (XS, Medium tier). Quick win.~~ done at `da59184`
+2. ~~**T16** — Dot-import support for alias resolution (S, Low tier). Closes a known detection gap.~~ done at `f8c08c3`
+3. ~~**T1** — Tag `v0.2.0` (XS, blocked on user approval). Unblocks T18.~~ done at `19bdd44`
+4. ~~**T2** — Real-world validation sweep (M, High tier). Validate new features against corpus.~~ done at `99b93cf`
+5. ~~**T15** — Plugin integration test through `custom-gcl` binary (S, Medium tier).~~ done at `2532263`
+6. ~~**T17** — H009/H002 overlap disambiguation (M, Low tier).~~ done at `fdc9360`
+7. ~~**T19** — Per-statement `//nolint` suppression support (M, Medium tier).~~ done at `6e2988b`
+8. ~~**T20** — `--behavior-delta` flag for regression testing (M, Low tier).~~ done at `f0ddb98`
+9. ~~**T21** — Propose `ExitCodeFromReportConfidence` upstream (S, Low tier).~~ done at `22d0572`
+10. ~~**T18** — Publish to golangci-lint plugin index (S, blocked on T1).~~ **Won't implement — declined 2026-09-19 (T18).**
 
 ---
 
 ## g) Questions
 
-1. Should I run `nix run .#lint` now to verify the fix passes golangci-lint self-scan, or is the `go test`/`go vet` verification sufficient for this XS task?
-2. Should I fix the stale gopls cache by restarting the LSP server, or is it self-resolving?
-3. Should I proceed to T23 (exclude H0SUP from confidence filtering) now, or wait for direction?
+1. ~~Should I run `nix run .#lint` now to verify the fix passes golangci-lint self-scan, or is the `go test`/`go vet` verification sufficient for this XS task?~~ done — answered — nix lint run in later sessions (0 issues)
+2. ~~Should I fix the stale gopls cache by restarting the LSP server, or is it self-resolving?~~ done — moot — LSP noise; build/test/CLI truth used
+3. ~~Should I proceed to T23 (exclude H0SUP from confidence filtering) now, or wait for direction?~~ done — T23 shipped at da59184

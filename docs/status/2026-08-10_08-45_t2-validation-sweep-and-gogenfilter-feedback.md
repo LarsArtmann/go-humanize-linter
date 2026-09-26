@@ -37,28 +37,28 @@ Two major pieces of work were completed this session:
 
 ## B) PARTIALLY DONE
 
-1. **Phase 3 (`--min-confidence` comparison) on real corpus is hollow.** Since the corpus had 0 findings at default confidence, `--min-confidence high` also had 0. Synthetic fixtures prove the feature works, but the real-world comparison the task originally intended is meaningless with an empty result set.
+1. ~~**Phase 3 (`--min-confidence` comparison) on real corpus is hollow.** Since the corpus had 0 findings at default confidence, `--min-confidence high` also had 0. Synthetic fixtures prove the feature works, but the real-world comparison the task originally intended is meaningless with an empty result set.~~ done — accepted — synthetic fixtures prove the feature; real-corpus comparison meaningless at 0 findings (documented)
 
-2. **gogenfilter false-positive impact is unverified for humanize patterns.** I claimed "no app code with humanize patterns was missed" but I did NOT actually scan the 41 false-positive files for humanize-detectable patterns. The claim is plausible (they're mostly config/schema/batch files) but unverified. I should have created a temp directory with just those 41 files and run the linter on them.
+2. ~~**gogenfilter false-positive impact is unverified for humanize patterns.** I claimed "no app code with humanize patterns was missed" but I did NOT actually scan the 41 false-positive files for humanize-detectable patterns. The claim is plausible (they're mostly config/schema/batch files) but unverified. I should have created a temp directory with just those 41 files and run the linter on them.~~ done — resolved — later sweeps + gogenfilter v3.5.0 validated; AGENTS documents the FP rate
 
-3. **Plugin path was never swept.** Only the CLI path was validated against the corpus. The golangci-lint plugin path (`HumanizeDetector.Run` + `findingToTokenPos`) was verified via unit tests but not against real-world code.
+3. ~~**Plugin path was never swept.** Only the CLI path was validated against the corpus. The golangci-lint plugin path (`HumanizeDetector.Run` + `findingToTokenPos`) was verified via unit tests but not against real-world code.~~ **Won't implement — CLI sweep deemed sufficient; plugin covered by unit+analysistest+e2e.**
 
-4. **H007/H008/H009 synthetic verification was skipped.** I only tested H001–H006 via synthetic fixtures. H007/H008/H009 were marked "verified via testdata" but not re-tested with fresh synthetic patterns in this session.
+4. ~~**H007/H008/H009 synthetic verification was skipped.** I only tested H001–H006 via synthetic fixtures. H007/H008/H009 were marked "verified via testdata" but not re-tested with fresh synthetic patterns in this session.~~ done — H007-H009 fixtures/analysistest shipped
 
-5. **The gogenfilter report has a reproduction script** but it's written as a Go file in a heredoc — I didn't actually verify it compiles and runs. It's illustrative, not tested.
+5. ~~**The gogenfilter report has a reproduction script** but it's written as a Go file in a heredoc — I didn't actually verify it compiles and runs. It's illustrative, not tested.~~ **Won't implement — accepted — illustrative script.**
 
 ---
 
 ## C) NOT STARTED
 
-1. **Fixing the stale self-suppression** in `rule_bytes.go:42` — found it, documented it, did not remove it.
-2. **Running `nix run .#test`** to confirm full test suite passes — never ran the full suite this session.
-3. **Investigating corpus shrinkage** (327→158 projects) — no idea why half the corpus disappeared.
-4. **Creating a reusable sweep script** — the sweep was ad-hoc bash in `/tmp/`, not committed.
-5. **Filing gogenfilter issues** — the report is written but no GitHub issues were created.
-6. **Fixing the gogenfilter false positives** — report only, no code changes proposed in gogenfilter.
-7. **Saving raw sweep data** — JSONL results are in `/tmp/sweep-results/`, not committed alongside the validation report.
-8. **Cleaning up temp files** — `/tmp/sweep.sh`, `/tmp/analyze.sh`, `/tmp/sweep-results/` still exist.
+1. ~~**Fixing the stale self-suppression** in `rule_bytes.go:42` — found it, documented it, did not remove it.~~ done at `c084fd9`
+2. ~~**Running `nix run .#test`** to confirm full test suite passes — never ran the full suite this session.~~ done — full suite green in later sessions
+3. ~~**Investigating corpus shrinkage** (327→158 projects) — no idea why half the corpus disappeared.~~ done — explained in the 08-10 validation doc
+4. ~~**Creating a reusable sweep script** — the sweep was ad-hoc bash in `/tmp/`, not committed.~~ **Won't implement — not adopted.**
+5. ~~**Filing gogenfilter issues** — the report is written but no GitHub issues were created.~~ done — feedback report filed in the gogenfilter repo; v3.5.0 fixed the sqlc class
+6. ~~**Fixing the gogenfilter false positives** — report only, no code changes proposed in gogenfilter.~~ done — upstream — gogenfilter v3.5.0 (adopted here as v3.6.0, then v3.6.1)
+7. ~~**Saving raw sweep data** — JSONL results are in `/tmp/sweep-results/`, not committed alongside the validation report.~~ **Won't implement — raw data stays ephemeral.**
+8. ~~**Cleaning up temp files** — `/tmp/sweep.sh`, `/tmp/analyze.sh`, `/tmp/sweep-results/` still exist.~~ **Won't implement — ephemeral.**
 
 ---
 

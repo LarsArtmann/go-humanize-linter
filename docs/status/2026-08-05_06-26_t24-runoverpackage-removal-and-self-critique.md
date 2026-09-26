@@ -125,37 +125,37 @@ My initial repo-wide grep would have caught references, but I didn't call out "I
 
 ### High Priority
 
-1. **Delete T24 entry from TODO_LIST** — it's done, it shouldn't be there per the header rules
-2. **Fix `varnamelen` lint issue** in `plugin/plugin.go:217` — rename `tf` → `tokFile`
-3. **T22 — Protect `findingToTokenPos` against out-of-range line numbers** — panic risk, High tier, XS effort
-4. **T23 — Exclude H0SUP findings from confidence filtering** — correctness bug, Medium tier, XS effort
-5. **T1 — Tag v0.2.0** — all code shipped, only `v0.1.0` tag exists; blocked on user approval
+1. ~~**Delete T24 entry from TODO_LIST** — it's done, it shouldn't be there per the header rules~~ done at `1382e6d`
+2. ~~**Fix `varnamelen` lint issue** in `plugin/plugin.go:217` — rename `tf` → `tokFile`~~ done — lint 0 issues from the 08-05 sessions onward
+3. ~~**T22 — Protect `findingToTokenPos` against out-of-range line numbers** — panic risk, High tier, XS effort~~ done at `1382e6d`
+4. ~~**T23 — Exclude H0SUP findings from confidence filtering** — correctness bug, Medium tier, XS effort~~ done at `da59184`
+5. ~~**T1 — Tag v0.2.0** — all code shipped, only `v0.1.0` tag exists; blocked on user approval~~ done at `19bdd44`
 
 ### Medium Priority
 
-6. **T2 — Real-world validation sweep** — run H001-H009 with all new features against the 327-project corpus
-7. **T15 — Plugin integration test through `custom-gcl` binary** — no end-to-end plugin test exists
-8. **T19 — Per-statement `//nolint` suppression support** — findings are at function-level, users want line-level
-9. **T17 — H009/H002 overlap disambiguation** — both rules fire on same code
-10. **T16 — Dot-import support** — `. "strings"` breaks alias resolution
+6. ~~**T2 — Real-world validation sweep** — run H001-H009 with all new features against the 327-project corpus~~ done at `99b93cf`
+7. ~~**T15 — Plugin integration test through `custom-gcl` binary** — no end-to-end plugin test exists~~ done at `2532263`
+8. ~~**T19 — Per-statement `//nolint` suppression support** — findings are at function-level, users want line-level~~ done at `6e2988b`
+9. ~~**T17 — H009/H002 overlap disambiguation** — both rules fire on same code~~ done at `fdc9360`
+10. ~~**T16 — Dot-import support** — `. "strings"` breaks alias resolution~~ done at `f8c08c3`
 
 ### Low Priority
 
-11. **T20 — `--behavior-delta` flag** — regression testing for detector changes
-12. **T21 — Propose ternary exit codes upstream** to `go-linter-sdk`
-13. **T18 — Publish to golangci-lint plugin index** — blocked on T1
+11. ~~**T20 — `--behavior-delta` flag** — regression testing for detector changes~~ done at `f0ddb98`
+12. ~~**T21 — Propose ternary exit codes upstream** to `go-linter-sdk`~~ done at `22d0572`
+13. ~~**T18 — Publish to golangci-lint plugin index** — blocked on T1~~ **Won't implement — declined 2026-09-19 (T18).**
 
 ### Improvements Noticed This Session
 
-14. **Review the `allRuleDetectors` comment** in `rules.go` — says "the plugin entry point iterate[s] over this" but the plugin entry point is now in `plugin/plugin.go`, not `rules.go`. Comment is technically still accurate (the plugin calls `detector.Run` which iterates `d.detectors`) but could be clearer.
-15. **Review `HumanizeDetector` doc comment** — now only shows `Run` usage. Consider adding a note that package-level scanning is available via the plugin (`plugin/plugin.go`) or CLI, not via a library method.
-16. **`DetectFuncDecl` doc comment** in `rules.go` still says "This is the per-function entry point used by the golangci-lint plugin wrapper (plugin/plugin.go) which iterates over pass.Files." — This is still accurate but the wording could be refreshed now that there's no competing `RunOverPackage`.
-17. **Audit all status docs for accuracy** — the auto-git daemon appended resolution sections to 5+ status docs (commits `d65a90e`, `46f0871`). These were generated automatically and should be reviewed for factual accuracy.
+14. ~~**Review the `allRuleDetectors` comment** in `rules.go` — says "the plugin entry point iterate[s] over this" but the plugin entry point is now in `plugin/plugin.go`, not `rules.go`. Comment is technically still accurate (the plugin calls `detector.Run` which iterates `d.detectors`) but could be clearer.~~ done — verified — doc comments refreshed through the v0.2.0 docs pass
+15. ~~**Review `HumanizeDetector` doc comment** — now only shows `Run` usage. Consider adding a note that package-level scanning is available via the plugin (`plugin/plugin.go`) or CLI, not via a library method.~~ done — verified — facade/plugin/CLI roles documented in AGENTS
+16. ~~**`DetectFuncDecl` doc comment** in `rules.go` still says "This is the per-function entry point used by the golangci-lint plugin wrapper (plugin/plugin.go) which iterates over pass.Files." — This is still accurate but the wording could be refreshed now that there's no competing `RunOverPackage`.~~ done — verified — wording refreshed in v0.2.0
+17. ~~**Audit all status docs for accuracy** — the auto-git daemon appended resolution sections to 5+ status docs (commits `d65a90e`, `46f0871`). These were generated automatically and should be reviewed for factual accuracy.~~ done — later audits reviewed daemon-generated resolutions
 
 ### Cleanup
 
-18. **Review commit `46f0871`** — the auto-git daemon added 9 lines to `plugin/plugin.go` and 30 lines to `plugin_internal_test.go` that I did not author. These came from a concurrent session or the daemon itself. Should be reviewed for correctness.
-19. **Review commit `2e16b28`** — the daemon committed a feedback doc change marking the H002/H009 strings-join-space false positive as resolved. Verify this is accurate.
+18. ~~**Review commit `46f0871`** — the auto-git daemon added 9 lines to `plugin/plugin.go` and 30 lines to `plugin_internal_test.go` that I did not author. These came from a concurrent session or the daemon itself. Should be reviewed for correctness.~~ done at `46f0871`
+19. ~~**Review commit `2e16b28`** — the daemon committed a feedback doc change marking the H002/H009 strings-join-space false positive as resolved. Verify this is accurate.~~ done at `2e16b28`
 20. **Consider whether completed TODO entries should leave a tombstone** — the current convention (delete entirely) loses the "what was T24?" context for someone reading old status reports that reference T24. A `~~T24~~` strikethrough or archived section might help. (Process decision, not urgent.)
 
 ---

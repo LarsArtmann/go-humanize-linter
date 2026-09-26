@@ -94,13 +94,13 @@ Session started with a full buildflow run showing **3 hard failures** and **42 g
 
 ## C) NOT STARTED
 
-1. **CI workflow SHA pinning** — `actions/setup-go@v5` and `webfactory/ssh-agent@v0.9.1` should be pinned to commit SHAs
-2. **flake.nix `packages.default`** — buildflow error: `does not provide attribute 'packages.x86_64-linux.default'`
-3. **bench_test.go modernization** — gopls suggests `b.Loop()` over `b.N`
-4. **README.md** — may need updating for `--rules` and `--version` flags
-5. **CHANGELOG.md** — not updated for this session's changes
-6. **Coverage report** — not run or analyzed
-7. **golangci-lint-action version** — uses `@v6` (tag, not SHA)
+1. ~~**CI workflow SHA pinning** — `actions/setup-go@v5` and `webfactory/ssh-agent@v0.9.1` should be pinned to commit SHAs~~ done at `3e83134`
+2. ~~**flake.nix `packages.default`** — buildflow error: `does not provide attribute 'packages.x86_64-linux.default'`~~ done at `4e1cbba`
+3. ~~**bench_test.go modernization** — gopls suggests `b.Loop()` over `b.N`~~ **Won't implement — not adopted.**
+4. ~~**README.md** — may need updating for `--rules` and `--version` flags~~ done at `1b3e355`
+5. ~~**CHANGELOG.md** — not updated for this session's changes~~ done at `396d53d`
+6. ~~**Coverage report** — not run or analyzed~~ done — coverage tracked since (nix .#coverage)
+7. ~~**golangci-lint-action version** — uses `@v6` (tag, not SHA)~~ done at `3e83134`
 
 ---
 
@@ -144,9 +144,9 @@ Session started with a full buildflow run showing **3 hard failures** and **42 g
 
 ### Critical (blocking clean build/lint)
 
-1. Fix 12 new golangci-lint issues introduced by daemon
-2. Remove unnecessary `//nolint:forbidigo` on `fmt.Fprintf(os.Stderr, ...)` calls
-3. Fix `pattern_helpers_test.go` package name → `humanizelint_test`
+1. ~~Fix 12 new golangci-lint issues introduced by daemon~~ done at `2ac66b6`
+2. ~~Remove unnecessary `//nolint:forbidigo` on `fmt.Fprintf(os.Stderr, ...)` calls~~ done at `380243f`
+3. ~~Fix `pattern_helpers_test.go` package name → `humanizelint_test`~~ done — superseded — testpackage linter satisfied via //nolint:testpackage white-box convention
 4. Fix `gci` formatting in `cmd/go-humanize-linter/main.go`
 5. Use `strings.SplitSeq` in `noLintList`
 6. Add `tc` to varnamelen ignore-names OR rename to `testCase`

@@ -137,79 +137,79 @@ Suppression-verification findings have `ConfidenceHigh` (0.75). If a user sets `
 
 ### Immediate (fix what's broken)
 
-1. Fix `findingToTokenPos` panic on out-of-range line numbers.
-2. Exclude H0SUP findings from confidence filtering in `runDetector`.
-3. Investigate and remove/deprecate `RunOverPackage` if dead code.
-4. Fix CHANGELOG.md line 18 stale reference to `parseConfidenceLevel()`.
-5. Run `nix fmt` to ensure formatting compliance.
+1. ~~Fix `findingToTokenPos` panic on out-of-range line numbers.~~ done at `1382e6d`
+2. ~~Exclude H0SUP findings from confidence filtering in `runDetector`.~~ done at `da59184`
+3. ~~Investigate and remove/deprecate `RunOverPackage` if dead code.~~ done at `46f0871`
+4. ~~Fix CHANGELOG.md line 18 stale reference to `parseConfidenceLevel()`.~~ done at `0afc4c2`
+5. ~~Run `nix fmt` to ensure formatting compliance.~~ done at `1b3e355`
 
 ### Testing (close the gaps)
 
-6. Write `TestRunDetector_FiltersByConfidence` — integration test via analysistest.
-7. Write `TestRunDetector_VerifySuppressions` — integration test via analysistest.
-8. Write `TestFindingToTokenPos_OutOfRangeLine` — panic-recovery test.
-9. Update `TestAnalyzerAnalysistest` to cover confidence filtering.
-10. Update `TestAnalyzerAnalysistest` to cover suppression verification.
-11. Run `nix run .#coverage` and update FEATURES.md coverage numbers.
-12. Add `TestRunDetector_MinConfidenceFiltersH0SUP` or verify H0SUP bypass.
-13. Test plugin with `minConfidence: "full"` and `verifySuppressions: true` together.
+6. ~~Write `TestRunDetector_FiltersByConfidence` — integration test via analysistest.~~ done at `27252e1`
+7. ~~Write `TestRunDetector_VerifySuppressions` — integration test via analysistest.~~ done at `27252e1`
+8. ~~Write `TestFindingToTokenPos_OutOfRangeLine` — panic-recovery test.~~ done at `1382e6d`
+9. ~~Update `TestAnalyzerAnalysistest` to cover confidence filtering.~~ done at `27252e1`
+10. ~~Update `TestAnalyzerAnalysistest` to cover suppression verification.~~ done at `27252e1`
+11. ~~Run `nix run .#coverage` and update FEATURES.md coverage numbers.~~ done — coverage table maintained through FEATURES refreshes (2026-08-05)
+12. ~~Add `TestRunDetector_MinConfidenceFiltersH0SUP` or verify H0SUP bypass.~~ done at `da59184`
+13. ~~Test plugin with `minConfidence: "full"` and `verifySuppressions: true` together.~~ done at `3f6e48d`
 
 ### Plugin verification
 
-14. Build `custom-gcl` binary via `golangci-lint custom`.
-15. Create a test project with known humanize reimplementations and `//nolint` directives.
-16. Run `custom-gcl` with `minConfidence: medium` and verify filtering.
-17. Run `custom-gcl` with `verifySuppressions: true` and verify H0SUP diagnostics.
-18. Verify golangci-lint reports at the finding position (not func decl).
+14. ~~Build `custom-gcl` binary via `golangci-lint custom`.~~ done at `2532263`
+15. ~~Create a test project with known humanize reimplementations and `//nolint` directives.~~ done — test project fixtures in testdata/ + TestCustomGCLIntegration
+16. ~~Run `custom-gcl` with `minConfidence: medium` and verify filtering.~~ done at `3f6e48d`
+17. ~~Run `custom-gcl` with `verifySuppressions: true` and verify H0SUP diagnostics.~~ done at `3f6e48d`
+18. ~~Verify golangci-lint reports at the finding position (not func decl).~~ done at `85457dd`
 
 ### Corpus sweep with new features
 
-19. Run `--verify-suppressions` against all 29 sibling projects.
-20. Run `--min-confidence high` against all 29 sibling projects.
-21. Compare findings count with vs without `--min-confidence`.
-22. Identify projects with stale `//nolint` directives.
-23. Identify projects with misspelled linter names.
-24. Document sweep results in `docs/validation/`.
+19. ~~Run `--verify-suppressions` against all 29 sibling projects.~~ done — T2 sweep ran --verify-suppressions across the corpus (99b93cf)
+20. ~~Run `--min-confidence high` against all 29 sibling projects.~~ done — T2 sweep (99b93cf)
+21. ~~Compare findings count with vs without `--min-confidence`.~~ done — T2 sweep compared thresholds (99b93cf)
+22. ~~Identify projects with stale `//nolint` directives.~~ done — 3 stale directives found (99b93cf)
+23. ~~Identify projects with misspelled linter names.~~ done — misspelled names detected (99b93cf)
+24. ~~Document sweep results in `docs/validation/`.~~ done at `99b93cf`
 
 ### Downstream fixes
 
-25. Fix 7 broken downstream projects with incorrect `//nolint` directives.
-26. Verify fixes pass `--verify-suppressions`.
-27. Create PRs or patches for each project.
+25. ~~Fix 7 broken downstream projects with incorrect `//nolint` directives.~~ **Won't implement — declined 2026-09-19 — consumer repos frozen as demo corpus.**
+26. ~~Verify fixes pass `--verify-suppressions`.~~ **Won't implement — same.**
+27. ~~Create PRs or patches for each project.~~ **Won't implement — same.**
 
 ### Release preparation
 
-28. Push all commits to `origin/main`.
-29. Tag `v0.2.0`.
-30. Run the release workflow.
-31. Update GitHub release notes.
-32. Verify `go install github.com/larsartmann/go-humanize-linter/cmd/go-humanize-linter@v0.2.0` works.
-33. Verify `golangci-lint custom` works with the released version.
+28. ~~Push all commits to `origin/main`.~~ done — pushed well before v0.2.0
+29. ~~Tag `v0.2.0`.~~ done at `19bdd44`
+30. ~~Run the release workflow.~~ done at `c72a1a7`
+31. ~~Update GitHub release notes.~~ done at `b1d633a`
+32. ~~Verify `go install github.com/larsartmann/go-humanize-linter/cmd/go-humanize-linter@v0.2.0` works.~~ done — verified again for v0.4.0 (2026-09-19 session)
+33. ~~Verify `golangci-lint custom` works with the released version.~~ done — TestCustomGCLIntegration + release verification
 
 ### Future improvements (from TODO_LIST)
 
-34. **T19: Per-statement suppression** — allow `//nolint:gohumanize:H001` on individual statements.
-35. **T20: `--behavior-delta` flag** — show what code would change if go-humanize were adopted.
-36. **T21: Propose `ExitCodeFromReportConfidence` upstream** — to go-linter-sdk.
-37. **T1: Release v0.2.0** — tag + workflow.
-38. **T2: Full corpus sweep** — all 9 rules + new features.
-39. **T14-T18:** Various prior TODO items.
+34. ~~**T19: Per-statement suppression** — allow `//nolint:gohumanize:H001` on individual statements.~~ done at `6e2988b`
+35. ~~**T20: `--behavior-delta` flag** — show what code would change if go-humanize were adopted.~~ done at `f0ddb98`
+36. ~~**T21: Propose `ExitCodeFromReportConfidence` upstream** — to go-linter-sdk.~~ done at `22d0572`
+37. ~~**T1: Release v0.2.0** — tag + workflow.~~ done at `19bdd44`
+38. ~~**T2: Full corpus sweep** — all 9 rules + new features.~~ done at `99b93cf`
+39. ~~**T14-T18:** Various prior TODO items.~~ done — resolved — T15 done (2532263), T16 done (f8c08c3), T17 done (fdc9360), T18 declined 2026-09-19
 
 ### Documentation
 
-40. Update AGENTS.md gotcha about `findingToTokenPos` panic protection (once fixed).
-41. Document the H0SUP bypass behavior in ADR 0002.
-42. Add a plugin settings reference table to plugin.go doc comment.
-43. Update README.md with plugin settings guide (if applicable).
-44. Create a plugin quick-start guide for golangci-lint users.
-45. Document the `tokenFiles` map pattern for other plugin developers.
+40. ~~Update AGENTS.md gotcha about `findingToTokenPos` panic protection (once fixed).~~ done — AGENTS documents the LineCount guard
+41. ~~Document the H0SUP bypass behavior in ADR 0002.~~ done — documented — CHANGELOG 0.2.0 + AGENTS (ADR 0007 written 2026-09-26)
+42. ~~Add a plugin settings reference table to plugin.go doc comment.~~ done at `85457dd`
+43. ~~Update README.md with plugin settings guide (if applicable).~~ done — covered — .golangci.custom.yml example + plugin.go guide
+44. ~~Create a plugin quick-start guide for golangci-lint users.~~ **Won't implement — not adopted — plugin.go integration guide is the artifact.**
+45. ~~Document the `tokenFiles` map pattern for other plugin developers.~~ **Won't implement — not adopted.**
 
 ### Code quality
 
-46. Consider extracting the collect-filter-report pattern into a shared helper.
-47. Consider whether `analyzeHumanize` should support settings (currently standalone-only).
-48. Add benchmark test for `runDetector` with large packages.
-49. Review whether `findingToTokenPos` belongs in the plugin package or should be shared.
+46. ~~Consider extracting the collect-filter-report pattern into a shared helper.~~ **Won't implement — not adopted.**
+47. ~~Consider whether `analyzeHumanize` should support settings (currently standalone-only).~~ done — by design — documented standalone-only
+48. ~~Add benchmark test for `runDetector` with large packages.~~ **Won't implement — not adopted.**
+49. ~~Review whether `findingToTokenPos` belongs in the plugin package or should be shared.~~ **Won't implement — kept in the plugin package.**
 50. Consider adding a `//nolint:gohumanize` lint rule to the linter itself (dogfooding).
 
 ---

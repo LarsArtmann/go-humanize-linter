@@ -201,65 +201,65 @@ Prioritized by Pareto impact (prevent the most AI damage with the least effort f
 
 ### Immediate (today — high leverage, small change)
 
-1. **Push the `AI-Speed-Test` `pattern_comma.go` fix** to `origin/main` (2 commits ahead).
-2. **Update H004 suggestion text** to reference `github.com/dustin/go-humanize/english.PluralWord` and `english.Plural`.
-3. **Add a regression test** for `//nolint` unknown linter names (`go-humanize-linter` should warn).
-4. **Add `--verify-suppressions` flag** to the CLI that reports directives suppressing zero findings.
-5. **Add a test** for `--verify-suppressions` on the `file-and-image-renamer` wrong-directive case.
-6. **Fix the `BuildFlow` compilation bug** (replace `humanize.SIWithDigits` with `english.PluralWord`) — this is a downstream obligation caused by the linter.
-7. **Fix the `file-and-image-renamer` wrong directive** by committing the corrected `//nolint:gohumanize:H003`.
-8. **Fix `golangci-lint-auto-configure` H004** using `english.PluralWord`.
-9. **Add H001 size-bucket false-positive filter** with a regression test.
-10. **Update rule explanations** (`--explain H004`) to show exact import path and example call.
+1. ~~**Push the `AI-Speed-Test` `pattern_comma.go` fix** to `origin/main` (2 commits ahead).~~ done — pushed well before v0.2.0
+2. ~~**Update H004 suggestion text** to reference `github.com/dustin/go-humanize/english.PluralWord` and `english.Plural`.~~ done at `3dc2711`
+3. ~~**Add a regression test** for `//nolint` unknown linter names (`go-humanize-linter` should warn).~~ done at `27252e1`
+4. ~~**Add `--verify-suppressions` flag** to the CLI that reports directives suppressing zero findings.~~ done at `f588e38`
+5. ~~**Add a test** for `--verify-suppressions` on the `file-and-image-renamer` wrong-directive case.~~ done at `27252e1`
+6. ~~**Fix the `BuildFlow` compilation bug** (replace `humanize.SIWithDigits` with `english.PluralWord`) — this is a downstream obligation caused by the linter.~~ **Won't implement — foreign-repo fix never executed in any recorded session; the linter-side root cause (H004 text) shipped at 3dc2711.**
+7. ~~**Fix the `file-and-image-renamer` wrong directive** by committing the corrected `//nolint:gohumanize:H003`.~~ **Won't implement — same — foreign repo untouched; --verify-suppressions now catches the wrong directive (f588e38).**
+8. ~~**Fix `golangci-lint-auto-configure` H004** using `english.PluralWord`.~~ **Won't implement — same — foreign repo untouched; correct suggestion shipped at 3dc2711.**
+9. ~~**Add H001 size-bucket false-positive filter** with a regression test.~~ done at `ab9544a`
+10. ~~**Update rule explanations** (`--explain H004`) to show exact import path and example call.~~ done at `3dc2711`
 
 ### Short-term (this week)
 
-11. Add `--min-confidence` flag and confidence-aware exit codes.
-12. Add per-statement suppression support (return specific `token.Pos` from detectors).
-13. Add `--behavior-delta` / `--strict-compat` warning for output-changing replacements.
-14. Add `--verify-config` mode for `.go-humanize-linter.yml`.
-15. Update `AGENTS.md` with a new "Preventing AI Mistakes" section summarizing the 8 improvements.
-16. Update `CHANGELOG.md` under `[Unreleased]` for the H002/H009 false-positive fix and H004 suggestion correction.
-17. Update `FEATURES.md` to mention suppression verification and confidence-aware exit codes.
-18. Update `TODO_LIST.md` with the 7 broken downstream projects as blockers.
-19. Add a `docs/adr/0002-suppression-verification.md` explaining why suppression verification is necessary.
-20. Add a `docs/adr/0003-confidence-exit-codes.md` for confidence-aware CI behavior.
-21. Run `nix run .#test` and `nix run .#test-race` after each change.
-22. Run `nix run .#lint` and fix the 3 pre-existing findings (`funlen`, `godox`, `golines`).
-23. Add testdata fixtures for every new false-positive class.
-24. Add an integration test that runs the linter against a synthetic repo containing each AI mistake pattern.
-25. Add a `docs/status/2026-08-05_04-28_linter-improvements-followup.md` once implementation starts.
+11. ~~Add `--min-confidence` flag and confidence-aware exit codes.~~ done at `f588e38`
+12. ~~Add per-statement suppression support (return specific `token.Pos` from detectors).~~ done at `6e2988b`
+13. ~~Add `--behavior-delta` / `--strict-compat` warning for output-changing replacements.~~ done at `f0ddb98`
+14. ~~Add `--verify-config` mode for `.go-humanize-linter.yml`.~~ **Won't implement — not adopted.**
+15. ~~Update `AGENTS.md` with a new "Preventing AI Mistakes" section summarizing the 8 improvements.~~ done — covered by continuous AGENTS.md updates through v0.4.0
+16. ~~Update `CHANGELOG.md` under `[Unreleased]` for the H002/H009 false-positive fix and H004 suggestion correction.~~ done at `ff0bb21`
+17. ~~Update `FEATURES.md` to mention suppression verification and confidence-aware exit codes.~~ done at `bfddd5d`
+18. ~~Update `TODO_LIST.md` with the 7 broken downstream projects as blockers.~~ **Won't implement — declined 2026-09-19 — consumer repos are the demonstration corpus.**
+19. ~~Add a `docs/adr/0002-suppression-verification.md` explaining why suppression verification is necessary.~~ done at `5eaf3d6`
+20. ~~Add a `docs/adr/0003-confidence-exit-codes.md` for confidence-aware CI behavior.~~ done at `5eaf3d6`
+21. ~~Run `nix run .#test` and `nix run .#test-race` after each change.~~ done — standing practice (nix run .#test / .#test-race)
+22. ~~Run `nix run .#lint` and fix the 3 pre-existing findings (`funlen`, `godox`, `golines`).~~ done at `2ac66b6`
+23. ~~Add testdata fixtures for every new false-positive class.~~ done — every fixed FP class shipped with a negative fixture
+24. ~~Add an integration test that runs the linter against a synthetic repo containing each AI mistake pattern.~~ done — covered by testdata fixtures + analysistest suites
+25. ~~Add a `docs/status/2026-08-05_04-28_linter-improvements-followup.md` once implementation starts.~~ done — covered by the 05-25 implementation report
 
 ### Medium-term (next sprint)
 
-26. Implement the project-level consistency check (SI vs IEC, duplicated helpers).
-27. Add a `go-humanize-linter doctor` subcommand that audits downstream project health.
-28. Add a `--fix` mode that proposes exact replacements (with choice of SI/IEC for H001).
-29. Improve H005 detection to distinguish true SI-prefix output from ms conversion.
-30. Add a rule for obviously-wrong humanize API usage (e.g. `humanize.SIWithDigits` where the result is used as a plural suffix).
-31. Add corpus-wide regression test: run the linter against all sibling projects and assert no new false positives.
-32. Add a `mise`/`task` target that runs the linter against all sibling projects.
-33. Pin the linter binary location in sibling projects (replace `/tmp/go-humanize-linter` with a Nix flake app or committed tool).
-34. Add CI integration examples to `action.yml` and `.github/workflows/ci.yml`.
-35. Document the correct `//nolint:gohumanize[:Hxxx]` syntax in every rule doc (`docs/rules/H001.md`–`H009.md`).
-36. Add a `--list-suppressions` mode that shows all active `//nolint:gohumanize` directives.
-37. Add a `--stats` mode that reports rule hit counts and confidence distribution.
-38. Add a `golangci-lint` custom-lint verification step to `nix run .#custom-lint`.
-39. Investigate why H003 reports function position instead of the `time.Since` call site; fix if low-effort.
-40. Add a test that the CLI exits 0 with zero findings (regression for the reported exit-code bug).
+26. ~~Implement the project-level consistency check (SI vs IEC, duplicated helpers).~~ done — in ROADMAP (project-level consistency check)
+27. ~~Add a `go-humanize-linter doctor` subcommand that audits downstream project health.~~ **Won't implement — not adopted.**
+28. ~~Add a `--fix` mode that proposes exact replacements (with choice of SI/IEC for H001).~~ done — in ROADMAP (auto-fix via go-finding FixEngine)
+29. ~~Improve H005 detection to distinguish true SI-prefix output from ms conversion.~~ **Won't implement — not adopted — H005 signals unchanged since.**
+30. ~~Add a rule for obviously-wrong humanize API usage (e.g. `humanize.SIWithDigits` where the result is used as a plural suffix).~~ **Won't implement — out of scope (answered in the Resolution: stays a ROADMAP idea at most).**
+31. ~~Add corpus-wide regression test: run the linter against all sibling projects and assert no new false positives.~~ done — corpus sweeps (07-31/08-10/09-18) serve this role
+32. ~~Add a `mise`/`task` target that runs the linter against all sibling projects.~~ **Won't implement — not adopted — flake.nix owns automation.**
+33. ~~Pin the linter binary location in sibling projects (replace `/tmp/go-humanize-linter` with a Nix flake app or committed tool).~~ **Won't implement — declined 2026-09-19 (consumer repos frozen).**
+34. ~~Add CI integration examples to `action.yml` and `.github/workflows/ci.yml`.~~ done — action.yml documents all inputs
+35. ~~Document the correct `//nolint:gohumanize[:Hxxx]` syntax in every rule doc (`docs/rules/H001.md`–`H009.md`).~~ done at `8db4313`
+36. ~~Add a `--list-suppressions` mode that shows all active `//nolint:gohumanize` directives.~~ **Won't implement — not adopted.**
+37. ~~Add a `--stats` mode that reports rule hit counts and confidence distribution.~~ **Won't implement — not adopted.**
+38. ~~Add a `golangci-lint` custom-lint verification step to `nix run .#custom-lint`.~~ done — nix run .#custom-lint exists in flake.nix
+39. ~~Investigate why H003 reports function position instead of the `time.Since` call site; fix if low-effort.~~ done — in ROADMAP (per-line diagnostics)
+40. ~~Add a test that the CLI exits 0 with zero findings (regression for the reported exit-code bug).~~ done at `27252e1`
 
 ### Long-term / architectural
 
-41. Refactor detectors to return a `token.Pos` + message pair instead of a whole-function finding.
-42. Split `pattern_helpers.go` into `suppression.go`, `finding_builder.go`, and `pattern_imports.go`.
-43. Consider a second-order rule: "function contains both `humanize.Bytes` and `humanize.IBytes` callers — pick one".
-44. Consider an import-graph rule: "module depends on `dustin/go-humanize` but still has H001-H009 findings".
-45. Add a "migration audit" report format that shows before/after output strings for every H001 finding.
-46. Add a public `SuggestFix(ruleID, signals)` API so the CLI and plugin can share fix suggestions.
-47. Evaluate whether the linter should ship as a `golangci-lint` bundled linter via a PR upstream instead of a module plugin.
-48. Add a sibling-project CI matrix that runs the latest linter against representative repos nightly.
-49. Write a case-study doc (`docs/case-studies/ai-mistakes-2026-08-05.md`) using the 29 reports as evidence.
-50. Schedule a brutal-self-review of the linter once the improvements are merged.
+41. ~~Refactor detectors to return a `token.Pos` + message pair instead of a whole-function finding.~~ done — in ROADMAP (per-line diagnostics)
+42. ~~Split `pattern_helpers.go` into `suppression.go`, `finding_builder.go`, and `pattern_imports.go`.~~ done — partially — suppression.go and confidence.go extracted; the rest of pattern_helpers.go kept
+43. ~~Consider a second-order rule: "function contains both `humanize.Bytes` and `humanize.IBytes` callers — pick one".~~ **Won't implement — not adopted.**
+44. ~~Consider an import-graph rule: "module depends on `dustin/go-humanize` but still has H001-H009 findings".~~ **Won't implement — not adopted.**
+45. ~~Add a "migration audit" report format that shows before/after output strings for every H001 finding.~~ **Won't implement — not adopted.**
+46. ~~Add a public `SuggestFix(ruleID, signals)` API so the CLI and plugin can share fix suggestions.~~ **Won't implement — not adopted.**
+47. ~~Evaluate whether the linter should ship as a `golangci-lint` bundled linter via a PR upstream instead of a module plugin.~~ **Won't implement — not pursued — module plugin shipped instead (v0.2.0).**
+48. ~~Add a sibling-project CI matrix that runs the latest linter against representative repos nightly.~~ **Won't implement — not adopted — TODO_LIST T40 (weekly self-scan + sweep ritual) is the lightweight successor.**
+49. ~~Write a case-study doc (`docs/case-studies/ai-mistakes-2026-08-05.md`) using the 29 reports as evidence.~~ **Won't implement — not adopted.**
+50. ~~Schedule a brutal-self-review of the linter once the improvements are merged.~~ done — multiple honest-assessment sessions (08-11, 09-14, 10-44 reports)
 
 ---
 

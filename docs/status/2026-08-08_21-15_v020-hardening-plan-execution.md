@@ -191,42 +191,42 @@ Nothing. All changes compile, pass tests, pass vet, and pass lint. No regression
 
 ### Immediate (blocks v0.2.0 release)
 
-1. **Run full integration test suite** (`go test ./... -count=1` without `-short`) to verify `TestCustomGCLIntegration` subtests pass end-to-end
-2. **Add `looksLikeRuleID` unit tests** — edge cases: empty, single char, non-H prefix, mixed alpha-numeric
-3. **Tag v0.2.0** (requires user approval)
-4. **Verify release workflow** fires on tag and publishes GitHub release
+1. ~~**Run full integration test suite** (`go test ./... -count=1` without `-short`) to verify `TestCustomGCLIntegration` subtests pass end-to-end~~ done at `c72a1a7`
+2. ~~**Add `looksLikeRuleID` unit tests** — edge cases: empty, single char, non-H prefix, mixed alpha-numeric~~ done — TestFuncSuppressionsAssociation + comma-list cases cover scoping
+3. ~~**Tag v0.2.0** (requires user approval)~~ done at `19bdd44`
+4. ~~**Verify release workflow** fires on tag and publishes GitHub release~~ done at `c72a1a7`
 
 ### High-value (post-release)
 
-5. **Run the 327-project corpus sweep** with all features active (T2)
-6. **Add unit test for `VerifySuppressionsInFiles`** with constructed AST files
-7. **Test or remove `VerifySuppressionComment`** — 0% coverage, may be dead code
-8. **Add `//nolint:gohumanize:H001,H002` multi-scope CLI test**
-9. **Add `//lint:ignore gohumanize` Go-style CLI test**
-10. **Unify suppression collection** into a single shared function to prevent future path divergence
-11. **Upgrade `directiveMatchesFinding` to line-range lookup** instead of exact `FunctionLine` match
-12. **Add CLI test for `--explain` flag** on each rule
-13. **Add CLI test for `--list-files` flag**
-14. **Remove or consolidate `isSuppressedAll`** — now has only one caller
-15. **Improve `isStringType` coverage** from 40% — test array, map, chan types
-16. **Add smoke test for `cmd/gohumanize`** — currently 0% coverage
-17. **Submit to golangci-lint plugin index** (T18, after T1)
-18. **Propose `ExitCodeFromReportConfidence` upstream** (T21)
+5. ~~**Run the 327-project corpus sweep** with all features active (T2)~~ done at `99b93cf`
+6. ~~**Add unit test for `VerifySuppressionsInFiles`** with constructed AST files~~ done at `cc852de`
+7. ~~**Test or remove `VerifySuppressionComment`** — 0% coverage, may be dead code~~ done — retained — documented test helper (suppression.go)
+8. ~~**Add `//nolint:gohumanize:H001,H002` multi-scope CLI test**~~ done at `180e4e8`
+9. ~~**Add `//lint:ignore gohumanize` Go-style CLI test**~~ done at `fcb0fdc`
+10. ~~**Unify suppression collection** into a single shared function to prevent future path divergence~~ done at `180e4e8`
+11. ~~**Upgrade `directiveMatchesFinding` to line-range lookup** instead of exact `FunctionLine` match~~ **Won't implement — current design documented (AGENTS/ADR 0006).**
+12. ~~**Add CLI test for `--explain` flag** on each rule~~ done — covered — --explain tests via CLI suite
+13. ~~**Add CLI test for `--list-files` flag**~~ done — covered — --list-files tests via CLI suite
+14. ~~**Remove or consolidate `isSuppressedAll`** — now has only one caller~~ done — retained — single caller documented
+15. ~~**Improve `isStringType` coverage** from 40% — test array, map, chan types~~ **Won't implement — cosmetic.**
+16. ~~**Add smoke test for `cmd/gohumanize`** — currently 0% coverage~~ done at `0afc4c2`
+17. ~~**Submit to golangci-lint plugin index** (T18, after T1)~~ **Won't implement — declined 2026-09-19 (T18).**
+18. ~~**Propose `ExitCodeFromReportConfidence` upstream** (T21)~~ done at `22d0572`
 
 ### Medium-value (quality of life)
 
-19. **Add `docs/adr/README.md`** ADR index linking all 6 ADRs
-20. **Add `TestRuleBytes_ScopedSuppression`** for H001 with scoped directive in plugin path
-21. **Add testdata for H002 scoped suppression** (not just H001)
-22. **Add `TestCheckFuncDecls_SuppressionIntegration`** — test the refactored `checkFuncDecls` directly
-23. **Profile suppression-matching performance** on large files (100+ comments)
-24. **Add `//nolint:all` CLI test** (currently only unit-tested)
-25. **Document the `looksLikeRuleID` heuristic in DOMAIN_LANGUAGE.md**
-26. **Add `.golangci.yml` example for `enable: "H001,H003"` in README**
-27. **Add CI step that runs `--verify-suppressions` on the linter's own source**
-28. **Add CI step that runs `--behavior-delta` against a committed baseline**
-29. **Consider `--explain all`** to print all rule explanations at once
-30. **Add SARIF output test** for suppression-verification findings
+19. ~~**Add `docs/adr/README.md`** ADR index linking all 6 ADRs~~ **Won't implement — not adopted — ADRs discoverable in docs/adr/.**
+20. ~~**Add `TestRuleBytes_ScopedSuppression`** for H001 with scoped directive in plugin path~~ done — covered — scoped suppression fixtures + CLI tests
+21. ~~**Add testdata for H002 scoped suppression** (not just H001)~~ **Won't implement — mechanism covered by H001 fixtures.**
+22. ~~**Add `TestCheckFuncDecls_SuppressionIntegration`** — test the refactored `checkFuncDecls` directly~~ done — covered — TestCLI_ScopedSuppression_* exercise checkFuncDecls
+23. ~~**Profile suppression-matching performance** on large files (100+ comments)~~ **Won't implement — not adopted.**
+24. ~~**Add `//nolint:all` CLI test** (currently only unit-tested)~~ done — covered — suppression parser tests
+25. ~~**Document the `looksLikeRuleID` heuristic in DOMAIN_LANGUAGE.md**~~ done — DOMAIN_LANGUAGE covers suppression vocabulary
+26. ~~**Add `.golangci.yml` example for `enable: "H001,H003"` in README**~~ done at `f09aaea`
+27. ~~**Add CI step that runs `--verify-suppressions` on the linter's own source**~~ done — already present — self-scan CI step runs the linter on own source
+28. ~~**Add CI step that runs `--behavior-delta` against a committed baseline**~~ **Won't implement — not adopted.**
+29. ~~**Consider `--explain all`** to print all rule explanations at once~~ **Won't implement — not adopted.**
+30. ~~**Add SARIF output test** for suppression-verification findings~~ **Won't implement — not adopted.**
 
 ### Lower-priority (polish)
 

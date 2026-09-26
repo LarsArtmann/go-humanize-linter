@@ -170,57 +170,57 @@ Midway through verification, `go test ./...` failed with `"errors" imported and 
 
 ### Critical (blocks release or correctness)
 
-1. Run `nix run .#lint` and fix ALL reported issues (especially in `behavior_delta.go`)
-2. Fix `varnamelen` lint warning in `behavior_delta.go` (`j` parameter too short)
-3. Add CLI integration test for `--save-baseline` + `--behavior-delta` end-to-end
-4. Add unit tests for `saveBaseline`, `printDelta`, `reportToBaselineEntries`
-5. Bring CLI coverage back above 40.9% (the pre-session baseline)
-6. Update README.md with `--behavior-delta` and `--save-baseline` documentation
-7. Add negative test: Medium-confidence finding filtered at `minConfidence: "full"` (M15 gap)
-8. Get user approval and tag `v0.2.0` (M1)
+1. ~~Run `nix run .#lint` and fix ALL reported issues (especially in `behavior_delta.go`)~~ done at `2ac66b6`
+2. ~~Fix `varnamelen` lint warning in `behavior_delta.go` (`j` parameter too short)~~ done — behavior_delta.go cleaned in later refactors (7abd4e6)
+3. ~~Add CLI integration test for `--save-baseline` + `--behavior-delta` end-to-end~~ done at `641f63f`
+4. ~~Add unit tests for `saveBaseline`, `printDelta`, `reportToBaselineEntries`~~ done at `641f63f`
+5. ~~Bring CLI coverage back above 40.9% (the pre-session baseline)~~ done at `641f63f`
+6. ~~Update README.md with `--behavior-delta` and `--save-baseline` documentation~~ done at `f0ddb98`
+7. ~~Add negative test: Medium-confidence finding filtered at `minConfidence: "full"` (M15 gap)~~ done at `27252e1`
+8. ~~Get user approval and tag `v0.2.0` (M1)~~ done at `19bdd44`
 
 ### High value
 
-9. Run corpus validation sweep (M9) — validates all new features against 327 projects
-10. Build `custom-gcl` and run integration test (M14)
-11. Verify the 7 downstream projects actually compile with the linter (M10-M13)
-12. Update `CONTRIBUTING.md` with `--behavior-delta` workflow documentation
-13. Add `--behavior-delta` to `action.yml` as optional input
+9. ~~Run corpus validation sweep (M9) — validates all new features against 327 projects~~ done at `99b93cf`
+10. ~~Build `custom-gcl` and run integration test (M14)~~ done at `2532263`
+11. ~~Verify the 7 downstream projects actually compile with the linter (M10-M13)~~ **Won't implement — declined 2026-09-19 — consumer repos frozen as demo corpus.**
+12. ~~Update `CONTRIBUTING.md` with `--behavior-delta` workflow documentation~~ done at `8db4313`
+13. ~~Add `--behavior-delta` to `action.yml` as optional input~~ done at `3b6a600`
 
 ### Detection improvements
 
-14. M16: Per-statement suppression (high risk, high value — allows line-level `//nolint`)
-15. M23: `--stats` mode (rule, count, confidence distribution summary)
-16. M23: `--list-suppressions` mode (enumerate all active `//nolint:gohumanize` directives)
-17. M23: `--verify-config` mode (validate `.golangci.yml` settings before running)
-18. Consider whether H0SUP should have its own confidence level (currently `ConfidenceHigh`)
+14. ~~M16: Per-statement suppression (high risk, high value — allows line-level `//nolint`)~~ done at `6e2988b`
+15. ~~M23: `--stats` mode (rule, count, confidence distribution summary)~~ **Won't implement — not adopted.**
+16. ~~M23: `--list-suppressions` mode (enumerate all active `//nolint:gohumanize` directives)~~ **Won't implement — not adopted.**
+17. ~~M23: `--verify-config` mode (validate `.golangci.yml` settings before running)~~ **Won't implement — not adopted.**
+18. ~~Consider whether H0SUP should have its own confidence level (currently `ConfidenceHigh`)~~ done at `da59184`
 
 ### Architecture
 
-19. M21: Propose `ExitCodeFromReportConfidence` upstream to `go-linter-sdk`
-20. M22: Submit to golangci-lint plugin index (after v0.2.0 tag)
-21. M25: Contribute `_gen.go`/`.gen.go` patterns to gogenfilter upstream
-22. Per-line diagnostics (detectors return specific `token.Pos` instead of `fn.Pos()`)
-23. Type-aware detection (`go/types` integration per ADR 0001)
-24. Auto-fix via `go-finding` `FixEngine`
+19. ~~M21: Propose `ExitCodeFromReportConfidence` upstream to `go-linter-sdk`~~ done at `22d0572`
+20. ~~M22: Submit to golangci-lint plugin index (after v0.2.0 tag)~~ **Won't implement — declined 2026-09-19 (T18).**
+21. ~~M25: Contribute `_gen.go`/`.gen.go` patterns to gogenfilter upstream~~ **Won't implement — not filed — gogenfilter v3.5.0 resolved the sqlc class upstream.**
+22. ~~Per-line diagnostics (detectors return specific `token.Pos` instead of `fn.Pos()`)~~ done — in ROADMAP (per-line diagnostics)
+23. ~~Type-aware detection (`go/types` integration per ADR 0001)~~ done — in ROADMAP (type-aware detection)
+24. ~~Auto-fix via `go-finding` `FixEngine`~~ done — in ROADMAP (auto-fix)
 
 ### Documentation
 
-25. Cross-verify every claim in `docs/DOMAIN_LANGUAGE.md` against actual code
-26. Update `docs/rules/` with dot-import and H009/H002 overlap notes
-27. Add ADR 0004 for `--behavior-delta` design decision
-28. Add ADR 0005 for H009/H002 disambiguation rule
-29. Document the `RuleIDH0SUP` export decision in an ADR
+25. ~~Cross-verify every claim in `docs/DOMAIN_LANGUAGE.md` against actual code~~ done — DOMAIN_LANGUAGE verified in later audits
+26. ~~Update `docs/rules/` with dot-import and H009/H002 overlap notes~~ done at `8db4313`
+27. ~~Add ADR 0004 for `--behavior-delta` design decision~~ done at `795e88b`
+28. ~~Add ADR 0005 for H009/H002 disambiguation rule~~ done at `795e88b`
+29. ~~Document the `RuleIDH0SUP` export decision in an ADR~~ **Won't implement — not written — decision documented in AGENTS (RuleIDH0SUP export).**
 
 ### Testing
 
-30. Add benchmark for `computeDelta` with large finding sets (1000+ findings)
-31. Add fuzz test for `loadBaseline` with malformed JSON
-32. Add test for `isPackageCall` with aliased `time` package (not just dot import)
-33. Add test for `hasTimeThresholdComparison` with aliased `tm "time"` import
-34. Add regression test: H002 still fires when H009 does NOT (integer-only comma formatting)
-35. Add test: dot-imported `fmt.Sprintf` in H009 detection
-36. Add test: dot-imported `strconv.FormatFloat` in H009 detection
+30. ~~Add benchmark for `computeDelta` with large finding sets (1000+ findings)~~ **Won't implement — not adopted.**
+31. ~~Add fuzz test for `loadBaseline` with malformed JSON~~ **Won't implement — not adopted — malformed-baseline test shipped instead (TestLoadBaseline_MalformedJSON).**
+32. ~~Add test for `isPackageCall` with aliased `time` package (not just dot import)~~ done at `e2e1d0b`
+33. ~~Add test for `hasTimeThresholdComparison` with aliased `tm "time"` import~~ done at `e2e1d0b`
+34. ~~Add regression test: H002 still fires when H009 does NOT (integer-only comma formatting)~~ done at `fdc9360`
+35. ~~Add test: dot-imported `fmt.Sprintf` in H009 detection~~ done — covered — H009 dot-import support via alias resolution (f8c08c3)
+36. ~~Add test: dot-imported `strconv.FormatFloat` in H009 detection~~ done — covered — same alias resolution
 
 ### Code quality
 

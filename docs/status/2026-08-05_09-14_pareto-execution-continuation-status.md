@@ -183,63 +183,63 @@ Refactoring `pattern_time.go` into helpers added uncovered code. Core coverage d
 
 ### Critical (blocks release or correctness)
 
-1. Update `FEATURES.md` coverage table (88.1% / 46.9% / 97.1%).
-2. Update `CHANGELOG.md` coverage line.
-3. Get explicit user approval and tag `v0.2.0`.
-4. Investigate why `nix run .#lint` returns exit 1 with no output.
-5. Add dot-import time testdata to restore core coverage to 88.4%+.
+1. ~~Update `FEATURES.md` coverage table (88.1% / 46.9% / 97.1%).~~ done at `1b3e355`
+2. ~~Update `CHANGELOG.md` coverage line.~~ done at `1b3e355`
+3. ~~Get explicit user approval and tag `v0.2.0`.~~ done at `19bdd44`
+4. ~~Investigate why `nix run .#lint` returns exit 1 with no output.~~ done — resolved — silent failure never recurred; lint parity confirmed 2026-09-19
+5. ~~Add dot-import time testdata to restore core coverage to 88.4%+.~~ done at `e2e1d0b`
 
 ### High value
 
-6. Run corpus validation sweep (M9 / T2) with `--min-confidence`, `--verify-suppressions`, and `--behavior-delta` active.
-7. Build `custom-gcl` and add plugin integration test (M14 / T15).
-8. Verify the 7 downstream projects actually compile / lint cleanly (M10–M13).
-9. Update `CONTRIBUTING.md` with `--behavior-delta` workflow documentation.
-10. Add `--save-baseline` / `--behavior-delta` inputs to `action.yml`.
-11. Add ADR for `--behavior-delta` design (rule/file/line comparison key, message text ignored).
-12. Add ADR for H009/H002 disambiguation (suppress H002 when H009 fires).
+6. ~~Run corpus validation sweep (M9 / T2) with `--min-confidence`, `--verify-suppressions`, and `--behavior-delta` active.~~ done at `99b93cf`
+7. ~~Build `custom-gcl` and add plugin integration test (M14 / T15).~~ done at `2532263`
+8. ~~Verify the 7 downstream projects actually compile / lint cleanly (M10–M13).~~ **Won't implement — declined 2026-09-19 — consumer repos frozen.**
+9. ~~Update `CONTRIBUTING.md` with `--behavior-delta` workflow documentation.~~ done at `8db4313`
+10. ~~Add `--save-baseline` / `--behavior-delta` inputs to `action.yml`.~~ done at `3b6a600`
+11. ~~Add ADR for `--behavior-delta` design (rule/file/line comparison key, message text ignored).~~ done at `795e88b`
+12. ~~Add ADR for H009/H002 disambiguation (suppress H002 when H009 fires).~~ done at `795e88b`
 
 ### Detection improvements
 
-13. M16 / T19: Per-statement suppression (line-level `//nolint` matching).
-14. M23 / T20: `--stats` mode (rule count + confidence distribution).
-15. M23 / T20: `--list-suppressions` mode.
-16. M23 / T20: `--verify-config` mode.
-17. Consider whether H0SUP should have configurable confidence instead of always `ConfidenceHigh`.
+13. ~~M16 / T19: Per-statement suppression (line-level `//nolint` matching).~~ done at `6e2988b`
+14. ~~M23 / T20: `--stats` mode (rule count + confidence distribution).~~ **Won't implement — not adopted.**
+15. ~~M23 / T20: `--list-suppressions` mode.~~ **Won't implement — not adopted.**
+16. ~~M23 / T20: `--verify-config` mode.~~ **Won't implement — not adopted.**
+17. ~~Consider whether H0SUP should have configurable confidence instead of always `ConfidenceHigh`.~~ done at `da59184`
 
 ### Architecture / upstream
 
-18. M21 / T21: Propose `ExitCodeFromReportConfidence(report, minConfidence)` upstream to `go-linter-sdk`.
-19. M22 / T18: Submit to golangci-lint plugin index after `v0.2.0` tag.
-20. M25: Contribute `_gen.go`/`.gen.go` patterns to gogenfilter upstream.
+18. ~~M21 / T21: Propose `ExitCodeFromReportConfidence(report, minConfidence)` upstream to `go-linter-sdk`.~~ done at `22d0572`
+19. ~~M22 / T18: Submit to golangci-lint plugin index after `v0.2.0` tag.~~ **Won't implement — declined 2026-09-19 (T18).**
+20. ~~M25: Contribute `_gen.go`/`.gen.go` patterns to gogenfilter upstream.~~ **Won't implement — not filed — v3.5.0 resolved the sqlc class upstream.**
 
 ### Polish
 
-21. Make `printDelta` output machine-readable with a `--format` option for delta.
-22. Add `--baseline` shorthand alias for `--behavior-delta`.
-23. Validate baseline JSON schema on load (reject unknown fields).
-24. Improve `loadBaseline` error messages with file path.
-25. Support baseline merge (union of multiple baselines).
+21. ~~Make `printDelta` output machine-readable with a `--format` option for delta.~~ **Won't implement — not adopted.**
+22. ~~Add `--baseline` shorthand alias for `--behavior-delta`.~~ **Won't implement — not adopted.**
+23. ~~Validate baseline JSON schema on load (reject unknown fields).~~ **Won't implement — not adopted.**
+24. ~~Improve `loadBaseline` error messages with file path.~~ done at `641f63f`
+25. ~~Support baseline merge (union of multiple baselines).~~ done at `641f63f`
 
 ### Testing
 
-26. Add unit test for `runBehaviorDelta` helper directly.
-27. Add unit test for `saveBaselineAndNotify`.
-28. Add unit test for `appendSuppressionFindings`.
-29. Add unit test for `loadConfigRules`.
-30. Add test for malformed baseline JSON.
-31. Add test for baseline file permission 0o600.
+26. ~~Add unit test for `runBehaviorDelta` helper directly.~~ done at `641f63f`
+27. ~~Add unit test for `saveBaselineAndNotify`.~~ done at `641f63f`
+28. ~~Add unit test for `appendSuppressionFindings`.~~ done at `641f63f`
+29. ~~Add unit test for `loadConfigRules`.~~ done at `641f63f`
+30. ~~Add test for malformed baseline JSON.~~ done at `641f63f`
+31. ~~Add test for baseline file permission 0o600.~~ done at `641f63f`
 
 ### Documentation
 
-32. Update `docs/DOMAIN_LANGUAGE.md` with "baseline" and "behavior delta" terms.
-33. Update `AGENTS.md` `runScan()` pipeline description with new helpers.
-34. Add usage example for `--save-baseline` in README CI section.
-35. Document exit-code semantics for `--behavior-delta`.
+32. ~~Update `docs/DOMAIN_LANGUAGE.md` with "baseline" and "behavior delta" terms.~~ done — DOMAIN_LANGUAGE covers baseline/delta terminology
+33. ~~Update `AGENTS.md` `runScan()` pipeline description with new helpers.~~ done — AGENTS documents the runScan pipeline
+34. ~~Add usage example for `--save-baseline` in README CI section.~~ done at `f0ddb98`
+35. ~~Document exit-code semantics for `--behavior-delta`.~~ done at `795e88b`
 
 ### Code quality
 
-36. Rename `behaviorDelta` type to avoid stutter with package name.
+36. ~~Rename `behaviorDelta` type to avoid stutter with package name.~~ **Won't implement — not adopted — naming churn without consumer ask.**
 37. Consider moving `baselineFileMode` to a config/const file if more file modes appear.
 38. Unify `printDelta` header wording with other CLI output.
 39. Refactor `isTimeDurationSelector` boolean ladder into early returns (already done, but verify readability).
