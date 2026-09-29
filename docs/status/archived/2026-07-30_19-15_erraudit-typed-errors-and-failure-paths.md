@@ -162,7 +162,7 @@ None. Net metric: violations 13 → 0 with **real improvements**, not just suppr
 ## Up to 10 Next Tasks (Pareto by impact/effort)
 
 1. ~~**HIGH**: Fix broken `testdata/analysistest/h002positive/main.go` and `h007positive/main.go` fixtures — pre-existing daemon breakage, blocks plugin CI~~ done at `49d30ee`
-2. ~~**MED**: Decide `WalkGoDir` signature change for v0.2.0 — typed return would force external consumers to update, but is the cleanest API~~ **Won't implement — kept  return for v0.1.x compatibility (decided in this report's Resolution).**
+2. ~~**MED**: Decide `WalkGoDir` signature change for v0.2.0 — typed return would force external consumers to update, but is the cleanest API~~ **Won't implement — kept return for v0.1.x compatibility (decided in this report's Resolution).**
 3. ~~**MED**: Add CI integration of `erraudit --violations-only` as advisory step (with `0` exit tolerance for the false-positive suppressions we own)~~ **Won't implement — not adopted — erraudit stays advisory.**
 4. ~~**LOW**: Document `WalkError` and `OutputError` types in `docs/DOMAIN_LANGUAGE.md`~~ done — DOMAIN_LANGUAGE covers the error vocabulary
 5. ~~**LOW**: Bump `go.mod` to `go 1.27` to silence the three `json.Unmarshal` stdversion warnings~~ **Won't implement — superseded — go directive moved to 1.27.1 on 2026-09-19 (b7f00c2), unrelated to gopls warnings.**

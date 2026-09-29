@@ -32,7 +32,7 @@
 
 1. H012 micro-benchmark (H010 has `BenchmarkH010Detector`; H012 has none).
 2. Nested/depth-2 repo sweep support — corpus method scans `~/projects/*` top-level only; `games/KeyCountdown`-style layouts need targeting by hand.
-3. ~~v0.4.0 release — H012 + H010 fixture pack + guards + enrichments all sit in `Unreleased`; nothing ships to users until a tag is cut.~~ done at `6a3267f`, ` e56c535`
+3. ~~v0.4.0 release — H012 + H010 fixture pack + guards + enrichments all sit in `Unreleased`; nothing ships to users until a tag is cut.~~ done at `6a3267f`, `e56c535`
 4. ~~T32 — remove read-only deploy keys from the 4 dependency repos (foreign GitHub settings; ready, untouched).~~ done at `ce52545`
 5. Corpus re-sweep after this morning's gogenfilter v3.6.1 pin (`9c76bd4`) — detection behavior could shift; not re-validated beyond the test suite.
 6. Bumper investigation — declined, offer stands.
@@ -58,7 +58,7 @@ Nothing is left broken. Permanent blemishes, honestly filed:
 
 **Release track**
 
-1. ~~Decide v0.4.0 timing; when cutting: CHANGELOG `Unreleased → 0.4.0`, full go-release phases (tag → release.yml → proxy verify → clean-module `go get` → action.yml bump).~~ done at `6a3267f`, ` e56c535`
+1. ~~Decide v0.4.0 timing; when cutting: CHANGELOG `Unreleased → 0.4.0`, full go-release phases (tag → release.yml → proxy verify → clean-module `go get` → action.yml bump).~~ done at `6a3267f`, `e56c535`
 2. ~~After 0.4.0: verify pkg.go.dev renders H012 + guards and flips "Go to latest".~~ done — verified 2026-09-26: pkg.go.dev renders v0.4.0 (H012 docs, README @v0.4.0)
 3. ~~Decide on a doc-only v0.3.1 for the frozen tag's README `@v0.2.0` Action example — or let 0.4.0 supersede.~~ **Won't implement — superseded by v0.4.0 — verified 2026-09-26 that pkg.go.dev renders the @v0.4.0 README.**
    ~~**Detection/rules track**~~

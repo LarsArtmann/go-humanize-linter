@@ -46,24 +46,24 @@ All 11 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()
 | golangci-lint plugin | FULLY_FUNCTIONAL | `plugin/plugin.go` using `plugin-module-register` v2 module plugin pattern. Configurable enable/disable, `minConfidence`, and `verifySuppressions` via `.golangci.yml` `linters.settings.custom.gohumanize.settings`. Diagnostics at finding position via `findingToTokenPos`. |
 | GitHub Action        | FULLY_FUNCTIONAL | `action.yml` composite Action with inputs: path, enable, disable, format, version                                                                                                                                                                                              |
 | Nix flake            | FULLY_FUNCTIONAL | `test`, `test-race`, `bench`, `build`, `vet`, `lint`, `coverage` apps                                                                                                                                                                                                          |
-| CI workflow          | FULLY_FUNCTIONAL | test (-race) + vet + govulncheck + self-scan + coverage (Codecov) job and golangci-lint job (`.github/workflows/ci.yml`). Versions pinned: `govulncheck@v1.6.0`, `golangci-lint v2.12.2`. Runs red on main since 2026-09-19 — see the go-directive incident note above.                    |
-| Release workflow     | FULLY_FUNCTIONAL | Tag-triggered (`v*` → `.github/workflows/release.yml`); v0.1.0–v0.4.0 released through it. Publishes GitHub Release + linux-amd64 binaries (multi-arch is TODO T39). Curated release notes are mandatory — `--generate-notes` lists PRs only.  |
+| CI workflow          | FULLY_FUNCTIONAL | test (-race) + vet + govulncheck + self-scan + coverage (Codecov) job and golangci-lint job (`.github/workflows/ci.yml`). Versions pinned: `govulncheck@v1.6.0`, `golangci-lint v2.12.2`. Runs red on main since 2026-09-19 — see the go-directive incident note above.        |
+| Release workflow     | FULLY_FUNCTIONAL | Tag-triggered (`v*` → `.github/workflows/release.yml`); v0.1.0–v0.4.0 released through it. Publishes GitHub Release + linux-amd64 binaries (multi-arch is TODO T39). Curated release notes are mandatory — `--generate-notes` lists PRs only.                                  |
 
 ## Detection capabilities
 
-| Feature                          | Status           | Notes                                                                                                                               |
-| -------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Function-scope AST scanning      | FULLY_FUNCTIONAL | All `FuncDecl`s in non-test, non-generated `.go files                                                                               |
-| Package-level var scanning       | FULLY_FUNCTIONAL | H007 detects `var x = map[string]int64{"KB": 1024}` at package scope                                                                |
-| Multi-signal detection           | FULLY_FUNCTIONAL | Every rule requires 2+ corroborating signals                                                                                        |
-| Word-boundary regex              | FULLY_FUNCTIONAL | Prevents false positives like "MEDIUMBLOB" matching "MB"                                                                            |
-| Underscore digit normalization   | FULLY_FUNCTIONAL | `normLit()` strips `1_000_000` → `1000000`                                                                                          |
-| Named constant detection         | FULLY_FUNCTIONAL | `hasConst1024` finds `const unit = 1024` patterns                                                                                   |
+| Feature                          | Status           | Notes                                                                                                                                                                                                                                              |
+| -------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Function-scope AST scanning      | FULLY_FUNCTIONAL | All `FuncDecl`s in non-test, non-generated `.go files                                                                                                                                                                                              |
+| Package-level var scanning       | FULLY_FUNCTIONAL | H007 detects `var x = map[string]int64{"KB": 1024}` at package scope                                                                                                                                                                               |
+| Multi-signal detection           | FULLY_FUNCTIONAL | Every rule requires 2+ corroborating signals                                                                                                                                                                                                       |
+| Word-boundary regex              | FULLY_FUNCTIONAL | Prevents false positives like "MEDIUMBLOB" matching "MB"                                                                                                                                                                                           |
+| Underscore digit normalization   | FULLY_FUNCTIONAL | `normLit()` strips `1_000_000` → `1000000`                                                                                                                                                                                                         |
+| Named constant detection         | FULLY_FUNCTIONAL | `hasConst1024` finds `const unit = 1024` patterns                                                                                                                                                                                                  |
 | Generated file skipping          | FULLY_FUNCTIONAL | gogenfilter two-phase detection (sqlc, templ, protobuf, deepcopy-gen, wire, moq, mockgen, mockery, easyjson, counterfeiter, generic `// Code generated by`) + legacy-suffix fallback (`_gen.go`, `.gen.go`, `_templ.go`) in `pattern_generated.go` |
-| `//nolint:gohumanize` directives | FULLY_FUNCTIONAL | Bare, `:all`, scoped `:H001`, comma-lists, and `//lint:ignore` syntax (`pattern_helpers.go`)                                        |
-| Import-alias resolution          | FULLY_FUNCTIONAL | `buildImportAliases(file)` resolves `str "strings"` → `{"str": "strings"}`; dot imports (`. "strings"`) and aliased time constants supported (fixtures: `testdata/h007_dot_import/`, `h010_dot_import/`, `h003_dot_import/`)                   |
-| Map-type checking (H007)         | FULLY_FUNCTIONAL | `isByteUnitMultiplierMapLiteral` checks `map[string]int*` value type to avoid flagging `map[string]bool` lookup sets                |
-| go/types integration             | PLANNED          | Pure syntactic analysis, no type info. ADR 0001 documents the trade-off.                                                            |
+| `//nolint:gohumanize` directives | FULLY_FUNCTIONAL | Bare, `:all`, scoped `:H001`, comma-lists, and `//lint:ignore` syntax (`pattern_helpers.go`)                                                                                                                                                       |
+| Import-alias resolution          | FULLY_FUNCTIONAL | `buildImportAliases(file)` resolves `str "strings"` → `{"str": "strings"}`; dot imports (`. "strings"`) and aliased time constants supported (fixtures: `testdata/h007_dot_import/`, `h010_dot_import/`, `h003_dot_import/`)                       |
+| Map-type checking (H007)         | FULLY_FUNCTIONAL | `isByteUnitMultiplierMapLiteral` checks `map[string]int*` value type to avoid flagging `map[string]bool` lookup sets                                                                                                                               |
+| go/types integration             | PLANNED          | Pure syntactic analysis, no type info. ADR 0001 documents the trade-off.                                                                                                                                                                           |
 
 ## Configuration
 
@@ -81,13 +81,13 @@ All 11 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()
 
 ## Validation
 
-| Sweep                | Date       | Corpus        | Result                                                                              |
-| -------------------- | ---------- | ------------- | ----------------------------------------------------------------------------------- |
-| H001–H007            | 2026-07-30 | 190+ repos    | 97 findings, ~0% FP after H004 fix (`docs/validation/2026-07-30_real-world-sweep.md`) |
-| H001–H009            | 2026-07-31 | 327 projects  | 242 findings, ~0% FP (`docs/validation/2026-07-31_real-world-sweep.md`)              |
-| All rules + all v0.2.0 features (`--verify-suppressions`, `--min-confidence`, gogenfilter) | 2026-08-10 | 158 projects | 0 findings; 3 stale directives found; gogenfilter FP rate ~2.8%, no app code missed (`docs/validation/2026-08-10_real-world-sweep.md`) |
-| H010                 | 2026-09-18 | 169 repos     | 1 borderline (locale-aware parser), 0 clear FPs (`docs/validation/2026-09-18_h010-sweep.md`) |
-| H012                 | 2026-09-18 | top-level corpus | 2 true positives, 0 FPs (one prose-only FP fixed by the conjunction-position filter; see `docs/rules/H012.md`) |
+| Sweep                                                                                      | Date       | Corpus           | Result                                                                                                                                 |
+| ------------------------------------------------------------------------------------------ | ---------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| H001–H007                                                                                  | 2026-07-30 | 190+ repos       | 97 findings, ~0% FP after H004 fix (`docs/validation/2026-07-30_real-world-sweep.md`)                                                  |
+| H001–H009                                                                                  | 2026-07-31 | 327 projects     | 242 findings, ~0% FP (`docs/validation/2026-07-31_real-world-sweep.md`)                                                                |
+| All rules + all v0.2.0 features (`--verify-suppressions`, `--min-confidence`, gogenfilter) | 2026-08-10 | 158 projects     | 0 findings; 3 stale directives found; gogenfilter FP rate ~2.8%, no app code missed (`docs/validation/2026-08-10_real-world-sweep.md`) |
+| H010                                                                                       | 2026-09-18 | 169 repos        | 1 borderline (locale-aware parser), 0 clear FPs (`docs/validation/2026-09-18_h010-sweep.md`)                                           |
+| H012                                                                                       | 2026-09-18 | top-level corpus | 2 true positives, 0 FPs (one prose-only FP fixed by the conjunction-position filter; see `docs/rules/H012.md`)                         |
 
 - H004 tuned from ~60% FP to ~0% FP across two iterations (branch-string + return-type filters).
 - H010 shipped under unswept-rule policy D3 (multi-signal + Full tier + 4-class negative corpus + same-day sweep).
@@ -98,9 +98,9 @@ All 11 rules are registered in `AllRules()` (`rules.go`) and `allRuleDetectors()
 Computed via `go test ./... -cover` on 2026-08-05 (pre-H010/H012; recompute
 after T33 unblocks the toolchain):
 
-| Package                          | Coverage                                                               |
-| -------------------------------- | ---------------------------------------------------------------------- |
-| `go-humanize-linter` (core)      | 88.9%                                                                  |
-| `cmd/go-humanize-linter` (CLI)   | 57.7%                                                                  |
+| Package                          | Coverage                                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `go-humanize-linter` (core)      | 88.9%                                                                                                          |
+| `cmd/go-humanize-linter` (CLI)   | 57.7%                                                                                                          |
 | `cmd/gohumanize` (singlechecker) | 0.0% (1-liner `singlechecker.Main` wrapper — not coverable in-process; smoke-tested via `TestSinglechecker_*`) |
-| `plugin`                         | 97.1%                                                                  |
+| `plugin`                         | 97.1%                                                                                                          |

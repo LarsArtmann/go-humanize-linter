@@ -122,7 +122,7 @@
 4. ~~Root-cause the silent nix-lint wrapper failure (exit 1, empty output)~~ **Won't implement — transient — exit-1-with-empty-output never reproduced after 2026-09-18.**
 5. ~~T18: golangci-lint plugin-index PR (verify-before-filing + github-voice)~~ **Won't implement — declined 2026-09-19 (T18).**
 6. ~~T20: gogenfilter release + pin bump + GOWORK=off sweep [needs approval]~~ **Won't implement — declined 2026-09-19 (T20).**
-7. ~~T32: remove read-only deploy keys from the 4 dep repos~~ done at `ce52545`, ` 2bb893e`
+7. ~~T32: remove read-only deploy keys from the 4 dep repos~~ done at `ce52545`, `2bb893e`
 8. ~~pkg.go.dev check for v0.3.0 (docs render, 11 rules listed)~~ done — pkg.go.dev verified in the 2026-09-19 session; v0.4.0 rendering re-verified 2026-09-26
 9. ~~Nested-repo corpus sweep (depth-2 go.mod discovery) for H010/H012~~ done (docs-health pass 2026-09-26 — tracked as TODO_LIST T38)
 10. ~~Apply the linter's own advice to consumer repos (KeyCountdown joinWords → humanize.WordSeries; Kernovia Join(x," and ") → WordSeries; CreditReformBilanzampel → scoped nolint)~~ **Won't implement — declined 2026-09-19 — consumer repos are the demonstration corpus.**

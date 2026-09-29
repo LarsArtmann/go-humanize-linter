@@ -81,7 +81,7 @@ v0.10.1**, never reverted. Consequences verified this session:
     `docs/planning/archived/`, 1 → `docs/feedback/archived/` (feedback
     doc was already RESOLVED; its 4 follow-ups got verdicts first). Kept in
     place: the 5 reports with genuinely-open items (09-02, 09-09, 09-19 ×3)
-    + the SUPERB plan (D3 policy doc).
+    - the SUPERB plan (D3 policy doc).
 14. **Completeness gates run:** per-file `~~` presence across all three
     `archived/` dirs → **0 missing**; `check-rows.py` run over every table I
     annotated → all COMPLETE or explicitly Still-open.
@@ -101,7 +101,7 @@ v0.10.1**, never reverted. Consequences verified this session:
 
 ## b) PARTIALLY DONE
 
-1. **Depth of reading** — all 51 files *viewed*, all numbered items checked;
+1. **Depth of reading** — all 51 files _viewed_, all numbered items checked;
    but ~15 older files' a–e narrative prose was skimmed via extraction
    rather than read line-by-line. Prose-only claims in those files were
    annotated only where they carried numbered items or load-bearing stale
@@ -149,12 +149,12 @@ v0.10.1**, never reverted. Consequences verified this session:
 ## d) TOTALLY FUCKED UP (honest list — all caught and fixed in-session)
 
 1. **I fabricated a commit hash.** Annotating 18-54, I wrote `done at
-   \`160a\`` for two rename items — a hash that does not exist (I reached for
+   \`160a\``for two rename items — a hash that does not exist (I reached for
    a plausible-looking short hash instead of copying one from git log).
    Caught immediately after the run; replaced with evidence-based verdicts
    ("shipped in the v0.2.0 docs pass — CHANGELOG [0.2.0] records both
    renames"). Zero fabricated citations remain — this session verified every
-   other hash against `git log` output or report-cited hashes. This is the
+   other hash against`git log` output or report-cited hashes. This is the
    worst thing I did today.
 2. **I elided original text inside two strikethroughs** (22-01 g2/g3): the
    `~~…~~` wrapped a shortened "…" version instead of the ENTIRE original
@@ -213,68 +213,68 @@ v0.10.1**, never reverted. Consequences verified this session:
 
 **Tier 1 — blocked on you (decisions; nothing else unblocks them)**
 
-| # | Item |
-| --- | --- |
+| # | Item                                                                                                                                                                           |
+| - | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1 | **T33: decide go.mod fate** — revert to 1.26.7 (undo `b7f00c2`, re-pin flake) OR adopt 1.27.1 + bump CI/release pins + AGENTS/README minimum-Go. Main is red until this lands. |
-| 2 | T34 (after T33): CI guard failing loud when the `go` directive leaves the allowed range. |
-| 3 | Rule: foreign-repo standing policy (does an explicit assignment override the 09-19 blanket decline?). |
-| 4 | Rule: CHANGELOG scope — foreign-repo hygiene entries in/out. |
-| 5 | Rule: release-notes mechanism — `--notes-file` in release.yml vs mandatory `gh release edit`. |
-| 6 | Rule: sibling re-pin cadence (gogenfilter/go-finding drift). |
-| 7 | Rule: bumper investigation — journal/systemd peek at `project-discovery-daemon`, yes/no. |
-| 8 | Rule: archive/prune policy for `docs/*/archived/` (keep forever vs delete after N releases) and whether docs/feedback/new/ is recreated. |
+| 2 | T34 (after T33): CI guard failing loud when the `go` directive leaves the allowed range.                                                                                       |
+| 3 | Rule: foreign-repo standing policy (does an explicit assignment override the 09-19 blanket decline?).                                                                          |
+| 4 | Rule: CHANGELOG scope — foreign-repo hygiene entries in/out.                                                                                                                   |
+| 5 | Rule: release-notes mechanism — `--notes-file` in release.yml vs mandatory `gh release edit`.                                                                                  |
+| 6 | Rule: sibling re-pin cadence (gogenfilter/go-finding drift).                                                                                                                   |
+| 7 | Rule: bumper investigation — journal/systemd peek at `project-discovery-daemon`, yes/no.                                                                                       |
+| 8 | Rule: archive/prune policy for `docs/*/archived/` (keep forever vs delete after N releases) and whether docs/feedback/new/ is recreated.                                       |
 
 **Tier 2 — ready work (bounded, verified open)**
 
-| # | Item |
-| --- | --- |
-| 9 | T35 `BenchmarkH012Detector` (mirror `bench_test.go:37`). |
-| 10 | T36 corpus re-sweep under gogenfilter v3.6.1 (`9c76bd4`). |
-| 11 | T37 `scripts/post-release-check.sh` (bounded proxy/go-get/pkg.go.dev polls). |
-| 12 | T38 depth-2 nested-repo sweep support. |
-| 13 | T39 multi-platform release artifacts (linux-amd64 only today). |
-| 14 | T40 weekly self-scan + corpus-sweep ritual (CI schedule or checklist). |
-| 15 | After T33: re-run the full nix battery; re-verify FEATURES claims against a green run. |
-| 16 | After T33: recompute the FEATURES coverage table (stamped 2026-08-05). |
-| 17 | Annotate SUPERB-plan rows M17/M18 with the 2026-09-19 declines (last unmarked rows in planning/). |
-| 18 | Add an AGENTS.md pointer to the new ADR 0007 from the plugin gotcha. |
+| #  | Item                                                                                                |
+| -- | --------------------------------------------------------------------------------------------------- |
+| 9  | T35 `BenchmarkH012Detector` (mirror `bench_test.go:37`).                                            |
+| 10 | T36 corpus re-sweep under gogenfilter v3.6.1 (`9c76bd4`).                                           |
+| 11 | T37 `scripts/post-release-check.sh` (bounded proxy/go-get/pkg.go.dev polls).                        |
+| 12 | T38 depth-2 nested-repo sweep support.                                                              |
+| 13 | T39 multi-platform release artifacts (linux-amd64 only today).                                      |
+| 14 | T40 weekly self-scan + corpus-sweep ritual (CI schedule or checklist).                              |
+| 15 | After T33: re-run the full nix battery; re-verify FEATURES claims against a green run.              |
+| 16 | After T33: recompute the FEATURES coverage table (stamped 2026-08-05).                              |
+| 17 | Annotate SUPERB-plan rows M17/M18 with the 2026-09-19 declines (last unmarked rows in planning/).   |
+| 18 | Add an AGENTS.md pointer to the new ADR 0007 from the plugin gotcha.                                |
 | 19 | Decide + record where new feedback docs live (docs/feedback/new/ was consumed by the archive move). |
-| 20 | Sample-audit ~20 of my bulk "brainstorm never adopted" verdicts for false closures. |
-| 21 | Check whether docs/rules/H010.md needs the same depth-2 caveat H012.md got. |
-| 22 | Fix or upstream the check-rows separator-row false positive (12-08 docs table). |
+| 20 | Sample-audit ~20 of my bulk "brainstorm never adopted" verdicts for false closures.                 |
+| 21 | Check whether docs/rules/H010.md needs the same depth-2 caveat H012.md got.                         |
+| 22 | Fix or upstream the check-rows separator-row false positive (12-08 docs table).                     |
 
 **Tier 3 — carried open items from the retained reports (all verified open)**
 
-| # | Item |
-| --- | --- |
-| 23 | SARIF output schema validation (12-17 f23). |
-| 24 | `--save-baseline` + `--behavior-delta` e2e integration test (12-17 f24). |
-| 25 | Fuzz `normLit` / `byteUnitRegex` edges (12-17 f25). |
-| 26 | Walker performance benchmark on a large tree (12-17 f26). |
-| 27 | `--format json` machine-contract test (12-17 f28). |
-| 28 | Confidence-calibration study (12-17 f30). |
-| 29 | Windows CI leg (12-17 f31). |
-| 30 | `--min-confidence` default policy (12-17 f41). |
-| 31 | `--verify-suppressions` on-by-default debate (12-17 f42). |
-| 32 | Baseline JSON version field (12-17 f43). |
-| 33 | H0SUP namespace ergonomics — accept module-path aliases with warning? (12-17 f44). |
-| 34 | Rule-ID stability contract for downstream (12-17 f45). |
-| 35 | Corpus re-sweep cadence definition (12-17 f47). |
-| 36 | Annotate (not unify) the H0SUP position difference in docs/rules or an ADR appendix (12-17 f49). |
-| 37 | CHANGELOG cut script: `[Unreleased]` → new section automation (12-17 f50). |
-| 38 | `TestCustomGCLIntegration` CI enablement + custom-gcl cache (09-02 f13/f14). |
-| 39 | Misspelled-directive + scoped-directive e2e cases via custom-gcl (09-02 f11/f12). |
-| 40 | SECURITY.md / community files decision (09-02 C-adjacent, 09-09 f38). |
-| 41 | README badges + social preview decision (09-09 f19/f26). |
-| 42 | Anonymous-consumer / `nix flake check` / `go install @latest` CI steps (09-09 f9–f11). |
-| 43 | Dependabot-vendorHash sync hint (recurred 2026-09-22; 09-09 f13). |
-| 44 | Baseline merge/schema-validation/`--baseline` alias micro-features (10-44 f14–f18) — only if a consumer asks. |
-| 45 | `--stats` / `--list-suppressions` / `--verify-config` modes (08-11 f15–17) — only on demand. |
+| #  | Item                                                                                                                                                                                                        |
+| -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 23 | SARIF output schema validation (12-17 f23).                                                                                                                                                                 |
+| 24 | `--save-baseline` + `--behavior-delta` e2e integration test (12-17 f24).                                                                                                                                    |
+| 25 | Fuzz `normLit` / `byteUnitRegex` edges (12-17 f25).                                                                                                                                                         |
+| 26 | Walker performance benchmark on a large tree (12-17 f26).                                                                                                                                                   |
+| 27 | `--format json` machine-contract test (12-17 f28).                                                                                                                                                          |
+| 28 | Confidence-calibration study (12-17 f30).                                                                                                                                                                   |
+| 29 | Windows CI leg (12-17 f31).                                                                                                                                                                                 |
+| 30 | `--min-confidence` default policy (12-17 f41).                                                                                                                                                              |
+| 31 | `--verify-suppressions` on-by-default debate (12-17 f42).                                                                                                                                                   |
+| 32 | Baseline JSON version field (12-17 f43).                                                                                                                                                                    |
+| 33 | H0SUP namespace ergonomics — accept module-path aliases with warning? (12-17 f44).                                                                                                                          |
+| 34 | Rule-ID stability contract for downstream (12-17 f45).                                                                                                                                                      |
+| 35 | Corpus re-sweep cadence definition (12-17 f47).                                                                                                                                                             |
+| 36 | Annotate (not unify) the H0SUP position difference in docs/rules or an ADR appendix (12-17 f49).                                                                                                            |
+| 37 | CHANGELOG cut script: `[Unreleased]` → new section automation (12-17 f50).                                                                                                                                  |
+| 38 | `TestCustomGCLIntegration` CI enablement + custom-gcl cache (09-02 f13/f14).                                                                                                                                |
+| 39 | Misspelled-directive + scoped-directive e2e cases via custom-gcl (09-02 f11/f12).                                                                                                                           |
+| 40 | SECURITY.md / community files decision (09-02 C-adjacent, 09-09 f38).                                                                                                                                       |
+| 41 | README badges + social preview decision (09-09 f19/f26).                                                                                                                                                    |
+| 42 | Anonymous-consumer / `nix flake check` / `go install @latest` CI steps (09-09 f9–f11).                                                                                                                      |
+| 43 | Dependabot-vendorHash sync hint (recurred 2026-09-22; 09-09 f13).                                                                                                                                           |
+| 44 | Baseline merge/schema-validation/`--baseline` alias micro-features (10-44 f14–f18) — only if a consumer asks.                                                                                               |
+| 45 | `--stats` / `--list-suppressions` / `--verify-config` modes (08-11 f15–17) — only on demand.                                                                                                                |
 | 46 | ROADMAP ideas needing champions: per-line diagnostics, type-aware detection, auto-fix, editor integration, SI/IEC consistency, benchstat tracking, LookupMenuItem research, H012 conjunction-param variant. |
-| 47 | H010 demand-gated follow-ups: NewReplacer strip form; exact-signature Full tier (locale caveat). |
-| 48 | T29 H011 — revisit trigger: next upstream go-humanize tag (standing). |
-| 49 | Upstream-tag watch (standing): diff next go-humanize tag → new-rule pipeline. |
-| 50 | This report → harvest already done for T1–14; re-run docs-health after T33 lands to re-verify the refreshed living docs against a green tree. |
+| 47 | H010 demand-gated follow-ups: NewReplacer strip form; exact-signature Full tier (locale caveat).                                                                                                            |
+| 48 | T29 H011 — revisit trigger: next upstream go-humanize tag (standing).                                                                                                                                       |
+| 49 | Upstream-tag watch (standing): diff next go-humanize tag → new-rule pipeline.                                                                                                                               |
+| 50 | This report → harvest already done for T1–14; re-run docs-health after T33 lands to re-verify the refreshed living docs against a green tree.                                                               |
 
 ## g) QUESTIONS I cannot figure out myself
 
@@ -302,6 +302,6 @@ v0.10.1**, never reverted. Consequences verified this session:
 
 ---
 
-*Point-in-time snapshot — 2026-09-26 03:26 CEST. Working tree clean at
+_Point-in-time snapshot — 2026-09-26 03:26 CEST. Working tree clean at
 `4dda500`. Open work lives in `TODO_LIST.md` (T29, T33–T40); the 5 retained
-status reports hold the remaining open items with inline markers.*
+status reports hold the remaining open items with inline markers._
