@@ -46,8 +46,8 @@ func IsGeneratedFile(path string, content []byte) bool {
 // not know about.
 func matchesLegacyGeneratedSuffix(path string) bool {
 	base := path
-	if idx := strings.LastIndex(path, "/"); idx >= 0 {
-		base = path[idx+1:]
+	if _, after, ok := strings.CutLast(path, "/"); ok {
+		base = after
 	}
 
 	return strings.HasSuffix(base, "_gen.go") ||

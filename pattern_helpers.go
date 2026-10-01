@@ -196,8 +196,8 @@ func buildImportAliases(file *ast.File) map[string]string {
 		path := strings.Trim(imp.Path.Value, `"`)
 
 		localName := path
-		if idx := strings.LastIndex(path, "/"); idx >= 0 {
-			localName = path[idx+1:]
+		if _, after, ok := strings.CutLast(path, "/"); ok {
+			localName = after
 		}
 
 		if imp.Name != nil {
