@@ -10,27 +10,27 @@
     };
 
     go-nix-helpers = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-nix-helpers?ref=master";
+      url = "github:LarsArtmann/go-nix-helpers/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     go-finding = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=master";
+      url = "github:LarsArtmann/go-finding/master";
       flake = false;
     };
 
     go-linter-sdk = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-linter-sdk?ref=master";
+      url = "github:LarsArtmann/go-linter-sdk/master";
       flake = false;
     };
 
     go-error-family = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-error-family?ref=master";
+      url = "github:LarsArtmann/go-error-family/master";
       flake = false;
     };
 
     gogenfilter = {
-      url = "git+ssh://git@github.com/LarsArtmann/gogenfilter?ref=master";
+      url = "github:LarsArtmann/gogenfilter/master";
       flake = false;
     };
   };
