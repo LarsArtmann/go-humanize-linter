@@ -83,17 +83,32 @@ func collectSuppressions(dir string) ([]SuppressionDirective, error) {
 	var out []SuppressionDirective
 
 	for _, pf := range files {
-		for _, decl := range pf.File.Decls {
-			fn, ok := decl.(*ast.FuncDecl)
-			if !ok {
-				continue
-			}
-
-			out = append(out, extractFunctionSuppressions(pf.Fset, pf.File, fn, pf.Path)...)
-		}
+		out = append(out, suppressionsInFile(pf.Fset, pf.File, pf.Path)...)
 	}
 
 	return out, nil
+}
+
+// suppressionsInFile returns every directive in one parsed file that either
+// suppresses our linter or misspells its name. Shared by the directory walk
+// (CLI) and the pre-parsed-files walk (golangci plugin).
+func suppressionsInFile(fset *token.FileSet, file *ast.File, filePath string) []SuppressionDirective {
+	if file == nil {
+		return nil
+	}
+
+	var out []SuppressionDirective
+
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok {
+			continue
+		}
+
+		out = append(out, extractFunctionSuppressions(fset, file, fn, filePath)...)
+	}
+
+	return out
 }
 
 func extractFunctionSuppressions(
@@ -147,50 +162,55 @@ func extractFunctionSuppressions(
 //  1. Unknown linter names that look like "gohumanize" (e.g. "go-humanize-linter").
 //  2. //nolint:gohumanize[:Hxxx] directives that did not suppress any finding.
 //
+// Staleness is judged against a fresh UNSUPPRESSED detection pass over dir,
+// not a run report: the detection pipeline drops suppressed findings before
+// any report is built, so report-based matching flagged every working
+// directive as stale — the findings it suppressed were absent by
+// construction. Re-detecting also makes the verdict rule-set independent:
+// a directive stays valid when its rule is merely disabled in this run.
+//
 // The returned findings use the pseudo-rule ID "H0SUP" so they are clearly
 // verification diagnostics, not humanize reimplementation findings.
-func VerifySuppressions(dir string, report *finding.Report) ([]finding.Finding, error) {
+func VerifySuppressions(dir string) ([]finding.Finding, error) {
 	directives, err := collectSuppressions(dir)
 	if err != nil {
 		return nil, err
 	}
 
-	return verifyDirectives(directives, report), nil
+	index, err := unsuppressedFindingsIndex(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	return verifyDirectives(directives, index), nil
 }
 
 // VerifySuppressionsInFiles is the plugin-path variant of VerifySuppressions.
-// It collects directives from pre-parsed files (pass.Files) instead of walking
-// a directory, making it suitable for use in analysis.Analyzer.Run where the
-// files are already parsed by the driver.
-func VerifySuppressionsInFiles(
-	fset *token.FileSet,
-	files []*ast.File,
-	report *finding.Report,
-) []finding.Finding {
+// It collects directives from pre-parsed files (pass.Files) and re-detects
+// unsuppressed findings from the same files — see VerifySuppressions for why
+// a run report cannot decide staleness.
+func VerifySuppressionsInFiles(fset *token.FileSet, files []*ast.File) []finding.Finding {
 	var directives []SuppressionDirective
 
 	for _, file := range files {
-		filePath := fset.Position(file.Pos()).Filename
-
-		for _, decl := range file.Decls {
-			fn, ok := decl.(*ast.FuncDecl)
-			if !ok {
-				continue
-			}
-
-			directives = append(directives, extractFunctionSuppressions(fset, file, fn, filePath)...)
+		if file == nil {
+			continue
 		}
+
+		filePath := fset.Position(file.Pos()).Filename
+		directives = append(directives, suppressionsInFile(fset, file, filePath)...)
 	}
 
-	return verifyDirectives(directives, report)
+	return verifyDirectives(directives, unsuppressedFindingsFromFiles(fset, files))
 }
 
 // verifyDirectives is the shared core of VerifySuppressions and
 // VerifySuppressionsInFiles. It checks each directive for unknown linter
 // names and stale suppressions, returning H0SUP findings for problems.
-func verifyDirectives(directives []SuppressionDirective, report *finding.Report) []finding.Finding {
-	findingsByPosition := findingsByFileLine(report)
-
+func verifyDirectives(
+	directives []SuppressionDirective,
+	findingsByPosition map[string]map[int][]finding.Finding,
+) []finding.Finding {
 	var out []finding.Finding
 
 	for _, d := range directives {
@@ -216,28 +236,77 @@ func verifyDirectives(directives []SuppressionDirective, report *finding.Report)
 	return out
 }
 
-// findingsByFileLine indexes the report's findings by file path and line
-// number. This is the lookup structure used to test whether a suppression
-// directive actually suppressed something.
-func findingsByFileLine(report *finding.Report) map[string]map[int][]finding.Finding {
-	out := make(map[string]map[int][]finding.Finding)
-
-	if report == nil {
-		return out
+// unsuppressedFindingsIndex walks dir and runs every detector over every
+// function, honouring no //nolint directives, then indexes the findings by
+// file path and function-declaration line. This is the lookup structure
+// used to test whether a suppression directive actually suppressed
+// something — detectors emit at fn.Pos(), so the declaration line is the
+// shared key on both sides (see ADR 0006).
+func unsuppressedFindingsIndex(dir string) (map[string]map[int][]finding.Finding, error) {
+	files, err := WalkGoDir(dir)
+	if err != nil {
+		return nil, err
 	}
 
-	for f := range report.All() {
-		file := string(f.Position.File)
-		line := f.Position.Line
+	index := make(map[string]map[int][]finding.Finding)
 
-		if out[file] == nil {
-			out[file] = make(map[int][]finding.Finding)
+	for _, pf := range files {
+		indexDetection(pf.Fset, pf.File, pf.Path, index)
+	}
+
+	return index, nil
+}
+
+// unsuppressedFindingsFromFiles is the plugin-path variant of
+// unsuppressedFindingsIndex over pre-parsed files.
+func unsuppressedFindingsFromFiles(
+	fset *token.FileSet,
+	files []*ast.File,
+) map[string]map[int][]finding.Finding {
+	index := make(map[string]map[int][]finding.Finding)
+
+	for _, file := range files {
+		if file == nil {
+			continue
 		}
 
-		out[file][line] = append(out[file][line], f)
+		indexDetection(fset, file, fset.Position(file.Pos()).Filename, index)
 	}
 
-	return out
+	return index
+}
+
+// indexDetection runs every registered detector over every function of one
+// parsed file and accumulates the findings into index, ignoring all
+// //nolint directives.
+func indexDetection(
+	fset *token.FileSet,
+	file *ast.File,
+	filePath string,
+	index map[string]map[int][]finding.Finding,
+) {
+	if file == nil {
+		return
+	}
+
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok {
+			continue
+		}
+
+		fnLine := fset.Position(fn.Pos()).Line
+
+		for _, detector := range allRuleDetectors() {
+			for _, f := range detector.detector(fset, file, fn, filePath) {
+				if index[filePath] == nil {
+					index[filePath] = make(map[int][]finding.Finding)
+				}
+
+				index[filePath][fnLine] = append(index[filePath][fnLine], f)
+			}
+		}
+	}
 }
 
 // directiveMatchesFinding reports whether any finding in the same function

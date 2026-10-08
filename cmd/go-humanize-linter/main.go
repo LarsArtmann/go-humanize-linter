@@ -251,7 +251,7 @@ func loadConfigRules(configPath string) ([]string, []string, error) {
 // appendSuppressionFindings runs suppression verification and appends H0SUP
 // findings to the report.
 func appendSuppressionFindings(dir string, report *finding.Report) error {
-	verifyFindings, err := humanizelint.VerifySuppressions(dir, report)
+	verifyFindings, err := humanizelint.VerifySuppressions(dir)
 	if err != nil {
 		return fmt.Errorf("verify suppressions: %w", err)
 	}

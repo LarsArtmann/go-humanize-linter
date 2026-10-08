@@ -207,11 +207,7 @@ func runDetector(
 	}
 
 	if verifySuppressions {
-		report := finding.NewReportFromFindings(
-			finding.ToolInfo{Name: "go-humanize-linter"}, //nolint:exhaustruct
-			allFindings,
-		)
-		verifyFindings := humanizelint.VerifySuppressionsInFiles(pass.Fset, pass.Files, report)
+		verifyFindings := humanizelint.VerifySuppressionsInFiles(pass.Fset, pass.Files)
 		reanchorSuppressionFindings(verifyFindings)
 		allFindings = append(allFindings, verifyFindings...)
 	}

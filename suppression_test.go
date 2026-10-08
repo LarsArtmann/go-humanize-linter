@@ -3,8 +3,6 @@ package humanizelint //nolint:testpackage // white-box: tests unexported suppres
 import (
 	"os"
 	"testing"
-
-	"github.com/larsartmann/go-finding"
 )
 
 func TestSuppressesGohumanize(t *testing.T) {
@@ -87,9 +85,7 @@ func main() {
 }
 `)
 
-	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
-
-	findings, err := VerifySuppressions(dir, report)
+	findings, err := VerifySuppressions(dir)
 	if err != nil {
 		t.Fatalf("VerifySuppressions failed: %v", err)
 	}
@@ -120,9 +116,7 @@ func main() {
 }
 `)
 
-	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
-
-	findings, err := VerifySuppressions(dir, report)
+	findings, err := VerifySuppressions(dir)
 	if err != nil {
 		t.Fatalf("VerifySuppressions failed: %v", err)
 	}
@@ -136,6 +130,13 @@ func main() {
 	}
 }
 
+// TestVerifySuppressions_UsedSuppression is the regression test for the
+// staleness false positive: the detection pipeline drops suppressed findings
+// before any report is built, so verification that matched directives
+// against a run report flagged every working directive as stale. The
+// verdict must come from an unsuppressed re-detection instead — here the
+// fixture carries a real H001 pattern, the directive suppresses it in a
+// normal run, and verification must accept it.
 func TestVerifySuppressions_UsedSuppression(t *testing.T) {
 	t.Parallel()
 
@@ -169,18 +170,7 @@ func main() {
 }
 `)
 
-	// Simulate a report that contains an H001 finding at the function line.
-	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
-	report.AddFinding(finding.NewBuilder(
-		finding.RuleName(RuleIDH001),
-		finding.ToolName("go-humanize-linter"),
-		"manual byte-size formatting",
-		finding.SeverityWarning,
-		finding.Pos(finding.FilePath(dir+"/main.go"), 6, 1),
-	).MustBuild())
-	report.ComputeSummary()
-
-	findings, err := VerifySuppressions(dir, report)
+	findings, err := VerifySuppressions(dir)
 	if err != nil {
 		t.Fatalf("VerifySuppressions failed: %v", err)
 	}
@@ -207,9 +197,7 @@ func main() {
 }
 `)
 
-	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
-
-	findings, err := VerifySuppressions(dir, report)
+	findings, err := VerifySuppressions(dir)
 	if err != nil {
 		t.Fatalf("VerifySuppressions failed: %v", err)
 	}
@@ -250,17 +238,7 @@ func main() {
 }
 `)
 
-	report := finding.NewReport(finding.ToolInfo{Name: "go-humanize-linter"})
-	report.AddFinding(finding.NewBuilder(
-		finding.RuleName(RuleIDH001),
-		finding.ToolName("go-humanize-linter"),
-		"manual byte-size formatting",
-		finding.SeverityWarning,
-		finding.Pos(finding.FilePath(dir+"/main.go"), 5, 1),
-	).MustBuild())
-	report.ComputeSummary()
-
-	findings, err := VerifySuppressions(dir, report)
+	findings, err := VerifySuppressions(dir)
 	if err != nil {
 		t.Fatalf("VerifySuppressions failed: %v", err)
 	}

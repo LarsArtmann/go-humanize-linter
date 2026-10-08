@@ -985,6 +985,62 @@ func main() {
 	}
 }
 
+func TestCLI_VerifySuppressions_UsedSuppressionNotFlagged(t *testing.T) {
+	t.Parallel()
+
+	// Regression: --verify-suppressions matched directives against the run
+	// report, which no longer contains the findings a directive suppressed —
+	// so every working directive was reported stale. The verdict must come
+	// from an unsuppressed re-detection instead.
+	binary := buildCLI(t)
+	dir := t.TempDir()
+
+	err := os.WriteFile(
+		filepath.Join(dir, "main.go"),
+		[]byte(`package main
+
+import "fmt"
+
+//nolint:gohumanize:H001
+func formatBytes(bytes int64) string {
+	const unit = 1024
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
+}
+
+func main() {
+	_ = formatBytes(1024)
+}
+`),
+		0o600,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+		context.Background(), binary, "--quiet", "--verify-suppressions", dir,
+	)
+
+	cmd.Env = append(os.Environ(), "GOEXPERIMENT=jsonv2")
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("expected exit 0 with used suppression, got error: %v\n%s", err, out)
+	}
+
+	if strings.Contains(string(out), "H0SUP") {
+		t.Errorf("used directive must not be flagged stale, got: %s", out)
+	}
+}
+
 func TestCLI_BehaviorDelta(t *testing.T) {
 	t.Parallel()
 
