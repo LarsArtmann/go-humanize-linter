@@ -3,6 +3,7 @@ package humanizelint
 import (
 	"go/ast"
 	"go/token"
+	"strings"
 )
 
 // ---------------------------------------------------------------------------
@@ -49,9 +50,12 @@ func hasKMSuffix(fn *ast.FuncDecl) bool {
 			return true
 		}
 
-		// Embedded suffixes like "%.2fK" or "%.1fM" — the last char is an SI
-		// prefix and the string is NOT a byte-unit pattern (e.g., "%.1f MB").
-		if len(s) >= 2 && !byteUnitRegex.MatchString(s) {
+		// Embedded suffixes like "%.2fK" or "%.1fM" — a FORMAT string whose
+		// last char is an SI prefix and which is NOT a byte-unit pattern
+		// (e.g., "%.1f MB"). Requiring a % verb excludes prose that merely
+		// ends in an SI-prefix letter, such as a "THROUGHPUT" table header
+		// paired with a /1e3 millisecond conversion (real-world corpus FP).
+		if len(s) >= 2 && strings.Contains(s, "%") && !byteUnitRegex.MatchString(s) {
 			switch s[len(s)-1] {
 			case 'K', 'M', 'G', 'T', 'k':
 				return true

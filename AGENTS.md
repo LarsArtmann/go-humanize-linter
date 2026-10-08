@@ -60,7 +60,7 @@ Each rule requires **multiple corroborating signals** in the same function:
 - **H002**: grouping signal (mod-3 or step-by-3 or digit-conversion) + separator writing
 - **H003**: time-difference computation + "ago" string + time threshold comparison
 - **H004**: `if x == 1` on simple identifier (not `len(x)`) where branch contains strings AND function returns string type; OR singular/plural params. Suggests `english.PluralWord` / `english.Plural` (NOT `humanize.Plural` which does not exist).
-- **H005**: division by power of 1000 + K/M/G/T suffix (excludes byte units)
+- **H005**: division by power of 1000 + K/M/G/T suffix (excludes byte units). Embedded suffixes must live in a FORMAT string (literal contains `%`) — prose that merely ends in an SI-prefix letter (e.g., a "THROUGHPUT" table header beside a /1e3 millisecond conversion, seen in go-cqrs-lite) is excluded; standalone "K"/"M" literals still count. Regression-guarded by the `h005_negative` benchmark-row fixture.
 - **H006**: nested `strings.TrimRight(strings.TrimRight(x, "0"), ".")`
 - **H007**: 2+ HasSuffix/CutSuffix/TrimSuffix on byte units OR `map[string]int*` multiplier with byte-unit keys (function-scope AND package-level vars)
 - **H008**: `switch n%10` / `switch n%100` with ordinal suffix cases (st/nd/rd/th)
