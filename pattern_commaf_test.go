@@ -118,6 +118,26 @@ func TestHasFormatFloatPrecision(t *testing.T) {
 		return &ast.BasicLit{Kind: token.INT, Value: v}
 	}
 
+	charLit := func(v string) ast.Expr {
+		return &ast.BasicLit{Kind: token.CHAR, Value: v}
+	}
+
+	// unaryNeg mirrors how go/parser actually represents "-1": an
+	// ast.UnaryExpr over an ast.BasicLit. The parser never produces a
+	// BasicLit with value "-1" — the CSV-writer false positive shipped
+	// because the old suite only covered that impossible shape.
+	unaryNeg := func(v string) ast.Expr {
+		return &ast.UnaryExpr{Op: token.SUB, X: intLit(v)}
+	}
+
+	unaryPos := func(v string) ast.Expr {
+		return &ast.UnaryExpr{Op: token.ADD, X: intLit(v)}
+	}
+
+	paren := func(e ast.Expr) ast.Expr {
+		return &ast.ParenExpr{X: e}
+	}
+
 	cases := []struct {
 		name string
 		call *ast.CallExpr
@@ -139,9 +159,44 @@ func TestHasFormatFloatPrecision(t *testing.T) {
 			want: false,
 		},
 		{
-			name: "precision -1 excluded",
+			name: "parser -1 (unary) excluded",
+			call: &ast.CallExpr{Args: []ast.Expr{nil, nil, unaryNeg("1")}},
+			want: false,
+		},
+		{
+			name: "parser -10 (unary) excluded",
+			call: &ast.CallExpr{Args: []ast.Expr{nil, nil, unaryNeg("10")}},
+			want: false,
+		},
+		{
+			name: "parenthesized parser -1 excluded",
+			call: &ast.CallExpr{Args: []ast.Expr{nil, nil, paren(unaryNeg("1"))}},
+			want: false,
+		},
+		{
+			name: "unary +2 accepted",
+			call: &ast.CallExpr{Args: []ast.Expr{nil, nil, unaryPos("2")}},
+			want: true,
+		},
+		{
+			name: "defensive BasicLit -1 excluded",
 			call: &ast.CallExpr{Args: []ast.Expr{nil, nil, intLit("-1")}},
 			want: false,
+		},
+		{
+			name: "'g' verb excluded (scientific, never comma-grouped)",
+			call: &ast.CallExpr{Args: []ast.Expr{nil, charLit("'g'"), intLit("2")}},
+			want: false,
+		},
+		{
+			name: "'g' verb with -1 excluded (CSV writer shape)",
+			call: &ast.CallExpr{Args: []ast.Expr{nil, charLit("'g'"), unaryNeg("1")}},
+			want: false,
+		},
+		{
+			name: "'f' verb accepted",
+			call: &ast.CallExpr{Args: []ast.Expr{nil, charLit("'f'"), intLit("2")}},
+			want: true,
 		},
 		{
 			name: "string literal not int",

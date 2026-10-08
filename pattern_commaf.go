@@ -3,13 +3,14 @@
 // Commaf detection: float formatting + manual separator grouping. Triggered
 // when a function calls fmt.Sprintf("%.Nf", x) and writes the result to a
 // string with manual comma/separator insertion, OR uses strconv.FormatFloat
-// inside a comma-grouping loop.
+// with a fixed positive precision inside a comma-grouping loop.
 
 package humanizelint
 
 import (
 	"go/ast"
 	"go/token"
+	"strings"
 )
 
 // Format-string parsing helpers. Kept as named constants so the format-string
@@ -66,19 +67,88 @@ func hasCommafPattern(fn *ast.FuncDecl, aliases map[string]string) bool {
 }
 
 // hasFormatFloatPrecision reports whether a strconv.FormatFloat call is
-// invoked with a non-zero positive integer precision — the same shape that
-// humanize.Commaf produces (e.g. "%.2f" equivalent).
+// invoked with a fixed positive precision — the same shape that
+// humanize.Commaf produces (e.g. "%.2f" equivalent). Literal verbs other
+// than 'f' ('g', 'e', 'b', 'x') never render comma-groupable decimal
+// strings, mirroring walkFormatFloatVerbs' rejection of %.Ng; a non-literal
+// verb is inconclusive and defers to the precision check. Negative
+// precision (-1 = shortest round-trip form, the CSV/JSON writer's choice)
+// is excluded: source-level "-1" parses as ast.UnaryExpr, and the sign must
+// be resolved before literal unwrapping — getBasicLit strips the minus,
+// which turned the old "-1" exclusion into dead code and tripped H009 on
+// CSV writers (real-world false positive, seen in go-health-dashboard).
 func hasFormatFloatPrecision(call *ast.CallExpr) bool {
 	if len(call.Args) < minFormatWalkRange {
 		return false
 	}
 
-	lit := getBasicLit(call.Args[2])
-	if lit == nil || lit.Kind != token.INT {
+	if !hasFixedFloatVerb(call) {
 		return false
 	}
 
-	return lit.Value != "0" && lit.Value != "-1"
+	digits, negative, ok := signedIntLiteral(call.Args[2])
+	if !ok || negative {
+		return false
+	}
+
+	return digits != "0"
+}
+
+// hasFixedFloatVerb reports whether the call's format verb (strconv
+// FormatFloat arg 1) is a literal that can produce fixed-decimal output.
+// Only 'f' can; 'g'/'e' render scientific notation and 'b'/'x' binary/hex.
+// A non-literal verb (variable, named constant) is inconclusive and returns
+// true so the precision check decides.
+func hasFixedFloatVerb(call *ast.CallExpr) bool {
+	if len(call.Args) < minFormatWalkRange {
+		return true
+	}
+
+	lit := getBasicLit(call.Args[1])
+
+	if lit == nil {
+		return true
+	}
+
+	return lit.Value == "'f'"
+}
+
+// signedIntLiteral resolves expr to its integer digits and sign. Handles
+// parser-shaped negation (ast.UnaryExpr over ast.BasicLit, optionally
+// parenthesized) and, defensively, a leading minus inside the literal
+// value itself. ok is false for anything else (variables, strings, ...).
+func signedIntLiteral(expr ast.Expr) (digits string, negative bool, ok bool) {
+	for {
+		switch e := expr.(type) {
+		case *ast.ParenExpr:
+			expr = e.X
+		case *ast.UnaryExpr:
+			switch e.Op {
+			case token.SUB:
+				negative = !negative
+			case token.ADD:
+			default:
+				return "", false, false
+			}
+
+			expr = e.X
+		case *ast.BasicLit:
+			if e.Kind != token.INT {
+				return "", false, false
+			}
+
+			value := e.Value
+
+			if strings.HasPrefix(value, "-") {
+				negative = !negative
+				value = strings.TrimPrefix(value, "-")
+			}
+
+			return value, negative, true
+		default:
+			return "", false, false
+		}
+	}
 }
 
 // hasPercentNF reports whether a fmt.Sprintf call uses a "%.Nf" format
