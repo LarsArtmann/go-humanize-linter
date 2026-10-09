@@ -40,13 +40,31 @@ func (e *WalkError) Unwrap() error {
 }
 
 // skipDirs are directory basenames that WalkGoDir never descends into.
+// Hidden directories (leading ".") and backup trees (trailing ".bak") are
+// skipped by rule — see skipDirName.
 var skipDirs = map[string]bool{ //nolint:gochecknoglobals // package-level lookup table
 	"vendor":       true,
-	".git":         true,
 	"testdata":     true,
 	"node_modules": true,
-	".idea":        true,
+	"archived":     true,
+	"forks":        true,
 	"__debug":      true,
+}
+
+// skipDirName reports whether WalkGoDir must not descend into the directory
+// with this basename:
+//   - hidden directories (leading ".") — tooling state, not maintained source
+//     (.git, .idea, .bf-jscpd-worktree, ...);
+//   - backup trees (trailing ".bak") — frozen copies that would double-report
+//     every upstream finding (e.g. BuildFlow.vendor.bak);
+//   - exact basenames in skipDirs, including "archived" and "forks" — archived
+//     and upstream-owned code yields findings nobody can act on.
+func skipDirName(name string) bool {
+	if strings.HasPrefix(name, ".") || strings.HasSuffix(name, ".bak") {
+		return true
+	}
+
+	return skipDirs[name]
 }
 
 // WalkGoDir walks dir recursively, parses every non-test .go file, and returns
@@ -72,7 +90,7 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 		}
 
 		if d.IsDir() {
-			if skipDirs[d.Name()] {
+			if skipDirName(d.Name()) {
 				return filepath.SkipDir
 			}
 
