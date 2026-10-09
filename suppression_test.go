@@ -38,6 +38,78 @@ func TestSuppressesGohumanize(t *testing.T) {
 	}
 }
 
+func TestTargetsGohumanize(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		src  string
+		want bool
+	}{
+		{"bare gohumanize", "//nolint:gohumanize", true},
+		{"gohumanize scoped", "//nolint:gohumanize:H001", true},
+		{"bare rule id", "//nolint:H001", true},
+		{"multi-linter with gohumanize", "//nolint:gohumanize,gofmt", true},
+		{"all", "//nolint:all", false},
+		{"bare nolint", "//nolint", false},
+		{"other linter", "//nolint:other", false},
+		{"not a directive", "// regular comment", false},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			suppressed := suppressedRules(tt.src)
+			if suppressed == nil {
+				suppressed = []string{}
+			}
+
+			if got := targetsGohumanize(suppressed); got != tt.want {
+				t.Errorf("targetsGohumanize(%q) = %v, want %v", tt.src, got, tt.want)
+			}
+		})
+	}
+}
+
+// TestVerifySuppressions_BareAllNotJudged guards the blanket-suppression
+// contract: a //nolint:all directive usually exists for another linter's
+// benefit, so H0SUP must not call it stale just because gohumanize itself has
+// no finding in that function — while a directive that names gohumanize still
+// is judged.
+func TestVerifySuppressions_BareAllNotJudged(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	writeFile(t, dir, `package main
+
+//nolint:all // golangci-lint autofix bug workaround
+func blanketForOtherLinter() {}
+
+//nolint:gohumanize
+func staleGohumanizeDirective() {}
+
+func main() {
+	blanketForOtherLinter()
+	staleGohumanizeDirective()
+}
+`)
+
+	findings, err := VerifySuppressions(dir)
+	if err != nil {
+		t.Fatalf("VerifySuppressions failed: %v", err)
+	}
+
+	if len(findings) != 1 {
+		t.Fatalf("expected exactly 1 suppression finding (the stale gohumanize directive), got %d: %+v", len(findings), findings)
+	}
+
+	if string(findings[0].Rule) != RuleIDH0SUP {
+		t.Errorf("expected rule %s, got %s", RuleIDH0SUP, findings[0].Rule)
+	}
+}
+
 func TestHasUnknownHumanizeLinterName(t *testing.T) {
 	t.Parallel()
 

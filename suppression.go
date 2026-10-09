@@ -52,6 +52,20 @@ func suppressesGohumanize(suppressed []string) bool {
 	return false
 }
 
+// targetsGohumanize reports whether a directive is addressed to this linter:
+// it names gohumanize or scopes a rule ID. A bare "all" is deliberately blunt
+// and usually exists for another linter's benefit, so its staleness cannot be
+// judged from this linter's findings alone — verification skips it.
+func targetsGohumanize(suppressed []string) bool {
+	for _, s := range suppressed {
+		if s == nolintLinterName || looksLikeRuleID(s) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // hasUnknownHumanizeLinterName reports whether the suppression list contains a
 // linter name that looks like ours but is not exactly "gohumanize". The common
 // AI mistake is writing "go-humanize-linter" because that matches the module
@@ -222,7 +236,7 @@ func verifyDirectives(
 			continue
 		}
 
-		if !suppressesGohumanize(d.Suppressed) {
+		if !suppressesGohumanize(d.Suppressed) || !targetsGohumanize(d.Suppressed) {
 			continue
 		}
 

@@ -93,7 +93,7 @@ H010 (manual-comma-parse) and H002 (manual-comma-format) cannot co-fire on the s
 
 ## Suppression Verification
 
-`--verify-suppressions` runs a post-detection pass (`VerifySuppressions` in `suppression.go`) that checks every `//nolint` directive in the scanned directory for two classes of problems:
+`--verify-suppressions` runs a post-detection pass (`VerifySuppressions` in `suppression.go`) that checks every `//nolint` directive in the scanned directory for two classes of problems (staleness only for directives addressed to this linter — naming `gohumanize` or scoping a rule ID; bare `//nolint:all` is skipped because it usually serves another linter — see `targetsGohumanize`):
 
 1. **Unknown linter names** — directives containing "humanize" but not exactly "gohumanize" (e.g., `//nolint:go-humanize-linter/H003`). These silently do nothing because the suppression namespace is `gohumanize`, not the module path.
 2. **Stale suppressions** — `//nolint:gohumanize[:Hxxx]` directives that did not suppress any finding. Staleness is judged against a fresh UNSUPPRESSED re-detection over the scanned code, NOT the caller's run report: detection drops suppressed findings before any report exists, so report-based matching flagged every working directive as stale (even the `h001_suppressed` fixture). The re-detection also makes the verdict rule-set independent — a directive stays valid when its rule is merely disabled in the current run. The report parameter was removed from both `VerifySuppressions(dir)` and `VerifySuppressionsInFiles(fset, files)` (breaking library-API change, CHANGELOG Unreleased).
