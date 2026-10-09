@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// joinWords hand-rolls what humanize.WordSeries(words, "and") does: prefix
+// joinWords hand-rolls what english.WordSeries(words, "and") does: prefix
 // join of all but the last element, an Oxford-comma conjunction, and
 // last-element access. The complete clone — Full confidence.
 func joinWords(parts []string) string {

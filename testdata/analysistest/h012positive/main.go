@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// joinWords reimplements humanize.WordSeries(words, "and").
+// joinWords reimplements english.WordSeries(words, "and").
 func joinWords(parts []string) string { // want "H012"
 	if len(parts) == 1 {
 		return parts[0]

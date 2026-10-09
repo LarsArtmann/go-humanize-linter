@@ -83,7 +83,7 @@ A rule that is registered in the registry but never fires on any test fixture. T
 | H008  | manual-ordinal           | Ordinal formatting (`switch n%10`, st/nd/rd/th cases)                | `humanize.Ordinal`                                 |
 | H009  | manual-commaf            | Float-with-comma formatting (`%.Nf` + manual separator grouping)     | `humanize.Commaf`                                  |
 | H010  | manual-comma-parse       | Comma-grouped number parsing (comma strip + strconv parse)           | `humanize.ParseComma`, `humanize.ParseCommaf`      |
-| H012  | manual-word-series       | Word-series joining (comma join + conjunction literal)               | `humanize.WordSeries`, `humanize.OxfordWordSeries` |
+| H012  | manual-word-series       | Word-series joining (comma join + conjunction literal)               | `english.WordSeries`, `english.OxfordWordSeries` |
 | H0SUP | suppression-verification | Stale or misspelled `//nolint:gohumanize` directives                 | Fix or remove the directive                        |
 
 ## Detection Architecture

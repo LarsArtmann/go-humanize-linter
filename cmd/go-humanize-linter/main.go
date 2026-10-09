@@ -403,8 +403,8 @@ var ruleExplanations = map[string]string{ //nolint:gochecknoglobals // CLI looku
 		"strconv.Atoi/ParseInt/ParseFloat. humanize.ParseComma / humanize.ParseCommaf " +
 		"(go-humanize v1.1.0+) strip thousands separators and parse in one call.",
 	humanizelint.RuleIDH012: "Manual word-series joining ('a, b, and c') via a prefix join of all " +
-		"but the last element plus a conjunction literal. humanize.WordSeries / " +
-		"humanize.OxfordWordSeries handle the 0/1/2-element edge cases.",
+		"but the last element plus a conjunction literal. english.WordSeries / " +
+		"english.OxfordWordSeries (go-humanize v1.0.1+) handle the 0/1/2-element edge cases.",
 }
 
 // printExplanation prints the rationale for a given rule ID and returns. Used

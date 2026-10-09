@@ -11,7 +11,8 @@ import (
 )
 
 // RuleWordSeries (H012) detects hand-rolled word-series joining
-// ("a, b, and c") that should use humanize.WordSeries / OxfordWordSeries.
+// ("a, b, and c") that should use english.WordSeries / english.OxfordWordSeries
+// (github.com/dustin/go-humanize/english, v1.0.1+).
 //
 // Triggers when a function contains a strings.Join with a comma separator
 // AND a conjunction string literal (" and ", ", and ", " or ", ", or ").
@@ -29,7 +30,7 @@ func RuleWordSeries() linter.RuleFunc {
 		Meta: linter.RuleMeta{
 			ID:          RuleIDH012,
 			Name:        "manual-word-series",
-			Description: "Manual word-series joining — use humanize.WordSeries / OxfordWordSeries instead of hand-rolled 'a, b, and c' assembly",
+			Description: "Manual word-series joining — use english.WordSeries / english.OxfordWordSeries instead of hand-rolled 'a, b, and c' assembly",
 			Cat:         linter.CategoryStyle,
 			Sev:         finding.SeverityWarning,
 			ToolName:    toolName,
@@ -75,10 +76,10 @@ func detectWordSeries(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fil
 		makeFindingWithConfidence(
 			RuleIDH012,
 			fmt.Sprintf(
-				"manual word-series joining (%s) — use humanize.WordSeries instead",
+				"manual word-series joining (%s) — use english.WordSeries instead",
 				form,
 			),
-			"Replace with humanize.WordSeries(words, \"and\") — or humanize.OxfordWordSeries "+
+			"Replace with english.WordSeries(words, \"and\") — or english.OxfordWordSeries "+
 				"for the Oxford comma — which handles 0/1/2-element edge cases.",
 			line, col, filePath, confidence,
 		),
