@@ -102,7 +102,11 @@ func main() {
 	}
 
 	if len(findings) != 1 {
-		t.Fatalf("expected exactly 1 suppression finding (the stale gohumanize directive), got %d: %+v", len(findings), findings)
+		t.Fatalf(
+			"expected exactly 1 suppression finding (the stale gohumanize directive), got %d: %+v",
+			len(findings),
+			findings,
+		)
 	}
 
 	if string(findings[0].Rule) != RuleIDH0SUP {
