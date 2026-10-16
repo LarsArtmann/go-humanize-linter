@@ -1,4 +1,4 @@
-package humanizelint //nolint:testpackage // white-box: tests unexported detection helpers
+package humanizelint
 
 import (
 	"go/ast"
@@ -57,7 +57,7 @@ func equalSlices(a, b []string) bool {
 // each suppresses H001 for func f(). Extracted from
 // TestFuncSuppressionsAssociation to keep the test function under funlen.
 //
-//nolint:gochecknoglobals // shared test table
+
 var funcSuppressionCases = []struct {
 	name string
 	src  string
@@ -689,7 +689,7 @@ func f(n int) string {
 // TestHasCommaOrSeparator. Extracted from the test function body so the test
 // stays under the funlen threshold while each fixture remains inline for
 // readability.
-func hasCommaOrSeparatorCases() []boolSrcCase { //nolint:funlen // test fixture table: many cases for completeness
+func hasCommaOrSeparatorCases() []boolSrcCase {
 	return []boolSrcCase{
 		{
 			name: "WriteString comma",

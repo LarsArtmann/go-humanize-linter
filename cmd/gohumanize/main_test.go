@@ -18,7 +18,6 @@ func TestSinglechecker_CleanCode(t *testing.T) {
 
 	binary := filepath.Join(t.TempDir(), "gohumanize")
 
-	//nolint:gosec // test build command
 	build := exec.CommandContext(context.Background(), "go", "build", "-o", binary, ".")
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("failed to build singlechecker: %v\n%s", err, out)
@@ -26,7 +25,6 @@ func TestSinglechecker_CleanCode(t *testing.T) {
 
 	cleanDir, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "clean"))
 
-	//nolint:gosec // test binary path is trusted
 	run := exec.CommandContext(context.Background(), binary, cleanDir)
 
 	out, err := run.CombinedOutput()
@@ -44,7 +42,6 @@ func TestSinglechecker_PositiveFinding(t *testing.T) {
 
 	binary := filepath.Join(t.TempDir(), "gohumanize")
 
-	//nolint:gosec // test build command
 	build := exec.CommandContext(context.Background(), "go", "build", "-o", binary, ".")
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("failed to build singlechecker: %v\n%s", err, out)
@@ -52,7 +49,6 @@ func TestSinglechecker_PositiveFinding(t *testing.T) {
 
 	kmgtpeDir, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	//nolint:gosec // test binary path is trusted
 	run := exec.CommandContext(context.Background(), binary, kmgtpeDir)
 
 	out, runErr := run.CombinedOutput()

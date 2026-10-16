@@ -1,7 +1,7 @@
 version: "2"
 run:
   timeout: 5m
-  go: 1.26.5
+  go: "1.27"
   build-tags:
     - goexperiment.arenas
     - goexperiment.goroutineleakprofile
@@ -69,6 +69,7 @@ linters:
     - intrange
     - iotamixing
     - ireturn
+    - lll
     - loggercheck
     - maintidx
     - makezero
@@ -149,9 +150,15 @@ linters:
       forbid-spec-pollution: true
     gocognit:
       min-complexity: 35
+    goconst:
+      ignore-tests: true
+      min-len: 4
+      min-occurrences: 5
     gocritic:
       disabled-checks:
         - ifElseChain
+    gocyclo:
+      min-complexity: 20
     gomoddirectives:
       replace-local: true
     gosec:
@@ -173,6 +180,8 @@ linters:
         - "1"
         - "2"
         - "100"
+    nestif:
+      min-complexity: 6
     revive:
       rules:
         - name: unused-parameter
@@ -199,6 +208,17 @@ linters:
           severity: warning
         - name: errorf
           severity: warning
+    tagalign:
+      align: false
+      order:
+        - binding
+        - json
+        - yaml
+        - xml
+        - toml
+        - validate
+        - mapstructure
+      sort: true
     testifylint:
       disable:
         - go-require
@@ -245,6 +265,17 @@ linters:
           - errcheck
           - goconst
           - wrapcheck
+          - exhaustruct_v5
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - forcetypeassert
+          - gosec
+          - ireturn
+          - recvcheck
+          - contextcheck
+          - exhaustive
       - path: _test\.go
         text: unused
         linters:

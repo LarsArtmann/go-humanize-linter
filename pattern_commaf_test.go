@@ -1,4 +1,4 @@
-package humanizelint //nolint:testpackage // white-box: tests unexported format-string helpers
+package humanizelint
 
 import (
 	"go/ast"

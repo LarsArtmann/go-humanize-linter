@@ -1,4 +1,4 @@
-package humanizelint //nolint:testpackage // white-box: tests IsGeneratedFile detector
+package humanizelint
 
 import (
 	"path/filepath"

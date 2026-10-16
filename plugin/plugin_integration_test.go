@@ -262,7 +262,6 @@ linters:
 		t.Fatalf("write .golangci.yml: %v", err)
 	}
 
-	//nolint:gosec // customGCL is built by this test into the project dir
 	runCmd := exec.CommandContext(
 		t.Context(),
 		customGCL,

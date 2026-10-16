@@ -20,9 +20,9 @@ import (
 
 // binaryOnce ensures the CLI is built only once across all tests.
 var (
-	binaryOnce sync.Once //nolint:gochecknoglobals // test-only build cache
-	binaryPath string    //nolint:gochecknoglobals // test-only build cache
-	errBinary  error     //nolint:gochecknoglobals // test-only build error
+	binaryOnce sync.Once
+	binaryPath string
+	errBinary  error
 )
 
 // buildCLI builds the CLI binary to a path in the project directory (Nix
@@ -33,7 +33,7 @@ func buildCLI(t *testing.T) string {
 	binaryOnce.Do(func() {
 		binaryPath = filepath.Join(os.Getenv("HOME"), ".cache", "go-humanize-linter-test")
 
-		cmd := exec.CommandContext( //nolint:gosec // test build command
+		cmd := exec.CommandContext(
 			context.Background(),
 			"go", "build", "-o", binaryPath, "./cmd/go-humanize-linter/",
 		)
@@ -57,7 +57,7 @@ func buildCLI(t *testing.T) string {
 		}
 
 		// Nix Go toolchain doesn't set execute permission on build output.
-		if err := os.Chmod(binaryPath, 0o755); err != nil { //nolint:gosec // executable binary needs 0o755
+		if err := os.Chmod(binaryPath, 0o755); err != nil {
 			errBinary = fmt.Errorf("failed to chmod binary: %w", err)
 		}
 	})
@@ -75,7 +75,7 @@ func TestCLI_RunOnCleanCode(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "clean"))
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, testdata,
 	)
 
@@ -97,7 +97,7 @@ func TestCLI_RunOnPositiveFinding(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", testdata,
 	)
 
@@ -116,7 +116,7 @@ func TestCLI_EnableFilter(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", "--enable", "H003", testdata,
 	)
 
@@ -404,7 +404,7 @@ func TestCLI_VersionFlag(t *testing.T) {
 
 	binary := buildCLI(t)
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--version",
 	)
 
@@ -436,7 +436,7 @@ func TestCLI_RulesFlag(t *testing.T) {
 
 	binary := buildCLI(t)
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--rules",
 	)
 
@@ -470,7 +470,7 @@ func TestCLI_ListFiles(t *testing.T) {
 	binary := buildCLI(t)
 	cleanDir, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "clean"))
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--list-files", cleanDir,
 	)
 
@@ -498,7 +498,7 @@ func TestCLI_ExplainFlag(t *testing.T) {
 
 	binary := buildCLI(t)
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--explain", "H001",
 	)
 
@@ -523,7 +523,7 @@ func TestCLI_ExplainFlagUnknownRule(t *testing.T) {
 
 	binary := buildCLI(t)
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--explain", "H999",
 	)
 
@@ -550,7 +550,7 @@ func TestCLI_SARIFOutput(t *testing.T) {
 	binary := buildCLI(t)
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", "--format", "sarif", testdata,
 	)
 
@@ -639,7 +639,7 @@ func TestCLI_OutputToFile(t *testing.T) {
 	testdata, _ := filepath.Abs(filepath.Join("..", "..", "testdata", "h001_bytes_kmgtptrick"))
 	outFile := filepath.Join(t.TempDir(), "results.txt")
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", "--output", outFile, testdata,
 	)
 
@@ -877,7 +877,7 @@ func main() {
 	}
 
 	// With the default (low) threshold the two unit strings produce a finding.
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", dir,
 	)
 
@@ -889,7 +889,7 @@ func main() {
 	}
 
 	// With --min-confidence high the medium-confidence finding is filtered out.
-	cmd = exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd = exec.CommandContext(
 		context.Background(), binary, "--quiet", "--min-confidence", "high", dir,
 	)
 
@@ -924,7 +924,7 @@ func main() {
 		t.Fatal(err)
 	}
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", "--verify-suppressions", dir,
 	)
 
@@ -969,7 +969,7 @@ func main() {
 		t.Fatal(err)
 	}
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", "--verify-suppressions", dir,
 	)
 
@@ -1025,7 +1025,7 @@ func main() {
 		t.Fatal(err)
 	}
 
-	cmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	cmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", "--verify-suppressions", dir,
 	)
 
@@ -1068,7 +1068,7 @@ func main() {
 
 	// Save the current findings as a baseline. The run exits 1 because H001
 	// fires, but the baseline file is written before exiting.
-	saveCmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	saveCmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", "--save-baseline", baselinePath, dir,
 	)
 
@@ -1080,7 +1080,7 @@ func main() {
 
 	// Re-running against the same code with --behavior-delta should report
 	// no delta and exit 0.
-	deltaCmd := exec.CommandContext( //nolint:gosec // test binary path is trusted
+	deltaCmd := exec.CommandContext(
 		context.Background(), binary, "--quiet", "--behavior-delta", baselinePath, dir,
 	)
 
@@ -1115,7 +1115,7 @@ func main() {
 	}
 
 	// The delta should now detect an added finding and exit 1.
-	deltaCmd = exec.CommandContext( //nolint:gosec // test binary path is trusted
+	deltaCmd = exec.CommandContext(
 		context.Background(), binary, "--quiet", "--behavior-delta", baselinePath, dir,
 	)
 

@@ -1,4 +1,4 @@
-package humanizelint //nolint:testpackage // white-box: tests unexported suppression helpers
+package humanizelint
 
 import (
 	"os"

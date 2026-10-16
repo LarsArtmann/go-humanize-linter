@@ -1,4 +1,4 @@
-package humanizelint //nolint:testpackage // white-box: tests collectWordSeriesEvidence
+package humanizelint
 
 import (
 	"go/ast"
