@@ -13,7 +13,7 @@ Thanks for your interest in contributing to go-humanize-linter!
 
 ### Prerequisites
 
-- **Go 1.26+**
+- **Go 1.27+**
 - **Nix** (recommended) — all build commands set the required env vars automatically
 
 ### Required Environment Variables
