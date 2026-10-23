@@ -117,12 +117,15 @@ func hasFixedFloatVerb(call *ast.CallExpr) bool {
 // parser-shaped negation (ast.UnaryExpr over ast.BasicLit, optionally
 // parenthesized) and, defensively, a leading minus inside the literal
 // value itself. ok is false for anything else (variables, strings, ...).
-func signedIntLiteral(expr ast.Expr) (digits string, negative bool, ok bool) {
+func signedIntLiteral(expr ast.Expr) (string, bool, bool) {
+	negative := false
+
 	for {
 		switch e := expr.(type) {
 		case *ast.ParenExpr:
 			expr = e.X
 		case *ast.UnaryExpr:
+			//nolint:exhaustive // only + and - are sign-relevant unary operators
 			switch e.Op {
 			case token.SUB:
 				negative = !negative
