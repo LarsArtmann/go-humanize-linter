@@ -852,6 +852,7 @@ func TestFilterReportByConfidence(t *testing.T) {
 	}
 }
 
+//nolint:gohumanize:H001
 func TestCLI_MinConfidence(t *testing.T) {
 	t.Parallel()
 
@@ -1041,6 +1042,7 @@ func main() {
 	}
 }
 
+//nolint:gohumanize:H001
 func TestCLI_BehaviorDelta(t *testing.T) {
 	t.Parallel()
 
