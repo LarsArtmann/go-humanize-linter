@@ -7,7 +7,7 @@
 #
 # Runtime configuration: see .golangci.custom.yml
 # Usage: golangci-lint custom && ./custom-gcl run -c .golangci.custom.yml ./...
-version: v2.12.2
+version: v2.15.0
 plugins:
   - module: github.com/larsartmann/go-humanize-linter
     import: github.com/larsartmann/go-humanize-linter/plugin
