@@ -213,6 +213,7 @@ func main() {
 // verdict must come from an unsuppressed re-detection instead — here the
 // fixture carries a real H001 pattern, the directive suppresses it in a
 // normal run, and verification must accept it.
+//
 //nolint:gohumanize
 func TestVerifySuppressions_UsedSuppression(t *testing.T) {
 	t.Parallel()
