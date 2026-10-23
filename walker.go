@@ -90,6 +90,14 @@ func WalkGoDir(dir string) ([]ParsedFile, error) {
 		}
 
 		if d.IsDir() {
+			// The root entry is exempt from skip rules: `skipDirName(".")`
+			// matches the caller-supplied root ".", which would abort the
+			// entire walk with zero files scanned (go-humanize-linter .).
+			// Whatever directory the caller explicitly names gets scanned.
+			if path == dir {
+				return nil
+			}
+
 			if skipDirName(d.Name()) {
 				return filepath.SkipDir
 			}

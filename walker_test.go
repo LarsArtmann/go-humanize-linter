@@ -49,6 +49,65 @@ func TestWalkGoDir_NonexistentDirectory(t *testing.T) {
 	}
 }
 
+// TestWalkGoDir_DotRootScansEverything verifies that passing "." (or "./") as
+// the scan root walks the whole tree. The hidden-directory skip rule matches
+// the root's own basename ".", which used to abort the walk immediately and
+// report 0 findings for the most common CLI invocation.
+func TestWalkGoDir_DotRootScansEverything(t *testing.T) {
+	root := t.TempDir()
+
+	const src = `package main
+
+func formatBytes(bytes int64) string { return "x" }
+`
+
+	for _, rel := range []string{"main.go", filepath.Join("sub", "kept.go")} {
+		path := filepath.Join(root, rel)
+		if mkdirErr := os.MkdirAll(filepath.Dir(path), 0o750); mkdirErr != nil {
+			t.Fatalf("mkdir for %s: %v", rel, mkdirErr)
+		}
+
+		if writeErr := os.WriteFile(path, []byte(src), 0o600); writeErr != nil {
+			t.Fatalf("write %s: %v", rel, writeErr)
+		}
+	}
+
+	if writeErr := os.WriteFile(filepath.Join(root, "sub", "skipped.go"), []byte(src), 0o600); writeErr != nil {
+		t.Fatalf("write sub/skipped.go: %v", writeErr)
+	}
+
+	if mkdirErr := os.MkdirAll(filepath.Join(root, ".hidden"), 0o750); mkdirErr != nil {
+		t.Fatalf("mkdir .hidden: %v", mkdirErr)
+	}
+
+	if writeErr := os.WriteFile(filepath.Join(root, ".hidden", "skipped.go"), []byte(src), 0o600); writeErr != nil {
+		t.Fatalf("write .hidden/skipped.go: %v", writeErr)
+	}
+
+	t.Chdir(root)
+
+	for _, dir := range []string{".", "./"} {
+		files, err := humanizelint.WalkGoDir(dir)
+		if err != nil {
+			t.Fatalf("WalkGoDir(%s): %v", dir, err)
+		}
+
+		got := make([]string, 0, len(files))
+		for _, pf := range files {
+			got = append(got, filepath.Clean(pf.Path))
+		}
+
+		sort.Strings(got)
+
+		want := []string{filepath.Join("sub", "kept.go"), "main.go"}
+		slices.Sort(want)
+
+		if !slices.Equal(got, want) {
+			t.Errorf("WalkGoDir(%s): expected %v, got %v", dir, want, got)
+		}
+	}
+}
+
 // TestWalkGoDir_SkipsHiddenBackupArchivedForks verifies the walker's skip
 // rules: hidden directories (leading "."), backup trees (trailing ".bak"),
 // and the archived/forks basenames are never descended into, so frozen or
