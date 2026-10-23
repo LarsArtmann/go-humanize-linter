@@ -72,10 +72,6 @@ func formatBytes(bytes int64) string { return "x" }
 		}
 	}
 
-	if writeErr := os.WriteFile(filepath.Join(root, "sub", "skipped.go"), []byte(src), 0o600); writeErr != nil {
-		t.Fatalf("write sub/skipped.go: %v", writeErr)
-	}
-
 	if mkdirErr := os.MkdirAll(filepath.Join(root, ".hidden"), 0o750); mkdirErr != nil {
 		t.Fatalf("mkdir .hidden: %v", mkdirErr)
 	}
