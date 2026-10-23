@@ -11,8 +11,7 @@
 
 | #   | Task                                                                                     | Tier     | Effort | Status                                                                                        | Evidence                                                 |
 | --- | ---------------------------------------------------------------------------------------- | -------- | ------ | --------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| T33 | Unblock main: resolve `go 1.27.1` vs CI `go-version: "1.26"` conflict (decide + fix)     | Critical | S      | **main CI RED since 2026-09-19**; local nix battery broken                                    | `go.mod:3`, `.github/workflows/ci.yml`, commit `b7f00c2` |
-| T34 | CI guard: fail loud when go.mod `go` directive leaves the allowed range (policy in code) | High     | XS     | open — bumper struck 4×; incident #4 was never reverted                                       | `ci.yml` (no guard step); AGENTS.md gotcha               |
+| T34 | CI guard: fail loud when go.mod `go` directive leaves the allowed range (policy in code) | High     | XS     | open — bumper struck 4×; incident #4 closed by adoption in v0.5.0, guard still missing | `ci.yml` (no guard step); AGENTS.md gotcha               |
 | T35 | `BenchmarkH012Detector` mirroring the H010 benchmark shape                               | Medium   | S      | open — H010 has one, H012 shipped without                                                     | `bench_test.go:37` (H010 precedent)                      |
 | T36 | Corpus re-sweep under gogenfilter v3.6.1 (detection table may have moved)                | High     | M      | open — pin landed 2026-09-19, not re-validated                                                | commit `9c76bd4`; sweep loop in docs/validation          |
 | T37 | `scripts/post-release-check.sh` — bounded proxy/go-get/pkg.go.dev checks                 | Medium   | M      | open — hand-polled every release so far                                                       | `docs/status/2026-09-19_12-08` NEXT#4                    |
@@ -28,7 +27,9 @@
   (KeyCountdown, Kernovia, CreditReformBilanzampel) stay unfixed as the
   demonstration corpus.
 - Go directive policy (2026-09-19): revert-on-sight for background bumps —
-  see T33: incident #4 (`b7f00c2`) violated it and is the live exception.
+  incident #4 (`b7f00c2`) violated it; closed 2026-10-23 by ADOPTING Go 1.27
+  and repinning ci.yml/release.yml/action.yml together (v0.5.0). The policy
+  stands for future bumps; the T34 CI guard is still open.
 - Baseline flags: upgrading to a release that adds rules (e.g. H010 in
   v0.3.0) adds findings — regenerate `--behavior-delta` baselines once after
   upgrading (documented in README).

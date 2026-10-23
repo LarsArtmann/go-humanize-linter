@@ -3,10 +3,10 @@
 > Honest feature inventory by status. Verified against code on 2026-09-26
 > (docs-health AUDIT pass; covers the v0.4.0 rule set).
 >
-> Known incident (not a feature gap): `main` CI is red since 2026-09-19 and
-> the local nix battery fails because go.mod sits at `go 1.27.1` while CI
-> pins `go-version: "1.26"` — decision tracked as TODO_LIST T33. Every
-> FULLY_FUNCTIONAL claim below was green as of v0.4.0 (tag `6a3267f`).
+> Known incident (resolved 2026-10-23 in v0.5.0): bumper sweeps left go.mod
+> at `go 1.27` while CI pinned `go-version: "1.26"`, keeping main CI red
+> 2026-09-19 → 2026-10-23 (T33); resolved by adopting Go 1.27 everywhere.
+> Every FULLY_FUNCTIONAL claim below was green as of v0.4.0 (tag `6a3267f`).
 
 ## Status legend
 
