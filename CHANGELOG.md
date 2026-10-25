@@ -17,7 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Nothing yet.
+- H004 no longer flags functions whose bodies already delegate to
+  `english.Plural` or `english.PluralWord`. The signature-only heuristic
+  (parameters named `singular`/`plural`) previously reported legitimate
+  wrappers — zero-suppression or int64-to-uint64 boundary helpers — as
+  manual pluralization.
 
 ## [0.5.0] - 2026-10-23
 
