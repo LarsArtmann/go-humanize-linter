@@ -243,6 +243,15 @@ func TestRulePlural_IfOne(t *testing.T) {
 	assertFindings(t, humanizelint.RulePlural(), "h004_plural_if", 1, "")
 }
 
+func TestRulePlural_DelegatingWrapperNotFlagged(t *testing.T) {
+	t.Parallel()
+
+	// Wrappers whose bodies already call english.Plural / english.PluralWord
+	// (zero-suppression, int64-to-uint64 boundary) delegate instead of
+	// reimplementing: the signature shape alone must not fire.
+	assertFindings(t, humanizelint.RulePlural(), "h004_plural_wrapper", 0, "on a delegating wrapper")
+}
+
 func TestRulePlural_Negative(t *testing.T) {
 	t.Parallel()
 
