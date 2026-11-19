@@ -3,6 +3,7 @@ package humanizelint_test
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -619,6 +620,71 @@ func TestDefaultRegistry_AllRules(t *testing.T) {
 	r := humanizelint.DefaultRegistry()
 	if len(r.All()) != 11 {
 		t.Fatalf("expected 11 rules, got %d", len(r.All()))
+	}
+}
+
+// TestDefaultRegistry_CoverageEvidence pins the TODO #29 fleet adoption: the
+// registry's rules must carry real filesScanned evidence (via
+// linter.CoverageReporter), not a meaningless zero — a fleet dashboard cannot
+// tell "clean tree" from "scanned nothing" otherwise. Per-rule Coverage is
+// the honest walked count; the report summary ACCUMULATES per-rule counts
+// (go-finding's AddDetectResult contract: N rules × F files = N·F).
+func TestDefaultRegistry_CoverageEvidence(t *testing.T) {
+	t.Parallel()
+
+	dir := testdataDir(t, "clean")
+
+	walked := 0
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !d.IsDir() && filepath.Ext(path) == ".go" && !strings.HasSuffix(path, "_test.go") {
+			walked++
+		}
+
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if walked == 0 {
+		t.Fatalf("fixture %s has no walkable Go files — test is vacuous", dir)
+	}
+
+	r := humanizelint.DefaultRegistry()
+
+	report, err := r.Run(context.Background(), dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if report.Summary.FilesScanned == 0 {
+		t.Fatal("expected non-zero filesScanned — the coverage wrapper is not reporting evidence")
+	}
+
+	for _, rule := range r.All() {
+		cov, ok := rule.(linter.CoverageReporter)
+		if !ok {
+			t.Errorf("rule %s does not implement CoverageReporter", rule.ID())
+
+			continue
+		}
+
+		scanned, skipped := cov.Coverage(context.Background(), ".")
+		if skipped != nil {
+			t.Errorf("rule %s reported skipped modules %v; the walker descends everywhere", rule.ID(), skipped)
+		}
+
+		if scanned != walked {
+			t.Errorf("rule %s Coverage()=%d, want %d (the honest walk count)", rule.ID(), scanned, walked)
+		}
+	}
+
+	if want := len(r.All()) * walked; report.Summary.FilesScanned != want {
+		t.Errorf("summary filesScanned=%d, want %d (N rules × F files accumulation)", report.Summary.FilesScanned, want)
 	}
 }
 
