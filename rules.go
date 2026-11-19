@@ -1,6 +1,7 @@
 package humanizelint
 
 import (
+	"context"
 	"go/ast"
 	"go/token"
 	"sync"
@@ -38,13 +39,43 @@ const RuleIDH0SUP = "H0SUP"
 // toolName is the finding tool name for all humanize-lint findings.
 const toolName finding.ToolName = "go-humanize-linter"
 
+// coverageRule wraps a walker-based RuleFunc so the parsed-file count of its
+// most recent scan flows into the report as filesScanned evidence
+// (linter.CoverageReporter). DefaultRegistry installs the wrapper around
+// every rule; the count itself is recorded by checkFuncDecls through a
+// per-Check context sink, so concurrent registry runs never share state.
+// Note: AllRules() keeps returning plain RuleFunc values (public API —
+// BuildFlow reads rule.Meta.ID off them), so cherry-pickers that build their
+// own registry from AllRules get coverage-silent rules by construction.
+type coverageRule struct {
+	linter.RuleFunc
+
+	scanned int
+}
+
+// Coverage implements linter.CoverageReporter with the count recorded by the
+// most recent Check. Files the walker failed to read or parse are not counted
+// — WalkGoDir skips them silently, and evidence must be honest.
+func (r *coverageRule) Coverage(_ context.Context, _ string) (int, []string) {
+	return r.scanned, nil
+}
+
+// Check runs the wrapped rule with a scan sink in the context so the walker
+// records exactly how many files THIS rule's scan parsed.
+func (r *coverageRule) Check(ctx context.Context, dir string) ([]finding.Finding, error) {
+	return r.RuleFunc.Check(contextWithScanSink(ctx, &r.scanned), dir)
+}
+
 // DefaultRegistry returns a Registry pre-loaded with all humanize-lint rules,
-// all enabled by default.
+// all enabled by default. Every rule is wrapped for coverage reporting: the
+// registry's reports carry real filesScanned evidence instead of a
+// meaningless zero (fleet dashboards cannot otherwise tell "clean tree"
+// from "scanned nothing").
 func DefaultRegistry() *linter.Registry {
 	registry := linter.NewRegistry()
 
 	for _, rule := range AllRules() {
-		registry.Register(rule)
+		registry.Register(&coverageRule{RuleFunc: rule})
 	}
 
 	return registry

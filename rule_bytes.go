@@ -33,8 +33,8 @@ func RuleBytes() linter.RuleFunc {
 			Sev:         finding.SeverityError,
 			ToolName:    toolName,
 		},
-		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, RuleIDH001, detectBytesFormat)
+		Run: func(ctx context.Context, dir string) ([]finding.Finding, error) {
+			return checkFuncDecls(ctx, dir, RuleIDH001, detectBytesFormat)
 		},
 	}
 }

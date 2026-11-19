@@ -29,8 +29,8 @@ func RuleSI() linter.RuleFunc {
 			Sev:         finding.SeverityError,
 			ToolName:    toolName,
 		},
-		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, RuleIDH005, detectSIFormat)
+		Run: func(ctx context.Context, dir string) ([]finding.Finding, error) {
+			return checkFuncDecls(ctx, dir, RuleIDH005, detectSIFormat)
 		},
 	}
 }

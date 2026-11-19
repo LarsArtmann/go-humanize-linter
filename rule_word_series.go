@@ -35,8 +35,8 @@ func RuleWordSeries() linter.RuleFunc {
 			Sev:         finding.SeverityError,
 			ToolName:    toolName,
 		},
-		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			funcFindings, err := checkFuncDecls(dir, RuleIDH012, detectWordSeries)
+		Run: func(ctx context.Context, dir string) ([]finding.Finding, error) {
+			funcFindings, err := checkFuncDecls(ctx, dir, RuleIDH012, detectWordSeries)
 			if err != nil {
 				return nil, err
 			}

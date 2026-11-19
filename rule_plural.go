@@ -32,8 +32,8 @@ func RulePlural() linter.RuleFunc {
 			Sev:         finding.SeverityError,
 			ToolName:    toolName,
 		},
-		Run: func(_ context.Context, dir string) ([]finding.Finding, error) {
-			return checkFuncDecls(dir, RuleIDH004, detectPlural)
+		Run: func(ctx context.Context, dir string) ([]finding.Finding, error) {
+			return checkFuncDecls(ctx, dir, RuleIDH004, detectPlural)
 		},
 	}
 }

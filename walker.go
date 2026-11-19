@@ -1,6 +1,7 @@
 package humanizelint
 
 import (
+	"context"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -150,11 +151,17 @@ type detectorFunc func(fset *token.FileSet, file *ast.File, fn *ast.FuncDecl, fi
 // directive like //nolint:gohumanize:H002 suppresses only H002, not every
 // rule. On walk failure it returns a *WalkError wrapping the underlying fs
 // error so callers can read Dir via errors.AsType[*WalkError].
-func checkFuncDecls(dir, ruleID string, detect detectorFunc) ([]finding.Finding, error) {
+//
+// When ctx carries a scan sink (see contextWithScanSink — installed by
+// DefaultRegistry's coverageRule wrapper), the parsed-file count is recorded
+// into it, so the report carries real filesScanned evidence.
+func checkFuncDecls(ctx context.Context, dir, ruleID string, detect detectorFunc) ([]finding.Finding, error) {
 	files, err := WalkGoDir(dir)
 	if err != nil {
 		return nil, &WalkError{Dir: dir, Err: err}
 	}
+
+	recordScanCount(ctx, len(files))
 
 	var all []finding.Finding
 
@@ -174,6 +181,27 @@ func checkFuncDecls(dir, ruleID string, detect detectorFunc) ([]finding.Finding,
 	}
 
 	return all, nil
+}
+
+// scanSinkKey is the context key for the parsed-file count sink installed by
+// coverageRule.Check. Unexported: only this package's coverage wrapper and
+// walker interact with it.
+type scanSinkKey struct{}
+
+// contextWithScanSink returns ctx carrying a sink that recordScanCount writes
+// the most recent walk's parsed-file count into. The sink is per-Check state,
+// so concurrent registry runs never share it.
+func contextWithScanSink(ctx context.Context, sink *int) context.Context {
+	return context.WithValue(ctx, scanSinkKey{}, sink)
+}
+
+// recordScanCount writes scanned into the sink carried by ctx, if any.
+// A ctx without a sink (direct rule use, the golangci plugin path) is a
+// no-op — coverage evidence is optional, never load-bearing.
+func recordScanCount(ctx context.Context, scanned int) {
+	if sink, ok := ctx.Value(scanSinkKey{}).(*int); ok && sink != nil {
+		*sink = scanned
+	}
 }
 
 // posOf extracts the line and column from an AST position within fset.
