@@ -31,12 +31,8 @@ github.com/larsartmann/go-error-family v0.12.0 h1:HEtocvwaPe9udDusqDqV0pxN9Wx98K
 github.com/larsartmann/go-error-family v0.12.0/go.mod h1:gB43rKC69SoPilihuze43OFqKYMGQxDNUi/25PF9MgE=
 github.com/larsartmann/go-finding v1.15.1 h1:oL3EixoLh7rnmTNgnoJaoZVgKtRwmAJdknDZEomw31g=
 github.com/larsartmann/go-finding v1.15.1/go.mod h1:upXEXF6XGxDydeqkuk7f8wiYsqIG2E84R+t+WnpX8Fw=
-github.com/larsartmann/go-linter-sdk v0.4.1 h1:uI4j3Ao7aKmEr+qV1LLeQBGyQa7afpt2ztMSXN15KUM=
-github.com/larsartmann/go-linter-sdk v0.4.1/go.mod h1:O/W7NtP+sPegNiW9G6a4vmi8WNd5t+GxRkCHETmShHQ=
-github.com/larsartmann/go-linter-sdk v0.5.0 h1:m5csRUMrLMBgZdUTDjmigFWmLjF/VtlJYbbYg1iv4pw=
-github.com/larsartmann/go-linter-sdk v0.5.0/go.mod h1:mx6ItzGg/wej48PXEblnwibl7veB/NZTS/DETvM4T1M=
-github.com/larsartmann/go-linter-sdk v0.6.0 h1:akMO9blvfO/KSMOMq8HP4wbW4x5JUTl6NaGVljai7+I=
-github.com/larsartmann/go-linter-sdk v0.6.0/go.mod h1:mx6ItzGg/wej48PXEblnwibl7veB/NZTS/DETvM4T1M=
+github.com/larsartmann/go-linter-sdk v0.6.1 h1:+GDwX6ii1vEYLLJJX3XJWWbPxBGGXnDxtLBCWI8QA+k=
+github.com/larsartmann/go-linter-sdk v0.6.1/go.mod h1:mx6ItzGg/wej48PXEblnwibl7veB/NZTS/DETvM4T1M=
 github.com/onsi/ginkgo/v2 v2.33.1 h1:62XfWJbEIjPSCSDYrsCPP/SHcmH7O0M8ne8zfqQ2iz4=
 github.com/onsi/ginkgo/v2 v2.33.1/go.mod h1:+aXOY+vzZ5mu2iI2HpTZUPmM//oQfsNFX6gU9kNcA44=
 github.com/onsi/gomega v1.44.0 h1:eAiGl3Pw5jz5GQdDff0BcxYpAX1JxW8xD7mFUuwNfZQ=
