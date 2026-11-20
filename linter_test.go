@@ -635,6 +635,7 @@ func TestDefaultRegistry_CoverageEvidence(t *testing.T) {
 	dir := testdataDir(t, "clean")
 
 	walked := 0
+
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
