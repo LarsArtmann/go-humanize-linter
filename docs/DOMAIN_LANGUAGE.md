@@ -101,7 +101,7 @@ A rule that is registered in the registry but never fires on any test fixture. T
 
 ### Generated-File Detection
 
-`IsGeneratedFile` is the single source of truth for skipping generated files. Uses `gogenfilter` two-phase detection (filename-only + content) with a legacy suffix fallback (`_gen.go`, `.gen.go`, `_templ.go`) for generators gogenfilter doesn't enumerate.
+`IsGeneratedFile` is the single source of truth for skipping generated files. Uses `gogenfilter` two-phase detection (filename-only + content) with a legacy suffix fallback (_gen.go, .gen.go, _templ.go) for generators gogenfilter doesn't enumerate.
 
 ### Baseline
 
