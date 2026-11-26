@@ -5,9 +5,9 @@ go 1.27
 require (
 	github.com/LarsArtmann/gogenfilter/v3 v3.7.0
 	github.com/golangci/plugin-module-register v0.1.2
-	github.com/larsartmann/go-finding v1.15.1
+	github.com/larsartmann/go-finding v1.16.0
 	github.com/larsartmann/go-linter-sdk v0.6.1
-	golang.org/x/tools v0.52.0
+	golang.org/x/tools v0.53.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -20,7 +20,7 @@ require (
 	github.com/larsartmann/go-error-family v0.12.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/mod v0.42.0 // indirect
-	golang.org/x/sync v0.24.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/mod v0.43.0 // indirect
+	golang.org/x/sync v0.25.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 )
